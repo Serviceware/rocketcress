@@ -1,0 +1,36 @@
+﻿{
+  "Timeout": "00:00:15",
+  "LoginUrl": null,
+  "Username": null,
+  "Password": null,
+  "Language": "English",
+  "Resolution": "1280, 768",
+  "DefaultBrowser": "Firefox",
+  "DefaultBrowserLanguage": "en-US",
+  "RemoteDriverUrl": null,
+  "OtherSettings": {
+    /* WARNING: Remove the comments in the final files!!!
+     *
+     * //Example 1 (value is value type):
+     * "[str] Custom": "2016-11-23 19:15"
+     * 
+     * //Example 2 (value is class type):
+     * "[<myTag>] Custom": {
+     *   "Property": "Hallo"
+     * }
+     */
+  },
+  "KeyClasses": {
+    "TL_": "Translation"
+  },
+  "SettingsTypes": [
+    {
+      "TagName": "str",
+      "TypeName": "string"
+    },
+    {
+      "TagName": "int",
+      "TypeName": "int"
+    }
+  ]
+}

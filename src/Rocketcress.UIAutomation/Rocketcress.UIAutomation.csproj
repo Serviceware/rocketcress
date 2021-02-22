@@ -1,0 +1,56 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net5.0-windows;net48</TargetFrameworks>
+    <LangVersion>latest</LangVersion>
+    
+    <OutputPath>..\..\bin\$(Configuration)</OutputPath>
+    <DocumentationFile>$(OutputPath)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
+    <SupportedOSPlatform>windows</SupportedOSPlatform>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>Rocketcress.snk</AssemblyOriginatorKeyFile>
+
+    <Authors>helpLine GmbH</Authors>
+    <Company>Serviceware SE</Company>
+    <Product>Rocketcress</Product>
+    <Description>You can reference this library if you want to write tests using the UIAutomation framework</Description>
+    <PackageProjectUrl>https://github.com/Serviceware/rocketcress</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Serviceware/rocketcress</RepositoryUrl>
+    <RepositoryType>Git</RepositoryType>
+    <PackageTags>Rocketcress;Test;Tests;UIA;UIAutomation;UITest;UITest;UI</PackageTags>
+    
+    <Configurations>Debug;Release;Debug-Slim;Release-Slim</Configurations>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(TargetFramework)' != 'net48' ">
+    <UseWindowsForms>true</UseWindowsForms>
+    <UseWpf>true</UseWpf>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <NoWarn>$(NoWarn);1591</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MSTest.TestFramework" Version="2.1.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net48' ">
+    <PackageReference Include="UIAComWrapper" Version="1.1.0.14" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="WindowsBase" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Rocketcress.Core.Windows\Rocketcress.Core.Windows.csproj" />
+    <ProjectReference Include="..\Rocketcress.Core\Rocketcress.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Rocketcress.UIAutomation.targets" Pack="true" PackagePath="build;buildCrossTargeting">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,71 @@
+trigger:
+  branches:
+    include:
+    - '*'
+  paths:
+    include:
+    - src/*
+    - build/*
+
+pool:
+  vmImage: 'windows-2019'
+
+variables:
+  MajorVersion: "1.0."
+  MinorVersionFormat: "000"
+  ${{ if eq(variables['Build.SourceBranch'], 'refs/heads/main') }}:
+    RealMajorVersion: $[variables['MajorVersion']]
+  ${{ if ne(variables['Build.SourceBranch'], 'refs/heads/main') }}:
+    RealMajorVersion: $[format('{0}0-{1}', variables['MajorVersion'], variables['Build.SourceBranchName'])]
+  MinorVersion: $[counter(variables.RealMajorVersion, 0)]
+
+steps:
+- powershell: |
+    Write-Output "Got MajorVersion `"$env:MAJORVERSION`", RealMajorVersion `"$env:REALMAJORVERSION`" and MinorVersionFormat `"$env:MINORVERSIONFORMAT`""
+    $version = $env:REALMAJORVERSION + ([int]$env:MINORVERSION).ToString($env:MINORVERSIONFORMAT)
+    Write-Output "##vso[task.setvariable variable=Version]$version"
+    Write-Output "The following version number is used for the NuGet packages: $version"
+  displayName: "\U0001F440 Lookup correct version to use"
+
+- task: NuGetCommand@2
+  displayName: "\U0001F4E6 Restore NuGet packages"
+  inputs:
+    command: 'restore'
+    restoreSolution: 'Rocketcress.sln'
+    feedsToUse: 'config'
+    nugetConfigPath: 'NuGet.config'
+    verbosityRestore: 'Normal'
+
+- task: DotNetCoreCLI@2
+  displayName: "\U0001F6E0 Build Rocketcress and create NuGet packages"
+  inputs:
+    command: 'pack'
+    packagesToPack: 'src/**/*.csproj'
+    configuration: 'Release'
+    includesymbols: true
+    versioningScheme: 'off'
+    buildProperties: 'TreatWarningsAsErrors=true;Version=$(Version)'
+    verbosityPack: 'Minimal'
+
+- task: DotNetCoreCLI@2
+  displayName: "\U0001F6E0 Build Rocketcress.Core.Slim and create NuGet package"
+  inputs:
+    command: 'pack'
+    packagesToPack: 'src/Rocketcress.Core/Rocketcress.Core.csproj'
+    configuration: 'Release-Slim'
+    includesymbols: true
+    versioningScheme: 'off'
+    buildProperties: 'TreatWarningsAsErrors=true;Version=$(Version)'
+    verbosityPack: 'Minimal'
+
+- task: PublishBuildArtifacts@1
+  displayName: "\U0001F680 Publish Artifacts"
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'drop'
+    publishLocation: 'Container'
+
+- script: dotnet nuget push --api-key $(NuGetApiKey) --skip-duplicate --source https://api.nuget.org/v3/index.json *.nupkg
+  displayName: "\U0001F680 Publish packages to nuget.org"
+  workingDirectory: $(Build.ArtifactStagingDirectory)
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))

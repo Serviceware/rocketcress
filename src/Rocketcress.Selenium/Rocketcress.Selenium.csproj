@@ -1,0 +1,56 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net5.0;net48</TargetFrameworks>
+    <LangVersion>latest</LangVersion>
+    <NoWarn>$(NoWarn);NU5104</NoWarn>
+
+    <OutputPath>..\..\bin\$(Configuration)</OutputPath>
+    <DocumentationFile>$(OutputPath)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>Rocketcress.snk</AssemblyOriginatorKeyFile>
+
+    <Authors>helpLine GmbH</Authors>
+    <Company>Serviceware SE</Company>
+    <Product>Rocketcress</Product>
+    <Description>You can reference this library if you want to write tests using the Selenium framework</Description>
+    <PackageProjectUrl>https://github.com/Serviceware/rocketcress</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Serviceware/rocketcress</RepositoryUrl>
+    <RepositoryType>Git</RepositoryType>
+    <PackageTags>Rocketcress;Test;Tests;Selenium;UITest;UITest;UI</PackageTags>
+    <IncludeContentInPack>true</IncludeContentInPack>
+
+    <Configurations>Debug;Release;Debug-Slim;Release-Slim</Configurations>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net48' ">
+    <DefineConstants>$(DefineConstants);NETFX</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <!-- Assembly WebDriver has not strong name! -->
+    <NoWarn>$(NoWarn);8002</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
+    <PackageReference Include="MSTest.TestFramework" Version="2.1.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="Selenium.Support" Version="4.0.0-alpha07" />
+    <PackageReference Include="Selenium.WebDriver" Version="4.0.0-alpha07" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Rocketcress.Core\Rocketcress.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net48' ">
+    <Reference Include="System.IO.Compression" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Rocketcress.Selenium.targets" Pack="true" PackagePath="build;buildCrossTargeting">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,33 @@
+﻿{
+  "Timeout": "00:00:15",
+  "ServerName": null,
+  "Username": null,
+  "Password": null,
+  "Language": "English",
+  "OtherSettings": {
+    /* WARNING: Remove the comments in the final files!!!
+      *
+      * //Example 1 (value is value type):
+      * "Custom": "2016-11-23 19:15"
+      * 
+      * //Example 2 (value is class type):
+      * "Custom": {
+      *   "$type": "<Class full name>, <Assembly Name>",
+      *   "Property": "Hallo"
+      * }
+      */
+  },
+  "KeyClasses": {
+    "TL_": "Translation"
+  },
+  "SettingsTypes": [
+    {
+      "TagName": "str",
+      "TypeName": "string"
+    },
+    {
+      "TagName": "int",
+      "TypeName": "int"
+    }
+  ]
+}

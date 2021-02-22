@@ -1,0 +1,41 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+
+    <OutputPath>..\..\bin\$(Configuration)</OutputPath>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>Rocketcress.snk</AssemblyOriginatorKeyFile>
+
+    <Authors>helpLine GmbH</Authors>
+    <Company>Serviceware SE</Company>
+    <Product>Rocketcress</Product>
+    <Description>This library contains C# 9 Source Generators that can be used by test projects</Description>
+    <PackageProjectUrl>https://github.com/Serviceware/rocketcress</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Serviceware/rocketcress</RepositoryUrl>
+    <RepositoryType>Git</RepositoryType>
+    <PackageTags>Rocketcress;Test;Tests;Generator;Generators;SourceGenerator;SourceGenerators</PackageTags>
+
+    <IsPackable>True</IsPackable>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+    <IncludeBuildOutput>False</IncludeBuildOutput>
+    <NoPackageAnalysis>True</NoPackageAnalysis>
+
+    <Configurations>Debug;Release;Debug-Slim;Release-Slim</Configurations>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.8.0" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.1" PrivateAssets="all" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="$(OutputPath)\Newtonsoft.Json.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+    <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+    <None Include="Rocketcress.SourceGenerators.targets" Pack="true" PackagePath="build" />
+  </ItemGroup>
+
+</Project>
