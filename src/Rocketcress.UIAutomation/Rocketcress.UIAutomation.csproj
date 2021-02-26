@@ -1,25 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="../../build/Rocketcress.props" />
 
   <PropertyGroup>
     <TargetFrameworks>net5.0-windows;net48</TargetFrameworks>
-    <LangVersion>latest</LangVersion>
     
     <OutputPath>..\..\bin\$(Configuration)</OutputPath>
     <DocumentationFile>$(OutputPath)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
     <SupportedOSPlatform>windows</SupportedOSPlatform>
-    <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>Rocketcress.snk</AssemblyOriginatorKeyFile>
 
-    <Authors>helpLine GmbH</Authors>
-    <Company>Serviceware SE</Company>
-    <Product>Rocketcress</Product>
-    <Description>You can reference this library if you want to write tests using the UIAutomation framework</Description>
-    <PackageProjectUrl>https://github.com/Serviceware/rocketcress</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/Serviceware/rocketcress</RepositoryUrl>
-    <RepositoryType>Git</RepositoryType>
+    <Description>You can reference this library if you want to write tests using the UIAutomation framework.</Description>
     <PackageTags>Rocketcress;Test;Tests;UIA;UIAutomation;UITest;UITest;UI</PackageTags>
-    
-    <Configurations>Debug;Release;Debug-Slim;Release-Slim</Configurations>
+    <Version>1.0.7</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' != 'net48' ">

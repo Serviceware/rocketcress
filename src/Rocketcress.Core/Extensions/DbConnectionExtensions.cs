@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Data;
 using System.Data.Common;
-using System.Data.SqlClient;
 
 namespace Rocketcress.Core.Extensions
 {
@@ -17,7 +16,8 @@ namespace Rocketcress.Core.Extensions
         /// <param name="query">The command text to set to the command.</param>
         /// <param name="params">The parameters for the command.</param>
         /// <returns>Returns a new DbCommand object.</returns>
-        public static SqlCommand CreateCommand(this SqlConnection connection, string query, params (string name, object value)[] @params) => connection.CreateCommand(query, null, @params);
+        public static IDbCommand CreateCommand(this IDbConnection connection, string query, params (string name, object value)[] @params)
+            => CreateCommand(connection, query, null, @params);
 
         /// <summary>
         /// Creates a new DbCommand.
@@ -25,7 +25,18 @@ namespace Rocketcress.Core.Extensions
         /// <param name="connection">The connection to create the command on.</param>
         /// <param name="query">The command text to set to the command.</param>
         /// <returns>Returns a new DbCommand object.</returns>
-        public static DbCommand CreateCommand(this DbConnection connection, string query) => connection.CreateCommand(query, null);
+        public static IDbCommand CreateCommand(this IDbConnection connection, string query)
+            => CreateCommand(connection, query, null, null);
+
+        /// <summary>
+        /// Creates a new DbCommand.
+        /// </summary>
+        /// <param name="connection">The connection to create the command on.</param>
+        /// <param name="query">The command text to set to the command.</param>
+        /// <param name="timeout">The timeout for the command.</param>
+        /// <returns>Returns a new DbCommand object.</returns>
+        public static IDbCommand CreateCommand(this IDbConnection connection, string query, int? timeout)
+            => CreateCommand(connection, query, timeout, null);
 
         /// <summary>
         /// Creates a new DbCommand.
@@ -35,29 +46,16 @@ namespace Rocketcress.Core.Extensions
         /// <param name="timeout">The timeout for the command.</param>
         /// <param name="params">The parameters for the command.</param>
         /// <returns>Returns a new DbCommand object.</returns>
-        public static SqlCommand CreateCommand(this SqlConnection connection, string query, int? timeout, params (string name, object value)[] @params)
+        public static IDbCommand CreateCommand(this IDbConnection connection, string query, int? timeout, params (string name, object value)[] @params)
         {
-            connection.OpenIfNecessary();
-            var command = new SqlCommand(query, connection);
-            foreach (var param in @params)
-                command.Parameters.AddWithValue(param.name, param.value);
-            if (timeout.HasValue)
-                command.CommandTimeout = timeout.Value;
-            return command;
-        }
-
-        /// <summary>
-        /// Creates a new DbCommand.
-        /// </summary>
-        /// <param name="connection">The connection to create the command on.</param>
-        /// <param name="query">The command text to set to the command.</param>
-        /// <param name="timeout">The timeout for the command.</param>
-        /// <returns>Returns a new DbCommand object.</returns>
-        public static DbCommand CreateCommand(this DbConnection connection, string query, int? timeout)
-        {
-            connection.OpenIfNecessary();
+            OpenIfNecessary(connection);
             var command = connection.CreateCommand();
             command.CommandText = query;
+            if (@params != null)
+            {
+                foreach (var (name, value) in @params)
+                    command.AddParameterWithValue(name, value);
+            }
             if (timeout.HasValue)
                 command.CommandTimeout = timeout.Value;
             return command;
@@ -70,7 +68,8 @@ namespace Rocketcress.Core.Extensions
         /// <param name="query">The query to execute</param>
         /// <param name="params">The parameters for the command.</param>
         /// <returns>Returns the first column of the first row of the result. If no rows are available, null is returned.</returns>
-        public static object ExecuteScalar(this SqlConnection connection, string query, params (string name, object value)[] @params) => connection.ExecuteScalar(query, null, @params);
+        public static object ExecuteScalar(this IDbConnection connection, string query, params (string name, object value)[] @params)
+            => ExecuteScalar(connection, query, null, @params);
 
         /// <summary>
         /// Executes a query and returns a scalar value.
@@ -78,7 +77,18 @@ namespace Rocketcress.Core.Extensions
         /// <param name="connection">The database connection.</param>
         /// <param name="query">The query to execute</param>
         /// <returns>Returns the first column of the first row of the result. If no rows are available, null is returned.</returns>
-        public static object ExecuteScalar(this DbConnection connection, string query) => connection.ExecuteScalar(query, null);
+        public static object ExecuteScalar(this IDbConnection connection, string query)
+            => ExecuteScalar(connection, query, null, null);
+
+        /// <summary>
+        /// Executes a query and returns a scalar value.
+        /// </summary>
+        /// <param name="connection">The database connection.</param>
+        /// <param name="query">The query to execute</param>
+        /// <param name="timeout">The timeout for the command.</param>
+        /// <returns>Returns the first column of the first row of the result. If no rows are available, null is returned.</returns>
+        public static object ExecuteScalar(this IDbConnection connection, string query, int? timeout)
+            => ExecuteScalar(connection, query, timeout, null);
 
         /// <summary>
         /// Executes a query and returns a scalar value.
@@ -88,33 +98,21 @@ namespace Rocketcress.Core.Extensions
         /// <param name="timeout">The timeout for the command.</param>
         /// <param name="params">The parameters for the command.</param>
         /// <returns>Returns the first column of the first row of the result. If no rows are available, null is returned.</returns>
-        public static object ExecuteScalar(this SqlConnection connection, string query, int? timeout, params (string name, object value)[] @params)
+        public static object ExecuteScalar(this IDbConnection connection, string query, int? timeout, params (string name, object value)[] @params)
         {
-            using (var cmd = CreateCommand(connection, query, timeout, @params))
-                return cmd.ExecuteScalar();
+            using var cmd = CreateCommand(connection, query, timeout, @params);
+            return cmd.ExecuteScalar();
         }
 
         /// <summary>
-        /// Executes a query and returns a scalar value.
-        /// </summary>
-        /// <param name="connection">The database connection.</param>
-        /// <param name="query">The query to execute</param>
-        /// <param name="timeout">The timeout for the command.</param>
-        /// <returns>Returns the first column of the first row of the result. If no rows are available, null is returned.</returns>
-        public static object ExecuteScalar(this DbConnection connection, string query, int? timeout)
-        {
-            using (var cmd = CreateCommand(connection, query, timeout))
-                return cmd.ExecuteScalar();
-        }
-
-        /// <summary>
         /// Executes a query and returns a DbDataReader.
         /// </summary>
         /// <param name="connection">The database connection.</param>
         /// <param name="query">The query to execute</param>
         /// <param name="params">The parameters for the command.</param>
         /// <returns>Returns the data as a DbDataReader.</returns>
-        public static IDataReader ExecuteReader(this SqlConnection connection, string query, params (string name, object value)[] @params) => connection.ExecuteReader(query, null, @params);
+        public static IDataReader ExecuteReader(this IDbConnection connection, string query, params (string name, object value)[] @params)
+            => ExecuteReader(connection, query, null, @params);
 
         /// <summary>
         /// Executes a query and returns a DbDataReader.
@@ -122,7 +120,8 @@ namespace Rocketcress.Core.Extensions
         /// <param name="connection">The database connection.</param>
         /// <param name="query">The query to execute</param>
         /// <returns>Returns the data as a DbDataReader.</returns>
-        public static IDataReader ExecuteReader(this DbConnection connection, string query) => connection.ExecuteReader(query, null);
+        public static IDataReader ExecuteReader(this IDbConnection connection, string query)
+            => ExecuteReader(connection, query, null, null);
 
         /// <summary>
         /// Executes a query and returns a DbDataReader.
@@ -130,35 +129,33 @@ namespace Rocketcress.Core.Extensions
         /// <param name="connection">The database connection.</param>
         /// <param name="query">The query to execute</param>
         /// <param name="timeout">The timeout for the command.</param>
+        /// <returns>Returns the data as a DbDataReader.</returns>
+        public static IDataReader ExecuteReader(this IDbConnection connection, string query, int? timeout)
+            => ExecuteReader(connection, query, timeout, null);
+
+        /// <summary>
+        /// Executes a query and returns a DbDataReader.
+        /// </summary>
+        /// <param name="connection">The database connection.</param>
+        /// <param name="query">The query to execute</param>
+        /// <param name="timeout">The timeout for the command.</param>
         /// <param name="params">The parameters for the command.</param>
         /// <returns>Returns the data as a DbDataReader.</returns>
-        public static IDataReader ExecuteReader(this SqlConnection connection, string query, int? timeout, params (string name, object value)[] @params)
+        public static IDataReader ExecuteReader(this IDbConnection connection, string query, int? timeout, params (string name, object value)[] @params)
         {
             var cmd = CreateCommand(connection, query, timeout, @params);
             return new DataReaderWrapper(cmd, cmd.ExecuteReader());
         }
 
         /// <summary>
-        /// Executes a query and returns a DbDataReader.
-        /// </summary>
-        /// <param name="connection">The database connection.</param>
-        /// <param name="query">The query to execute</param>
-        /// <param name="timeout">The timeout for the command.</param>
-        /// <returns>Returns the data as a DbDataReader.</returns>
-        public static IDataReader ExecuteReader(this DbConnection connection, string query, int? timeout)
-        {
-            var cmd = CreateCommand(connection, query, timeout);
-            return new DataReaderWrapper(cmd, cmd.ExecuteReader());
-        }
-
-        /// <summary>
         /// Executes a query.
         /// </summary>
         /// <param name="connection">The database connection.</param>
         /// <param name="query">The query to execute</param>
         /// <param name="params">The parameters for the command.</param>
         /// <returns>Returns the number of affected rows by the query..</returns>
-        public static int ExecuteNonQuery(this SqlConnection connection, string query, params (string name, object value)[] @params) => connection.ExecuteNonQuery(query, null, @params);
+        public static int ExecuteNonQuery(this IDbConnection connection, string query, params (string name, object value)[] @params)
+            => ExecuteNonQuery(connection, query, null, @params);
 
         /// <summary>
         /// Executes a query.
@@ -166,7 +163,18 @@ namespace Rocketcress.Core.Extensions
         /// <param name="connection">The database connection.</param>
         /// <param name="query">The query to execute</param>
         /// <returns>Returns the number of affected rows by the query..</returns>
-        public static int ExecuteNonQuery(this DbConnection connection, string query) => connection.ExecuteNonQuery(query, null);
+        public static int ExecuteNonQuery(this IDbConnection connection, string query)
+            => ExecuteNonQuery(connection, query, null, null);
+
+        /// <summary>
+        /// Executes a query.
+        /// </summary>
+        /// <param name="connection">The database connection.</param>
+        /// <param name="query">The query to execute</param>
+        /// <param name="timeout">The timeout for the command.</param>
+        /// <returns>Returns the number of affected rows by the query..</returns>
+        public static int ExecuteNonQuery(this IDbConnection connection, string query, int? timeout)
+            => ExecuteNonQuery(connection, query, timeout, null);
 
         /// <summary>
         /// Executes a query.
@@ -176,39 +184,26 @@ namespace Rocketcress.Core.Extensions
         /// <param name="timeout">The timeout for the command.</param>
         /// <param name="params">The parameters for the command.</param>
         /// <returns>Returns the number of affected rows by the query..</returns>
-        public static int ExecuteNonQuery(this SqlConnection connection, string query, int? timeout, params (string name, object value)[] @params)
+        public static int ExecuteNonQuery(this IDbConnection connection, string query, int? timeout, params (string name, object value)[] @params)
         {
-            using (var cmd = CreateCommand(connection, query, timeout, @params))
-                return cmd.ExecuteNonQuery();
-        }
-
-        /// <summary>
-        /// Executes a query.
-        /// </summary>
-        /// <param name="connection">The database connection.</param>
-        /// <param name="query">The query to execute</param>
-        /// <param name="timeout">The timeout for the command.</param>
-        /// <returns>Returns the number of affected rows by the query..</returns>
-        public static int ExecuteNonQuery(this DbConnection connection, string query, int? timeout)
-        {
-            using (var cmd = CreateCommand(connection, query, timeout))
-                return cmd.ExecuteNonQuery();
+            using var cmd = CreateCommand(connection, query, timeout, @params);
+            return cmd.ExecuteNonQuery();
         }
 
         /// <summary>
         /// Opens the DbConnection if it is not already open.
         /// </summary>
         /// <param name="connection">The connection to open.</param>
-        public static void OpenIfNecessary(this DbConnection connection)
+        public static void OpenIfNecessary(this IDbConnection connection)
         {
-            if (connection.State != System.Data.ConnectionState.Open)
+            if (connection.State != ConnectionState.Open)
                 connection.Open();
         }
 
         private class DataReaderWrapper : IDataReader
         {
-            private IDbCommand _command;
-            private IDataReader _reader;
+            private readonly IDbCommand _command;
+            private readonly IDataReader _reader;
 
             public DataReaderWrapper(IDbCommand command, IDataReader reader)
             {

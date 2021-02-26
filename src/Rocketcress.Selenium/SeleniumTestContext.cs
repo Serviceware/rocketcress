@@ -72,7 +72,7 @@ namespace Rocketcress.Selenium
                 [Browser.Edge] = new EdgeDriverProvider(),
             };
 
-#if NETFX
+#if NETFRAMEWORK
             DriverProviders.Add(Browser.InternetExplorer, new InternetExplorerDriverProvider());
 #else
             if (OperatingSystem.IsWindows())
@@ -86,7 +86,7 @@ namespace Rocketcress.Selenium
         protected SeleniumTestContext() { }
 #endregion
 
-#region Public Methods
+        #region Public Methods
         /// <summary>
         /// Switches the current driver to the index of AllOpenedDrivers.
         /// </summary>
@@ -269,7 +269,7 @@ namespace Rocketcress.Selenium
             screenshot.SaveAsFile(path);
         }
 
-#region Private Functions
+        #region Private Functions
         /// <summary>
         /// Kills all driver processes that are still open after disposing the drivers.
         /// Browser Processes that where open before the test are not killed.
@@ -286,9 +286,9 @@ namespace Rocketcress.Selenium
                 }
             }
         }
-#endregion
+        #endregion
 
-#region Cleanup
+        #region Cleanup
         /// <inheritdoc />
         protected override void Dispose(bool disposing)
         {
@@ -342,6 +342,6 @@ namespace Rocketcress.Selenium
                 Logger.LogWarning("Error while disposing driver: " + ex);
             }
         }
-#endregion
+        #endregion
     }
 }

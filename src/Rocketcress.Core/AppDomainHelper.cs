@@ -15,7 +15,7 @@ namespace Rocketcress.Core
         /// <returns>Returns a new instance of the <see cref="AppDomain"/> class.</returns>
         public static AppDomain CreateAppDomain(string domainName)
         {
-#if NETFX
+#if NETFRAMEWORK
             AppDomain appDomain = AppDomain.CreateDomain(domainName, null, AppDomain.CurrentDomain.SetupInformation);
 #else
             AppDomain appDomain = AppDomain.CreateDomain(domainName);

@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="../../build/Rocketcress.props" />
+
+  <PropertyGroup>
+    <TargetFrameworks>net5.0;net48</TargetFrameworks>
+
+    <OutputPath>..\..\bin\$(Configuration)</OutputPath>
+
+    <Description>Extends Rocketcress.Core with System.ComponentModel.Composition specific functionalities.</Description>
+    <PackageTags>Rocketcress;Test;Tests;Composition</PackageTags>
+    <Version>1.0.7</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.ComponentModel.Composition" Version="5.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Rocketcress.Core\Rocketcress.Core.csproj" />
+  </ItemGroup>
+</Project>

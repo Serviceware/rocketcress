@@ -1,23 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
+  <Import Project="../../build/Rocketcress.props" />
+  
   <PropertyGroup>
     <TargetFrameworks>net5.0;net48</TargetFrameworks>
-    <LangVersion>latest</LangVersion>
 
     <OutputPath>..\..\bin\$(Configuration)</OutputPath>
-    <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>Rocketcress.snk</AssemblyOriginatorKeyFile>
 
-    <Authors>helpLine GmbH</Authors>
-    <Company>Serviceware SE</Company>
-    <Product>Rocketcress</Product>
-    <Description>Contains core functionality of for all Rocketcress libraries and tests</Description>
-    <PackageProjectUrl>https://github.com/Serviceware/rocketcress</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/Serviceware/rocketcress</RepositoryUrl>
-    <RepositoryType>Git</RepositoryType>
+    <Description>Contains core functionality of for all Rocketcress libraries and tests.</Description>
     <PackageTags>Rocketcress;Test;Tests</PackageTags>
-    
-    <Configurations>Debug;Release;Debug-Slim;Release-Slim</Configurations>
+    <Version>1.0.7</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="$(Configuration.EndsWith('-Slim'))">
@@ -25,39 +16,28 @@
     <Description>Contains code from Rocketcress.Core without the need to use MSTest v2.</Description>
     <DefineConstants>$(DefineConstants);SLIM</DefineConstants>
   </PropertyGroup>
-  
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'net48' ">
-    <DefineConstants>$(DefineConstants);NETFX</DefineConstants>
-  </PropertyGroup>
+
+  <ItemGroup Condition="$(Configuration.EndsWith('-Slim'))">
+    <None Include="Rocketcress.Core.targets" />
+    <Content Include="Rocketcress.Core.Slim.targets" Pack="true" PackagePath="build;buildCrossTargeting">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
 
   <ItemGroup Condition="!$(Configuration.EndsWith('-Slim'))">
     <PackageReference Include="MSTest.TestFramework" Version="2.1.2" />
+
+    <None Include="Rocketcress.Core.Slim.targets" />
+    <Content Include="Rocketcress.Core.targets" Pack="true" PackagePath="build;buildCrossTargeting">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <PropertyGroup>
     <DocumentationFile>$(OutputPath)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
   </PropertyGroup>
-
-  <PropertyGroup>
-    <!-- Assembly Microsoft.Exchange.WebServices.NETStandard has not strong name! -->
-    <NoWarn>$(NoWarn);8002</NoWarn>
-  </PropertyGroup>
     
   <ItemGroup>
-    <PackageReference Include="Microsoft.Exchange.WebServices.NETStandard" Version="1.1.3" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="System.ComponentModel.Composition" Version="5.0.0" />
-    <PackageReference Include="System.Data.SqlClient" Version="4.8.2" />
-  </ItemGroup>
-
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net48' ">
-    <Reference Include="System.Windows.Forms" />
-    <Reference Include="WindowsBase" />
-  </ItemGroup>
-  
-  <ItemGroup Condition="!$(Configuration.EndsWith('-Slim'))">
-    <Content Include="Rocketcress.Core.targets" Pack="true" PackagePath="build;buildCrossTargeting">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
 </Project>

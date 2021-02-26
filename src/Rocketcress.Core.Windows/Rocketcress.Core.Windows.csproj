@@ -1,27 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="../../build/Rocketcress.props" />
 
   <PropertyGroup>
     <RootNamespace>Rocketcress.Core</RootNamespace>
     <TargetFrameworks>net5.0-windows;net48</TargetFrameworks>
-    <LangVersion>latest</LangVersion>
 
     <OutputPath>..\..\bin\$(Configuration)</OutputPath>
     <DocumentationFile>$(OutputPath)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
     <SupportedOSPlatform>windows</SupportedOSPlatform>
-    <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>Rocketcress.snk</AssemblyOriginatorKeyFile>
 
-
-    <Authors>helpLine GmbH</Authors>
-    <Company>Serviceware SE</Company>
-    <Product>Rocketcress</Product>
-    <Description>Contains core functionality of for all Rocketcress libraries and tests on windows</Description>
-    <PackageProjectUrl>https://github.com/Serviceware/rocketcress</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/Serviceware/rocketcress</RepositoryUrl>
-    <RepositoryType>Git</RepositoryType>
+    <Description>Contains core functionality of for all Rocketcress libraries and tests on windows.</Description>
     <PackageTags>Rocketcress;Test;Tests;Windows</PackageTags>
-
-    <Configurations>Debug;Release;Debug-Slim;Release-Slim</Configurations>
+    <Version>1.0.7</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' != 'net48' ">

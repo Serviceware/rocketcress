@@ -1,8 +1,6 @@
 ﻿
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition.Hosting;
-using System.ComponentModel.Composition.Primitives;
 using System.Globalization;
 using System.Linq;
 
@@ -11,13 +9,13 @@ namespace Rocketcress.Core
     /// <summary>
     /// Represents a container for services that can be created when needed.
     /// </summary>
-    public class ServiceContext : ExportProvider, IServiceProvider
+    public class ServiceContext : IServiceProvider
     {
         private static ServiceContext _instance;
         /// <summary>
         /// Gets the current singleton instance of the <see cref="ServiceContext"/> class.
         /// </summary>
-        public static ServiceContext Instance => _instance ?? (_instance = new ServiceContext());
+        public static ServiceContext Instance => _instance ??= new ServiceContext();
 
         private readonly Dictionary<string, object> _services = new Dictionary<string, object>();
         private readonly Dictionary<Type, Func<ServiceContext, object>> _createFunctions = new Dictionary<Type, Func<ServiceContext, object>>();
@@ -27,8 +25,6 @@ namespace Rocketcress.Core
         /// </summary>
         public ServiceContext()
         {
-            var container = new CompositionContainer(this);
-            AddInstance<CompositionContainer>(container);
             AddInstance<IServiceProvider>(this);
         }
 
@@ -153,25 +149,6 @@ namespace Rocketcress.Core
                 _services.Remove(key);
         }
 
-        /// <summary>
-        /// Gets all the exports that match the constraint defined by the specified definition.
-        /// </summary>
-        /// <param name="definition">The object that defines the conditions of the <see cref="Export"/> objects to return.</param>
-        /// <param name="atomicComposition">The transactional container for the composition.</param>
-        /// <returns>A collection that contains all the exports that match the specified condition.</returns>
-        protected override IEnumerable<Export> GetExportsCore(ImportDefinition definition, AtomicComposition atomicComposition)
-        {
-            var type = Type.GetType(definition.ContractName);
-            if (type == null)
-            {
-                type = AppDomain.CurrentDomain.GetAssemblies().Select(x => x.GetType(definition.ContractName)).FirstOrDefault(x => x != null);
-                if (type == null)
-                    throw new Exception($"Type with name '{definition.ContractName}' could not be found.");
-            }
-
-            return new[] { new Export(definition.ContractName, () => GetInstance(type)) };
-        }
-
         object IServiceProvider.GetService(Type serviceType)
         {
             return GetInstance(serviceType);
@@ -208,7 +185,7 @@ namespace Rocketcress.Core
             else
             {
                 if (!_createFunctions.ContainsKey(serviceType))
-                    return new object[0];
+                    return Array.Empty<object>();
                 var serviceInstance = _createFunctions[serviceType].Invoke(this);
                 AddInstance(serviceType, key, serviceInstance);
                 return new[] { _services[key] };

@@ -1,0 +1,14 @@
+<Project>
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    
+    <Authors>helpLine GmbH</Authors>
+    <Company>Serviceware SE</Company>
+    <Product>Rocketcress</Product>
+    <PackageProjectUrl>https://github.com/Serviceware/rocketcress</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Serviceware/rocketcress</RepositoryUrl>
+    <RepositoryType>Git</RepositoryType>
+    
+    <Configurations>Debug;Release;Debug-Slim;Release-Slim</Configurations>
+  </PropertyGroup>
+</Project>

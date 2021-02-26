@@ -13,6 +13,16 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rocketcress.SourceGenerator
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rocketcress.Core.Windows", "src\Rocketcress.Core.Windows\Rocketcress.Core.Windows.csproj", "{7B04F490-9923-4FE7-81F2-9A462F7E3213}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{8241F7E2-8D36-4F72-AD5E-CBFB73724D82}"
+	ProjectSection(SolutionItems) = preProject
+		build\build.yml = build\build.yml
+		build\Rocketcress.props = build\Rocketcress.props
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rocketcress.Mail", "src\Rocketcress.Mail\Rocketcress.Mail.csproj", "{8AAB2090-76DB-44A1-B667-C0E30192B2E3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rocketcress.Composition", "src\Rocketcress.Composition\Rocketcress.Composition.csproj", "{50C93C59-8B8F-454F-9116-7002AF881302}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -61,6 +71,22 @@ Global
 		{7B04F490-9923-4FE7-81F2-9A462F7E3213}.Release|Any CPU.Build.0 = Release|Any CPU
 		{7B04F490-9923-4FE7-81F2-9A462F7E3213}.Release-Slim|Any CPU.ActiveCfg = Release|Any CPU
 		{7B04F490-9923-4FE7-81F2-9A462F7E3213}.Release-Slim|Any CPU.Build.0 = Release|Any CPU
+		{8AAB2090-76DB-44A1-B667-C0E30192B2E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8AAB2090-76DB-44A1-B667-C0E30192B2E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8AAB2090-76DB-44A1-B667-C0E30192B2E3}.Debug-Slim|Any CPU.ActiveCfg = Debug|Any CPU
+		{8AAB2090-76DB-44A1-B667-C0E30192B2E3}.Debug-Slim|Any CPU.Build.0 = Debug|Any CPU
+		{8AAB2090-76DB-44A1-B667-C0E30192B2E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8AAB2090-76DB-44A1-B667-C0E30192B2E3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8AAB2090-76DB-44A1-B667-C0E30192B2E3}.Release-Slim|Any CPU.ActiveCfg = Release|Any CPU
+		{8AAB2090-76DB-44A1-B667-C0E30192B2E3}.Release-Slim|Any CPU.Build.0 = Release|Any CPU
+		{50C93C59-8B8F-454F-9116-7002AF881302}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{50C93C59-8B8F-454F-9116-7002AF881302}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{50C93C59-8B8F-454F-9116-7002AF881302}.Debug-Slim|Any CPU.ActiveCfg = Debug|Any CPU
+		{50C93C59-8B8F-454F-9116-7002AF881302}.Debug-Slim|Any CPU.Build.0 = Debug|Any CPU
+		{50C93C59-8B8F-454F-9116-7002AF881302}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{50C93C59-8B8F-454F-9116-7002AF881302}.Release|Any CPU.Build.0 = Release|Any CPU
+		{50C93C59-8B8F-454F-9116-7002AF881302}.Release-Slim|Any CPU.ActiveCfg = Release|Any CPU
+		{50C93C59-8B8F-454F-9116-7002AF881302}.Release-Slim|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
