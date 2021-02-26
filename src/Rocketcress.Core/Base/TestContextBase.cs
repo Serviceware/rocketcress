@@ -147,6 +147,7 @@ namespace Rocketcress.Core.Base
         }
 
 #pragma warning disable CS1572 // XML comment has a param tag, but there is no parameter by that name
+#pragma warning disable SA1612 // Element parameter documentation should match element parameters
         /// <summary>
         /// Initializes an instance of the <see cref="TestContextBase"/> class.
         /// </summary>
@@ -180,6 +181,7 @@ namespace Rocketcress.Core.Base
 
             return ctx;
         }
+#pragma warning restore SA1612 // Element parameter documentation should match element parameters
 #pragma warning restore CS1572 // XML comment has a param tag, but there is no parameter by that name
 
         private static string TrimString(string str, int maxLength)
