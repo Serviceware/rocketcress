@@ -8,6 +8,7 @@
     <OutputPath>..\..\bin\$(Configuration)</OutputPath>
     <CodeAnalysisRuleSet>../../build/Rocketcress.ruleset</CodeAnalysisRuleSet>
 
+    <PackageId>Serviceware.$(AssemblyName)</PackageId>
     <Description>This library contains C# 9 Source Generators that can be used by test projects.</Description>
     <PackageTags>Rocketcress;Test;Tests;Generator;Generators;SourceGenerator;SourceGenerators</PackageTags>
     <Version>1.0.7</Version>

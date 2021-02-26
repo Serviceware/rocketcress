@@ -7,6 +7,7 @@
     <OutputPath>..\..\bin\$(Configuration)</OutputPath>
     <CodeAnalysisRuleSet>../../build/Rocketcress.ruleset</CodeAnalysisRuleSet>
 
+    <PackageId>Serviceware.$(AssemblyName)</PackageId>
     <Description>Extends Rocketcress.Core with e-mail functionality.</Description>
     <PackageTags>Rocketcress;Test;Tests;Mail</PackageTags>
     <Version>1.0.7</Version>

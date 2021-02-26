@@ -36,6 +36,7 @@
 
   <PropertyGroup>
     <DocumentationFile>$(OutputPath)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
+    <PackageId>Serviceware.$(AssemblyName)</PackageId>
   </PropertyGroup>
     
   <ItemGroup>
