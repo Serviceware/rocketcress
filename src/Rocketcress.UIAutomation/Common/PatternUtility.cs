@@ -7,19 +7,22 @@ namespace Rocketcress.UIAutomation.Common
 {
     public static class PatternUtility
     {
-        private static readonly Dictionary<Type, (AutomationProperty isAvailableProperty, AutomationPattern pattern)> _patternCache = new Dictionary<Type, (AutomationProperty, AutomationPattern)>();
+        private static readonly Dictionary<Type, (AutomationProperty IsAvailableProperty, AutomationPattern Pattern)> _patternCache = new Dictionary<Type, (AutomationProperty, AutomationPattern)>();
 
-        public static AutomationProperty GetIsPatternAvailableProperty<T>() where T : BasePattern => GetPatternInfo(typeof(T)).isAvailableProperty;
-        public static AutomationProperty GetIsPatternAvailableProperty(Type patternType) => GetPatternInfo(patternType).isAvailableProperty;
+        public static AutomationProperty GetIsPatternAvailableProperty<T>()
+            where T : BasePattern
+            => GetPatternInfo(typeof(T)).IsAvailableProperty;
+        public static AutomationProperty GetIsPatternAvailableProperty(Type patternType) => GetPatternInfo(patternType).IsAvailableProperty;
 
-        public static AutomationPattern GetPattern<T>() where T : BasePattern => GetPatternInfo(typeof(T)).pattern;
-        public static AutomationPattern GetPattern(Type patternType) => GetPatternInfo(patternType).pattern;
+        public static AutomationPattern GetPattern<T>()
+            where T : BasePattern
+            => GetPatternInfo(typeof(T)).Pattern;
+        public static AutomationPattern GetPattern(Type patternType) => GetPatternInfo(patternType).Pattern;
 
-        private static (AutomationProperty isAvailableProperty, AutomationPattern pattern) GetPatternInfo(Type patternType)
+        private static (AutomationProperty IsAvailableProperty, AutomationPattern Pattern) GetPatternInfo(Type patternType)
         {
             if (!_patternCache.ContainsKey(patternType))
             {
-
                 var patternName = patternType.Name;
                 var isAvailableProperty = typeof(AutomationElement).GetField($"Is{patternName}AvailableProperty", BindingFlags.Public | BindingFlags.Static);
                 if (isAvailableProperty == null)
@@ -33,6 +36,7 @@ namespace Rocketcress.UIAutomation.Common
                     throw new NotSupportedException($"The field type of field \"Pattern\" of type {patternType.FullName} has to be derived from {typeof(AutomationPattern).FullName}.");
                 _patternCache.Add(patternType, ((AutomationProperty)isAvailableProperty.GetValue(null), (AutomationPattern)patternProperty.GetValue(null)));
             }
+
             return _patternCache[patternType];
         }
     }

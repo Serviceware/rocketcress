@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -12,6 +11,7 @@ namespace Rocketcress.Core
     public class ServiceContext : IServiceProvider
     {
         private static ServiceContext _instance;
+
         /// <summary>
         /// Gets the current singleton instance of the <see cref="ServiceContext"/> class.
         /// </summary>
@@ -34,7 +34,8 @@ namespace Rocketcress.Core
         /// </summary>
         /// <typeparam name="T">The type for which the create function should be registered to.</typeparam>
         /// <param name="createFunction">The function that is called when the type is requested and no value exists in the <see cref="ServiceContext"/>.</param>
-        public void RegisterCreateFunction<T>(Func<ServiceContext, T> createFunction) where T : class
+        public void RegisterCreateFunction<T>(Func<ServiceContext, T> createFunction)
+            where T : class
         {
             _createFunctions[typeof(T)] = createFunction;
         }
@@ -66,9 +67,11 @@ namespace Rocketcress.Core
                 {
                     throw new Exception(string.Format(CultureInfo.InvariantCulture, "A create function of type '{0}' could not be found", serviceType.FullName));
                 }
+
                 var serviceInstance = _createFunctions[serviceType].Invoke(this);
                 AddInstance(serviceType, key, serviceInstance);
             }
+
             return _services[dictKey];
         }
 
@@ -90,6 +93,7 @@ namespace Rocketcress.Core
         /// <param name="instance">The instance to add.</param>
         public void AddInstance<TService>(TService instance)
             => AddInstance(null, instance);
+
         /// <summary>
         /// Adds or replaces the instance that is registered by a specific type and key.
         /// </summary>
@@ -98,6 +102,7 @@ namespace Rocketcress.Core
         /// <param name="instance">The instance to add.</param>
         public void AddInstance<TService>(string name, TService instance)
             => _services[GetKey(typeof(TService), name)] = instance;
+
         /// <summary>
         /// Adds or replaces the instance that is registered by a specific type and the null-key.
         /// </summary>
@@ -105,6 +110,7 @@ namespace Rocketcress.Core
         /// <param name="instance">The instance to add.</param>
         public void AddInstance(Type type, object instance)
             => AddInstance(type, null, instance);
+
         /// <summary>
         /// Adds or replaces the instance that is registered by a specific type and key.
         /// </summary>
@@ -124,6 +130,7 @@ namespace Rocketcress.Core
         /// <typeparam name="TService">The type of the instance.</typeparam>
         public void RemoveInstance<TService>()
             => RemoveInstance(typeof(TService), null);
+
         /// <summary>
         /// Removes the instance that is registered by a specific type and key if it exists.
         /// </summary>
@@ -131,12 +138,14 @@ namespace Rocketcress.Core
         /// <param name="name">The key of the instance.</param>
         public void RemoveInstance<TService>(string name)
             => RemoveInstance(typeof(TService), name);
+
         /// <summary>
         /// Removes the instance that is registered by a specific type and the null-key if it exists.
         /// </summary>
         /// <param name="type">The type of the instance.</param>
         public void RemoveInstance(Type type)
             => RemoveInstance(type, null);
+
         /// <summary>
         /// Removes the instance that is registered by a specific type and key if it exists.
         /// </summary>
@@ -163,6 +172,7 @@ namespace Rocketcress.Core
         private static string GetKey(Type t, string name) => $"{t.FullName};{name}";
 
         #region IServiceLocator
+
         /// <summary>
         /// Get an instance of the given serviceType.
         /// </summary>
@@ -181,7 +191,9 @@ namespace Rocketcress.Core
             var key = GetKey(serviceType, null);
             var keys = _services.Keys.Where(x => x.StartsWith(key, StringComparison.Ordinal)).ToArray();
             if (keys.Any())
+            {
                 return keys.Select(x => _services[x]);
+            }
             else
             {
                 if (!_createFunctions.ContainsKey(serviceType))

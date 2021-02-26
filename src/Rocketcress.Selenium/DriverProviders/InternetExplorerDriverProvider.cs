@@ -1,7 +1,7 @@
-﻿using Rocketcress.Core;
-using Rocketcress.Core.Base;
-using Microsoft.Win32;
+﻿using Microsoft.Win32;
 using OpenQA.Selenium;
+using Rocketcress.Core;
+using Rocketcress.Core.Base;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -19,10 +19,9 @@ namespace Rocketcress.Selenium.DriverProviders
     [SupportedOSPlatform("windows")]
     public class InternetExplorerDriverProvider : IDriverProvider, IDriverCleaner
     {
-        private const string
-            IEPrevLang = "IEPrevLang",
-            IEPrevPopupMgr = "IEPrevPopupMgr",
-            IEPrevSecAuth = "IEPrevSecAuth";
+        private const string IEPrevLang = "IEPrevLang";
+        private const string IEPrevPopupMgr = "IEPrevPopupMgr";
+        private const string IEPrevSecAuth = "IEPrevSecAuth";
 
         /// <inheritdoc />
         public IWebDriver CreateDriver(string host, TimeSpan browserTimeout, CultureInfo language, Settings settings, IDriverConfiguration driverConfiguration)
@@ -32,7 +31,7 @@ namespace Rocketcress.Selenium.DriverProviders
                 EnablePersistentHover = true,
                 IgnoreZoomLevel = true,
                 EnsureCleanSession = true,
-                UnhandledPromptBehavior = UnhandledPromptBehavior.Ignore
+                UnhandledPromptBehavior = UnhandledPromptBehavior.Ignore,
             };
             ieOptions.SetLoggingPreference(LogType.Browser, OpenQA.Selenium.LogLevel.All);
             driverConfiguration?.ConfigureIEDriverOptions(ieOptions);
@@ -41,7 +40,7 @@ namespace Rocketcress.Selenium.DriverProviders
             {
                 var driverPath = Path.Combine(Path.GetDirectoryName(typeof(SeleniumTestContext).Assembly.Location));
                 var iePaths = GetInternetExplorerDriverPath(driverPath);
-                var ieService = OpenQA.Selenium.IE.InternetExplorerDriverService.CreateDefaultService(iePaths.driverPath, iePaths.driverExecutableName);
+                var ieService = OpenQA.Selenium.IE.InternetExplorerDriverService.CreateDefaultService(iePaths.DriverPath, iePaths.DriverExecutableName);
 
                 // Set browser language
                 SetRegistryValue(Registry.CurrentUser, @"Software\Microsoft\Internet Explorer\International", "AcceptLanguage", language.IetfLanguageTag, RegistryValueKind.String, settings, IEPrevLang);
@@ -56,13 +55,21 @@ namespace Rocketcress.Selenium.DriverProviders
                 SetRegistryValue(Registry.CurrentUser, @"SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\ZoneMap\Domains\" + host, "*", 2, RegistryValueKind.DWord);
 
                 // Disable first run wizard
-                try { SetInternetExplorerFirstPage(); }
-                catch (Exception ex) { Logger.LogWarning("An error occurred while setting the first page of IE: " + ex); }
+                try
+                {
+                    SetInternetExplorerFirstPage();
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogWarning("An error occurred while setting the first page of IE: " + ex);
+                }
 
                 return this.RetryCreateDriver(() => new OpenQA.Selenium.IE.InternetExplorerDriver(ieService, ieOptions, browserTimeout));
             }
             else
+            {
                 return this.RetryCreateDriver(() => new OpenQA.Selenium.Remote.RemoteWebDriver(new Uri(settings.RemoteDriverUrl), ieOptions));
+            }
         }
 
         /// <inheritdoc />
@@ -84,7 +91,7 @@ namespace Rocketcress.Selenium.DriverProviders
             RestoreRegistryValue(Registry.CurrentUser, @"SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\2", "1A00", settings, IEPrevSecAuth);
         }
 
-        private static (string driverPath, string driverExecutableName) GetInternetExplorerDriverPath(string driverSourcePath)
+        private static (string DriverPath, string DriverExecutableName) GetInternetExplorerDriverPath(string driverSourcePath)
         {
             const string driverFileName = "IEDriverServer.exe";
 
@@ -97,7 +104,7 @@ namespace Rocketcress.Selenium.DriverProviders
 
             Directory.CreateDirectory(driverTempPath);
 
-            for (int i = 2; !copyDriver(driverSourceFilePath, driverFilePath); i++)
+            for (int i = 2; !CopyDriver(driverSourceFilePath, driverFilePath); i++)
             {
                 driverFilePath = Path.Combine(driverTempPath, $"{Path.GetFileNameWithoutExtension(driverFileName)}_{i:000}{Path.GetExtension(driverFileName)}");
             }
@@ -105,7 +112,7 @@ namespace Rocketcress.Selenium.DriverProviders
             Logger.LogInfo($"Using driver \"{driverFilePath}\"");
             return (Path.GetDirectoryName(driverFilePath), Path.GetFileName(driverFilePath));
 
-            bool copyDriver(string source, string target)
+            bool CopyDriver(string source, string target)
             {
                 try
                 {
@@ -176,6 +183,7 @@ namespace Rocketcress.Selenium.DriverProviders
                 else
                     key.DeleteValue(valueName);
             }
+
             key.Close();
         }
     }

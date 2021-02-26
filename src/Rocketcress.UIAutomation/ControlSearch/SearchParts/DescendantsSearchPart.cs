@@ -9,9 +9,17 @@ namespace Rocketcress.UIAutomation.ControlSearch.SearchParts
     {
         public int MaxDepth { get; set; }
         public ISearchPart ChildPart { get; set; }
-        
-        public DescendantsSearchPart(int maxDepth) : this(maxDepth, null, null) { }
-        public DescendantsSearchPart(int maxDepth, ISearchCondition condition) : this(maxDepth, condition, null) { }
+
+        public DescendantsSearchPart(int maxDepth)
+            : this(maxDepth, null, null)
+        {
+        }
+
+        public DescendantsSearchPart(int maxDepth, ISearchCondition condition)
+            : this(maxDepth, condition, null)
+        {
+        }
+
         public DescendantsSearchPart(int maxDepth, ISearchCondition condition, ISearchPart childPart)
         {
             MaxDepth = maxDepth;
@@ -26,8 +34,10 @@ namespace Rocketcress.UIAutomation.ControlSearch.SearchParts
             var depth = 0;
 
             if (element == AutomationElement.RootElement && (MaxDepth < 0 || MaxDepth > 2))
+            {
                 Logger.LogWarning("Searching for a control with the Scope Descendants on the root can lead to long search times. " +
                     "You can reduce this time by either setting a parent, use Scope Children or set MaxDepth.");
+            }
 
             while (currentLevel.Any() && (depth < MaxDepth || MaxDepth < 0))
             {
@@ -39,13 +49,16 @@ namespace Rocketcress.UIAutomation.ControlSearch.SearchParts
                     if (Condition?.Check(child, treeWalker) != false)
                     {
                         if (ChildPart == null)
+                        {
                             yield return child;
+                        }
                         else
                         {
                             foreach (var res in ChildPart.FindElements(child, treeWalker))
                                 yield return child;
                         }
                     }
+
                     nextLevel.Add(child);
                 }
 
@@ -72,7 +85,7 @@ namespace Rocketcress.UIAutomation.ControlSearch.SearchParts
 
         public override string GetDescription()
         {
-            var prefix = (MaxDepth == 1 ? "/" : MaxDepth < 0 ? "//" : $"//{{{MaxDepth}}}");
+            var prefix = MaxDepth == 1 ? "/" : MaxDepth < 0 ? "//" : $"//{{{MaxDepth}}}";
             return prefix + GetConditionDescription() + GetSkipTakeDescription();
         }
     }

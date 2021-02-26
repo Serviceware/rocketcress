@@ -18,12 +18,34 @@ namespace Rocketcress.UIAutomation.Controls.WinFormsControls
         #endregion
 
         #region Construcotrs
-        public WinCheckBox(By locationKey) : base(locationKey) { }
-        public WinCheckBox(IUITestControl parent) : base(parent) { }
-        public WinCheckBox(AutomationElement element) : base(element) { }
-        public WinCheckBox(By locationKey, AutomationElement parent) : base(locationKey, parent) { }
-        public WinCheckBox(By locationKey, IUITestControl parent) : base(locationKey, parent) { }
-        protected WinCheckBox() { }
+        public WinCheckBox(By locationKey)
+            : base(locationKey)
+        {
+        }
+
+        public WinCheckBox(IUITestControl parent)
+            : base(parent)
+        {
+        }
+
+        public WinCheckBox(AutomationElement element)
+            : base(element)
+        {
+        }
+
+        public WinCheckBox(By locationKey, AutomationElement parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        public WinCheckBox(By locationKey, IUITestControl parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        protected WinCheckBox()
+        {
+        }
 
         protected override void Initialize()
         {

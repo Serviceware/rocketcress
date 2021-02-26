@@ -70,7 +70,7 @@ namespace Rocketcress.SourceGenerators
                     metadata.KeyClasses.Add(new KeyClassMetadata
                     {
                         Prefix = @class.Key,
-                        Name = @class.Value.EndsWith("Keys") ? @class.Value[0..^4] : @class.Value
+                        Name = @class.Value.EndsWith("Keys") ? @class.Value[0..^4] : @class.Value,
                     });
                 }
             }
@@ -79,7 +79,7 @@ namespace Rocketcress.SourceGenerators
                 metadata.KeyClasses.Add(new KeyClassMetadata
                 {
                     Prefix = "TL_",
-                    Name = "Translation"
+                    Name = "Translation",
                 });
             }
 
@@ -88,7 +88,7 @@ namespace Rocketcress.SourceGenerators
             else
                 metadata.SettingsTypes = new List<SettingsType>();
 
-            var allKeys = settings["OtherSettings"]?.OfType<JProperty>().Select(x => x.Name).ToArray() ?? new string[0];
+            var allKeys = settings["OtherSettings"]?.OfType<JProperty>().Select(x => x.Name).ToArray() ?? System.Array.Empty<string>();
             foreach (var key in allKeys)
             {
                 var match = Regex.Match(key, @"\A(\[(?<Tag>[^\]]+)\])?\s*(?<Name>.*)\Z");
@@ -130,6 +130,7 @@ namespace Rocketcress.SourceGenerators
                     hasKey = true;
                     sb.AppendLine($"public static readonly string {key.Key} = \"{key.FullKey}\";");
                 }
+
                 if (!hasKey)
                     sb.AppendLine("// Currently no keys are available in settings file.");
             }
@@ -167,6 +168,7 @@ namespace Rocketcress.SourceGenerators
                         var type = metadata.SettingsTypes.FirstOrDefault(x => x.TagName == key.Tag)?.TypeName ?? "object";
                         sb.AppendLine($"public static {type} {key.Key} => _properties.GetProperty(() => _settings.Get<{type}>({className}Keys.{key.Key}));");
                     }
+
                     if (!hasKey)
                         sb.AppendLine("// Currently no keys are available in settings file.");
                 }

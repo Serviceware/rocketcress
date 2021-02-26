@@ -4,7 +4,7 @@ namespace Rocketcress.UIAutomation.ControlSearch.DescriptionParsing
 {
     internal class RegularExpressions
     {
-        public static Regex SplitPartsRegex = new Regex(@"
+        public static Regex SplitPartsRegex { get; } = new Regex(@"
             (?<Path> ([\.\/\|_\<\>]|\{\-?[0-9]+\})*)
             (?<ControlType>([a-zA-Z]+[a-zA-Z0-9\-]* | \*))?
             (\[(?=([^0-9])) (?<Condition>(?>
@@ -14,10 +14,10 @@ namespace Rocketcress.UIAutomation.ControlSearch.DescriptionParsing
                 (?(STRS) \] | (?(STRD) \] | \](?<-DEPTH>))) | 
                 [^\[\]\'\""]+)*) \] (?(DEPTH)(?!)))? 
             (\[ (?<Skip>[0-9]+) \])?", RegexOptions.IgnorePatternWhitespace | RegexOptions.Compiled);
-        public static Regex SplitPartPathRegex = new Regex(@"
+        public static Regex SplitPartPathRegex { get; } = new Regex(@"
             (?<Path> [\.\/_\<\>]*)
             (\{ (?<MaxDepth> \-?[0-9]+) \})?", RegexOptions.IgnorePatternWhitespace | RegexOptions.Compiled);
-        public static Regex SplitConditionsRegex = new Regex(@"
+        public static Regex SplitConditionsRegex { get; } = new Regex(@"
             (?> (?(STRD) \""(?<-STRD>) | \""(?<STRD>)) |
                 (?(STRS) \'(?<-STRS>) | \'(?<STRS>)) | 
                 (?(STRS) (\[|\() | (?(STRD) (\[|\() | (\[|\()(?<DEPTH>))) | 
@@ -25,11 +25,11 @@ namespace Rocketcress.UIAutomation.ControlSearch.DescriptionParsing
                 (?(DEPTH) \s | (?(STRS) \s | (?(STRD) \s | (?!)))) |
                 [^\[\]\(\)\'\""\s]+)+ (?(DEPTH)(?!))+", RegexOptions.IgnorePatternWhitespace | RegexOptions.Compiled);
 
-        public static Regex PropertyConditionRegex = new Regex(@"\A
+        public static Regex PropertyConditionRegex { get; } = new Regex(@"\A
             @(?<Property> [a-zA-Z]+[a-zA-Z0-9\-]*) [\~\=]{1,2} 
             (([\'\""](?<Value>.*)[\'\""])|(?<Value>[^\'\""]*))\Z", RegexOptions.IgnorePatternWhitespace | RegexOptions.Compiled);
 
-        public static Regex FunctionConditionRegex = new Regex(@"\A
+        public static Regex FunctionConditionRegex { get; } = new Regex(@"\A
             (?<Name>[^\(]+)\(
             (?<Parameters>(?> 
                 (?(STRD) \""(?<-STRD>) | \""(?<STRD>)) |
@@ -38,7 +38,7 @@ namespace Rocketcress.UIAutomation.ControlSearch.DescriptionParsing
                 (?(STRS) \) | (?(STRD) \) | \)(?<-DEPTH>))) | 
                 [^\(\)\'\""]+)*) (?(DEPTH)(?!))?
             \)\Z", RegexOptions.IgnorePatternWhitespace | RegexOptions.Compiled);
-        public static Regex FunctionConditionSplitParametersRegex = new Regex(@"
+        public static Regex FunctionConditionSplitParametersRegex { get; } = new Regex(@"
             (?> (?(STRD) \""(?<-STRD>) | \""(?<STRD>)) |
                 (?(STRS) \'(?<-STRS>) | \'(?<STRS>)) | 
                 (?(STRS) (\(|\[) | (?(STRD) (\(|\[) | (\(|\[)(?<DEPTH>))) | 
@@ -46,7 +46,7 @@ namespace Rocketcress.UIAutomation.ControlSearch.DescriptionParsing
                 (?(DEPTH) \, | (?(STRS) \, | (?(STRD) \, | (?!)))) |
                 [^\(\)\[\]\'\""\,]+)+", RegexOptions.IgnorePatternWhitespace | RegexOptions.Compiled);
 
-        public static Regex SearchDescriptionElementRegex = new Regex(@"\A@[a-zA-Z]+[a-zA-z0-9]*\Z", RegexOptions.IgnorePatternWhitespace | RegexOptions.Compiled);
-        public static Regex SearchDescriptionStringRegex = new Regex(@"\A(\' [^\']* \' | \"" [^\""]* \"")\Z", RegexOptions.IgnorePatternWhitespace | RegexOptions.Compiled);
+        public static Regex SearchDescriptionElementRegex { get; } = new Regex(@"\A@[a-zA-Z]+[a-zA-z0-9]*\Z", RegexOptions.IgnorePatternWhitespace | RegexOptions.Compiled);
+        public static Regex SearchDescriptionStringRegex { get; } = new Regex(@"\A(\' [^\']* \' | \"" [^\""]* \"")\Z", RegexOptions.IgnorePatternWhitespace | RegexOptions.Compiled);
     }
 }

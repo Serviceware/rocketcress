@@ -19,12 +19,34 @@ namespace Rocketcress.UIAutomation.Controls.WpfControls
         #endregion
 
         #region Constructors
-        public WpfToggleButton(By locationKey) : base(locationKey) { }
-        public WpfToggleButton(IUITestControl parent) : base(parent) { }
-        public WpfToggleButton(AutomationElement element) : base(element) { }
-        public WpfToggleButton(By locationKey, AutomationElement parent) : base(locationKey, parent) { }
-        public WpfToggleButton(By locationKey, IUITestControl parent) : base(locationKey, parent) { }
-        protected WpfToggleButton() { }
+        public WpfToggleButton(By locationKey)
+            : base(locationKey)
+        {
+        }
+
+        public WpfToggleButton(IUITestControl parent)
+            : base(parent)
+        {
+        }
+
+        public WpfToggleButton(AutomationElement element)
+            : base(element)
+        {
+        }
+
+        public WpfToggleButton(By locationKey, AutomationElement parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        public WpfToggleButton(By locationKey, IUITestControl parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        protected WpfToggleButton()
+        {
+        }
 
         protected override void Initialize()
         {

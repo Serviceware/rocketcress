@@ -51,6 +51,7 @@ namespace Rocketcress.Core.Attributes
                         .FirstOrDefault(x => x != null);
                 }
             }
+
             return result;
         }
 
@@ -60,6 +61,7 @@ namespace Rocketcress.Core.Attributes
         /// <param name="testClass">The type to get the keys from.</param>
         /// <returns>Returns a list of keys defined in the specified type.</returns>
         public static string[] GetKeys(Type testClass) => GetKeys(testClass, null);
+
         /// <summary>
         /// Retrieves all keys (including classes registered by a <see cref="AddKeysClassAttribute"/>) of a specified type.
         /// </summary>
@@ -76,8 +78,7 @@ namespace Rocketcress.Core.Attributes
                     from key in (from f in type.GetFields(BindingFlags.Public | BindingFlags.Static)
                                  where f.FieldType == typeof(string) && f.GetCustomAttribute<IgnoreKeyAttribute>() == null
                                  select (string)f.GetValue(null)).Concat(GetKeys(type, @namespace))
-                    select key
-                    ).ToArray();
+                    select key).ToArray();
         }
     }
 }

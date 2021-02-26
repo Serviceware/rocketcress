@@ -1,5 +1,5 @@
-﻿using Rocketcress.UIAutomation.Exceptions;
-using Rocketcress.Core;
+﻿using Rocketcress.Core;
+using Rocketcress.UIAutomation.Exceptions;
 using System.Windows.Automation;
 
 namespace Rocketcress.UIAutomation.Controls.WpfControls
@@ -17,12 +17,34 @@ namespace Rocketcress.UIAutomation.Controls.WpfControls
         #endregion
 
         #region Construcotrs
-        public WpfExpander(By locationKey) : base(locationKey) { }
-        public WpfExpander(IUITestControl parent) : base(parent) { }
-        public WpfExpander(AutomationElement element) : base(element) { }
-        public WpfExpander(By locationKey, AutomationElement parent) : base(locationKey, parent) { }
-        public WpfExpander(By locationKey, IUITestControl parent) : base(locationKey, parent) { }
-        protected WpfExpander() { }
+        public WpfExpander(By locationKey)
+            : base(locationKey)
+        {
+        }
+
+        public WpfExpander(IUITestControl parent)
+            : base(parent)
+        {
+        }
+
+        public WpfExpander(AutomationElement element)
+            : base(element)
+        {
+        }
+
+        public WpfExpander(By locationKey, AutomationElement parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        public WpfExpander(By locationKey, IUITestControl parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        protected WpfExpander()
+        {
+        }
         #endregion
 
         #region Public Properties
@@ -31,10 +53,10 @@ namespace Rocketcress.UIAutomation.Controls.WpfControls
             get => ExpandCollapsePattern.Current.ExpandCollapseState == ExpandCollapseState.Expanded;
             set
             {
-                if(Expanded != value)
+                if (Expanded != value)
                 {
                     Click();
-                    if(!Waiter.WaitUntil(() => value == Expanded, 5000, 0))
+                    if (!Waiter.WaitUntil(() => value == Expanded, 5000, 0))
                     {
                         LogWarning("Expand state was not set correctly by clicking the control. The state is now set via the pattern.");
                         if (value)

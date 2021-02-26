@@ -19,13 +19,35 @@ namespace Rocketcress.UIAutomation.Controls.WpfControls
         #endregion
 
         #region Constructors
-        public WpfRadioButton(By locationKey) : base(locationKey) { }
-        public WpfRadioButton(IUITestControl parent) : base(parent) { }
-        public WpfRadioButton(AutomationElement element) : base(element) { }
-        public WpfRadioButton(By locationKey, AutomationElement parent) : base(locationKey, parent) { }
-        public WpfRadioButton(By locationKey, IUITestControl parent) : base(locationKey, parent) { }
-        protected WpfRadioButton() { }
-        
+        public WpfRadioButton(By locationKey)
+            : base(locationKey)
+        {
+        }
+
+        public WpfRadioButton(IUITestControl parent)
+            : base(parent)
+        {
+        }
+
+        public WpfRadioButton(AutomationElement element)
+            : base(element)
+        {
+        }
+
+        public WpfRadioButton(By locationKey, AutomationElement parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        public WpfRadioButton(By locationKey, IUITestControl parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        protected WpfRadioButton()
+        {
+        }
+
         protected override void Initialize()
         {
             base.Initialize();
@@ -39,6 +61,7 @@ namespace Rocketcress.UIAutomation.Controls.WpfControls
             if (!Selected)
                 Selected = true;
         }
+
         public object GetValue()
         {
             return Selected;

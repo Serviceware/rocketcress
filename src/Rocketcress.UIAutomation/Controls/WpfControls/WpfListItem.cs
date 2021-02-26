@@ -14,12 +14,34 @@ namespace Rocketcress.UIAutomation.Controls.WpfControls
         #endregion
 
         #region Constructors
-        public WpfListItem(By locationKey) : base(locationKey) { }
-        public WpfListItem(IUITestControl parent) : base(parent) { }
-        public WpfListItem(AutomationElement element) : base(element) { }
-        public WpfListItem(By locationKey, AutomationElement parent) : base(locationKey, parent) { }
-        public WpfListItem(By locationKey, IUITestControl parent) : base(locationKey, parent) { }
-        protected WpfListItem() { }
+        public WpfListItem(By locationKey)
+            : base(locationKey)
+        {
+        }
+
+        public WpfListItem(IUITestControl parent)
+            : base(parent)
+        {
+        }
+
+        public WpfListItem(AutomationElement element)
+            : base(element)
+        {
+        }
+
+        public WpfListItem(By locationKey, AutomationElement parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        public WpfListItem(By locationKey, IUITestControl parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        protected WpfListItem()
+        {
+        }
         #endregion
 
         #region Public Properties
@@ -34,6 +56,7 @@ namespace Rocketcress.UIAutomation.Controls.WpfControls
                     SelectionItemPattern.RemoveFromSelection();
             }
         }
+
         public virtual string DisplayText => Name;
         public virtual string ActualDisplayName => InnertText.DisplayText;
         #endregion
@@ -50,6 +73,9 @@ namespace Rocketcress.UIAutomation.Controls.WpfControls
         #endregion
 
         private static readonly By ByInnerText = By.ClassName("TextBlock");
-        public WpfText InnertText { get { return new WpfText(ByInnerText, this); } }
+        public WpfText InnertText
+        {
+            get { return new WpfText(ByInnerText, this); }
+        }
     }
 }

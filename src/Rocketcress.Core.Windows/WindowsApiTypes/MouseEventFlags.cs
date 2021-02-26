@@ -17,7 +17,7 @@ namespace Rocketcress.Core.WindowsApiTypes
         XDown = 0x00000080,
         XUp = 0x00000100,
         Wheel = 0x00000800,
-        HWheel = 0x00001000
+        HWheel = 0x00001000,
     }
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 }

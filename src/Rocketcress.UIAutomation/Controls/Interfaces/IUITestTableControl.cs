@@ -19,7 +19,9 @@ namespace Rocketcress.UIAutomation.Controls
         IUITestControl this[int rowIndex] { get; }
     }
 
-    public interface IUITestTableControl<TRow, TCell> : IUITestTableControl where TRow : IUITestRowControl where TCell : IUITestCellControl
+    public interface IUITestTableControl<TRow, TCell> : IUITestTableControl
+        where TRow : IUITestRowControl
+        where TCell : IUITestCellControl
     {
         new IEnumerable<TCell> Cells { get; }
         new IEnumerable<TRow> Rows { get; }

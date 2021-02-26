@@ -1,6 +1,6 @@
-﻿using Rocketcress.UIAutomation.Common;
+﻿using Rocketcress.Core.Extensions;
+using Rocketcress.UIAutomation.Common;
 using Rocketcress.UIAutomation.Controls.ControlSupport;
-using Rocketcress.Core.Extensions;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Automation;
@@ -22,12 +22,34 @@ namespace Rocketcress.UIAutomation.Controls.WpfControls
         #endregion
 
         #region Constructors
-        public WpfTabList(By locationKey) : base(locationKey) { }
-        public WpfTabList(IUITestControl parent) : base(parent) { }
-        public WpfTabList(AutomationElement element) : base(element) { }
-        public WpfTabList(By locationKey, AutomationElement parent) : base(locationKey, parent) { }
-        public WpfTabList(By locationKey, IUITestControl parent) : base(locationKey, parent) { }
-        protected WpfTabList() { }
+        public WpfTabList(By locationKey)
+            : base(locationKey)
+        {
+        }
+
+        public WpfTabList(IUITestControl parent)
+            : base(parent)
+        {
+        }
+
+        public WpfTabList(AutomationElement element)
+            : base(element)
+        {
+        }
+
+        public WpfTabList(By locationKey, AutomationElement parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        public WpfTabList(By locationKey, IUITestControl parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        protected WpfTabList()
+        {
+        }
 
         protected override void Initialize()
         {
@@ -46,6 +68,7 @@ namespace Rocketcress.UIAutomation.Controls.WpfControls
             get => _listControlSupport.GetSelectedIndices().TryFirst(out var index) ? index : -1;
             set => _listControlSupport.SetSelectedIndex(value);
         }
+
         public IEnumerable<WpfTabPage> Tabs => TabsInternal.OfType<WpfTabPage>();
         #endregion
 

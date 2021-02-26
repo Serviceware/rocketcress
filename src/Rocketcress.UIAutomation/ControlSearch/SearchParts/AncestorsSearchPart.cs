@@ -9,8 +9,16 @@ namespace Rocketcress.UIAutomation.ControlSearch.SearchParts
         public int MaxDepth { get; set; }
         public ISearchPart ChildPart { get; set; }
 
-        public AncestorsSearchPart(int maxDepth) : this(maxDepth, null, null) { }
-        public AncestorsSearchPart(int maxDepth, ISearchCondition condition) : this (maxDepth, condition, null) { }
+        public AncestorsSearchPart(int maxDepth)
+            : this(maxDepth, null, null)
+        {
+        }
+
+        public AncestorsSearchPart(int maxDepth, ISearchCondition condition)
+            : this(maxDepth, condition, null)
+        {
+        }
+
         public AncestorsSearchPart(int maxDepth, ISearchCondition condition, ISearchPart childPart)
         {
             MaxDepth = maxDepth;
@@ -34,13 +42,16 @@ namespace Rocketcress.UIAutomation.ControlSearch.SearchParts
                     if (Condition?.Check(current, treeWalker) != false)
                     {
                         if (ChildPart == null)
+                        {
                             yield return current;
+                        }
                         else
                         {
                             foreach (var res in ChildPart.FindElements(current, treeWalker))
                                 yield return res;
                         }
                     }
+
                     nextLevel.Add(current);
                 }
 

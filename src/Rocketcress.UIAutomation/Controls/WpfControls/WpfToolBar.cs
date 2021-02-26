@@ -10,12 +10,34 @@ namespace Rocketcress.UIAutomation.Controls.WpfControls
         protected override By BaseLocationKey => base.BaseLocationKey.AndControlType(ControlType.ToolBar);
 
         #region Construcotrs
-        public WpfToolBar(By locationKey) : base(locationKey) { }
-        public WpfToolBar(IUITestControl parent) : base(parent) { }
-        public WpfToolBar(AutomationElement element) : base(element) { }
-        public WpfToolBar(By locationKey, AutomationElement parent) : base(locationKey, parent) { }
-        public WpfToolBar(By locationKey, IUITestControl parent) : base(locationKey, parent) { }
-        protected WpfToolBar() { }
+        public WpfToolBar(By locationKey)
+            : base(locationKey)
+        {
+        }
+
+        public WpfToolBar(IUITestControl parent)
+            : base(parent)
+        {
+        }
+
+        public WpfToolBar(AutomationElement element)
+            : base(element)
+        {
+        }
+
+        public WpfToolBar(By locationKey, AutomationElement parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        public WpfToolBar(By locationKey, IUITestControl parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        protected WpfToolBar()
+        {
+        }
         #endregion
 
         #region Public Properties

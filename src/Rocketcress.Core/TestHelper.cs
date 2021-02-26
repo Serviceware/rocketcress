@@ -20,17 +20,18 @@ namespace Rocketcress.Core
         /// </summary>
         /// <param name="enable">Indicates the type of request for WOW64 system folder redirection. If TRUE, requests redirection be enabled; if FALSE, requests redirection be disabled.</param>
         /// <returns>Boolean value indicating whether the function succeeded. If TRUE, the function succeeded; if FALSE, the function failed.</returns>
-        /// <remarks>https://docs.microsoft.com/en-us/windows/desktop/api/winbase/nf-winbase-wow64enablewow64fsredirection</remarks>
+        /// <remarks>https://docs.microsoft.com/en-us/windows/desktop/api/winbase/nf-winbase-wow64enablewow64fsredirection.</remarks>
         [DllImport("Kernel32.Dll", EntryPoint = "Wow64EnableWow64FsRedirection")]
-        public static extern bool EnableWow64FSRedirection(bool enable);
+        private static extern bool EnableWow64FSRedirection(bool enable);
 
 #if DEBUG
         private static bool _isDebugConfiguration = true;
 #else
         private static bool _isDebugConfiguration = false;
 #endif
+
         /// <summary>
-        /// Determines if the current run is executed with debug assemblies.
+        /// Gets or sets a value indicating whether the current run is executed with debug assemblies.
         /// </summary>
         public static bool IsDebugConfiguration
         {
@@ -50,6 +51,7 @@ namespace Rocketcress.Core
         /// <returns>Returns true if the action has been successfully executed once; otherwise false.</returns>
         public static bool RetryAction(Func<bool> action, int maxRetryCount, bool catchExceptions = true, int delayBetweenRetries = 0, bool exceptionTrace = true, Action<Exception> onException = null)
             => RetryActionCancelable(action, maxRetryCount, catchExceptions, delayBetweenRetries, exceptionTrace, onException == null ? (Func<Exception, bool>)null : CreateOnExceptionFunction(onException));
+
         /// <summary>
         /// Retries an action until the action succeeds or the maximum of retries have been reached.
         /// </summary>
@@ -73,7 +75,7 @@ namespace Rocketcress.Core
                 }
                 catch (Exception ex)
                 {
-                    if(exceptionTrace)
+                    if (exceptionTrace)
                         Logger.LogInfo("Exception while RetryAction: {0}", ex.Message);
                     var @continue = onException?.Invoke(ex);
                     if (!catchExceptions)
@@ -81,9 +83,11 @@ namespace Rocketcress.Core
                     if (@continue == false)
                         return false;
                 }
+
                 if (delayBetweenRetries > 0 && i < maxRetryCount)
                     Thread.Sleep(delayBetweenRetries);
             }
+
             return false;
         }
 
@@ -98,6 +102,7 @@ namespace Rocketcress.Core
         /// <returns>Returns true if the action has been successfully executed once; otherwise false.</returns>
         public static bool RetryAction(Action action, int maxRetryCount, int delayBetweenRetries = 0, bool exceptionTrace = true, Action<Exception> onException = null)
             => RetryActionCancelable(action, maxRetryCount, delayBetweenRetries, exceptionTrace, onException == null ? (Func<Exception, bool>)null : CreateOnExceptionFunction(onException));
+
         /// <summary>
         /// Retries an action until the action succeeds or the maximum of retries have been reached.
         /// </summary>
@@ -123,9 +128,11 @@ namespace Rocketcress.Core
                     if (onException?.Invoke(ex) == false)
                         return false;
                 }
+
                 if (delayBetweenRetries > 0 && i < maxRetryCount)
                     Thread.Sleep(delayBetweenRetries);
             }
+
             return false;
         }
 
@@ -141,6 +148,7 @@ namespace Rocketcress.Core
         /// <returns>Returns true if the action has been successfully executed once; otherwise false.</returns>
         public static bool RetryAction(Func<int, bool> action, int maxRetryCount, bool catchExceptions = true, int delayBetweenRetries = 0, bool exceptionTrace = true, Action<Exception> onException = null)
             => RetryActionCancelable(action, maxRetryCount, catchExceptions, delayBetweenRetries, exceptionTrace, onException == null ? (Func<Exception, bool>)null : CreateOnExceptionFunction(onException));
+
         /// <summary>
         /// Retries an action until the action succeeds or the maximum of retries have been reached.
         /// </summary>
@@ -170,9 +178,11 @@ namespace Rocketcress.Core
                     if (@continue == false)
                         return false;
                 }
+
                 if (delayBetweenRetries > 0 && i < maxRetryCount)
                     Thread.Sleep(delayBetweenRetries);
             }
+
             return false;
         }
 
@@ -187,6 +197,7 @@ namespace Rocketcress.Core
         /// <returns>Returns true if the action has been successfully executed once; otherwise false.</returns>
         public static bool RetryAction(Action<int> action, int maxRetryCount, int delayBetweenRetries = 0, bool exceptionTrace = true, Action<Exception> onException = null)
             => RetryActionCancelable(action, maxRetryCount, delayBetweenRetries, exceptionTrace, onException == null ? (Func<Exception, bool>)null : CreateOnExceptionFunction(onException));
+
         /// <summary>
         /// Retries an action until the action succeeds or the maximum of retries have been reached.
         /// </summary>
@@ -212,9 +223,11 @@ namespace Rocketcress.Core
                     if (onException?.Invoke(ex) == false)
                         return false;
                 }
+
                 if (delayBetweenRetries > 0 && i < maxRetryCount)
                     Thread.Sleep(delayBetweenRetries);
             }
+
             return false;
         }
 
@@ -224,6 +237,7 @@ namespace Rocketcress.Core
         /// <param name="action">The action to execute.</param>
         /// <returns>Returns true if the action completed successfully; otherwise false.</returns>
         public static bool Try(Action action) => Try(action, true);
+
         /// <summary>
         /// Tries to execute an action.
         /// </summary>
@@ -237,7 +251,7 @@ namespace Rocketcress.Core
                 action();
                 return true;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 if (exceptionTrace)
                     Logger.LogInfo($"Ignored exception: {ex.Message}");
@@ -251,7 +265,8 @@ namespace Rocketcress.Core
         /// <typeparam name="T">The type of the result.</typeparam>
         /// <param name="action">The action to execute.</param>
         /// <returns>Returns the result of the action if it succeeds; otherwise the default value of the result type.</returns>
-        public static T Try<T>(Func<T> action) => Try(action, true, default(T));
+        public static T Try<T>(Func<T> action) => Try(action, true, default);
+
         /// <summary>
         /// Tries to execute an action.
         /// </summary>
@@ -259,7 +274,8 @@ namespace Rocketcress.Core
         /// <param name="action">The action to execute.</param>
         /// <param name="exceptionTrace">Determines wether to trace exceptions.</param>
         /// <returns>Returns the result of the action if it succeeds; otherwise the default value of the result type.</returns>
-        public static T Try<T>(Func<T> action, bool exceptionTrace) => Try(action, exceptionTrace, default(T));
+        public static T Try<T>(Func<T> action, bool exceptionTrace) => Try(action, exceptionTrace, default);
+
         /// <summary>
         /// Tries to execute an action.
         /// </summary>
@@ -268,6 +284,7 @@ namespace Rocketcress.Core
         /// <param name="resultOnError">The value that should be returned if the action fails.</param>
         /// <returns>Returns the result of the action if it succeeds; otherwise the resultOnError.</returns>
         public static T Try<T>(Func<T> action, T resultOnError) => Try(action, true, resultOnError);
+
         /// <summary>
         /// Tries to execute an action.
         /// </summary>
@@ -282,7 +299,7 @@ namespace Rocketcress.Core
             {
                 return action();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 if (exceptionTrace)
                     Logger.LogInfo($"Ignored exception: {ex.Message}");
@@ -295,14 +312,16 @@ namespace Rocketcress.Core
         /// </summary>
         /// <param name="command">The command or commands to be executed.</param>
         /// <returns>Returns the following results of the PowerShell execution: The Exit Code, the output lines, the error if one exists.</returns>
-        public static (int exitCode, string[] output, string error) RunPowerShell(string command) => RunPowerShell(command, false, false);
+        public static (int ExitCode, string[] Output, string Error) RunPowerShell(string command) => RunPowerShell(command, false, false);
+
         /// <summary>
         /// Runs one or more commands with PowerShell.
         /// </summary>
         /// <param name="command">The command or commands to be executed.</param>
         /// <param name="runElevated">Determines wether to run PowerShell as an elevated process.</param>
         /// <returns>Returns the following results of the PowerShell execution: The Exit Code, the output lines, the error if one exists.</returns>
-        public static (int exitCode, string[] output, string error) RunPowerShell(string command, bool runElevated) => RunPowerShell(command, runElevated, false);
+        public static (int ExitCode, string[] Output, string Error) RunPowerShell(string command, bool runElevated) => RunPowerShell(command, runElevated, false);
+
         /// <summary>
         /// Runs one or more commands with PowerShell.
         /// </summary>
@@ -310,7 +329,7 @@ namespace Rocketcress.Core
         /// <param name="runElevated">Determines wether to run PowerShell as an elevated process.</param>
         /// <param name="disableWow64">Determines wether to disable file system redirection for the PowerShell call.</param>
         /// <returns>Returns the following results of the PowerShell execution: The Exit Code, the output lines, the error if one exists.</returns>
-        public static (int exitCode, string[] output, string error) RunPowerShell(string command, bool runElevated, bool disableWow64)
+        public static (int ExitCode, string[] Output, string Error) RunPowerShell(string command, bool runElevated, bool disableWow64)
         {
             var outFile = Path.GetTempFileName();
             var errorFile = Path.GetTempFileName();
@@ -327,7 +346,7 @@ namespace Rocketcress.Core
                 {
                     FileName = @"powershell.exe",
                     Arguments = $"-EncodedCommand {encodedCommand}",
-                    WindowStyle = ProcessWindowStyle.Hidden
+                    WindowStyle = ProcessWindowStyle.Hidden,
                 };
                 if (runElevated)
                     startInfo.Verb = "Runas";
@@ -342,7 +361,7 @@ namespace Rocketcress.Core
             }
 
             var exitCode = process.ExitCode;
-            var output = new string[0];
+            var output = Array.Empty<string>();
             var errors = (string)null;
 
             try
@@ -350,14 +369,20 @@ namespace Rocketcress.Core
                 errors = File.ReadAllText(errorFile);
                 File.Delete(errorFile);
             }
-            catch { /* Ignore errors while retrieving the logs */ }
+            catch
+            {
+                // Ignore errors while retrieving the logs
+            }
 
             try
             {
                 output = File.ReadAllLines(outFile);
                 File.Delete(outFile);
             }
-            catch { /* Ignore errors while retrieving the logs */ }
+            catch
+            {
+                // Ignore errors while retrieving the logs
+            }
 
             if (output.Length > 0)
                 Logger.LogInfo("Output:" + Environment.NewLine + string.Join(Environment.NewLine, output));
@@ -375,6 +400,7 @@ namespace Rocketcress.Core
         /// <param name="functions">A list of functions to execute.</param>
         /// <returns>Returns all of the function results as an array. The results are ordered the same way as the functions.</returns>
         public static T[] LoopUntilAllFinished<T>(IReadOnlyList<Func<T>> functions) => LoopUntilAllFinished(functions, null);
+
         /// <summary>
         /// Runs multiple functions in different threads in parallel and waits for all to finish.
         /// </summary>
@@ -397,9 +423,11 @@ namespace Rocketcress.Core
                         completed[i] = true;
                         result[i] = tasks[i].Result;
                     }
+
                     if (tasks[i].IsCompleted || tasks[i].IsCanceled || tasks[i].IsFaulted)
                         tasks[i] = Task.Run(functions[i]);
                 }
+
                 Thread.Sleep(0);
             }
 
@@ -413,6 +441,7 @@ namespace Rocketcress.Core
         /// <param name="timeout">The maximum execution time.</param>
         /// <returns>Returns true if the action executed without running in a timeout; otherwise false.</returns>
         public static bool RunWithTimeout(Action action, TimeSpan timeout) => RunWithTimeout(action, (int)timeout.TotalMilliseconds);
+
         /// <summary>
         /// Runs an action and stops it if the specified timeout is exceeded.
         /// </summary>
@@ -425,8 +454,14 @@ namespace Rocketcress.Core
             var testThread = new Thread(
                 new ThreadStart(() =>
                 {
-                    try { action(); }
-                    catch (Exception ex) { exception = ex; }
+                    try
+                    {
+                        action();
+                    }
+                    catch (Exception ex)
+                    {
+                        exception = ex;
+                    }
                 }));
 
             testThread.Start();
@@ -437,7 +472,9 @@ namespace Rocketcress.Core
                 // TODO: Abort Thread. Thread.Abort is deprecated! Use CancellationToken instead.
             }
             else if (exception != null)
+            {
                 throw exception;
+            }
 
             return result;
         }

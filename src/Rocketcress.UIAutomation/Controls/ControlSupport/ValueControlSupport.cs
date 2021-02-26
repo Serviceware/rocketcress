@@ -1,5 +1,5 @@
-﻿using Rocketcress.UIAutomation.Exceptions;
-using Rocketcress.Core;
+﻿using Rocketcress.Core;
+using Rocketcress.UIAutomation.Exceptions;
 using System.Text.RegularExpressions;
 using System.Windows.Automation;
 

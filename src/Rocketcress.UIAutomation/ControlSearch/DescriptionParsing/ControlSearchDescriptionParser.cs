@@ -1,22 +1,22 @@
-﻿using Rocketcress.UIAutomation.ControlSearch.SearchParts;
-using Rocketcress.UIAutomation.ControlSearch.DescriptionParsing.ConditionParsers;
+﻿using Rocketcress.UIAutomation.ControlSearch.DescriptionParsing.ConditionParsers;
+using Rocketcress.UIAutomation.ControlSearch.SearchParts;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using PropertyCondition = Rocketcress.UIAutomation.ControlSearch.Conditions.PropertyCondition;
-using OrCondition = Rocketcress.UIAutomation.ControlSearch.Conditions.OrCondition;
-using AndCondition = Rocketcress.UIAutomation.ControlSearch.Conditions.AndCondition;
 using System.Windows.Automation;
+using AndCondition = Rocketcress.UIAutomation.ControlSearch.Conditions.AndCondition;
+using OrCondition = Rocketcress.UIAutomation.ControlSearch.Conditions.OrCondition;
+using PropertyCondition = Rocketcress.UIAutomation.ControlSearch.Conditions.PropertyCondition;
 
 namespace Rocketcress.UIAutomation.ControlSearch.DescriptionParsing
 {
     internal class ControlSearchDescriptionParser
     {
-        private static IList<IConditionParser> _conditionParsers;
-
         private const int DefaultDescendantsMaxDepth = 5;
         private const int DefaultAncestorsMaxDepth = 5;
+
+        private static readonly IList<IConditionParser> _conditionParsers;
 
         static ControlSearchDescriptionParser()
         {
@@ -67,19 +67,25 @@ namespace Rocketcress.UIAutomation.ControlSearch.DescriptionParsing
         {
             var result = new List<SearchPartBase>();
 
-            foreach(var pathPart in pathGroup.Split('|'))
+            foreach (var pathPart in pathGroup.Split('|'))
             {
                 var pathPartMatch = RegularExpressions.SplitPartPathRegex.Match(pathPart);
                 var pathPartPath = pathPartMatch.Groups["Path"].Value;
                 var optPath = pathPartPath.Length > 1 && pathPartPath[0] == '/' && pathPartPath[1] != '/' ? pathPartPath.Substring(1) : pathPartPath;
                 int? maxDepth = int.TryParse(pathPartMatch.Groups["MaxDepth"].Value, out int tempMd) ? tempMd : (int?)null;
 
-                if (IsPathMatch(pathPartPath, optPath, null, "", "_", "."))
+                if (IsPathMatch(pathPartPath, optPath, null, string.Empty, "_", "."))
+                {
                     result.Add(new IdentitySearchPart());
+                }
                 else if (IsPathMatch(pathPartPath, optPath, ".."))
+                {
                     result.Add(new AncestorsSearchPart(maxDepth ?? DefaultAncestorsMaxDepth));
+                }
                 else if (IsPathMatch(pathPartPath, optPath, "../"))
+                {
                     result.Add(new NestedSearchPart(new AncestorsSearchPart(1), new DescendantsSearchPart(1)));
+                }
                 else if (IsPathMatch(pathPartPath, optPath, "./", "/"))
                 {
                     if (maxDepth.HasValue)
@@ -87,7 +93,9 @@ namespace Rocketcress.UIAutomation.ControlSearch.DescriptionParsing
                     result.Add(new DescendantsSearchPart(1));
                 }
                 else if (IsPathMatch(pathPartPath, optPath, ".//", "//"))
+                {
                     result.Add(new DescendantsSearchPart(maxDepth ?? DefaultDescendantsMaxDepth));
+                }
                 else if (IsPathMatch(pathPartPath, optPath, "./<", "./.<", "./>", "./.>", "./<>", "./.<>", "<", ".<", ">", ".>", "<>", ".<>"))
                 {
                     var options = RelativesSearchOptions.None;
@@ -101,7 +109,9 @@ namespace Rocketcress.UIAutomation.ControlSearch.DescriptionParsing
                     result.Add(new RelativesSearchPart(options));
                 }
                 else
+                {
                     throw new InvalidOperationException($"Invalid path syntax: '{pathPartPath}'");
+                }
             }
 
             return result.Count == 1 ? result[0] : new CompositeSearchPart(result);
@@ -133,15 +143,18 @@ namespace Rocketcress.UIAutomation.ControlSearch.DescriptionParsing
                     var condition = ParseConditionPart(match.Value);
 
                     if (string.IsNullOrEmpty(currentOperator) || currentOperator == "or")
+                    {
                         conditions.Add(condition);
+                    }
                     else
                     {
-                        if (!(conditions.Last() is AndCondition andCondition))
+                        if (conditions.Last() is not AndCondition andCondition)
                         {
                             andCondition = new AndCondition(conditions.Last());
                             conditions.RemoveAt(conditions.Count - 1);
                             conditions.Add(andCondition);
                         }
+
                         andCondition.Conditions.Add(condition);
                     }
 

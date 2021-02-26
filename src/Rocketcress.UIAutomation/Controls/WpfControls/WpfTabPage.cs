@@ -12,12 +12,34 @@ namespace Rocketcress.UIAutomation.Controls.WpfControls
         #endregion
 
         #region Constructors
-        public WpfTabPage(By locationKey) : base(locationKey) { }
-        public WpfTabPage(IUITestControl parent) : base(parent) { }
-        public WpfTabPage(AutomationElement element) : base(element) { }
-        public WpfTabPage(By locationKey, AutomationElement parent) : base(locationKey, parent) { }
-        public WpfTabPage(By locationKey, IUITestControl parent) : base(locationKey, parent) { }
-        protected WpfTabPage() { }
+        public WpfTabPage(By locationKey)
+            : base(locationKey)
+        {
+        }
+
+        public WpfTabPage(IUITestControl parent)
+            : base(parent)
+        {
+        }
+
+        public WpfTabPage(AutomationElement element)
+            : base(element)
+        {
+        }
+
+        public WpfTabPage(By locationKey, AutomationElement parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        public WpfTabPage(By locationKey, IUITestControl parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        protected WpfTabPage()
+        {
+        }
 
         protected override void Initialize()
         {

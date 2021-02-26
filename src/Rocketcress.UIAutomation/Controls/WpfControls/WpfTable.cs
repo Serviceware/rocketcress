@@ -27,12 +27,34 @@ namespace Rocketcress.UIAutomation.Controls.WpfControls
         #endregion
 
         #region Construcotrs
-        public WpfTable(By locationKey) : base(locationKey) { }
-        public WpfTable(IUITestControl parent) : base(parent) { }
-        public WpfTable(AutomationElement element) : base(element) { }
-        public WpfTable(By locationKey, AutomationElement parent) : base(locationKey, parent) { }
-        public WpfTable(By locationKey, IUITestControl parent) : base(locationKey, parent) { }
-        protected WpfTable() { }
+        public WpfTable(By locationKey)
+            : base(locationKey)
+        {
+        }
+
+        public WpfTable(IUITestControl parent)
+            : base(parent)
+        {
+        }
+
+        public WpfTable(AutomationElement element)
+            : base(element)
+        {
+        }
+
+        public WpfTable(By locationKey, AutomationElement parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        public WpfTable(By locationKey, IUITestControl parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        protected WpfTable()
+        {
+        }
         #endregion
 
         #region Public Properties
@@ -56,6 +78,7 @@ namespace Rocketcress.UIAutomation.Controls.WpfControls
             var element = TablePattern.GetItem(row, column);
             return element == null ? null : new WpfCell(element);
         }
+
         public virtual string[] GetColumnNames() => ColumnHeaders.Select(x => x.Name).ToArray();
         public virtual WpfRow GetRow(int index) => new WpfRow(ByRow.AndSkip(index), this);
         public virtual WpfCell FindFirstCellWithValue(string value)

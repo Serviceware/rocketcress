@@ -1,5 +1,5 @@
-﻿using Rocketcress.UIAutomation.Exceptions;
-using Rocketcress.Core;
+﻿using Rocketcress.Core;
+using Rocketcress.UIAutomation.Exceptions;
 using System;
 using System.Windows.Automation;
 
@@ -20,6 +20,7 @@ namespace Rocketcress.UIAutomation.Controls.ControlSupport
                 throw new UIActionNotSupportedException("This control does not support toggling (TogglePattern not available)", _control);
             return GetChecked(togglePattern);
         }
+
         private bool GetChecked(TogglePattern togglePattern)
         {
             return togglePattern.Current.ToggleState == ToggleState.On;

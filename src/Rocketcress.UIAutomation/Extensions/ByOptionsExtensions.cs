@@ -13,6 +13,7 @@ namespace Rocketcress.UIAutomation.Extensions
                 actual = actual?.ToLower();
                 expected = expected?.ToLower();
             }
+
             if (options.HasFlag(ByOptions.UseContains))
                 result = actual?.Contains(expected) ?? false;
             else

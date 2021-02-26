@@ -8,12 +8,34 @@ namespace Rocketcress.UIAutomation.Controls.Win32Controls
         protected override By BaseLocationKey => base.BaseLocationKey.AndControlType(ControlType.Text);
 
         #region Construcotrs
-        public Win32Text(By locationKey) : base(locationKey) { }
-        public Win32Text(IUITestControl parent) : base(parent) { }
-        public Win32Text(AutomationElement element) : base(element) { }
-        public Win32Text(By locationKey, AutomationElement parent) : base(locationKey, parent) { }
-        public Win32Text(By locationKey, IUITestControl parent) : base(locationKey, parent) { }
-        protected Win32Text() { }
+        public Win32Text(By locationKey)
+            : base(locationKey)
+        {
+        }
+
+        public Win32Text(IUITestControl parent)
+            : base(parent)
+        {
+        }
+
+        public Win32Text(AutomationElement element)
+            : base(element)
+        {
+        }
+
+        public Win32Text(By locationKey, AutomationElement parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        public Win32Text(By locationKey, IUITestControl parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        protected Win32Text()
+        {
+        }
         #endregion
 
         #region Public Properties

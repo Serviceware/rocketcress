@@ -1,7 +1,7 @@
-﻿using Rocketcress.UIAutomation.Controls.ControlSupport;
-using Rocketcress.Core;
-using System.Windows.Automation;
+﻿using Rocketcress.Core;
+using Rocketcress.UIAutomation.Controls.ControlSupport;
 using System.Windows;
+using System.Windows.Automation;
 
 namespace Rocketcress.UIAutomation.Controls.Win32Controls
 {
@@ -22,18 +22,42 @@ namespace Rocketcress.UIAutomation.Controls.Win32Controls
         #endregion
 
         #region Constructors
-        public Win32Window(By locationKey) : base(locationKey) { }
-        public Win32Window(IUITestControl parent) : base(parent) { }
-        public Win32Window(AutomationElement element) : base(element) { }
-        public Win32Window(By locationKey, AutomationElement parent) : base(locationKey, parent) { }
-        public Win32Window(By locationKey, IUITestControl parent) : base(locationKey, parent) { }
-        public Win32Window(By locationKey, Application app) : base(locationKey)
+        public Win32Window(By locationKey)
+            : base(locationKey)
+        {
+        }
+
+        public Win32Window(IUITestControl parent)
+            : base(parent)
+        {
+        }
+
+        public Win32Window(AutomationElement element)
+            : base(element)
+        {
+        }
+
+        public Win32Window(By locationKey, AutomationElement parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        public Win32Window(By locationKey, IUITestControl parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        public Win32Window(By locationKey, Application app)
+            : base(locationKey)
         {
             _application = app;
             if (app != null)
                 LocationKey.Append(By.ProcessId(app.Process.Id), false, false);
         }
-        protected Win32Window() { }
+
+        protected Win32Window()
+        {
+        }
 
         protected override void Initialize()
         {
@@ -48,6 +72,7 @@ namespace Rocketcress.UIAutomation.Controls.Win32Controls
             get => WindowPattern.Current.WindowVisualState == WindowVisualState.Maximized;
             set => WindowPattern.SetWindowVisualState(value ? WindowVisualState.Maximized : WindowVisualState.Normal);
         }
+
         public override bool Exists => base.Exists && _windowControlSupport.IsWindow();
         public override bool Displayed => Exists && _windowControlSupport.IsWindowVisible();
         #endregion

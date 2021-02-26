@@ -3,6 +3,7 @@
 namespace Rocketcress.Core.WindowsApiTypes
 {
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+#pragma warning disable SA1307 // Accessible fields should begin with upper-case letter
     [StructLayout(LayoutKind.Sequential)]
     public struct RECT
     {
@@ -27,5 +28,6 @@ namespace Rocketcress.Core.WindowsApiTypes
             }
         }
     }
+#pragma warning restore SA1307 // Accessible fields should begin with upper-case letter
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 }

@@ -111,7 +111,6 @@ namespace Rocketcress.Core
             providerFunc(provider);
         }
 
-
         /// <summary>
         /// This class is used internally.
         /// </summary>

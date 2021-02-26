@@ -17,7 +17,9 @@ namespace Rocketcress.Core.Base
         /// <summary>
         /// Initializes a new instance of the <see cref="WindowsTestContextBase"/> class.
         /// </summary>
-        protected WindowsTestContextBase() { }
+        protected WindowsTestContextBase()
+        {
+        }
 
         /// <inheritdoc />
         protected override void SaveScreenshot(string path)

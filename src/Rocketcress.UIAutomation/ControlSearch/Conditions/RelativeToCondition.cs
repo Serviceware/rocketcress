@@ -20,12 +20,15 @@ namespace Rocketcress.UIAutomation.ControlSearch.Conditions
         {
             bool result;
             if (Distance == 0)
+            {
                 result = Condition.Check(element, treeWalker);
+            }
             else
             {
                 var options = Distance > 0 ? RelativesSearchOptions.PrecedingRelatives : RelativesSearchOptions.SubsequentRelatives;
                 result = RelativesSearchPart.FindElements(element, treeWalker, options, Condition, null).Skip(Math.Abs(Distance) - 1).Any();
             }
+
             return result;
         }
 

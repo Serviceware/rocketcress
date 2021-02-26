@@ -1,10 +1,10 @@
-﻿using Rocketcress.UIAutomation.Common;
+﻿using Rocketcress.Core.Base;
+using Rocketcress.Core.Extensions;
+using Rocketcress.UIAutomation.Common;
 using Rocketcress.UIAutomation.ControlSearch;
 using Rocketcress.UIAutomation.ControlSearch.Conditions;
-using Rocketcress.UIAutomation.ControlSearch.SearchParts;
 using Rocketcress.UIAutomation.ControlSearch.DescriptionParsing;
-using Rocketcress.Core.Base;
-using Rocketcress.Core.Extensions;
+using Rocketcress.UIAutomation.ControlSearch.SearchParts;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,13 +18,13 @@ namespace Rocketcress.UIAutomation
         None = 0x0,
         UseContains = 0x1,
         IgnoreCase = 0x2,
-        Unequal = 0x4
+        Unequal = 0x4,
     }
 
     public class By : TestObjectBase
     {
         public static By Empty => new By();
-        
+
         public NestedSearchPart RootSearchPart { get; private set; }
         public CompositeSearchPart ElementSearchPart { get; private set; }
 
@@ -75,7 +75,7 @@ namespace Rocketcress.UIAutomation
 
         public override string ToString() => GetSearchDescription();
         #endregion
-        
+
         private By AndCondition(ISearchCondition condition)
         {
             ElementSearchPart.AppendCondition(condition, SearchConditionOperator.And);
@@ -83,15 +83,19 @@ namespace Rocketcress.UIAutomation
         }
 
         #region Condition Functions
+
         /// <summary>
-        /// Create a new location key from a search description in the CPath Syntax. (For more info in CPath Syntax see the cpath-syntax.txt in Rocketcress.UIAutomation project)
+        /// Create a new location key from a search description in the CPath Syntax (For more info in CPath Syntax see the README).
         /// </summary>
         /// <param name="cpath">The CPath to parse.</param>
+        /// <returns><see cref="By"/> object represented by the <paramref name="cpath"/>.</returns>
         public static By CPath(string cpath) => new By().AndCPath(cpath);
+
         /// <summary>
-        /// Adds conditions from a search description in the CPath Syntax to this location key. (For more info in CPath Syntax see the cpath-syntax.txt in Rocketcress.UIAutomation project)
+        /// Adds conditions from a search description in the CPath Syntax to this location key (For more info in CPath Syntax see the README).
         /// </summary>
         /// <param name="cpath">The CPath to parse.</param>
+        /// <returns>Same <see cref="By"/> object instance with added conditions represented by the <paramref name="cpath"/>.</returns>
         public virtual By AndCPath(string cpath)
         {
             var xpathPart = ControlSearchDescriptionParser.ParseSearchDescription(cpath);
@@ -99,7 +103,9 @@ namespace Rocketcress.UIAutomation
             var xpathElementPart = xpathPart.Parts.Last();
             CompositeSearchPart elementPart;
             if (xpathElementPart is CompositeSearchPart compositeXPathPart)
+            {
                 elementPart = compositeXPathPart;
+            }
             else
             {
                 elementPart = new CompositeSearchPart(xpathElementPart);
@@ -112,6 +118,7 @@ namespace Rocketcress.UIAutomation
                     xpathElementPartBase.SkipCount = null;
                     xpathElementPartBase.TakeCount = null;
                 }
+
                 xpathPart.Parts[xpathPart.Parts.Count - 1] = elementPart;
             }
 
@@ -211,13 +218,21 @@ namespace Rocketcress.UIAutomation
             return this;
         }
 
-        public static By PatternAvailable<TPattern>() where TPattern : BasePattern => new By().AndPatternAvailable(typeof(TPattern), true);
+        public static By PatternAvailable<TPattern>()
+            where TPattern : BasePattern
+            => new By().AndPatternAvailable(typeof(TPattern), true);
         public static By PatternAvailable(Type patternType) => new By().AndPatternAvailable(patternType, true);
-        public static By PatternNotAvailable<TPattern>() where TPattern : BasePattern => new By().AndPatternAvailable(typeof(TPattern), false);
+        public static By PatternNotAvailable<TPattern>()
+            where TPattern : BasePattern
+            => new By().AndPatternAvailable(typeof(TPattern), false);
         public static By PatternNotAvailable(Type patternType) => new By().AndPatternAvailable(patternType, false);
-        public virtual By AndPatternAvailable<TPattern>() where TPattern : BasePattern => AndPatternAvailable(typeof(TPattern), true);
+        public virtual By AndPatternAvailable<TPattern>()
+            where TPattern : BasePattern
+            => AndPatternAvailable(typeof(TPattern), true);
         public virtual By AndPatternAvailable(Type patternType) => AndPatternAvailable(patternType, true);
-        public virtual By AndPatternNotAvailable<TPattern>() where TPattern : BasePattern => AndPatternAvailable(typeof(TPattern), false);
+        public virtual By AndPatternNotAvailable<TPattern>()
+            where TPattern : BasePattern
+            => AndPatternAvailable(typeof(TPattern), false);
         public virtual By AndPatternNotAvailable(Type patternType) => AndPatternAvailable(patternType, false);
         protected virtual By AndPatternAvailable(Type patternType, bool shouldBeAvailable)
         {

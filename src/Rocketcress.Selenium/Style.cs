@@ -1,5 +1,5 @@
-﻿using Rocketcress.Core.Extensions;
-using OpenQA.Selenium;
+﻿using OpenQA.Selenium;
+using Rocketcress.Core.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -19,7 +19,7 @@ namespace Rocketcress.Selenium
         private readonly ColorConverter _colorConverter = new ColorConverter();
 
         /// <summary>
-        /// Initializes a new instance of the Style class.
+        /// Initializes a new instance of the <see cref="Style"/> class.
         /// </summary>
         /// <param name="styleText">The css text to parse.</param>
         public Style(string styleText)
@@ -29,7 +29,7 @@ namespace Rocketcress.Selenium
         }
 
         /// <summary>
-        /// Initializes a new instance of the Style class.
+        /// Initializes a new instance of the <see cref="Style"/> class.
         /// </summary>
         /// <param name="element">The DOM element to inspect.</param>
         public Style(IWebElement element)
@@ -42,12 +42,14 @@ namespace Rocketcress.Selenium
         /// Gets the background color ("background-color") attribute value.
         /// </summary>
         public Color BackgroundColor => ConvertFromCssColor(this["background-color"] ?? "White");
+
         /// <summary>
         /// Gets the text color ("color") attribute value.
         /// </summary>
         public Color TextColor => ConvertFromCssColor(this["color"] ?? "Black");
+
         /// <summary>
-        /// Get if the text is Bold
+        /// Gets a value indicating whether the text is Bold.
         /// </summary>
         public bool IsBold => this["font-weight"] == "bold";
 
@@ -82,7 +84,7 @@ namespace Rocketcress.Selenium
             return styleText.Split(new[] { ";" }, StringSplitOptions.RemoveEmptyEntries)
                 .Select(x => x.Split(':')).Where(x => x.Length == 2).ToDictionary(x => x[0].Trim().ToLower(), x => x[1].Trim());
         }
-        
+
         private Color ConvertFromCssColor(string value)
         {
             Match match = Regex.Match(value, @"\A\s*rgb\s*\(\s*(?<r>[0-9]{1,3})\s*,\s*(?<g>[0-9]{1,3})\s*,\s*(?<b>[0-9]{1,3})\s*\)\s*\Z");
@@ -93,6 +95,7 @@ namespace Rocketcress.Selenium
                     int.Parse(match.Groups["g"].Value),
                     int.Parse(match.Groups["b"].Value));
             }
+
             match = Regex.Match(value, @"\A\s*rgba\s*\(\s*(?<r>[0-9]{1,3})\s*,\s*(?<g>[0-9]{1,3})\s*,\s*(?<b>[0-9]{1,3})\s*,\s*(?<a>[0-9]{1,3})\s*\)\s*\Z");
             if (match.Success)
             {
@@ -102,13 +105,14 @@ namespace Rocketcress.Selenium
                     int.Parse(match.Groups["g"].Value),
                     int.Parse(match.Groups["b"].Value));
             }
+
             match = Regex.Match(value, @"\A\s*hsl\s*\(\s*(?<h>[0-9]{1,3})\s*,\s*(?<s>[0-9]{1,3})\s*,\s*(?<l>[0-9]{1,3})\s*\)\s*\Z");
             if (match.Success)
                 throw new NotSupportedException("HSL css format is currently not supported.");
             match = Regex.Match(value, @"\A\s*hsla\s*\(\s*(?<h>[0-9]{1,3})\s*,\s*(?<s>[0-9]{1,3})\s*,\s*(?<l>[0-9]{1,3})\s*,\s*(?<a>[0-9]{1,3})\s*\)\s*\Z");
             if (match.Success)
                 throw new NotSupportedException("HSLA css format is currently not supported.");
-            
+
             return (Color)_colorConverter.ConvertFromString(value);
         }
     }

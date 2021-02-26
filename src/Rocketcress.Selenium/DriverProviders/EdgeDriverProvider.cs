@@ -1,6 +1,6 @@
-﻿using Rocketcress.Core;
-using Microsoft.Win32;
+﻿using Microsoft.Win32;
 using OpenQA.Selenium;
+using Rocketcress.Core;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -29,7 +29,7 @@ namespace Rocketcress.Selenium.DriverProviders
                 "--disable-extensions",                 // Disable extensions (faster)
                 "--inprivate",
                 "--no-sandbox",
-                "--disable-infobars"
+                "--disable-infobars",
             };
             driverConfiguration?.ConfigureEdgeArguments(eArgs);
             eOptions.AddArguments(eArgs);
@@ -45,8 +45,10 @@ namespace Rocketcress.Selenium.DriverProviders
                 var eService = OpenQA.Selenium.Edge.EdgeDriverService.CreateDefaultServiceFromOptions(driverPath, driverExecutableName, eOptions);
                 return this.RetryCreateDriver(() => new OpenQA.Selenium.Edge.EdgeDriver(eService, eOptions, browserTimeout));
             }
-            else 
+            else
+            {
                 return this.RetryCreateDriver(() => new OpenQA.Selenium.Remote.RemoteWebDriver(new Uri(settings.RemoteDriverUrl), eOptions));
+            }
         }
 
         /// <inheritdoc />
@@ -57,7 +59,7 @@ namespace Rocketcress.Selenium.DriverProviders
                 .Select(x => x.Id).ToArray();
         }
 
-        private static (string driverPath, string driverExecutableName) GetEdgeDriverPath()
+        private static (string DriverPath, string DriverExecutableName) GetEdgeDriverPath()
         {
             string urlFormat;
             string driverFileName;
@@ -67,7 +69,9 @@ namespace Rocketcress.Selenium.DriverProviders
                 driverFileName = "msedgedriver.exe";
             }
             else
+            {
                 throw new NotSupportedException("The Web Driver for Edge cannot be retrieved for this operating system.");
+            }
 
             var edgeVersion = (string)(Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Edge\BLBeacon")?.GetValue("version")
                 ?? throw new InvalidOperationException("The version of Microsoft Edge (Chromium) could not be obatined. Please verify that Edge is installed."));
@@ -94,12 +98,15 @@ namespace Rocketcress.Selenium.DriverProviders
                         ?? throw new InvalidOperationException($"The downloaded file from \"{driverZipUrl}\" does not contain a \"{driverFileName}\" file.");
                     driverEntry.ExtractToFile(driverFilePath);
                 }
+
                 File.Delete(zipPath);
 
                 Logger.LogInfo("Successfully downloaded and unzipped driver to: " + driverFilePath);
             }
             else
+            {
                 Logger.LogInfo("Driver already exists in Cache.");
+            }
 
             Logger.LogInfo($"Using driver \"{driverFileName}\" in folder \"{driverTempPath}\"");
             return (driverTempPath, driverFileName);

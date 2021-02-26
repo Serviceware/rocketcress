@@ -17,6 +17,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{8241F7E2
 	ProjectSection(SolutionItems) = preProject
 		build\build.yml = build\build.yml
 		build\Rocketcress.props = build\Rocketcress.props
+		build\Rocketcress.ruleset = build\Rocketcress.ruleset
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rocketcress.Mail", "src\Rocketcress.Mail\Rocketcress.Mail.csproj", "{8AAB2090-76DB-44A1-B667-C0E30192B2E3}"

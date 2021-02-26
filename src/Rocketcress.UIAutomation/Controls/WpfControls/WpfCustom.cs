@@ -8,12 +8,34 @@ namespace Rocketcress.UIAutomation.Controls.WpfControls
         protected override By BaseLocationKey => base.BaseLocationKey.AndControlType(ControlType.Custom);
 
         #region Constructors
-        public WpfCustom(By locationKey) : base(locationKey) { }
-        public WpfCustom(IUITestControl parent) : base(parent) { }
-        public WpfCustom(AutomationElement element) : base(element) { }
-        public WpfCustom(By locationKey, AutomationElement parent) : base(locationKey, parent) { }
-        public WpfCustom(By locationKey, IUITestControl parent) : base(locationKey, parent) { }
-        protected WpfCustom() { }
+        public WpfCustom(By locationKey)
+            : base(locationKey)
+        {
+        }
+
+        public WpfCustom(IUITestControl parent)
+            : base(parent)
+        {
+        }
+
+        public WpfCustom(AutomationElement element)
+            : base(element)
+        {
+        }
+
+        public WpfCustom(By locationKey, AutomationElement parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        public WpfCustom(By locationKey, IUITestControl parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        protected WpfCustom()
+        {
+        }
         #endregion
     }
 }

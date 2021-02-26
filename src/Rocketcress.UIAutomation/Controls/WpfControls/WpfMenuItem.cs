@@ -10,19 +10,41 @@ namespace Rocketcress.UIAutomation.Controls.WpfControls
     public class WpfMenuItem : WpfControl, IUITestMenuItemControl
     {
         protected override By BaseLocationKey => base.BaseLocationKey.AndControlType(ControlType.MenuItem);
-        
+
         #region Patterns
         public TogglePattern TogglePattern => GetPattern<TogglePattern>();
         public ExpandCollapsePattern ExpandCollapsePattern => GetPattern<ExpandCollapsePattern>();
         #endregion
 
         #region Construcotrs
-        public WpfMenuItem(By locationKey) : base(locationKey) { }
-        public WpfMenuItem(IUITestControl parent) : base(parent) { }
-        public WpfMenuItem(AutomationElement element) : base(element) { }
-        public WpfMenuItem(By locationKey, AutomationElement parent) : base(locationKey, parent) { }
-        public WpfMenuItem(By locationKey, IUITestControl parent) : base(locationKey, parent) { }
-        protected WpfMenuItem() { }
+        public WpfMenuItem(By locationKey)
+            : base(locationKey)
+        {
+        }
+
+        public WpfMenuItem(IUITestControl parent)
+            : base(parent)
+        {
+        }
+
+        public WpfMenuItem(AutomationElement element)
+            : base(element)
+        {
+        }
+
+        public WpfMenuItem(By locationKey, AutomationElement parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        public WpfMenuItem(By locationKey, IUITestControl parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        protected WpfMenuItem()
+        {
+        }
 
         protected override void Initialize()
         {

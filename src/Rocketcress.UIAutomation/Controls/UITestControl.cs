@@ -1,20 +1,20 @@
-﻿using Rocketcress.UIAutomation.Common;
+﻿using Rocketcress.Core;
+using Rocketcress.Core.Base;
+using Rocketcress.Core.Extensions;
+using Rocketcress.UIAutomation.Common;
 using Rocketcress.UIAutomation.ControlSearch;
 using Rocketcress.UIAutomation.Exceptions;
 using Rocketcress.UIAutomation.Extensions;
-using Rocketcress.UIAutomation.Interaction;
-using Rocketcress.Core;
-using Rocketcress.Core.Base;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Windows.Automation;
 using System.Windows;
-using Rocketcress.Core.Extensions;
+using System.Windows.Automation;
 using System.Windows.Forms;
 using System.Windows.Input;
 using Mouse = Rocketcress.UIAutomation.Interaction.Mouse;
@@ -22,7 +22,7 @@ using Mouse = Rocketcress.UIAutomation.Interaction.Mouse;
 namespace Rocketcress.UIAutomation.Controls
 {
     /// <summary>
-    /// UITestControl provides the ability to locate controls on a User Interface. 
+    /// UITestControl provides the ability to locate controls on a User Interface.
     /// It provides properties and methods which are generic to controls across technologies.
     /// </summary>
     public class UITestControl : TestObjectBase, IUITestControl
@@ -40,28 +40,32 @@ namespace Rocketcress.UIAutomation.Controls
         public event EventHandler AutomationElementChanged;
 
         /// <summary>
-        /// The location key that is used to find the underlying <see cref="System.Windows.Automation.AutomationElement"/>.
+        /// Gets the location key that is used to find the underlying <see cref="System.Windows.Automation.AutomationElement"/>.
         /// </summary>
         public virtual By LocationKey { get; private set; }
+
         /// <summary>
-        /// A base location key that is prepended to the location key provided to the constructor.
+        /// Gets a base location key that is prepended to the location key provided to the constructor.
         /// </summary>
         protected virtual By BaseLocationKey => By.Empty;
+
         /// <summary>
-        /// The parent control
+        /// Gets the parent control.
         /// </summary>
         public virtual IUITestControl SearchContext { get; private set; }
+
         /// <summary>
-        /// The application to which the current control is associated with.
+        /// Gets the application to which the current control is associated with.
         /// </summary>
         public virtual Application Application => SearchContext?.Application ?? UIAutomationTestContext.CurrentContext.ActiveApplication;
 
         /// <summary>
-        /// Determines if the underlying <see cref="System.Windows.Automation.AutomationElement"/> is loaded dynamically.
+        /// Gets a value indicating whether the underlying <see cref="System.Windows.Automation.AutomationElement"/> is loaded dynamically.
         /// </summary>
         public virtual bool IsLazy => LocationKey != null;
+
         /// <summary>
-        /// The underlying <see cref="System.Windows.Automation.AutomationElement"/>.
+        /// gets the underlying <see cref="System.Windows.Automation.AutomationElement"/>.
         /// </summary>
         public virtual AutomationElement AutomationElement
         {
@@ -72,8 +76,9 @@ namespace Rocketcress.UIAutomation.Controls
                 return _automationElement;
             }
         }
+
         /// <summary>
-        /// Determines if the control exists.
+        /// Gets a value indicating whether the control exists.
         /// </summary>
         public virtual bool Exists
         {
@@ -85,34 +90,52 @@ namespace Rocketcress.UIAutomation.Controls
                         TryFind();
                     return _automationElement?.IsStale() == false;
                 }
-                catch (NoSuchElementException) { return false; }
+                catch (NoSuchElementException)
+                {
+                    return false;
+                }
             }
         }
+
         /// <summary>
-        /// Determines if the control exists and is displayed (not offscreen).
+        /// Gets a value indicating whether the control exists and is displayed (not offscreen).
         /// </summary>
         public virtual bool Displayed => Exists && !IsOffscreen;
         #endregion
 
         #region Constructors
-        protected UITestControl() { }
+        protected UITestControl()
+        {
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UITestControl"/> class as lazy element.
         /// </summary>
         /// <param name="locationKey">The location key.</param>
-        public UITestControl(By locationKey) : this(locationKey, (UITestControl)null) { }
+        public UITestControl(By locationKey)
+            : this(locationKey, (UITestControl)null)
+        {
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="UITestControl"/> class as lazy element.
         /// </summary>
         /// <param name="parent">The parent control.</param>
-        public UITestControl(IUITestControl parent) : this(By.Empty, parent) { }
+        public UITestControl(IUITestControl parent)
+            : this(By.Empty, parent)
+        {
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="UITestControl"/> class as lazy element.
         /// </summary>
         /// <param name="locationKey">The location key.</param>
         /// <param name="parent">The parent control.</param>
-        public UITestControl(By locationKey, AutomationElement parent) : this(locationKey, new UITestControl(parent)) { }
+        public UITestControl(By locationKey, AutomationElement parent)
+            : this(locationKey, new UITestControl(parent))
+        {
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="UITestControl"/> class as lazy element.
         /// </summary>
@@ -135,7 +158,7 @@ namespace Rocketcress.UIAutomation.Controls
         {
             LocationKey = null;
             SearchContext = null;
-            _automationElement = element ?? throw new ArgumentNullException("element", "The automation element cannot be null.");
+            _automationElement = element ?? throw new ArgumentNullException(nameof(element), "The automation element cannot be null.");
             Initialize();
         }
         #endregion
@@ -143,7 +166,7 @@ namespace Rocketcress.UIAutomation.Controls
         #region AutomationElement Properties
 
         /// <summary>
-        /// Creates a lazy <see cref="IUITestControl"/> object representing the parent of this control.
+        /// Gets a lazy <see cref="IUITestControl"/> object representing the parent of this control.
         /// </summary>
         public virtual IUITestControl Parent
         {
@@ -156,7 +179,7 @@ namespace Rocketcress.UIAutomation.Controls
         }
 
         /// <summary>
-        /// Creates a lazy <see cref="IUITestControl"/> object representing the window, in which the current control is contained in.
+        /// Gets a lazy <see cref="IUITestControl"/> object representing the window, in which the current control is contained in.
         /// </summary>
         public virtual IUITestControl Window
         {
@@ -172,54 +195,67 @@ namespace Rocketcress.UIAutomation.Controls
         /// Gets the automation id of this control.
         /// </summary>
         public virtual string AutomationId => GetPropertyValue<string>(AutomationElement.AutomationIdProperty);
+
         /// <summary>
-        /// Gets a value that indicates whether this control is enabled.
+        /// Gets a value indicating whether this control is enabled.
         /// </summary>
         public virtual bool Enabled => GetPropertyValue<bool>(AutomationElement.IsEnabledProperty);
+
         /// <summary>
         /// Gets the Bounding rectangle for this control.
         /// </summary>
         public virtual Rect BoundingRectangle => GetPropertyValue<Rect>(AutomationElement.BoundingRectangleProperty);
+
         /// <summary>
-        /// Gets a value that indicates wether the control has a bounding rectangle.
+        /// Gets a value indicating whether the control has a bounding rectangle.
         /// </summary>
         public virtual bool HasBoundingRectangle => BoundingRectangle != new Rect(0, 0, 0, 0);
+
         /// <summary>
         /// Gets the screen location for this control.
         /// </summary>
         public virtual Point Location => BoundingRectangle.Location;
+
         /// <summary>
         /// Gets the size of this control.
         /// </summary>
         public virtual Size Size => BoundingRectangle.Size;
+
         /// <summary>
-        /// Gets a value that indicates whether this control can have keyboard focus.
+        /// Gets a value indicating whether this control can have keyboard focus.
         /// </summary>
         public virtual bool IsFocusable => GetPropertyValue<bool>(AutomationElement.IsKeyboardFocusableProperty);
+
         /// <summary>
-        /// Gets a value that indicates whether this control has keyboard focus.
+        /// Gets a value indicating whether this control has keyboard focus.
         /// </summary>
         public virtual bool HasFocus => GetPropertyValue<bool>(AutomationElement.HasKeyboardFocusProperty);
+
         /// <summary>
         /// Gets the control type of this control.
         /// </summary>
         public virtual ControlType ControlType => GetPropertyValue<ControlType>(AutomationElement.ControlTypeProperty);
+
         /// <summary>
         /// Gets the name of this control.
         /// </summary>
         public virtual string Name => GetPropertyValue<string>(AutomationElement.NameProperty);
+
         /// <summary>
         /// Gets the id of the process, from which this control was created from.
         /// </summary>
         public virtual int ProcessId => GetPropertyValue<int>(AutomationElement.ProcessIdProperty);
+
         /// <summary>
         /// Gets a value indicating whether this control is offscreen.
         /// </summary>
         public virtual bool IsOffscreen => GetPropertyValue<bool>(AutomationElement.IsOffscreenProperty);
+
         /// <summary>
         /// Gets the native window handle from this control.
         /// </summary>
         public virtual IntPtr WindowHandle => new IntPtr(GetPropertyValue<int>(AutomationElement.NativeWindowHandleProperty));
+
         /// <summary>
         /// Gets a point on screen that can be used to click on this control.
         /// </summary>
@@ -235,6 +271,7 @@ namespace Rocketcress.UIAutomation.Controls
                         throw new UIAutomationControlException("A clickable point could not be obtained", this);
                     point = BoundingRectangle.GetAbsoluteCenter();
                 }
+
                 return point;
             }
         }
@@ -243,6 +280,7 @@ namespace Rocketcress.UIAutomation.Controls
         /// Gets the class name of this control.
         /// </summary>
         public virtual string ClassName => GetPropertyValue<string>(AutomationElement.ClassNameProperty);
+
         /// <summary>
         /// Gets the help text of this control.
         /// </summary>
@@ -250,10 +288,13 @@ namespace Rocketcress.UIAutomation.Controls
         #endregion
 
         #region Protected Methods
+
         /// <summary>
         /// Initializes the control and potentially child control for this control. This method is executed in the constructors.
         /// </summary>
-        protected virtual void Initialize() { }
+        protected virtual void Initialize()
+        {
+        }
 
         protected internal virtual void LogDebug(string message, params object[] @params) => Logger.LogDebug(message + $" ({GetSearchDescription()})", @params);
         protected internal virtual void LogInfo(string message, params object[] @params) => Logger.LogInfo(message + $" ({GetSearchDescription()})", @params);
@@ -263,6 +304,7 @@ namespace Rocketcress.UIAutomation.Controls
         #endregion
 
         #region Public Methods
+
         /// <summary>
         /// Clears the underlying AutomationElement, so that on the next acces to the <see cref="AutomationElement"/> property, this control is searched again.
         /// </summary>
@@ -282,7 +324,7 @@ namespace Rocketcress.UIAutomation.Controls
         {
             if (!IsLazy)
                 throw new UIActionNotSupportedException("The control cannot be search on a lazy control.", this);
-            
+
             var parent = SearchContext == null ? AutomationElement.RootElement : SearchContext.GetAutomationElementFailFast();
             if (parent == null)
                 return false;
@@ -291,6 +333,7 @@ namespace Rocketcress.UIAutomation.Controls
             AutomationElementChanged?.Invoke(this, new EventArgs());
             return !_automationElement.IsStale();
         }
+
         /// <summary>
         /// Searches for the control defined by this <see cref="IUITestControl"/> and throws an exception if it is not found.
         /// </summary>
@@ -303,11 +346,13 @@ namespace Rocketcress.UIAutomation.Controls
                 throw new NoSuchElementException(this);
             AutomationElementChanged?.Invoke(this, new EventArgs());
         }
+
         /// <summary>
         /// Tries to find the control defined by this <see cref="IUITestControl"/> and returns the <see cref="AutomationElement"/> if it was found.
         /// </summary>
         /// <returns>Returns the <see cref="AutomationElement"/> if a control was found; otherwise null.</returns>
         public AutomationElement GetAutomationElementFailFast() => Exists ? _automationElement : null;
+
         /// <summary>
         /// Tries to find the control defined by this <see cref="IUITestControl"/> and returns the <see cref="AutomationElement"/> if it was found.
         /// </summary>
@@ -325,6 +370,7 @@ namespace Rocketcress.UIAutomation.Controls
                 LogWarning("Clicking on disabled control.");
             Mouse.Click(this);
         }
+
         /// <summary>
         /// Clicks on the point relative to the top left corner of the control.
         /// </summary>
@@ -336,17 +382,7 @@ namespace Rocketcress.UIAutomation.Controls
                 LogWarning("Clicking on disabled control.");
             Mouse.Click(this, relativePoint);
         }
-        /// <summary>
-        /// Clicks the control on a clickable point.
-        /// </summary>
-        public virtual void ClickAndWaitForRefresh(int fallbackSleep = 5000)
-        {
-            EnsureClickable();
-            if (!Enabled)
-                LogWarning("Clicking on disabled control.");
-            Mouse.Click(this);
-            Waiter.WaitUntil(() => { return false; }, fallbackSleep, false, null);
-        }
+
         /// <summary>
         /// Right-Clicks the control on a clickable point.
         /// </summary>
@@ -357,6 +393,7 @@ namespace Rocketcress.UIAutomation.Controls
                 LogWarning("Right clicking on disabled control.");
             Mouse.Click(this, MouseButtons.Right, ModifierKeys.None);
         }
+
         /// <summary>
         /// Right-Clicks on the point relative to the top left corner of the control.
         /// </summary>
@@ -379,6 +416,7 @@ namespace Rocketcress.UIAutomation.Controls
                 LogWarning("Double clicking on disabled control.");
             Mouse.DoubleClick(this);
         }
+
         /// <summary>
         /// Double-Clicks on the point relative to the top left corner of the control.
         /// </summary>
@@ -407,6 +445,7 @@ namespace Rocketcress.UIAutomation.Controls
             Mouse.StartDragging(this);
             Mouse.StopDragging(toControl);
         }
+
         /// <summary>
         /// Drags from a clickable point on this control and drops on the speficied relative point to this control.
         /// </summary>
@@ -419,6 +458,7 @@ namespace Rocketcress.UIAutomation.Controls
             Mouse.StartDragging(this);
             Mouse.StopDragging(this, relativePoint);
         }
+
         /// <summary>
         /// Drags from a clickable point on this control and drops on the specified absolute point.
         /// </summary>
@@ -435,36 +475,46 @@ namespace Rocketcress.UIAutomation.Controls
         /// <summary>
         /// Moves the mouse to a clickable point on this control.
         /// </summary>
+        /// <returns><c>true</c> when the mouse has been moved; otherwise <c>false</c>.</returns>
         public virtual bool MoveMouseToClickablePoint() => MoveMouseSlowlyToClickablePoint(0, Waiter.DefaultTimeoutMs, true);
+
         /// <summary>
         /// Moves the mouse to a clickable point on this control.
         /// </summary>
         /// <param name="assert">Determined wether to throw an exception if the control is not displayed in time.</param>
+        /// <returns><c>true</c> when the mouse has been moved; otherwise <c>false</c>.</returns>
         public virtual bool MoveMouseToClickablePoint(bool assert) => MoveMouseSlowlyToClickablePoint(0, Waiter.DefaultTimeoutMs, assert);
+
         /// <summary>
         /// Moves the mouse to a clickable point on this control.
         /// </summary>
         /// <param name="timeout">The time to wait for the control to be displayed before moving.</param>
         /// <param name="assert">Determined wether to throw an exception if the control is not displayed in time.</param>
+        /// <returns><c>true</c> when the mouse has been moved; otherwise <c>false</c>.</returns>
         public virtual bool MoveMouseToClickablePoint(int timeout, bool assert) => MoveMouseSlowlyToClickablePoint(0, timeout, assert);
 
         /// <summary>
         /// Moves the mouse to a clickable point on this control.
         /// </summary>
         /// <param name="duration">The duration of the mouse travel.</param>
+        /// <returns><c>true</c> when the mouse has been moved; otherwise <c>false</c>.</returns>
         public virtual bool MoveMouseSlowlyToClickablePoint(int duration) => MoveMouseSlowlyToClickablePoint(duration, Waiter.DefaultTimeoutMs, true);
+
         /// <summary>
         /// Moves the mouse to a clickable point on this control.
         /// </summary>
         /// <param name="duration">The duration of the mouse travel.</param>
         /// <param name="assert">Determined wether to throw an exception if the control is not displayed in time.</param>
+        /// <returns><c>true</c> when the mouse has been moved; otherwise <c>false</c>.</returns>
         public virtual bool MoveMouseSlowlyToClickablePoint(int duration, bool assert) => MoveMouseSlowlyToClickablePoint(duration, Waiter.DefaultTimeoutMs, assert);
+
         /// <summary>
         /// Moves the mouse to a clickable point on this control.
         /// </summary>
         /// <param name="duration">The duration of the mouse travel.</param>
         /// <param name="timeout">The time to wait for the control to be displayed before moving.</param>
         /// <param name="assert">Determined wether to throw an exception if the control is not displayed in time.</param>
+        /// <returns><c>true</c> when the mouse has been moved; otherwise <c>false</c>.</returns>
         public virtual bool MoveMouseSlowlyToClickablePoint(int duration, int timeout, bool assert)
         {
             if (!WaitUntilDisplayed(timeout))
@@ -481,12 +531,15 @@ namespace Rocketcress.UIAutomation.Controls
             foreach (var element in new AutomationElement[] { AutomationElement }.Concat(GetAllParents()))
             {
                 if (element.TryGetCurrentPattern(VirtualizedItemPattern.Pattern, out object virtualizedItemPatternObj) && virtualizedItemPatternObj is VirtualizedItemPattern virtualizedItemPattern)
+                {
                     virtualizedItemPattern.Realize();
+                }
                 else if (element.TryGetCurrentPattern(ScrollItemPattern.Pattern, out object scrollItemPatternObj) && scrollItemPatternObj is ScrollItemPattern scrollItemPattern)
                 {
                     scrollItemPattern.ScrollIntoView();
                 }
             }
+
             WaitUntilDisplayed(1000, false);
         }
 
@@ -523,6 +576,7 @@ namespace Rocketcress.UIAutomation.Controls
         /// <exception cref="NoSuchElementException">A control with the given location key was not found.</exception>
         /// <returns>A <see cref="UITestControl"/> that represents the first found control.</returns>
         public virtual IUITestControl FindElement(By locationKey) => ControlUtility.GetControl(SearchEngine.FindFirst(locationKey, AutomationElement) ?? throw new NoSuchElementException(this, locationKey));
+
         /// <summary>
         /// Searches for all descemdamt controls that matches the given location key.
         /// </summary>
@@ -535,11 +589,13 @@ namespace Rocketcress.UIAutomation.Controls
         /// </summary>
         /// <returns>The parent of the current control.</returns>
         public virtual IUITestControl FindWindow() => FindElements(By.ControlType(ControlType.Window).AndScope(TreeScope.Ancestors)).FirstOrDefault();
+
         /// <summary>
         /// Returns the window in which the current control is located in.
         /// </summary>
         /// <returns>The window in which the current control is located in.</returns>
         public virtual IUITestControl FindParent() => FindElements(By.Scope(TreeScope.Parent)).FirstOrDefault();
+
         /// <summary>
         /// Returns an enumerable of all first-level children of the current control.
         /// </summary>
@@ -547,21 +603,22 @@ namespace Rocketcress.UIAutomation.Controls
         public virtual IEnumerable<IUITestControl> GetChildren() => FindElements(By.Scope(TreeScope.Children));
 
         /// <summary>
-        /// Gets the value of a specified PropertyValue of the underlying <see cref="System.Windows.Automation.AutomationElement"/>. 
+        /// Gets the value of a specified PropertyValue of the underlying <see cref="System.Windows.Automation.AutomationElement"/>.
         /// Waits until the element exists.
         /// </summary>
         /// <typeparam name="T">The type of the property value.</typeparam>
         /// <param name="property">The property to retrieve the value from.</param>
         /// <returns>The value for the specified property on the underlying <see cref="System.Windows.Automation.AutomationElement"/>.</returns>
         public virtual T GetPropertyValue<T>(AutomationProperty property) => (T)AutomationElement.GetCurrentPropertyValue(property);
+
         /// <summary>
         /// Gets the value of a specified PropertyValue of the underlying <see cref="System.Windows.Automation.AutomationElement"/>.
         /// Does not wait for the element to exist.
         /// </summary>
         /// <typeparam name="T">The type of the property value.</typeparam>
         /// <param name="property">The property to retrieve the value from.</param>
-        /// <param name="assert"></param>
-        /// <param name="fallbackValue"></param>
+        /// <param name="assert">Determines wether an exception should be thrown when the element could not be found.</param>
+        /// <param name="fallbackValue">The value to return when the element could not be found.</param>
         /// <returns>
         /// The value for the specified property on the underlying <see cref="System.Windows.Automation.AutomationElement"/>.
         /// If the element does not exists <paramref name="fallbackValue"/> is returned.
@@ -578,27 +635,37 @@ namespace Rocketcress.UIAutomation.Controls
                     return fallbackValue;
             }
             else
+            {
                 return (T)AutomationElement.GetCurrentPropertyValue(property);
+            }
         }
+
         /// <summary>
         /// Checks wether the specified pattern is available on this control.
         /// </summary>
         /// <typeparam name="T">The type of the pattern to check.</typeparam>
         /// <returns>true if the control supports the specified pattern; otherwise false.</returns>
-        public virtual bool IsPatternAvailable<T>() where T : BasePattern => (bool)AutomationElement.GetCurrentPropertyValue(PatternUtility.GetIsPatternAvailableProperty<T>());
+        public virtual bool IsPatternAvailable<T>()
+            where T : BasePattern
+            => (bool)AutomationElement.GetCurrentPropertyValue(PatternUtility.GetIsPatternAvailableProperty<T>());
+
         /// <summary>
         /// Retrieves the specified pattern from this control.
         /// </summary>
         /// <typeparam name="T">The type of the pattern.</typeparam>
         /// <returns>The retrieved pattern.</returns>
-        public virtual T GetPattern<T>() where T : BasePattern => (T)AutomationElement.GetCurrentPattern(PatternUtility.GetPattern<T>());
+        public virtual T GetPattern<T>()
+            where T : BasePattern
+            => (T)AutomationElement.GetCurrentPattern(PatternUtility.GetPattern<T>());
+
         /// <summary>
         /// Retrieved the specified pattern from this control if the pattern is supported.
         /// </summary>
         /// <typeparam name="T">The type of the pattern.</typeparam>
         /// <param name="pattern">The pattern that is retrieved. If the control did not support the pattern, this will be null.</param>
         /// <returns>A value indicating wheather the control does support the specified pattern.</returns>
-        public virtual bool TryGetPattern<T>(out T pattern) where T : BasePattern
+        public virtual bool TryGetPattern<T>(out T pattern)
+            where T : BasePattern
         {
             AutomationElement.TryGetCurrentPattern(PatternUtility.GetPattern<T>(), out object patternObject);
             pattern = patternObject as T;
@@ -612,6 +679,7 @@ namespace Rocketcress.UIAutomation.Controls
         /// </summary>
         /// <returns>A description representing this control.</returns>
         public virtual string GetSearchDescription() => GetSearchDescription(false);
+
         /// <summary>
         /// Creates description of the search condition for this control.
         /// </summary>
@@ -636,8 +704,10 @@ namespace Rocketcress.UIAutomation.Controls
                         result.Append(strParent);
                     result.Append(" => ");
                 }
+
                 result.Append(LocationKey.ToString());
             }
+
             return result.ToString();
         }
 
@@ -652,18 +722,21 @@ namespace Rocketcress.UIAutomation.Controls
         /// </summary>
         /// <returns>true if the control exists; otherwise false.</returns>
         public virtual bool WaitUntilExists() => WaitUntilExists(Waiter.DefaultTimeoutMs, true);
+
         /// <summary>
         /// Waits until the control exists.
         /// </summary>
         /// <param name="timeout">The timeout for the wait.</param>
         /// <returns>true if the control exists; otherwise false.</returns>
         public virtual bool WaitUntilExists(int timeout) => WaitUntilExists(timeout, true);
+
         /// <summary>
         /// Waits until the control exists.
         /// </summary>
         /// <param name="assert">Determines if the test should be marked as failed if the control does not exists after the wait.</param>
         /// <returns>true if the control exists; otherwise false.</returns>
         public virtual bool WaitUntilExists(bool assert) => WaitUntilExists(Waiter.DefaultTimeoutMs, assert);
+
         /// <summary>
         /// Waits until the control exists.
         /// </summary>
@@ -680,18 +753,21 @@ namespace Rocketcress.UIAutomation.Controls
         /// </summary>
         /// <returns>true if the control is displayed; otherwise false.</returns>
         public virtual bool WaitUntilDisplayed() => WaitUntilDisplayed(Waiter.DefaultTimeoutMs, true);
+
         /// <summary>
         /// Waits until the control is displayed.
         /// </summary>
         /// <param name="timeout">The timeout for the wait.</param>
         /// <returns>true if the control is displayed; otherwise false.</returns>
         public virtual bool WaitUntilDisplayed(int timeout) => WaitUntilDisplayed(timeout, true);
+
         /// <summary>
         /// Waits until the control is displayed.
         /// </summary>
         /// <param name="assert">Determines if the test should be marked as failed if the control is not displayed after the wait.</param>
         /// <returns>true if the control is displayed; otherwise false.</returns>
         public virtual bool WaitUntilDisplayed(bool assert) => WaitUntilDisplayed(Waiter.DefaultTimeoutMs, assert);
+
         /// <summary>
         /// Waits until the control is displayed.
         /// </summary>
@@ -708,18 +784,21 @@ namespace Rocketcress.UIAutomation.Controls
         /// </summary>
         /// <returns>true if the control does not exist; otherwise false.</returns>
         public virtual bool WaitUntilNotExists() => WaitUntilNotExists(Waiter.DefaultTimeoutMs, true);
+
         /// <summary>
         /// Waits until the control does not exist.
         /// </summary>
         /// <param name="timeout">The timeout for the wait.</param>
         /// <returns>true if the control does not exist; otherwise false.</returns>
         public virtual bool WaitUntilNotExists(int timeout) => WaitUntilNotExists(timeout, true);
+
         /// <summary>
         /// Waits until the control does not exist.
         /// </summary>
         /// <param name="assert">Determines if the test should be marked as failed if the control still exists after the wait.</param>
         /// <returns>true if the control does not exist; otherwise false.</returns>
         public virtual bool WaitUntilNotExists(bool assert) => WaitUntilNotExists(Waiter.DefaultTimeoutMs, assert);
+
         /// <summary>
         /// Waits until the control does not exist.
         /// </summary>
@@ -736,18 +815,21 @@ namespace Rocketcress.UIAutomation.Controls
         /// </summary>
         /// <returns>true if the control is not displayed; otherwise false.</returns>
         public virtual bool WaitUntilNotDisplayed() => WaitUntilNotDisplayed(Waiter.DefaultTimeoutMs, true);
+
         /// <summary>
         /// Waits until the control is not displayed.
         /// </summary>
         /// <param name="timeout">The timeout for the wait.</param>
         /// <returns>true if the control is not displayed; otherwise false.</returns>
         public virtual bool WaitUntilNotDisplayed(int timeout) => WaitUntilNotDisplayed(timeout, true);
+
         /// <summary>
         /// Waits until the control is not displayed.
         /// </summary>
         /// <param name="assert">Determines if the test should be marked as failed if the control is still displayed after the wait.</param>
         /// <returns>true if the control is not displayed; otherwise false.</returns>
         public virtual bool WaitUntilNotDisplayed(bool assert) => WaitUntilNotDisplayed(Waiter.DefaultTimeoutMs, assert);
+
         /// <summary>
         /// Waits until the control is not displayed.
         /// </summary>
@@ -764,18 +846,21 @@ namespace Rocketcress.UIAutomation.Controls
         /// </summary>
         /// <returns>true if this control is ready to receive mouse or keyboard input before the time-out; otherwise, false.</returns>
         public virtual bool WaitForControlReady() => WaitForControlReady(Waiter.DefaultTimeoutMs, true);
+
         /// <summary>
         /// Blocks the current thread until this control is ready to receive mouse or keyboard input, or until the default time-out expires.
         /// </summary>
         /// <param name="timeout">The timeout for the wait.</param>
         /// <returns>true if this control is ready to receive mouse or keyboard input before the time-out; otherwise, false.</returns>
         public virtual bool WaitForControlReady(int timeout) => WaitForControlReady(timeout, true);
+
         /// <summary>
         /// Blocks the current thread until this control is ready to receive mouse or keyboard input, or until the default time-out expires.
         /// </summary>
         /// <param name="assert">Determines if the test should be marked as failed if the control is not ready after the wait.</param>
         /// <returns>true if this control is ready to receive mouse or keyboard input before the time-out; otherwise, false.</returns>
         public virtual bool WaitForControlReady(bool assert) => WaitForControlReady(Waiter.DefaultTimeoutMs, assert);
+
         /// <summary>
         /// Blocks the current thread until this control is ready to receive mouse or keyboard input, or until the default time-out expires.
         /// </summary>
@@ -790,10 +875,13 @@ namespace Rocketcress.UIAutomation.Controls
             var process = Process.GetProcessById(pid);
             if (process == null)
                 return true;
-            return Waiter.WaitUntil(() => 
+            return Waiter.WaitUntil(() =>
             {
-                try { return process.WaitForInputIdle(5000); }
-                catch(Win32Exception ex)
+                try
+                {
+                    return process.WaitForInputIdle(5000);
+                }
+                catch (Win32Exception ex)
                 {
                     Logger.LogWarning("Error while waiting for input idle: {0}", ex);
                     return true;
@@ -807,13 +895,15 @@ namespace Rocketcress.UIAutomation.Controls
         /// <typeparam name="T">The desired search context type.</typeparam>
         /// <param name="matchExactType">Determines wether the type has to match exactly.</param>
         /// <returns>Returns the wanted search context if one was found; otherwise null.</returns>
-        public T FindAncestorSearchContext<T>(bool matchExactType) where T : UITestControl
+        public T FindAncestorSearchContext<T>(bool matchExactType)
+            where T : UITestControl
         {
             var currentContext = SearchContext;
-            while (currentContext != null && (matchExactType && currentContext.GetType() != typeof(T) || !matchExactType && !typeof(T).IsInstanceOfType(currentContext)))
+            while (currentContext != null && ((matchExactType && currentContext.GetType() != typeof(T)) || (!matchExactType && !typeof(T).IsInstanceOfType(currentContext))))
             {
                 currentContext = currentContext.SearchContext;
             }
+
             return currentContext as T;
         }
 
@@ -823,6 +913,7 @@ namespace Rocketcress.UIAutomation.Controls
         /// <param name="point">The relative point to read the pixel from.</param>
         /// <returns>Returns the color that is displayed relative to this control.</returns>
         public virtual System.Drawing.Color GetColorFromPoint(Point point) => GetColorFromPoint((int)point.X, (int)point.Y);
+
         /// <summary>
         /// Reads the color at the specific relative point of the control from screen.
         /// </summary>
@@ -850,6 +941,7 @@ namespace Rocketcress.UIAutomation.Controls
                     result.AddFirst(current);
                 current = walker.GetParent(current);
             }
+
             return result;
         }
         #endregion
@@ -859,12 +951,13 @@ namespace Rocketcress.UIAutomation.Controls
         {
             if (!typeof(UITestControl).IsAssignableFrom(controlType))
                 throw new InvalidOperationException($"Type \"{controlType.FullName}\" needs to be derived from \"{typeof(UITestControl).FullName}\".");
-            var constructor = controlType.GetConstructor(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[0], null);
+            var constructor = controlType.GetConstructor(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, Array.Empty<Type>(), null);
             if (constructor == null)
                 throw new InvalidOperationException($"Type \"{controlType.FullName}\" needs an empty constructor.");
-            var instance = (UITestControl)constructor.Invoke(new object[0]);
+            var instance = (UITestControl)constructor.Invoke(Array.Empty<object>());
             return instance.BaseLocationKey;
         }
+
         internal AutomationElement GetCachedAutomationElement()
         {
             return _automationElement;
@@ -872,13 +965,17 @@ namespace Rocketcress.UIAutomation.Controls
         #endregion
     }
 
+    [SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1402:File may only contain a single type", Justification = "Extension methods")]
     public static class UITestControlExtsnions
     {
         /// <summary>
         /// Returns an enumerable of all UITestControls that match the specified control definition.
         /// </summary>
-        /// <returns></returns>
-        public static IEnumerable<T> FindMatchingControls<T>(this T control) where T : IUITestControl
+        /// <typeparam name="T">The type of control to find.</typeparam>
+        /// <param name="control">The control under which to find controls.</param>
+        /// <returns>A list of found controls.</returns>
+        public static IEnumerable<T> FindMatchingControls<T>(this T control)
+            where T : IUITestControl
         {
             if (!control.IsLazy)
                 throw new NotSupportedException("This method is not supported by Non-Lazy controls.");

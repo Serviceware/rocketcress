@@ -11,12 +11,34 @@ namespace Rocketcress.UIAutomation.Controls.Win32Controls
 
         public InvokePattern InvokePattern => GetPattern<InvokePattern>();
 
-        public Win32Button(By locationKey) : base(locationKey) { }
-        public Win32Button(IUITestControl parent) : base(parent) { }
-        public Win32Button(AutomationElement element) : base(element) { }
-        public Win32Button(By locationKey, AutomationElement parent) : base(locationKey, parent) { }
-        public Win32Button(By locationKey, IUITestControl parent) : base(locationKey, parent) { }
-        protected Win32Button() { }
+        public Win32Button(By locationKey)
+            : base(locationKey)
+        {
+        }
+
+        public Win32Button(IUITestControl parent)
+            : base(parent)
+        {
+        }
+
+        public Win32Button(AutomationElement element)
+            : base(element)
+        {
+        }
+
+        public Win32Button(By locationKey, AutomationElement parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        public Win32Button(By locationKey, IUITestControl parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        protected Win32Button()
+        {
+        }
 
         public override Point ClickablePoint => BoundingRectangle.GetAbsoluteCenter();
 

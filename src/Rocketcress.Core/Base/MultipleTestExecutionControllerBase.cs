@@ -8,7 +8,8 @@ namespace Rocketcress.Core.Base
 {
     // TODO: Add XML Comments
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
-    public abstract class MultipleTestExecutionControllerBase<TView, TTestMetadata> : TestObjectBase where TView : class
+    public abstract class MultipleTestExecutionControllerBase<TView, TTestMetadata> : TestObjectBase
+        where TView : class
     {
         public abstract int DefaultExecutionCount { get; }
 
@@ -21,19 +22,22 @@ namespace Rocketcress.Core.Base
         {
             return Execute(DefaultExecutionCount, view, metadata, testAction, timeout, continueOnError, failOnError);
         }
+
         public List<Exception> Execute(ICollection<TView> views, TTestMetadata metadata, Action testAction, int timeout, bool continueOnError = true, bool failOnError = true)
         {
             return Execute(DefaultExecutionCount, views, metadata, testAction, timeout, continueOnError, failOnError);
         }
+
         public List<Exception> Execute(int executionCount, TView view, TTestMetadata metadata, Action testAction, int timeout, bool continueOnError = true, bool failOnError = true)
         {
             return Execute(executionCount, new[] { view }, metadata, testAction, timeout, continueOnError, failOnError);
         }
+
         public List<Exception> Execute(int executionCount, ICollection<TView> views, TTestMetadata metadata, Action testAction, int timeout, bool continueOnError = true, bool failOnError = true)
         {
             var exceptions = new List<Exception>();
             if (executionCount <= 0)
-                throw new ArgumentOutOfRangeException("The executionCount has to be greater than 0", "executionCount");
+                throw new ArgumentOutOfRangeException(nameof(executionCount), "The executionCount has to be greater than 0");
             bool[] success = new bool[executionCount];
             bool isCanceled = false;
 
@@ -63,8 +67,8 @@ namespace Rocketcress.Core.Base
                 {
                     foreach (var view in views)
                     {
-                        try 
-                        { 
+                        try
+                        {
                             if (!TestHelper.RunWithTimeout(() => ResetView(view), TimeSpan.FromMinutes(5)))
                             {
                                 isCanceled = true;
@@ -86,6 +90,7 @@ namespace Rocketcress.Core.Base
             {
                 Logger.LogInfo("Test Run #{0:00}: {1}", i + 1, success[i] ? "Passed" : "Failed");
             }
+
             if (failOnError)
                 SetTestResult(exceptions, success);
             return exceptions;

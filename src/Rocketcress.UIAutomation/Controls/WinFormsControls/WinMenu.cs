@@ -17,12 +17,34 @@ namespace Rocketcress.UIAutomation.Controls.WinFormsControls
         #endregion
 
         #region Constructors
-        public WinMenu(By locationKey) : base(locationKey) { }
-        public WinMenu(IUITestControl parent) : base(parent) { }
-        public WinMenu(AutomationElement element) : base(element) { }
-        public WinMenu(By locationKey, AutomationElement parent) : base(locationKey, parent) { }
-        public WinMenu(By locationKey, IUITestControl parent) : base(locationKey, parent) { }
-        protected WinMenu() { }
+        public WinMenu(By locationKey)
+            : base(locationKey)
+        {
+        }
+
+        public WinMenu(IUITestControl parent)
+            : base(parent)
+        {
+        }
+
+        public WinMenu(AutomationElement element)
+            : base(element)
+        {
+        }
+
+        public WinMenu(By locationKey, AutomationElement parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        public WinMenu(By locationKey, IUITestControl parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        protected WinMenu()
+        {
+        }
 
         protected override void Initialize()
         {

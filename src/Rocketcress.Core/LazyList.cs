@@ -14,7 +14,7 @@ namespace Rocketcress.Core
         private bool _enumeratorAtEnd = false;
 
         /// <summary>
-        /// Initializes a new Instance of the LazyList class.
+        /// Initializes a new instance of the <see cref="LazyList{T}"/> class.
         /// </summary>
         /// <param name="enumerable">The items that should be loaded with this lazy list.</param>
         public LazyList(IEnumerable<T> enumerable)
@@ -34,13 +34,14 @@ namespace Rocketcress.Core
             {
                 if (index < _cachedItems.Count)
                     return _cachedItems[index];
-                while(!_enumeratorAtEnd && index >= _cachedItems.Count)
+                while (!_enumeratorAtEnd && index >= _cachedItems.Count)
                 {
                     if (_enumerator.MoveNext())
                         _cachedItems.Add(_enumerator.Current);
                     else
                         _enumeratorAtEnd = true;
                 }
+
                 return _cachedItems[index];
             }
         }
@@ -61,8 +62,11 @@ namespace Rocketcress.Core
                         _cachedItems.Add(_enumerator.Current);
                     }
                     else
+                    {
                         _enumeratorAtEnd = true;
+                    }
                 }
+
                 return count;
             }
         }
@@ -84,7 +88,7 @@ namespace Rocketcress.Core
                 _lazyList = lazyList;
             }
 
-            public T Current => _currentIndex < 0 ||_currentIndex > _lazyList._cachedItems.Count ? _lazyList._cachedItems[_currentIndex] : default(T);
+            public T Current => _currentIndex < 0 || _currentIndex > _lazyList._cachedItems.Count ? _lazyList._cachedItems[_currentIndex] : default;
 
             object IEnumerator.Current => Current;
 
@@ -105,7 +109,9 @@ namespace Rocketcress.Core
                     return true;
                 }
                 else
+                {
                     _lazyList._enumeratorAtEnd = true;
+                }
 
                 return false;
             }

@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json.Linq;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 #if !SLIM
@@ -8,34 +9,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Rocketcress.Core.Base
 {
-    /// <summary>
-    /// Represents event data for the <see cref="TestContextBase.ContextChanged"/> event.
-    /// </summary>
-    /// <typeparam name="T">The derived type of the <see cref="TestContextBase"/> class.</typeparam>
-    public class TestContextChangedEventArgs<T> : EventArgs where T : TestContextBase
-    {
-        /// <summary>
-        /// Gets the old instance of the <see cref="TestContextBase"/>.
-        /// </summary>
-        public T OldTestContext { get; }
-
-        /// <summary>
-        /// Gets the new instance of the <see cref="TestContextBase"/>.
-        /// </summary>
-        public T NewTestContext { get; }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="TestContextChangedEventArgs{T}"/> class.
-        /// </summary>
-        /// <param name="oldContext">The old instance of the <see cref="TestContextBase"/>.</param>
-        /// <param name="newContext">The new instance of the <see cref="TestContextBase"/>.</param>
-        public TestContextChangedEventArgs(T oldContext, T newContext)
-        {
-            OldTestContext = oldContext;
-            NewTestContext = newContext;
-        }
-    }
-
     /// <summary>
     /// Base class of a test context.
     /// </summary>
@@ -53,7 +26,7 @@ namespace Rocketcress.Core.Base
 
 #if !SLIM
         /// <summary>
-        /// Gets or set the current MSTest test context of the current test run.
+        /// Gets or sets the current MSTest test context of the current test run.
         /// </summary>
         public TestContext TestContext { get; set; }
 #endif
@@ -63,23 +36,27 @@ namespace Rocketcress.Core.Base
         /// </summary>
         public virtual SettingsBase Settings { get; set; }
 
-
         /// <summary>
         /// Initializes a new instance of the <see cref="TestContextBase"/> class.
         /// </summary>
-        protected TestContextBase() { }
-
+        protected TestContextBase()
+        {
+        }
 
         /// <summary>
         /// This method is called when the context has been created.
         /// </summary>
-        protected virtual void OnContextCreated(TestContextBase lastContext) { }
+        /// <param name="lastContext">The last context.</param>
+        protected virtual void OnContextCreated(TestContextBase lastContext)
+        {
+        }
 
         /// <summary>
         /// Takes a screenshots and appends it to the test result.
         /// </summary>
         /// <returns>Returns the path to the screenshot file.</returns>
-        public virtual string TakeAndAppendScreenshot() => TakeAndAppendScreenshot(null);
+        public virtual string TakeAndAppendScreenshot()
+            => TakeAndAppendScreenshot(null);
 
         /// <summary>
         /// Takes a screenshots and appends it to the test result.
@@ -146,14 +123,14 @@ namespace Rocketcress.Core.Base
             RaiseContextChangedEvent(this, null);
         }
 
-
         /// <summary>
         /// Converts a <see cref="JObject"/> packaged as an <see cref="object"/> to a specified type.
         /// </summary>
         /// <typeparam name="T">The type to which to convert the <see cref="JObject"/>.</typeparam>
         /// <param name="jObject">The <see cref="JObject"/> to convert.</param>
         /// <returns>Returns the <paramref name="jObject"/> converted to <typeparamref name="T"/>.</returns>
-        public static T JObjectToObject<T>(object jObject) where T : class
+        public static T JObjectToObject<T>(object jObject)
+            where T : class
         {
             var jo = (JObject)jObject;
             return jo.ToObject<T>();
@@ -169,21 +146,24 @@ namespace Rocketcress.Core.Base
             ContextChanged?.Invoke(null, new TestContextChangedEventArgs<TestContextBase>(oldContext as TestContextBase, newContext as TestContextBase));
         }
 
-
 #pragma warning disable CS1572 // XML comment has a param tag, but there is no parameter by that name
         /// <summary>
         /// Initializes an instance of the <see cref="TestContextBase"/> class.
         /// </summary>
+        /// <typeparam name="T">The type of the context.</typeparam>
         /// <param name="activationFunc">A function that creates an instance of the wanted test context class.</param>
         /// <param name="settings">The settings to use during the test.</param>
         /// <param name="testContext">The MSTest Test Context.</param>
         /// <param name="initAction">An action that is executed before the new context is set as current context. Add additional information to the object here if needed.</param>
-        protected static T CreateContext<T>(Func<T> activationFunc,
+        /// <returns>The created context.</returns>
+        protected static T CreateContext<T>(
+            Func<T> activationFunc,
             SettingsBase settings,
 #if !SLIM
             TestContext testContext,
 #endif
-            Action<T> initAction) where T : TestContextBase
+            Action<T> initAction)
+            where T : TestContextBase
         {
             var ctx = activationFunc();
 #if !SLIM
@@ -191,7 +171,7 @@ namespace Rocketcress.Core.Base
 #endif
             ctx.Settings = settings;
             initAction?.Invoke(ctx);
-            
+
             var oldContext = CurrentContext;
             CurrentContext = ctx;
 
@@ -202,7 +182,6 @@ namespace Rocketcress.Core.Base
         }
 #pragma warning restore CS1572 // XML comment has a param tag, but there is no parameter by that name
 
-
         private static string TrimString(string str, int maxLength)
         {
             if (str == null || maxLength <= 0)
@@ -211,7 +190,37 @@ namespace Rocketcress.Core.Base
                 return str;
             if (maxLength <= 3)
                 return new string('.', maxLength);
-            return str.Substring(0, (maxLength - 3) / 2) + "..." + str.Substring(str.Length - (maxLength - 3) / 2);
+            return str.Substring(0, (maxLength - 3) / 2) + "..." + str.Substring(str.Length - ((maxLength - 3) / 2));
+        }
+    }
+
+    /// <summary>
+    /// Represents event data for the <see cref="TestContextBase.ContextChanged"/> event.
+    /// </summary>
+    /// <typeparam name="T">The derived type of the <see cref="TestContextBase"/> class.</typeparam>
+    [SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1402:File may only contain a single type", Justification = "Event arguments")]
+    public class TestContextChangedEventArgs<T> : EventArgs
+        where T : TestContextBase
+    {
+        /// <summary>
+        /// Gets the old instance of the <see cref="TestContextBase"/>.
+        /// </summary>
+        public T OldTestContext { get; }
+
+        /// <summary>
+        /// Gets the new instance of the <see cref="TestContextBase"/>.
+        /// </summary>
+        public T NewTestContext { get; }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TestContextChangedEventArgs{T}"/> class.
+        /// </summary>
+        /// <param name="oldContext">The old instance of the <see cref="TestContextBase"/>.</param>
+        /// <param name="newContext">The new instance of the <see cref="TestContextBase"/>.</param>
+        public TestContextChangedEventArgs(T oldContext, T newContext)
+        {
+            OldTestContext = oldContext;
+            NewTestContext = newContext;
         }
     }
 }

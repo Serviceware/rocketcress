@@ -18,13 +18,35 @@ namespace Rocketcress.UIAutomation.Controls.WinFormsControls
         #endregion
 
         #region Constructors
-        public WinEdit(By locationKey) : base(locationKey) { }
-        public WinEdit(IUITestControl parent) : base(parent) { }
-        public WinEdit(AutomationElement element) : base(element) { }
-        public WinEdit(By locationKey, AutomationElement parent) : base(locationKey, parent) { }
-        public WinEdit(By locationKey, IUITestControl parent) : base(locationKey, parent) { }
-        protected WinEdit() { }
-        
+        public WinEdit(By locationKey)
+            : base(locationKey)
+        {
+        }
+
+        public WinEdit(IUITestControl parent)
+            : base(parent)
+        {
+        }
+
+        public WinEdit(AutomationElement element)
+            : base(element)
+        {
+        }
+
+        public WinEdit(By locationKey, AutomationElement parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        public WinEdit(By locationKey, IUITestControl parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        protected WinEdit()
+        {
+        }
+
         protected override void Initialize()
         {
             base.Initialize();
@@ -38,6 +60,7 @@ namespace Rocketcress.UIAutomation.Controls.WinFormsControls
             get => ValuePattern.Current.Value;
             set => _valueControlSupport.SetValue(value);
         }
+
         public virtual bool ReadOnly => ValuePattern.Current.IsReadOnly;
         #endregion
     }

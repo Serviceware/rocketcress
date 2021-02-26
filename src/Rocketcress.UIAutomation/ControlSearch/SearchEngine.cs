@@ -20,7 +20,9 @@ namespace Rocketcress.UIAutomation.ControlSearch
             if (condition?.Check(element, treeWalker) != false)
             {
                 if (childPart == null)
+                {
                     yield return element;
+                }
                 else
                 {
                     foreach (var x in childPart.FindElements(element, treeWalker))

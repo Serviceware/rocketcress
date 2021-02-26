@@ -1,5 +1,5 @@
-﻿using Rocketcress.Core;
-using OpenQA.Selenium;
+﻿using OpenQA.Selenium;
+using Rocketcress.Core;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -14,7 +14,7 @@ namespace Rocketcress.Selenium.DriverProviders
         /// <summary>
         /// Retrieves the currently open process ids of the browser and driver for which the <see cref="IDriverProvider"/> is implemented for.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The process ids of the open browsers.</returns>
         IEnumerable<int> GetProcessIds();
 
         /// <summary>
@@ -50,10 +50,10 @@ namespace Rocketcress.Selenium.DriverProviders
         /// <summary>
         /// Tries to create a driver and retries 4 times.
         /// </summary>
-        /// <param name="_">The driver provider.</param>
+        /// <param name="provider">The driver provider.</param>
         /// <param name="createFunction">The function that is used to create a web driver.</param>
         /// <returns>Returns the created web driver.</returns>
-        public static IWebDriver RetryCreateDriver(this IDriverProvider _, Func<IWebDriver> createFunction)
+        public static IWebDriver RetryCreateDriver(this IDriverProvider provider, Func<IWebDriver> createFunction)
         {
             IWebDriver result = default;
             var success = TestHelper.RetryAction(() => result = createFunction(), 4, onException: ex => SeleniumTestContext.KillAllDrivers(false));

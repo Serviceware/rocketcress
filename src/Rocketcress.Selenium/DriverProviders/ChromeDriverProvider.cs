@@ -1,6 +1,6 @@
-﻿using Rocketcress.Core;
-using Microsoft.Win32;
+﻿using Microsoft.Win32;
 using OpenQA.Selenium;
+using Rocketcress.Core;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -29,7 +29,7 @@ namespace Rocketcress.Selenium.DriverProviders
                 "--disable-extensions",                 // Disable extensions (faster)
                 "--incognito",
                 "no-sandbox",
-                "disable-infobars"
+                "disable-infobars",
             };
             driverConfiguration?.ConfigureChromeArguments(cArgs);
             cOptions.AddArguments(cArgs);
@@ -45,7 +45,9 @@ namespace Rocketcress.Selenium.DriverProviders
                 return this.RetryCreateDriver(() => new OpenQA.Selenium.Chrome.ChromeDriver(cService, cOptions, browserTimeout));
             }
             else
+            {
                 return this.RetryCreateDriver(() => new OpenQA.Selenium.Remote.RemoteWebDriver(new Uri(settings.RemoteDriverUrl), cOptions));
+            }
         }
 
         /// <inheritdoc />
@@ -57,7 +59,7 @@ namespace Rocketcress.Selenium.DriverProviders
                 .Select(x => x.Id).ToArray();
         }
 
-        private static (string driverPath, string driverExecutableName) GetChromeDriverPath()
+        private static (string DriverPath, string DriverExecutableName) GetChromeDriverPath()
         {
             const string urlLatestVersionFormat = "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_{0}";
             string urlFormat;
@@ -76,7 +78,9 @@ namespace Rocketcress.Selenium.DriverProviders
                 chromeVersion = OsHelper.RunBashCommand("google-chrome --version | grep -iE \"[0-9.]{10,20}\"");
             }
             else
+            {
                 throw new NotSupportedException("The Web Driver for Chrome cannot be retrieved for this operating system.");
+            }
 
             if (string.IsNullOrWhiteSpace(chromeVersion))
                 throw new InvalidOperationException("The version of Google Chrome could not be obatined. Please verify that Chrome is installed.");
@@ -110,12 +114,15 @@ namespace Rocketcress.Selenium.DriverProviders
                     var driverEntry = zip.GetEntry(driverFileName) ?? throw new InvalidOperationException($"The downloaded file from \"{driverZipUrl}\" does not contain a \"{driverFileName}\" file.");
                     driverEntry.ExtractToFile(driverFilePath);
                 }
+
                 File.Delete(zipPath);
 
                 Logger.LogInfo("Successfully downloaded and unzipped driver to: " + driverFilePath);
             }
             else
+            {
                 Logger.LogInfo("Driver already exists in Cache.");
+            }
 
             Logger.LogInfo($"Using driver \"{driverFileName}\" in folder \"{driverTempPath}\"");
             return (driverTempPath, driverFileName);

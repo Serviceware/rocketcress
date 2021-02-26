@@ -18,13 +18,35 @@ namespace Rocketcress.UIAutomation.Controls.Win32Controls
         #endregion
 
         #region Constructors
-        public Win32Edit(By locationKey) : base(locationKey) { }
-        public Win32Edit(IUITestControl parent) : base(parent) { }
-        public Win32Edit(AutomationElement element) : base(element) { }
-        public Win32Edit(By locationKey, AutomationElement parent) : base(locationKey, parent) { }
-        public Win32Edit(By locationKey, IUITestControl parent) : base(locationKey, parent) { }
-        protected Win32Edit() { }
-        
+        public Win32Edit(By locationKey)
+            : base(locationKey)
+        {
+        }
+
+        public Win32Edit(IUITestControl parent)
+            : base(parent)
+        {
+        }
+
+        public Win32Edit(AutomationElement element)
+            : base(element)
+        {
+        }
+
+        public Win32Edit(By locationKey, AutomationElement parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        public Win32Edit(By locationKey, IUITestControl parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        protected Win32Edit()
+        {
+        }
+
         protected override void Initialize()
         {
             base.Initialize();
@@ -38,6 +60,7 @@ namespace Rocketcress.UIAutomation.Controls.Win32Controls
             get => ValuePattern.Current.Value;
             set => _valueControlSupport.SetValue(value);
         }
+
         public virtual bool ReadOnly => ValuePattern.Current.IsReadOnly;
         #endregion
     }

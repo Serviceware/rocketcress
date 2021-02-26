@@ -16,7 +16,7 @@ namespace Rocketcress.Core
             [LogLevel.Info] = "INF",
             [LogLevel.Warning] = "WRN",
             [LogLevel.Error] = "ERR",
-            [LogLevel.Critical] = "CRT"
+            [LogLevel.Critical] = "CRT",
         };
 
         /// <summary>
@@ -24,7 +24,7 @@ namespace Rocketcress.Core
         /// </summary>
         /// <param name="level">The log-level of the message.</param>
         /// <param name="message">The message text.</param>
-        /// <param name="params">The parameters that should be inserted into the message text. (like string.Format)</param>
+        /// <param name="params">The parameters that should be inserted into the message text (like string.Format).</param>
         public static void Log(LogLevel level, string message, params object[] @params)
         {
             try
@@ -32,7 +32,7 @@ namespace Rocketcress.Core
                 var shortName = _logLevelShortNames.TryGetValue(level, out string tmp) ? tmp : "___";
                 Trace.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: {shortName} - {(@params == null || @params.Length == 0 ? message : string.Format(CultureInfo.InvariantCulture, message, @params))}");
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Trace.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: ERR - Error while writing trace with message \"{message}\" and parameters \"{string.Join("\", \"", @params)}\": {ex}");
             }
@@ -42,35 +42,39 @@ namespace Rocketcress.Core
         /// Logs a message at debug log-level.
         /// </summary>
         /// <param name="message">The message text.</param>
-        /// <param name="params">The parameters that should be inserted into the message text. (like string.Format)</param>
-        public static void LogDebug(string message, params object[] @params) => Log(LogLevel.Debug, message, @params);
+        /// <param name="params">The parameters that should be inserted into the message text (like string.Format).</param>
+        public static void LogDebug(string message, params object[] @params)
+            => Log(LogLevel.Debug, message, @params);
 
         /// <summary>
         /// Logs a message at information log-level.
         /// </summary>
         /// <param name="message">The message text.</param>
-        /// <param name="params">The parameters that should be inserted into the message text. (like string.Format)</param>
-        public static void LogInfo(string message, params object[] @params) => Log(LogLevel.Info, message, @params);
+        /// <param name="params">The parameters that should be inserted into the message text (like string.Format).</param>
+        public static void LogInfo(string message, params object[] @params)
+            => Log(LogLevel.Info, message, @params);
 
         /// <summary>
         /// Logs a message at warning log-level.
         /// </summary>
         /// <param name="message">The message text.</param>
-        /// <param name="params">The parameters that should be inserted into the message text. (like string.Format)</param>
-        public static void LogWarning(string message, params object[] @params) => Log(LogLevel.Warning, message, @params);
+        /// <param name="params">The parameters that should be inserted into the message text (like string.Format).</param>
+        public static void LogWarning(string message, params object[] @params)
+            => Log(LogLevel.Warning, message, @params);
 
         /// <summary>
         /// Logs a message at error log-level.
         /// </summary>
         /// <param name="message">The message text.</param>
-        /// <param name="params">The parameters that should be inserted into the message text. (like string.Format)</param>
-        public static void LogError(string message, params object[] @params) => Log(LogLevel.Error, message, @params);
+        /// <param name="params">The parameters that should be inserted into the message text (like string.Format).</param>
+        public static void LogError(string message, params object[] @params)
+            => Log(LogLevel.Error, message, @params);
 
         /// <summary>
         /// Logs a message at critial log-level.
         /// </summary>
         /// <param name="message">The message text.</param>
-        /// <param name="params">The parameters that should be inserted into the message text. (like string.Format)</param>
+        /// <param name="params">The parameters that should be inserted into the message text (like string.Format).</param>
         public static void LogCritical(string message, params object[] @params) => Log(LogLevel.Critical, message, @params);
     }
 }

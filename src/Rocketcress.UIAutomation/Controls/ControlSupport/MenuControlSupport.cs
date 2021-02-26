@@ -29,12 +29,12 @@ namespace Rocketcress.UIAutomation.Controls.ControlSupport
             _listControlSupport = new ListControlSupport(_itemContainer, itemLocationKey);
         }
 
-        public IEnumerable<AutomationElement> EnumerateItems() => _itemContainer.Exists ? _listControlSupport.EnumerateItems() : new AutomationElement[0];
-        
+        public IEnumerable<AutomationElement> EnumerateItems() => _itemContainer.Exists ? _listControlSupport.EnumerateItems() : System.Array.Empty<AutomationElement>();
+
         private bool ItemContainerCondition(AutomationElement element, TreeWalker walker)
         {
             return element == _control.AutomationElement ||
-                   element.Current.ControlType != _menuControlType && element.Current.ControlType != _itemControlType;
+                   (element.Current.ControlType != _menuControlType && element.Current.ControlType != _itemControlType);
         }
     }
 }

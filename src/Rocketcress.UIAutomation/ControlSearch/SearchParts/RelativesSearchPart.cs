@@ -8,9 +8,17 @@ namespace Rocketcress.UIAutomation.ControlSearch.SearchParts
     {
         public RelativesSearchOptions Options { get; set; }
         public ISearchPart ChildPart { get; set; }
-        
-        public RelativesSearchPart(RelativesSearchOptions options) : this(options, null, null) { }
-        public RelativesSearchPart(RelativesSearchOptions options, ISearchCondition condition) : this(options, condition, null) { }
+
+        public RelativesSearchPart(RelativesSearchOptions options)
+            : this(options, null, null)
+        {
+        }
+
+        public RelativesSearchPart(RelativesSearchOptions options, ISearchCondition condition)
+            : this(options, condition, null)
+        {
+        }
+
         public RelativesSearchPart(RelativesSearchOptions options, ISearchCondition condition, ISearchPart childPart)
         {
             Options = options;
@@ -24,16 +32,22 @@ namespace Rocketcress.UIAutomation.ControlSearch.SearchParts
         public static IEnumerable<AutomationElement> FindElements(AutomationElement element, TreeWalker treeWalker, RelativesSearchOptions options, ISearchCondition condition, ISearchPart childPart)
         {
             if (options.HasFlag(RelativesSearchOptions.IncludeElement))
+            {
                 foreach (var res in SearchEngine.FindElements(element, treeWalker, condition, childPart))
                     yield return res;
+            }
 
             if (options.HasFlag(RelativesSearchOptions.PrecedingRelatives))
+            {
                 foreach (var res in FindElements(element, treeWalker, condition, childPart, (e, t) => t.GetPreviousSibling(e)))
                     yield return res;
+            }
 
             if (options.HasFlag(RelativesSearchOptions.SubsequentRelatives))
+            {
                 foreach (var res in FindElements(element, treeWalker, condition, childPart, (e, t) => t.GetNextSibling(e)))
                     yield return res;
+            }
         }
 
         protected override SearchPartBase CloneInternal()
@@ -56,11 +70,11 @@ namespace Rocketcress.UIAutomation.ControlSearch.SearchParts
         public override string GetDescription()
         {
             return "/" +
-                (Options.HasFlag(RelativesSearchOptions.IncludeElement) ? "." : "") +
-                (Options.HasFlag(RelativesSearchOptions.PrecedingRelatives) ? "<" : "") +
-                (Options.HasFlag(RelativesSearchOptions.SubsequentRelatives) ? ">" : "") +
+                (Options.HasFlag(RelativesSearchOptions.IncludeElement) ? "." : string.Empty) +
+                (Options.HasFlag(RelativesSearchOptions.PrecedingRelatives) ? "<" : string.Empty) +
+                (Options.HasFlag(RelativesSearchOptions.SubsequentRelatives) ? ">" : string.Empty) +
                 GetConditionDescription() +
-                (ChildPart == null ? "" : ChildPart.GetDescription());
+                (ChildPart == null ? string.Empty : ChildPart.GetDescription());
         }
     }
 
@@ -70,6 +84,6 @@ namespace Rocketcress.UIAutomation.ControlSearch.SearchParts
         PrecedingRelatives = 0x1,
         SubsequentRelatives = 0x2,
         AllRelatives = 0x3,
-        IncludeElement = 0x4
+        IncludeElement = 0x4,
     }
 }

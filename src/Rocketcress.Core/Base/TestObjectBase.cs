@@ -23,6 +23,7 @@ namespace Rocketcress.Core.Base
         /// </summary>
         /// <returns>Returns the name of the method that executed this method.</returns>
         protected static string GetCurrentMethodName() => GetCurrentMethodName(2);
+
         /// <summary>
         /// Retrieves the current method name from the Call Stack.
         /// </summary>
@@ -39,8 +40,9 @@ namespace Rocketcress.Core.Base
         /// <typeparam name="T">The type of value to retrieve.</typeparam>
         /// <param name="propertyName">The name of the property to get.</param>
         /// <returns>Returns the current value of the specified property.</returns>
-        protected virtual T GetProperty<T>([CallerMemberName] string propertyName = null) 
+        protected virtual T GetProperty<T>([CallerMemberName] string propertyName = null)
             => _instancePropertyStorage.GetProperty<T>(propertyName);
+
         /// <summary>
         /// Gets the value of a property in the property cache.
         /// </summary>
@@ -48,8 +50,9 @@ namespace Rocketcress.Core.Base
         /// <param name="initializer">A function that is executed if the property has no value yet.</param>
         /// <param name="propertyName">The name of the property to get.</param>
         /// <returns>Returns the current value of the specified property.</returns>
-        protected virtual T GetProperty<T>(Func<T> initializer, [CallerMemberName] string propertyName = null) 
+        protected virtual T GetProperty<T>(Func<T> initializer, [CallerMemberName] string propertyName = null)
             => _instancePropertyStorage.GetProperty(initializer, propertyName);
+
         /// <summary>
         /// Sets the value of a property in the property cache.
         /// </summary>
@@ -58,12 +61,14 @@ namespace Rocketcress.Core.Base
         /// <param name="propertyName">The name of the property to set.</param>
         protected virtual void SetProperty<T>(T value, [CallerMemberName] string propertyName = null)
             => _instancePropertyStorage.SetProperty(value, propertyName);
+
         /// <summary>
         /// Resets the value of a property in the property cache.
         /// </summary>
         /// <param name="propertyName">The name of the property for which the value should be reset.</param>
         protected virtual void ResetProperty([CallerMemberName] string propertyName = null)
             => _instancePropertyStorage.ResetProperty(propertyName);
+
         /// <summary>
         /// Determines wether a property has a value in the property cache.
         /// </summary>
@@ -80,6 +85,7 @@ namespace Rocketcress.Core.Base
         /// <returns>Returns the current value of the specified property.</returns>
         protected static T GetStaticProperty<T>([CallerMemberName] string propertyName = null)
             => _staticPropertyStorage.GetProperty<T>(propertyName);
+
         /// <summary>
         /// Gets the value of a property in the static property cache.
         /// </summary>
@@ -89,6 +95,7 @@ namespace Rocketcress.Core.Base
         /// <returns>Returns the current value of the specified property.</returns>
         protected static T GetStaticProperty<T>(Func<T> initializer, [CallerMemberName] string propertyName = null)
             => _staticPropertyStorage.GetProperty(initializer, propertyName);
+
         /// <summary>
         /// Sets the value of a property in the static property cache.
         /// </summary>
@@ -97,12 +104,14 @@ namespace Rocketcress.Core.Base
         /// <param name="propertyName">The name of the property to set.</param>
         protected static void SetStaticProperty<T>(T value, [CallerMemberName] string propertyName = null)
             => _staticPropertyStorage.SetProperty(value, propertyName);
+
         /// <summary>
         /// Resets the value of a property in the static property cache.
         /// </summary>
         /// <param name="propertyName">The name of the property for which the value should be reset.</param>
         protected static void ResetStaticProperty([CallerMemberName] string propertyName = null)
             => _staticPropertyStorage.ResetProperty(propertyName);
+
         /// <summary>
         /// Determines wether a property has a value in the static property cache.
         /// </summary>

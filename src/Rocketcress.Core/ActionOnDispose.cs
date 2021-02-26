@@ -18,7 +18,7 @@ namespace Rocketcress.Core
         public static ActionOnDispose Empty => new ActionOnDispose();
 
         /// <summary>
-        /// Initializes a new instance of the ActionOnDispose class.
+        /// Initializes a new instance of the <see cref="ActionOnDispose"/> class.
         /// </summary>
         /// <param name="actionWithTime">The action to execute when this instance gets disposed. Has a parameter that is given the time in miliseconds that took from initialization to disposing.</param>
         public ActionOnDispose(Action<int> actionWithTime)
@@ -27,8 +27,9 @@ namespace Rocketcress.Core
             _stopwatch = new Stopwatch();
             _stopwatch.Start();
         }
+
         /// <summary>
-        /// Initializes a new instance of the ActionOnDispose class.
+        /// Initializes a new instance of the <see cref="ActionOnDispose"/> class.
         /// </summary>
         /// <param name="actionWithoutTime">The action to execute when this instance gets disposed.</param>
         public ActionOnDispose(Action actionWithoutTime)
@@ -36,7 +37,9 @@ namespace Rocketcress.Core
             _actionWithoutTime = actionWithoutTime;
         }
 
-        private ActionOnDispose() { }
+        private ActionOnDispose()
+        {
+        }
 
         /// <summary>
         /// Executes the underlying action.

@@ -6,6 +6,7 @@
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
 
     <OutputPath>..\..\bin\$(Configuration)</OutputPath>
+    <CodeAnalysisRuleSet>../../build/Rocketcress.ruleset</CodeAnalysisRuleSet>
 
     <Description>This library contains C# 9 Source Generators that can be used by test projects.</Description>
     <PackageTags>Rocketcress;Test;Tests;Generator;Generators;SourceGenerator;SourceGenerators</PackageTags>

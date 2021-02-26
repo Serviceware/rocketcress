@@ -38,7 +38,9 @@ namespace Rocketcress.Selenium.DriverProviders
                 return this.RetryCreateDriver(() => new OpenQA.Selenium.Firefox.FirefoxDriver(service, fOptions, browserTimeout));
             }
             else
+            {
                 return this.RetryCreateDriver(() => new OpenQA.Selenium.Remote.RemoteWebDriver(new Uri(settings.RemoteDriverUrl), fOptions));
+            }
         }
 
         /// <inheritdoc />

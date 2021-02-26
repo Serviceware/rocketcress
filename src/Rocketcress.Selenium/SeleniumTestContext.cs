@@ -1,9 +1,9 @@
-﻿using Rocketcress.Selenium.DriverProviders;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using OpenQA.Selenium;
 using Rocketcress.Core;
 using Rocketcress.Core.Base;
 using Rocketcress.Core.Extensions;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using OpenQA.Selenium;
+using Rocketcress.Selenium.DriverProviders;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -21,48 +21,53 @@ namespace Rocketcress.Selenium
     public class SeleniumTestContext : TestContextBase
     {
         #region Fields
+
         private static readonly Dictionary<Browser, int[]> IgnoredPidsOnClose = new Dictionary<Browser, int[]>();
         private static readonly Dictionary<Browser, IDriverProvider> DriverProviders;
         internal static readonly string DriverCachePath = Path.Combine(Path.GetTempPath(), "SeleniumDriverCache");
+
         #endregion
 
         #region Properties
+
         /// <summary>
         /// Gets the current instance of the <see cref="SeleniumTestContext"/>.
         /// </summary>
         public static new SeleniumTestContext CurrentContext { get; private set; }
 
         /// <summary>
-        /// The browser for which this test has been executed.
+        /// Gets or sets the browser for which this test has been executed.
         /// </summary>
         public static Browser CurrentBrowser { get; set; }
 
         /// <summary>
-        /// The browser language with which this test has been executed.
+        /// Gets or sets the browser language with which this test has been executed.
         /// </summary>
         public static CultureInfo CurrentBrowserLanguage { get; set; }
 
         /// <summary>
-        /// A list of all <see cref="WebDriver"/>s that are currently running.
+        /// Gets a list of all <see cref="WebDriver"/>s that are currently running.
         /// </summary>
         public List<WebDriver> AllOpenedDrivers { get; private set; }
 
         /// <summary>
-        /// The currently selected <see cref="WebDriver"/>.
+        /// Gets the currently selected <see cref="WebDriver"/>.
         /// </summary>
         public WebDriver Driver { get; private set; }
 
         /// <summary>
-        /// The test settings
+        /// Gets or sets the test settings.
         /// </summary>
         public new Settings Settings
         {
             get => (Settings)base.Settings;
             set => base.Settings = value;
         }
+
         #endregion
 
         #region Constructors
+
         static SeleniumTestContext()
         {
             DriverProviders = new Dictionary<Browser, IDriverProvider>
@@ -83,14 +88,18 @@ namespace Rocketcress.Selenium
         /// <summary>
         /// Initializes a new instance of the <see cref="SeleniumTestContext"/> class.
         /// </summary>
-        protected SeleniumTestContext() { }
-#endregion
+        protected SeleniumTestContext()
+        {
+        }
+
+        #endregion
 
         #region Public Methods
+
         /// <summary>
         /// Switches the current driver to the index of AllOpenedDrivers.
         /// </summary>
-        /// <param name="index"></param>
+        /// <param name="index">The index of the driver to switch to.</param>
         public void SwitchCurrentDriver(int index)
         {
             var driver = index < AllOpenedDrivers.Count ? AllOpenedDrivers[index] : null;
@@ -135,7 +144,7 @@ namespace Rocketcress.Selenium
         /// Creates a new <see cref="IWebDriver"/> and switches directly to it.
         /// </summary>
         /// <param name="browser">The browser for the <see cref="IWebDriver"/>.</param>
-        /// <param name="timeout">The timeout for the <see cref="IWebDriver"/></param>
+        /// <param name="timeout">The timeout for the <see cref="IWebDriver"/>.</param>
         /// <param name="driverConfiguration">An object that is used to confiure the selenium driver that is created.</param>
         public void CreateAndSwitchToNewDriver(Browser browser, TimeSpan? timeout = null, IDriverConfiguration driverConfiguration = null)
         {
@@ -173,10 +182,7 @@ namespace Rocketcress.Selenium
             CreateAndSwitchToNewDriver(browser, timeout);
         }
 
-        /// <summary>
-        /// Takes a screenshot for all screens and appends it to the test run with the given name.
-        /// </summary>
-        /// <param name="name">The name for the screenshot.</param>
+        /// <inheritdoc/>
         public override string TakeAndAppendScreenshot(string name)
         {
             string browserTag = CurrentBrowser switch
@@ -185,7 +191,7 @@ namespace Rocketcress.Selenium
                 Browser.Chrome => "CH",
                 Browser.InternetExplorer => "IE",
                 Browser.Edge => "ED",
-                _ => "__"
+                _ => "__",
             };
             browserTag += $"-{CurrentBrowserLanguage.Name}";
 
@@ -201,14 +207,18 @@ namespace Rocketcress.Selenium
         #endregion
 
         #region Public Functions
+
         /// <summary>
         /// Creates a new <see cref="SeleniumTestContext"/> as uses it as the current test context. Please make sure to dispose any preexisting <see cref="TestContextBase"/> instances beforehand.
         /// </summary>
+        /// <typeparam name="T">The type of the context.</typeparam>
         /// <param name="activationFunc">A function that creates an instance of the wanted test context class.</param>
         /// <param name="settings">The settings to use during the test.</param>
         /// <param name="testContext">The MSTest Test Context.</param>
         /// <param name="initAction">An action that is executed before the new context is set as current context. Add additional information to the object here if needed.</param>
-        protected static T CreateContext<T>(Func<T> activationFunc, Settings settings, TestContext testContext, Action<T> initAction) where T : SeleniumTestContext
+        /// <returns>The created context.</returns>
+        protected static T CreateContext<T>(Func<T> activationFunc, Settings settings, TestContext testContext, Action<T> initAction)
+            where T : SeleniumTestContext
         {
             return TestContextBase.CreateContext<T>(activationFunc, settings, testContext, Initialize);
 
@@ -225,7 +235,7 @@ namespace Rocketcress.Selenium
         /// </summary>
         /// <param name="settings">The settings for the test run.</param>
         /// <param name="context">The test context of the test run.</param>
-        /// <returns></returns>
+        /// <returns>The created context.</returns>
         public static SeleniumTestContext CreateContext(Settings settings, TestContext context)
             => CreateContext(() => new SeleniumTestContext(), settings, context, null);
 
@@ -234,9 +244,9 @@ namespace Rocketcress.Selenium
         /// </summary>
         /// <param name="browser">The browser for the <see cref="IWebDriver"/>.</param>
         /// <param name="language">The language for the browser.</param>
-        /// <param name="settings">The settings for the test run</param>
+        /// <param name="settings">The settings for the test run.</param>
         /// <param name="driverConfiguration">An object that is used to confiure the selenium driver that is created.</param>
-        /// <returns></returns>
+        /// <returns>The created driver.</returns>
         public static IWebDriver GetDriver(Browser browser, CultureInfo language, Settings settings, IDriverConfiguration driverConfiguration = null)
         {
             string host = new Uri(settings.LoginUrl).Host;
@@ -249,9 +259,12 @@ namespace Rocketcress.Selenium
                 return provider.CreateDriver(host, browserTimeout, language, settings, driverConfiguration);
             }
             else
+            {
                 throw new WebDriverException("Unknown browser: " + browser);
+            }
         }
-#endregion
+
+        #endregion
 
         /// <inheritdoc />
         protected override void SaveScreenshot(string path)
@@ -266,14 +279,17 @@ namespace Rocketcress.Selenium
                 Driver.SwitchTo().Alert().Dismiss();
                 screenshot = Driver.GetScreenshot();
             }
+
             screenshot.SaveAsFile(path);
         }
 
         #region Private Functions
+
         /// <summary>
         /// Kills all driver processes that are still open after disposing the drivers.
         /// Browser Processes that where open before the test are not killed.
         /// </summary>
+        /// <param name="killAll">Determines whether all browser processes should be killed.</param>
         internal static void KillAllDrivers(bool killAll)
         {
             foreach (var kv in IgnoredPidsOnClose)
@@ -281,14 +297,22 @@ namespace Rocketcress.Selenium
                 var pids = DriverProviders.TryGetValue(kv.Key, out var provider) ? provider.GetProcessIds() : Array.Empty<int>();
                 foreach (var pid in killAll ? pids : pids.Except(kv.Value))
                 {
-                    try { Process.GetProcessById(pid).Kill(); }
-                    catch (Exception ex) { Logger.LogWarning("Could not kill process with id " + pid + ": " + ex); }
+                    try
+                    {
+                        Process.GetProcessById(pid).Kill();
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogWarning("Could not kill process with id " + pid + ": " + ex);
+                    }
                 }
             }
         }
+
         #endregion
 
         #region Cleanup
+
         /// <inheritdoc />
         protected override void Dispose(bool disposing)
         {
@@ -321,13 +345,17 @@ namespace Rocketcress.Selenium
                 if (writeLog)
                 {
                     var entries = TestHelper.Try(() => driver.Manage()?.Logs?.GetLog(LogType.Browser));
-                    Trace.WriteLine("");
+                    Trace.WriteLine(string.Empty);
                     Trace.WriteLine($"Browser Log for Browser {AllOpenedDrivers.IndexOf(driver)} ({driver.GetBrowser()}):");
                     if (entries.IsNullOrEmpty())
+                    {
                         Trace.WriteLine("No logs available!");
+                    }
                     else
+                    {
                         foreach (var entry in entries)
                             Trace.WriteLine($"{entry.Timestamp}: {entry.Level} - {entry.Message}");
+                    }
                 }
 
                 driver.Quit();
@@ -342,6 +370,7 @@ namespace Rocketcress.Selenium
                 Logger.LogWarning("Error while disposing driver: " + ex);
             }
         }
+
         #endregion
     }
 }

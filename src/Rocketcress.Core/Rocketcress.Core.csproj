@@ -5,6 +5,7 @@
     <TargetFrameworks>net5.0;net48</TargetFrameworks>
 
     <OutputPath>..\..\bin\$(Configuration)</OutputPath>
+    <CodeAnalysisRuleSet>../../build/Rocketcress.ruleset</CodeAnalysisRuleSet>
 
     <Description>Contains core functionality of for all Rocketcress libraries and tests.</Description>
     <PackageTags>Rocketcress;Test;Tests</PackageTags>

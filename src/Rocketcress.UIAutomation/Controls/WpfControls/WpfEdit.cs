@@ -18,13 +18,35 @@ namespace Rocketcress.UIAutomation.Controls.WpfControls
         #endregion
 
         #region Constructors
-        public WpfEdit(By locationKey) : base(locationKey) { }
-        public WpfEdit(IUITestControl parent) : base(parent) { }
-        public WpfEdit(AutomationElement element) : base(element) { }
-        public WpfEdit(By locationKey, AutomationElement parent) : base(locationKey, parent) { }
-        public WpfEdit(By locationKey, IUITestControl parent) : base(locationKey, parent) { }
-        protected WpfEdit() { }
-        
+        public WpfEdit(By locationKey)
+            : base(locationKey)
+        {
+        }
+
+        public WpfEdit(IUITestControl parent)
+            : base(parent)
+        {
+        }
+
+        public WpfEdit(AutomationElement element)
+            : base(element)
+        {
+        }
+
+        public WpfEdit(By locationKey, AutomationElement parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        public WpfEdit(By locationKey, IUITestControl parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        protected WpfEdit()
+        {
+        }
+
         protected override void Initialize()
         {
             base.Initialize();
@@ -35,6 +57,7 @@ namespace Rocketcress.UIAutomation.Controls.WpfControls
         {
             Text = (string)value;
         }
+
         public object GetValue()
         {
             return Text;
@@ -47,6 +70,7 @@ namespace Rocketcress.UIAutomation.Controls.WpfControls
             get => ValuePattern.Current.Value;
             set => _valueControlSupport.SetValue(value);
         }
+
         public virtual bool ReadOnly => ValuePattern.Current.IsReadOnly;
         #endregion
     }

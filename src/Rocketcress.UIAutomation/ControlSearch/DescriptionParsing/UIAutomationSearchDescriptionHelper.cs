@@ -31,7 +31,7 @@ namespace Rocketcress.UIAutomation.ControlSearch.DescriptionParsing
         {
             if (_properties.TryGetValue(propertyName.ToLower(), out var tempProp1))
                 return tempProp1;
-            else if (_properties.TryGetValue(propertyName.Replace("-", "").ToLower(), out var tempProp2))
+            else if (_properties.TryGetValue(propertyName.Replace("-", string.Empty).ToLower(), out var tempProp2))
                 return tempProp2;
             throw new InvalidOperationException($"A property with name '{propertyName}' was not found.");
         }
@@ -40,7 +40,7 @@ namespace Rocketcress.UIAutomation.ControlSearch.DescriptionParsing
         {
             if (_controlTypes.TryGetValue(controlTypeName.ToLower(), out var tempCt1))
                 return tempCt1;
-            else if (_controlTypes.TryGetValue(controlTypeName.Replace("-", "").ToLower(), out var tempCt2))
+            else if (_controlTypes.TryGetValue(controlTypeName.Replace("-", string.Empty).ToLower(), out var tempCt2))
                 return tempCt2;
             throw new InvalidOperationException($"A control type with the name '{controlTypeName}' was not found.");
         }

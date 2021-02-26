@@ -8,7 +8,8 @@ namespace Rocketcress.UIAutomation.Controls
         IEnumerable<IUITestControl> Tabs { get; }
     }
 
-    public interface IUITestTabListControl<TPage> : IUITestTabListControl where TPage : IUITestTabPageControl
+    public interface IUITestTabListControl<TPage> : IUITestTabListControl
+        where TPage : IUITestTabPageControl
     {
         new IEnumerable<TPage> Tabs { get; }
     }

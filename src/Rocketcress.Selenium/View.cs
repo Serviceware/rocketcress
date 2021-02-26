@@ -1,7 +1,7 @@
-﻿using Rocketcress.Selenium.Extensions;
+﻿using OpenQA.Selenium;
 using Rocketcress.Core;
 using Rocketcress.Core.Base;
-using OpenQA.Selenium;
+using Rocketcress.Selenium.Extensions;
 using System;
 
 namespace Rocketcress.Selenium
@@ -12,44 +12,56 @@ namespace Rocketcress.Selenium
     public abstract class View : TestObjectBase
     {
         #region Properties
+
         /// <summary>
-        /// The driver to which the view is assigned to.
+        /// Gets the driver to which the view is assigned to.
         /// </summary>
         public WebDriver Driver { get; private set; }
 
         /// <summary>
-        /// Location key that is used to uniquely identify the view.
+        /// Gets the Location key that is used to uniquely identify the view.
         /// </summary>
         public abstract By RepresentedBy { get; }
 
         /// <summary>
-        /// Determines if the view exists.
+        /// Gets a value indicating whether the view exists.
         /// </summary>
         public virtual bool Exists => Driver.IsElementExistent(RepresentedBy);
 
         /// <summary>
-        /// Gets the window handle of the views window.
+        /// Gets or sets the window handle of the views window.
         /// </summary>
         public virtual string WindowHandle { get; set; }
+
         #endregion
 
         #region Initialization
-        /// <summary>
-        /// Initialized a new instance of the View class.
-        /// </summary>
-        public View() : this(SeleniumTestContext.CurrentContext.Driver) { }
 
         /// <summary>
-        /// Initialized a new instance of the View class.
+        /// Initializes a new instance of the <see cref="View"/> class.
         /// </summary>
-        /// <param name="driver"></param>
-        public View(WebDriver driver) { Driver = driver; InitializeControls(); }
-        
+        public View()
+            : this(SeleniumTestContext.CurrentContext.Driver)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="View"/> class.
+        /// </summary>
+        /// <param name="driver">The driver to which this view is attached.</param>
+        public View(WebDriver driver)
+        {
+            Driver = driver;
+            InitializeControls();
+        }
 
         /// <summary>
         /// Initializes all controls of this view.
         /// </summary>
-        protected virtual void InitializeControls() { }
+        protected virtual void InitializeControls()
+        {
+        }
+
         #endregion
 
         /// <summary>
@@ -86,6 +98,7 @@ namespace Rocketcress.Selenium
         /// <param name="nextWindow">The window to switch to after closing.</param>
         /// <param name="timeout">The timeout in miliseconds for this waiting operation. If null the default timeout is used.</param>
         /// <param name="assert">Determines wether to assert when the timeout has been reached.</param>
+        /// <returns><c>true</c> when the view closed; otherwise <c>false</c>.</returns>
         public virtual bool WaitForClose(View nextWindow, int? timeout = null, bool assert = true)
         {
             return Driver.WaitForHandleToClose(this, nextWindow, timeout, assert);

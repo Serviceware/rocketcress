@@ -9,7 +9,11 @@ namespace Rocketcress.UIAutomation.ControlSearch.SearchParts
     {
         public IList<ISearchPart> Parts { get; set; }
 
-        public CompositeSearchPart(params ISearchPart[] parts) : this((IEnumerable<ISearchPart>)parts) { }
+        public CompositeSearchPart(params ISearchPart[] parts)
+            : this((IEnumerable<ISearchPart>)parts)
+        {
+        }
+
         public CompositeSearchPart(IEnumerable<ISearchPart> parts)
         {
             Parts = parts?.ToList() ?? throw new ArgumentNullException(nameof(parts));
@@ -36,7 +40,7 @@ namespace Rocketcress.UIAutomation.ControlSearch.SearchParts
                 result = Parts[0].GetDescription();
             else
                 result = $"{string.Join("|", Parts.Select(x => x.GetDescription()))}";
-            
+
             result += GetConditionDescription() + GetSkipTakeDescription();
 
             return result;

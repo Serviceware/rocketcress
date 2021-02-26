@@ -3,7 +3,7 @@
 namespace Rocketcress.UIAutomation.Controls.WpfControls
 {
     [AutoDetectControl]
-    public class WpfHyperlink : WpfControl, IUITestHyperlink
+    public class WpfHyperlink : WpfControl, IUITestHyperlinkControl
     {
         protected override By BaseLocationKey => base.BaseLocationKey.AndControlType(ControlType.Hyperlink);
 
@@ -12,12 +12,34 @@ namespace Rocketcress.UIAutomation.Controls.WpfControls
         #endregion
 
         #region Constructors
-        public WpfHyperlink(By locationKey) : base(locationKey) { }
-        public WpfHyperlink(IUITestControl parent) : base(parent) { }
-        public WpfHyperlink(AutomationElement element) : base(element) { }
-        public WpfHyperlink(By locationKey, AutomationElement parent) : base(locationKey, parent) { }
-        public WpfHyperlink(By locationKey, IUITestControl parent) : base(locationKey, parent) { }
-        protected WpfHyperlink() { }
+        public WpfHyperlink(By locationKey)
+            : base(locationKey)
+        {
+        }
+
+        public WpfHyperlink(IUITestControl parent)
+            : base(parent)
+        {
+        }
+
+        public WpfHyperlink(AutomationElement element)
+            : base(element)
+        {
+        }
+
+        public WpfHyperlink(By locationKey, AutomationElement parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        public WpfHyperlink(By locationKey, IUITestControl parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        protected WpfHyperlink()
+        {
+        }
         #endregion
 
         #region Public Properties

@@ -12,12 +12,34 @@ namespace Rocketcress.UIAutomation.Controls.WpfControls
         #endregion
 
         #region Construcotrs
-        public WpfTitleBar(By locationKey) : base(locationKey) { }
-        public WpfTitleBar(IUITestControl parent) : base(parent) { }
-        public WpfTitleBar(AutomationElement element) : base(element) { }
-        public WpfTitleBar(By locationKey, AutomationElement parent) : base(locationKey, parent) { }
-        public WpfTitleBar(By locationKey, IUITestControl parent) : base(locationKey, parent) { }
-        protected WpfTitleBar() { }
+        public WpfTitleBar(By locationKey)
+            : base(locationKey)
+        {
+        }
+
+        public WpfTitleBar(IUITestControl parent)
+            : base(parent)
+        {
+        }
+
+        public WpfTitleBar(AutomationElement element)
+            : base(element)
+        {
+        }
+
+        public WpfTitleBar(By locationKey, AutomationElement parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        public WpfTitleBar(By locationKey, IUITestControl parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        protected WpfTitleBar()
+        {
+        }
         #endregion
 
         #region Public Properties

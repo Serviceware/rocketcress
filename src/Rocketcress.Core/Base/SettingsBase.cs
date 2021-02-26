@@ -1,8 +1,8 @@
-﻿using Rocketcress.Core.Extensions;
-using Rocketcress.Core.Models;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
+using Rocketcress.Core.Extensions;
+using Rocketcress.Core.Models;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -63,6 +63,7 @@ namespace Rocketcress.Core.Base
 
         [NonSerialized]
         private IDictionary<string, object> _otherSettings;
+
         /// <summary>
         /// Gets the container in which all other settings are saved.
         /// </summary>
@@ -88,6 +89,7 @@ namespace Rocketcress.Core.Base
             SettingsTypes = new List<SettingsType>();
         }
 
+#pragma warning disable SA1414 // Tuple types in signatures should have element names
         /// <summary>
         /// Gets a set of specific settings.
         /// </summary>
@@ -98,6 +100,7 @@ namespace Rocketcress.Core.Base
         /// <returns>A tuple of setting values.</returns>
         public (T1, T2) Get<T1, T2>(string key1, string key2)
             => (Get<T1>(key1), Get<T2>(key2));
+
         /// <summary>
         /// Gets a set of specific settings.
         /// </summary>
@@ -110,6 +113,7 @@ namespace Rocketcress.Core.Base
         /// <returns>A tuple of setting values.</returns>
         public (T1, T2, T3) Get<T1, T2, T3>(string key1, string key2, string key3)
             => (Get<T1>(key1), Get<T2>(key2), Get<T3>(key3));
+
         /// <summary>
         /// Gets a set of specific settings.
         /// </summary>
@@ -124,6 +128,7 @@ namespace Rocketcress.Core.Base
         /// <returns>A tuple of setting values.</returns>
         public (T1, T2, T3, T4) Get<T1, T2, T3, T4>(string key1, string key2, string key3, string key4)
             => (Get<T1>(key1), Get<T2>(key2), Get<T3>(key3), Get<T4>(key4));
+
         /// <summary>
         /// Gets a set of specific settings.
         /// </summary>
@@ -140,6 +145,7 @@ namespace Rocketcress.Core.Base
         /// <returns>A tuple of setting values.</returns>
         public (T1, T2, T3, T4, T5) Get<T1, T2, T3, T4, T5>(string key1, string key2, string key3, string key4, string key5)
             => (Get<T1>(key1), Get<T2>(key2), Get<T3>(key3), Get<T4>(key4), Get<T5>(key5));
+
         /// <summary>
         /// Gets a set of specific settings.
         /// </summary>
@@ -158,6 +164,7 @@ namespace Rocketcress.Core.Base
         /// <returns>A tuple of setting values.</returns>
         public (T1, T2, T3, T4, T5, T6) Get<T1, T2, T3, T4, T5, T6>(string key1, string key2, string key3, string key4, string key5, string key6)
             => (Get<T1>(key1), Get<T2>(key2), Get<T3>(key3), Get<T4>(key4), Get<T5>(key5), Get<T6>(key6));
+
         /// <summary>
         /// Gets a set of specific settings.
         /// </summary>
@@ -178,6 +185,7 @@ namespace Rocketcress.Core.Base
         /// <returns>A tuple of setting values.</returns>
         public (T1, T2, T3, T4, T5, T6, T7) Get<T1, T2, T3, T4, T5, T6, T7>(string key1, string key2, string key3, string key4, string key5, string key6, string key7)
             => (Get<T1>(key1), Get<T2>(key2), Get<T3>(key3), Get<T4>(key4), Get<T5>(key5), Get<T6>(key6), Get<T7>(key7));
+#pragma warning restore SA1414 // Tuple types in signatures should have element names
 
         /// <summary>
         /// Gets a specific setting.
@@ -185,7 +193,8 @@ namespace Rocketcress.Core.Base
         /// <typeparam name="T">The type of the setting value.</typeparam>
         /// <param name="settingKey">The setting key to get the value of.</param>
         /// <returns>The value of the setting.</returns>
-        public virtual T Get<T>(string settingKey) => Get<T>(settingKey, default(T));
+        public virtual T Get<T>(string settingKey) => Get<T>(settingKey, default);
+
         /// <summary>
         /// Gets a specific setting.
         /// </summary>
@@ -202,6 +211,7 @@ namespace Rocketcress.Core.Base
             return this[settingKey] is JToken value ? value.ToObject<T>() : defaultValue;
         }
 
+#pragma warning disable SA1414 // Tuple types in signatures should have element names
         /// <summary>
         /// Tries to get a set of specific settings.
         /// </summary>
@@ -217,6 +227,7 @@ namespace Rocketcress.Core.Base
             value = (TryGet<T1>(key1, ref r), TryGet<T2>(key2, ref r));
             return r;
         }
+
         /// <summary>
         /// Tries to get a set of specific settings.
         /// </summary>
@@ -234,6 +245,7 @@ namespace Rocketcress.Core.Base
             value = (TryGet<T1>(key1, ref r), TryGet<T2>(key2, ref r), TryGet<T3>(key3, ref r));
             return r;
         }
+
         /// <summary>
         /// Tries to get a set of specific settings.
         /// </summary>
@@ -253,6 +265,7 @@ namespace Rocketcress.Core.Base
             value = (TryGet<T1>(key1, ref r), TryGet<T2>(key2, ref r), TryGet<T3>(key3, ref r), TryGet<T4>(key4, ref r));
             return r;
         }
+
         /// <summary>
         /// Tries to get a set of specific settings.
         /// </summary>
@@ -274,6 +287,7 @@ namespace Rocketcress.Core.Base
             value = (TryGet<T1>(key1, ref r), TryGet<T2>(key2, ref r), TryGet<T3>(key3, ref r), TryGet<T4>(key4, ref r), TryGet<T5>(key5, ref r));
             return r;
         }
+
         /// <summary>
         /// Tries to get a set of specific settings.
         /// </summary>
@@ -297,6 +311,7 @@ namespace Rocketcress.Core.Base
             value = (TryGet<T1>(key1, ref r), TryGet<T2>(key2, ref r), TryGet<T3>(key3, ref r), TryGet<T4>(key4, ref r), TryGet<T5>(key5, ref r), TryGet<T6>(key6, ref r));
             return r;
         }
+
         /// <summary>
         /// Tries to get a set of specific settings.
         /// </summary>
@@ -322,10 +337,11 @@ namespace Rocketcress.Core.Base
             value = (TryGet<T1>(key1, ref r), TryGet<T2>(key2, ref r), TryGet<T3>(key3, ref r), TryGet<T4>(key4, ref r), TryGet<T5>(key5, ref r), TryGet<T6>(key6, ref r), TryGet<T7>(key7, ref r));
             return r;
         }
+#pragma warning restore SA1414 // Tuple types in signatures should have element names
 
         private T TryGet<T>(string settingKey, ref bool success)
         {
-            success &= TryGet<T>(settingKey, out T value);
+            success &= TryGet(settingKey, out T value);
             return value;
         }
 
@@ -345,13 +361,15 @@ namespace Rocketcress.Core.Base
                     value = (T)func(this, settingKey);
                     return true;
                 }
+
                 if (typeof(T).IsClass && this[settingKey] is JToken token && token != null)
                 {
                     value = token.ToObject<T>();
                     return true;
                 }
             }
-            value = default(T);
+
+            value = default;
             return false;
         }
 
@@ -374,7 +392,7 @@ namespace Rocketcress.Core.Base
                 Logger.LogWarning("The settings key \"{0}\" is not available in provided settings.", setting);
                 return null;
             }
-            set { OtherSettings[setting] = value; }
+            set => OtherSettings[setting] = value;
         }
 
         /// <summary>
@@ -384,7 +402,10 @@ namespace Rocketcress.Core.Base
         /// <param name="testAssembly">The assembly for which to determine the correct setting file.</param>
         /// <param name="forceDefault">Determines wether to forcly load the default setting file (settings.json).</param>
         /// <returns>The loaded settings.</returns>
-        public static T GetFromFile<T>(Assembly testAssembly, bool forceDefault) where T : SettingsBase => GetFromFile<T>(testAssembly, null, forceDefault);
+        public static T GetFromFile<T>(Assembly testAssembly, bool forceDefault)
+            where T : SettingsBase
+            => GetFromFile<T>(testAssembly, null, forceDefault);
+
         /// <summary>
         /// Determines the correct settings file for a given assembly and loads the settings.
         /// </summary>
@@ -393,7 +414,9 @@ namespace Rocketcress.Core.Base
         /// <param name="settingsFolder">The path, relative to the directory in which the assembly is located, to the setting files.</param>
         /// <param name="forceDefault">Determines wether to forcly load the default setting file (settings.json).</param>
         /// <returns>The loaded settings.</returns>
-        public static T GetFromFile<T>(Assembly testAssembly, string settingsFolder, bool forceDefault) where T : SettingsBase => GetFromFile<T>(GetSettingFile(testAssembly, settingsFolder, forceDefault));
+        public static T GetFromFile<T>(Assembly testAssembly, string settingsFolder, bool forceDefault)
+            where T : SettingsBase
+            => GetFromFile<T>(GetSettingFile(testAssembly, settingsFolder, forceDefault));
 
         /// <summary>
         /// Gets the correct settings file for the current execution.
@@ -427,6 +450,7 @@ namespace Rocketcress.Core.Base
                     if (!File.Exists(result) && TestHelper.IsDebugConfiguration)
                         result = Path.Combine(dir, prefix + "settings_debug.json");
                 }
+
                 if (forceDefault || !File.Exists(result))
                     result = Path.Combine(dir, prefix + "settings.json");
                 return result;
@@ -439,7 +463,8 @@ namespace Rocketcress.Core.Base
         /// <typeparam name="T">The type of the setting class to deserialize.</typeparam>
         /// <param name="filePath">The path to the settings file to load.</param>
         /// <returns>The loaded settings.</returns>
-        public static T GetFromFile<T>(string filePath) where T : SettingsBase
+        public static T GetFromFile<T>(string filePath)
+            where T : SettingsBase
         {
             if (!File.Exists(filePath))
             {
@@ -450,7 +475,7 @@ namespace Rocketcress.Core.Base
 
             var jsonSettings = new JsonSerializerSettings
             {
-                TypeNameHandling = TypeNameHandling.Auto
+                TypeNameHandling = TypeNameHandling.Auto,
             };
             var result = JsonConvert.DeserializeObject<T>(File.ReadAllText(filePath), jsonSettings);
             result.OtherSettings = result.OtherSettings.ToDictionary(x => GetKey(x.Key), x => x.Value);
@@ -458,13 +483,14 @@ namespace Rocketcress.Core.Base
         }
 
         /// <summary>
-        /// Loads the settings from two files that will be merged
+        /// Loads the settings from two files that will be merged.
         /// </summary>
         /// <typeparam name="T">The type of the setting class to deserialize.</typeparam>
         /// <param name="filePath">The path to the settings file to load.</param>
         /// <param name="defaultFilePath">The path to the settings file that is used as a fallback.</param>
-        /// <returns></returns>
-        public static T GetFromFiles<T>(string filePath, string defaultFilePath) where T : SettingsBase
+        /// <returns>The loaded settings.</returns>
+        public static T GetFromFiles<T>(string filePath, string defaultFilePath)
+            where T : SettingsBase
         {
             if (!File.Exists(filePath) && !File.Exists(defaultFilePath))
             {
@@ -482,17 +508,18 @@ namespace Rocketcress.Core.Base
                 result.Merge(overwrite, new JsonMergeSettings
                 {
                     MergeArrayHandling = MergeArrayHandling.Replace,
-                    MergeNullValueHandling = MergeNullValueHandling.Merge
+                    MergeNullValueHandling = MergeNullValueHandling.Merge,
                 });
             }
+
             return result.ToObject<T>();
 
-            void RemoveTags(JObject obj)
+            static void RemoveTags(JObject obj)
             {
-                var osToken = obj["OtherSettings"];
+                var osToken = obj[nameof(OtherSettings)];
                 if (osToken != null)
                 {
-                    foreach(var property in osToken.Children<JProperty>().ToList())
+                    foreach (var property in osToken.Children<JProperty>().ToList())
                     {
                         var newName = GetKey(property.Name);
                         if (newName != property.Name)
@@ -517,7 +544,7 @@ namespace Rocketcress.Core.Base
         }
 
         #region Getter functions
-        private static IDictionary<Type, Func<SettingsBase, string, object>> _getterFunctions = new Dictionary<Type, Func<SettingsBase, string, object>>
+        private static readonly IDictionary<Type, Func<SettingsBase, string, object>> _getterFunctions = new Dictionary<Type, Func<SettingsBase, string, object>>
         {
             [typeof(object)] = (s, key) => s[key],
             [typeof(string)] = (s, key) => GetString(s, key),
@@ -535,12 +562,12 @@ namespace Rocketcress.Core.Base
         {
             var value = settings[settingKey];
             double result;
-            if (value is long)
-                result = (long)value;
-            else if (value is double)
-                result = (double)value;
+            if (value is long lValue)
+                result = lValue;
+            else if (value is double dValue)
+                result = dValue;
             else if (value == null)
-                result = default(double);
+                result = default;
             else
                 result = double.Parse(value.ToString(), CultureInfo.InvariantCulture);
             return result;
@@ -550,10 +577,10 @@ namespace Rocketcress.Core.Base
         {
             var value = settings[settingKey];
             DateTime result;
-            if (value is DateTime)
-                result = (DateTime)value;
+            if (value is DateTime dtValue)
+                result = dtValue;
             else if (value == null)
-                result = default(DateTime);
+                result = default;
             else
                 result = DateTime.Parse(value.ToString(), CultureInfo.InvariantCulture);
             return result;
@@ -569,10 +596,10 @@ namespace Rocketcress.Core.Base
         {
             var value = settings[settingKey];
             long result;
-            if (value is long)
-                result = (long)value;
+            if (value is long lValue)
+                result = lValue;
             else if (value == null)
-                result = default(long);
+                result = default;
             else
                 result = long.Parse(value.ToString(), CultureInfo.InvariantCulture);
             return result;
@@ -582,10 +609,10 @@ namespace Rocketcress.Core.Base
         {
             var value = settings[settingKey];
             bool result;
-            if (value is bool)
-                result = (bool)value;
+            if (value is bool bValue)
+                result = bValue;
             else if (value == null)
-                result = default(bool);
+                result = default;
             else
                 result = bool.Parse(value.ToString());
             return result;
@@ -606,6 +633,7 @@ namespace Rocketcress.Core.Base
             /// Gets or sets the type name.
             /// </summary>
             public string TypeName { get; set; }
+
             /// <summary>
             /// Gets or sets the tag name.
             /// </summary>

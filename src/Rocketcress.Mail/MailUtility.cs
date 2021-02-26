@@ -13,35 +13,41 @@ namespace Rocketcress.Mail
     /// </summary>
     public class MailUtility
     {
-        private ExchangeService service;
-        private Folder inbox;
+        private ExchangeService _service;
+        private Folder _inbox;
 
         private static AssertEx Assert => AssertEx.Instance;
 
         /// <summary>
-        /// Gets or set the domain for the user (only used for Exchange connections).
+        /// Gets or sets the domain for the user (only used for Exchange connections).
         /// </summary>
         public string Domain { get; set; }
+
         /// <summary>
-        /// Gets or set the user name.
+        /// Gets or sets the user name.
         /// </summary>
         public string Username { get; set; }
+
         /// <summary>
         /// Gets or sets the password of the user.
         /// </summary>
         public string Password { get; set; }
+
         /// <summary>
         /// Gets or sets the mail address of the account to login to.
         /// </summary>
         public string Address { get; set; }
+
         /// <summary>
         /// Gets or sets the SMTP server name.
         /// </summary>
         public string SmtpServerName { get; set; }
+
         /// <summary>
         /// Gets or sets the port fo the SMTP server.
         /// </summary>
         public string SmtpServerPort { get; set; }
+
         /// <summary>
         /// Gets or sets the Uri to the Exchange server.
         /// </summary>
@@ -50,6 +56,9 @@ namespace Rocketcress.Mail
         /// <summary>
         /// Sends an email using SMTP.
         /// </summary>
+        /// <param name="receivers">The receivers of the mail.</param>
+        /// <param name="subject">The subject of the mail.</param>
+        /// <param name="body">The body of the mail.</param>
         public void SendSmtp(string[] receivers, string subject, string body)
         {
             using var mail = new MailMessage
@@ -64,7 +73,7 @@ namespace Rocketcress.Mail
 
             using var client = new SmtpClient(SmtpServerName, int.Parse(SmtpServerPort))
             {
-                Credentials = new NetworkCredential(Username, Password)
+                Credentials = new NetworkCredential(Username, Password),
             };
 
             try
@@ -84,18 +93,19 @@ namespace Rocketcress.Mail
         public int? GetInboxItemCountExchange()
         {
             InitializeExchange();
-            if (service != null)
+            if (_service != null)
             {
                 try
                 {
-                    inbox.Load();
-                    return inbox.TotalCount;
+                    _inbox.Load();
+                    return _inbox.TotalCount;
                 }
                 catch (Exception ex)
                 {
                     Assert.Fail("Failed receiving Email Count\n" + ex);
                 }
             }
+
             return null;
         }
 
@@ -106,17 +116,18 @@ namespace Rocketcress.Mail
         public FindItemsResults<Item> GetAllInboxItemsExchange()
         {
             InitializeExchange();
-            if (service != null)
+            if (_service != null)
             {
                 try
                 {
-                    return inbox.FindItems(new ItemView(50)).Result;
+                    return _inbox.FindItems(new ItemView(50)).Result;
                 }
                 catch (Exception ex)
                 {
                     Assert.Fail("Failed receiving Emails\n" + ex);
                 }
             }
+
             return null;
         }
 
@@ -126,12 +137,12 @@ namespace Rocketcress.Mail
         public void RemoveLatestEmailExchange()
         {
             InitializeExchange();
-            if (service != null)
+            if (_service != null)
             {
                 try
                 {
-                    IEnumerable<ItemId> ids = inbox.FindItems(new ItemView(1)).Result.Select(x => x.Id);
-                    service.DeleteItems(ids, DeleteMode.HardDelete, null, null);
+                    IEnumerable<ItemId> ids = _inbox.FindItems(new ItemView(1)).Result.Select(x => x.Id);
+                    _service.DeleteItems(ids, DeleteMode.HardDelete, null, null);
                 }
                 catch (Exception)
                 {
@@ -142,21 +153,22 @@ namespace Rocketcress.Mail
 
         private void InitializeExchange()
         {
-            if (service == null)
+            if (_service == null)
             {
-                service = new ExchangeService();
-                service.TraceEnabled = true;
+                _service = new ExchangeService();
+                _service.TraceEnabled = true;
                 ServicePointManager.ServerCertificateValidationCallback = CertificateValidationCallBack;
-                service.UseDefaultCredentials = false;
-                service.Credentials = new WebCredentials(Username, Password, Domain);
-                service.EnableScpLookup = false;
+                _service.UseDefaultCredentials = false;
+                _service.Credentials = new WebCredentials(Username, Password, Domain);
+                _service.EnableScpLookup = false;
                 if (ExchangeServerUrl == null)
-                    service.AutodiscoverUrl(Address, SuppressRedirectionUrlValidation);
+                    _service.AutodiscoverUrl(Address, SuppressRedirectionUrlValidation);
                 else
-                    service.Url = ExchangeServerUrl;
+                    _service.Url = ExchangeServerUrl;
             }
-            if (inbox == null)
-                inbox = Folder.Bind(service, WellKnownFolderName.Inbox).Result;
+
+            if (_inbox == null)
+                _inbox = Folder.Bind(_service, WellKnownFolderName.Inbox).Result;
         }
 
         private static bool SuppressRedirectionUrlValidation(string url)

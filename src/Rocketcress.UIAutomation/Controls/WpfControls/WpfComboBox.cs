@@ -28,12 +28,34 @@ namespace Rocketcress.UIAutomation.Controls.WpfControls
         #endregion
 
         #region Constructors
-        public WpfComboBox(By locationKey) : base(locationKey) { }
-        public WpfComboBox(IUITestControl parent) : base(parent) { }
-        public WpfComboBox(AutomationElement element) : base(element) { }
-        public WpfComboBox(By locationKey, AutomationElement parent) : base(locationKey, parent) { }
-        public WpfComboBox(By locationKey, IUITestControl parent) : base(locationKey, parent) { }
-        protected WpfComboBox() { }
+        public WpfComboBox(By locationKey)
+            : base(locationKey)
+        {
+        }
+
+        public WpfComboBox(IUITestControl parent)
+            : base(parent)
+        {
+        }
+
+        public WpfComboBox(AutomationElement element)
+            : base(element)
+        {
+        }
+
+        public WpfComboBox(By locationKey, AutomationElement parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        public WpfComboBox(By locationKey, IUITestControl parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        protected WpfComboBox()
+        {
+        }
 
         protected override void Initialize()
         {

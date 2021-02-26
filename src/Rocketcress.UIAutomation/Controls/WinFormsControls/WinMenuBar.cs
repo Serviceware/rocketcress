@@ -9,12 +9,34 @@ namespace Rocketcress.UIAutomation.Controls.WinFormsControls
     {
         protected override By BaseLocationKey => base.BaseLocationKey.AndControlType(ControlType.MenuBar);
 
-        public WinMenuBar(By locationKey) : base(locationKey) { }
-        public WinMenuBar(IUITestControl parent) : base(parent) { }
-        public WinMenuBar(AutomationElement element) : base(element) { }
-        public WinMenuBar(By locationKey, AutomationElement parent) : base(locationKey, parent) { }
-        public WinMenuBar(By locationKey, IUITestControl parent) : base(locationKey, parent) { }
-        protected WinMenuBar() { }
+        public WinMenuBar(By locationKey)
+            : base(locationKey)
+        {
+        }
+
+        public WinMenuBar(IUITestControl parent)
+            : base(parent)
+        {
+        }
+
+        public WinMenuBar(AutomationElement element)
+            : base(element)
+        {
+        }
+
+        public WinMenuBar(By locationKey, AutomationElement parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        public WinMenuBar(By locationKey, IUITestControl parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        protected WinMenuBar()
+        {
+        }
 
         #region Public Properties
         public virtual IEnumerable<IUITestControl> Items => FindElements(By.Framework(FrameworkIds.WindowsForms).AndProperty(AutomationElement.IsKeyboardFocusableProperty, true));

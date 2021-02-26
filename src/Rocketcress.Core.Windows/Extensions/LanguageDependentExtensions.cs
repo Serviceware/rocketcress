@@ -1,5 +1,4 @@
-﻿
-using System.Windows;
+﻿using System.Windows;
 
 namespace Rocketcress.Core.Models
 {
@@ -20,6 +19,7 @@ namespace Rocketcress.Core.Models
         {
             return obj.SetLanguage(language, new Point(x, y));
         }
+
         /// <summary>
         /// Sets the value for the german language.
         /// </summary>
@@ -31,6 +31,7 @@ namespace Rocketcress.Core.Models
         {
             return obj.SetLanguage(KnownLanguages.German, new Point(x, y));
         }
+
         /// <summary>
         /// Sets the value for the english language.
         /// </summary>
@@ -42,6 +43,7 @@ namespace Rocketcress.Core.Models
         {
             return obj.SetLanguage(KnownLanguages.English, new Point(x, y));
         }
+
         /// <summary>
         /// Sets the value for the french language.
         /// </summary>
@@ -53,6 +55,7 @@ namespace Rocketcress.Core.Models
         {
             return obj.SetLanguage(KnownLanguages.French, new Point(x, y));
         }
+
         /// <summary>
         /// Sets the value for the italian language.
         /// </summary>

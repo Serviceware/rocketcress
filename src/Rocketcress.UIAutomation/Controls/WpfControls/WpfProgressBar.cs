@@ -12,12 +12,34 @@ namespace Rocketcress.UIAutomation.Controls.WpfControls
         #endregion
 
         #region Constructors
-        public WpfProgressBar(By locationKey) : base(locationKey) { }
-        public WpfProgressBar(IUITestControl parent) : base(parent) { }
-        public WpfProgressBar(AutomationElement element) : base(element) { }
-        public WpfProgressBar(By locationKey, AutomationElement parent) : base(locationKey, parent) { }
-        public WpfProgressBar(By locationKey, IUITestControl parent) : base(locationKey, parent) { }
-        protected WpfProgressBar() { }
+        public WpfProgressBar(By locationKey)
+            : base(locationKey)
+        {
+        }
+
+        public WpfProgressBar(IUITestControl parent)
+            : base(parent)
+        {
+        }
+
+        public WpfProgressBar(AutomationElement element)
+            : base(element)
+        {
+        }
+
+        public WpfProgressBar(By locationKey, AutomationElement parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        public WpfProgressBar(By locationKey, IUITestControl parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        protected WpfProgressBar()
+        {
+        }
         #endregion
 
         #region Public Properties

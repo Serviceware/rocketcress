@@ -8,29 +8,29 @@ namespace Rocketcress.Core
     public enum LanguageOptions
     {
         /// <summary>
-        /// English (United States) - 1033
+        /// English (United States) - 1033.
         /// </summary>
         English = 1033,
 
         /// <summary>
-        /// German (Germany) - 1031
+        /// German (Germany) - 1031.
         /// </summary>
         German = 1031,
 
         /// <summary>
-        /// French (France) - 1036
+        /// French (France) - 1036.
         /// </summary>
         French = 1036,
 
         /// <summary>
-        /// Italian (Italy) - 1040
+        /// Italian (Italy) - 1040.
         /// </summary>
         Italian = 1040,
 
         /// <summary>
-        /// German (Switzerland) - 2055
+        /// German (Switzerland) - 2055.
         /// </summary>
-        GermanSwitzerland = 2055
+        GermanSwitzerland = 2055,
     }
 
     /// <summary>
@@ -40,34 +40,34 @@ namespace Rocketcress.Core
     public enum Browser : int
     {
         /// <summary>
-        /// Unknown browser
+        /// Unknown browser.
         /// </summary>
         Unknown = 0,
 
         /// <summary>
-        /// Microsoft Internet Explorer
+        /// Microsoft Internet Explorer.
         /// </summary>
-        InternetExplorer = 1, 
+        InternetExplorer = 1,
 
         /// <summary>
-        /// Mozilla Firefox
+        /// Mozilla Firefox.
         /// </summary>
-        Firefox = 2, 
+        Firefox = 2,
 
         /// <summary>
-        /// Google Chrome
+        /// Google Chrome.
         /// </summary>
         Chrome = 3 | Chromium,
 
         /// <summary>
-        /// Microsoft Edge (Chromium)
+        /// Microsoft Edge (Chromium).
         /// </summary>
         Edge = 4 | Chromium,
 
         /// <summary>
-        /// Browsers based on Chromium or Chromium itself
+        /// Browsers based on Chromium or Chromium itself.
         /// </summary>
-        Chromium = 0b1_0000_0000
+        Chromium = 0b1_0000_0000,
     }
 
     /// <summary>
@@ -76,24 +76,24 @@ namespace Rocketcress.Core
     public enum KnownLanguages
     {
         /// <summary>
-        /// English (9)
+        /// English (9).
         /// </summary>
         English = 9,
 
         /// <summary>
-        /// German (7)
+        /// German (7).
         /// </summary>
         German = 7,
 
         /// <summary>
-        /// French (12)
+        /// French (12).
         /// </summary>
         French = 12,
 
         /// <summary>
-        /// Italian (16)
+        /// Italian (16).
         /// </summary>
-        Italian = 16
+        Italian = 16,
     }
 
     /// <summary>
@@ -145,6 +145,6 @@ namespace Rocketcress.Core
         /// <summary>
         /// Descending sort order.
         /// </summary>
-        Descending
+        Descending,
     }
 }

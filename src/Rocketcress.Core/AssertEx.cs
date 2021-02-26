@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Runtime.Serialization;
 #if !SLIM
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 #endif
@@ -16,17 +15,20 @@ namespace Rocketcress.Core
     public class AssertEx
     {
         private static AssertEx _instance;
-        /// <summary>
-        /// The current instance of the AssertEx singleton instance.
-        /// </summary>
-        public static AssertEx Instance => _instance ?? (_instance = new AssertEx());
 
         /// <summary>
-        /// Determines wether failed assertions should be logged.
+        /// Gets the current instance of the AssertEx singleton instance.
+        /// </summary>
+        public static AssertEx Instance => _instance ??= new AssertEx();
+
+        /// <summary>
+        /// Gets or sets a value indicating whether failed assertions should be logged.
         /// </summary>
         public bool IsFailedAssertionLogEnabled { get; set; } = true;
 
-        private AssertEx() { }
+        private AssertEx()
+        {
+        }
 
         /// <summary>
         /// Fails the assertion without checking any conditions. Displays a message.
@@ -35,6 +37,7 @@ namespace Rocketcress.Core
         /// <param name="assert">Determines wether to throw a AssertFailedException.</param>
         /// <returns>Returns false.</returns>
         public bool Fail(string message, bool assert) => Fail<bool>(message, assert, false);
+
         /// <summary>
         /// Fails the assertion without checking any conditions. Displays a message.
         /// </summary>
@@ -43,6 +46,7 @@ namespace Rocketcress.Core
         /// <param name="result">The result that should be returned by this method.</param>
         /// <returns>Returns the value of the result parameter.</returns>
         public bool Fail(string message, bool assert, bool result) => Fail<bool>(message, assert, result);
+
         /// <summary>
         /// Fails the assertion without checking any conditions. Displays a message.
         /// </summary>
@@ -51,6 +55,7 @@ namespace Rocketcress.Core
         /// <param name="assert">Determines wether to throw a AssertFailedException.</param>
         /// <returns>Returns the default value of the specified return type.</returns>
         public T Fail<T>(string message, bool assert) => Fail(message, assert, default(T));
+
         /// <summary>
         /// Fails the assertion without checking any conditions. Displays a message.
         /// </summary>
@@ -96,6 +101,7 @@ namespace Rocketcress.Core
         /// <param name="returnOnSuccess">Value that should be returned if the assert succeeds.</param>
         /// <returns>The value of <paramref name="returnOnSuccess"/> if the assert succeeds; otherwise the default value of <typeparamref name="T"/>.</returns>
         public T IsNotNull<T>(object value, string message, bool assert, T returnOnSuccess) => IsNotNull(value, message, assert, returnOnSuccess, default);
+
         /// <summary>
         /// Tests whether the specified object is non-null and throws an exception if it is null.
         /// </summary>
@@ -119,6 +125,7 @@ namespace Rocketcress.Core
         /// <param name="returnOnSuccess">Value that should be returned if the assert succeeds.</param>
         /// <returns>The value of <paramref name="returnOnSuccess"/> if the assert succeeds; otherwise the default value of <typeparamref name="T"/>.</returns>
         public T IsNull<T>(object value, string message, bool assert, T returnOnSuccess) => IsNull(value, message, assert, returnOnSuccess, default);
+
         /// <summary>
         /// Tests whether the specified object is null and throws an exception if it is not null.
         /// </summary>
@@ -185,37 +192,46 @@ namespace Rocketcress.Core
         /// <summary>
         /// Verifies that a value is greater or equal to another value.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="T">The type of value to compare.</typeparam>
         /// <param name="expectedMinimum">The inclusive expected minimum value.</param>
         /// <param name="actual">The actual value.</param>
-        public void IsGreaterOrEqual<T>(T expectedMinimum, T actual) where T : IComparable => IsGreaterOrEqual(expectedMinimum, actual, null);
+        public void IsGreaterOrEqual<T>(T expectedMinimum, T actual)
+            where T : IComparable
+            => IsGreaterOrEqual(expectedMinimum, actual, null);
+
         /// <summary>
         /// Verifies that a value is greater or equal to another value.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="T">The type of value to compare.</typeparam>
         /// <param name="expectedMinimum">The inclusive expected minimum value.</param>
         /// <param name="actual">The actual value.</param>
         /// <param name="message">A message to display if the assertion fails. This message can be seen in the unit test results.</param>
-        public void IsGreaterOrEqual<T>(T expectedMinimum, T actual, string message) where T : IComparable
+        public void IsGreaterOrEqual<T>(T expectedMinimum, T actual, string message)
+            where T : IComparable
         {
             if (Comparer<T>.Default.Compare(expectedMinimum, actual) > 0)
                 ThrowAssertFailed($"Assert.IsGreaterOrEqual failed. ExpectedMinimum:<{expectedMinimum}>. Actual:<{actual}>. {message}");
         }
+
         /// <summary>
         /// Verifies that a value is greater than another value.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="T">The type of value to compare.</typeparam>
         /// <param name="expectedMinimum">The exclusive expected minimum value.</param>
         /// <param name="actual">The actual value.</param>
-        public void IsGreater<T>(T expectedMinimum, T actual) where T : IComparable => IsGreater(expectedMinimum, actual, null);
+        public void IsGreater<T>(T expectedMinimum, T actual)
+            where T : IComparable
+            => IsGreater(expectedMinimum, actual, null);
+
         /// <summary>
         /// Verifies that a value is greater than another value.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="T">The type of value to compare.</typeparam>
         /// <param name="expectedMinimum">The exclusive expected minimum value.</param>
         /// <param name="actual">The actual value.</param>
         /// <param name="message">A message to display if the assertion fails. This message can be seen in the unit test results.</param>
-        public void IsGreater<T>(T expectedMinimum, T actual, string message) where T : IComparable
+        public void IsGreater<T>(T expectedMinimum, T actual, string message)
+            where T : IComparable
         {
             if (Comparer<T>.Default.Compare(expectedMinimum, actual) >= 0)
                 ThrowAssertFailed($"Assert.IsGreater failed. ExpectedMinimum:<{expectedMinimum}>. Actual:<{actual}>. {message}");
@@ -224,37 +240,46 @@ namespace Rocketcress.Core
         /// <summary>
         /// Verifies that a value is smaller or equal to another value.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="T">The type of value to compare.</typeparam>
         /// <param name="expectedMaximum">The inclusive expected maximum value.</param>
         /// <param name="actual">The actual value.</param>
-        public void IsSmallerOrEqual<T>(T expectedMaximum, T actual) where T : IComparable => IsSmallerOrEqual(expectedMaximum, actual, null);
+        public void IsSmallerOrEqual<T>(T expectedMaximum, T actual)
+            where T : IComparable
+            => IsSmallerOrEqual(expectedMaximum, actual, null);
+
         /// <summary>
         /// Verifies that a value is smaller or equal to another value.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="T">The type of value to compare.</typeparam>
         /// <param name="expectedMaximum">The inclusive expected maximum value.</param>
         /// <param name="actual">The actual value.</param>
         /// <param name="message">A message to display if the assertion fails. This message can be seen in the unit test results.</param>
-        public void IsSmallerOrEqual<T>(T expectedMaximum, T actual, string message) where T : IComparable
+        public void IsSmallerOrEqual<T>(T expectedMaximum, T actual, string message)
+            where T : IComparable
         {
             if (Comparer<T>.Default.Compare(expectedMaximum, actual) < 0)
                 ThrowAssertFailed($"Assert.IsSmallerOrEqual failed. ExpectedMaximum:<{expectedMaximum}>. Actual:<{actual}>. {message}");
         }
+
         /// <summary>
         /// Verifies that a value is smaller than another value.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="T">The type of value to compare.</typeparam>
         /// <param name="expectedMaximum">The exclusive expected maximum value.</param>
         /// <param name="actual">The actual value.</param>
-        public void IsSmaller<T>(T expectedMaximum, T actual) where T : IComparable => IsSmaller(expectedMaximum, actual, null);
+        public void IsSmaller<T>(T expectedMaximum, T actual)
+            where T : IComparable
+            => IsSmaller(expectedMaximum, actual, null);
+
         /// <summary>
         /// Verifies that a value is smaller than another value.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="T">The type of value to compare.</typeparam>
         /// <param name="expectedMaximum">The exclusive expected maximum value.</param>
         /// <param name="actual">The actual value.</param>
         /// <param name="message">A message to display if the assertion fails. This message can be seen in the unit test results.</param>
-        public void IsSmaller<T>(T expectedMaximum, T actual, string message) where T : IComparable
+        public void IsSmaller<T>(T expectedMaximum, T actual, string message)
+            where T : IComparable
         {
             if (Comparer<T>.Default.Compare(expectedMaximum, actual) <= 0)
                 ThrowAssertFailed($"Assert.IsSmaller failed. ExpectedMaximum:<{expectedMaximum}>. Actual:<{actual}>. {message}");
@@ -263,20 +288,24 @@ namespace Rocketcress.Core
         /// <summary>
         /// Verifies that a value is between two other values.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="T">The type of value to compare.</typeparam>
         /// <param name="expectedMinimum">The inclusive expected minimum value.</param>
         /// <param name="expectedMaximum">The inclusive expected maximum value.</param>
         /// <param name="actual">The actual value.</param>
-        public void IsBetweenOrEqual<T>(T expectedMinimum, T expectedMaximum, T actual) where T : IComparable => IsBetweenOrEqual(expectedMinimum, expectedMaximum, actual, null);
+        public void IsBetweenOrEqual<T>(T expectedMinimum, T expectedMaximum, T actual)
+            where T : IComparable
+            => IsBetweenOrEqual(expectedMinimum, expectedMaximum, actual, null);
+
         /// <summary>
         /// Verifies that a value is between two other values.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="T">The type of value to compare.</typeparam>
         /// <param name="expectedMinimum">The inclusive expected minimum value.</param>
         /// <param name="expectedMaximum">The inclusive expected maximum value.</param>
         /// <param name="actual">The actual value.</param>
         /// <param name="message">A message to display if the assertion fails. This message can be seen in the unit test results.</param>
-        public void IsBetweenOrEqual<T>(T expectedMinimum, T expectedMaximum, T actual, string message) where T : IComparable
+        public void IsBetweenOrEqual<T>(T expectedMinimum, T expectedMaximum, T actual, string message)
+            where T : IComparable
         {
             if (Comparer<T>.Default.Compare(expectedMinimum, actual) > 0 || Comparer<T>.Default.Compare(expectedMaximum, actual) < 0)
                 ThrowAssertFailed($"Assert.IsBetweenOrEqual failed. ExpectedMinimum:<{expectedMinimum}>. ExpectedMaximum:<{expectedMaximum}>. Actual:<{actual}>. {message}");
@@ -285,20 +314,24 @@ namespace Rocketcress.Core
         /// <summary>
         /// Verifies that a value is between two other values.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="T">The type of value to compare.</typeparam>
         /// <param name="expectedMinimum">The exclusive expected minimum value.</param>
         /// <param name="expectedMaximum">The exclusive expected maximum value.</param>
         /// <param name="actual">The actual value.</param>
-        public void IsBetween<T>(T expectedMinimum, T expectedMaximum, T actual) where T : IComparable => IsBetween(expectedMinimum, expectedMaximum, actual, null);
+        public void IsBetween<T>(T expectedMinimum, T expectedMaximum, T actual)
+            where T : IComparable
+            => IsBetween(expectedMinimum, expectedMaximum, actual, null);
+
         /// <summary>
         /// Verifies that a value is between two other values.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="T">The type of value to compare.</typeparam>
         /// <param name="expectedMinimum">The exclusive expected minimum value.</param>
         /// <param name="expectedMaximum">The exclusive expected maximum value.</param>
         /// <param name="actual">The actual value.</param>
         /// <param name="message">A message to display if the assertion fails. This message can be seen in the unit test results.</param>
-        public void IsBetween<T>(T expectedMinimum, T expectedMaximum, T actual, string message) where T : IComparable
+        public void IsBetween<T>(T expectedMinimum, T expectedMaximum, T actual, string message)
+            where T : IComparable
         {
             if (Comparer<T>.Default.Compare(expectedMinimum, actual) >= 0 || Comparer<T>.Default.Compare(expectedMaximum, actual) <= 0)
                 ThrowAssertFailed($"Assert.IsBetween failed. ExpectedMinimum:<{expectedMinimum}>. ExpectedMaximum:<{expectedMaximum}>. Actual:<{actual}>. {message}");
@@ -309,6 +342,7 @@ namespace Rocketcress.Core
         /// </summary>
         /// <param name="actual">The value to verify.</param>
         public void IsNullOrEmpty(string actual) => IsNullOrEmpty(actual, null);
+
         /// <summary>
         /// Verifies that a string value is null or an empty string.
         /// </summary>
@@ -319,11 +353,13 @@ namespace Rocketcress.Core
             if (!string.IsNullOrEmpty(actual))
                 ThrowAssertFailed($"Assert.IsNullOrEmpty failed. {message}");
         }
+
         /// <summary>
         /// Verifies that a string value string is null, empty, or consists only of white-space characters.
         /// </summary>
         /// <param name="actual">The value to verify.</param>
         public void IsNullOrWhitespace(string actual) => IsNullOrWhitespace(actual, null);
+
         /// <summary>
         /// Verifies that a string value string is null, empty, or consists only of white-space characters.
         /// </summary>
@@ -334,11 +370,13 @@ namespace Rocketcress.Core
             if (!string.IsNullOrWhiteSpace(actual))
                 ThrowAssertFailed($"Assert.IsNullOrWhitespace failed. {message}");
         }
+
         /// <summary>
         /// Verifies that a string value is not null nor an empty string.
         /// </summary>
         /// <param name="actual">The value to verify.</param>
         public void IsNotNullOrEmpty(string actual) => IsNotNullOrEmpty(actual, null);
+
         /// <summary>
         /// Verifies that a string value is not null nor an empty string.
         /// </summary>
@@ -349,11 +387,13 @@ namespace Rocketcress.Core
             if (string.IsNullOrEmpty(actual))
                 ThrowAssertFailed($"Assert.IsNullOrEmpty failed. {message}");
         }
+
         /// <summary>
         /// Verifies that a string value string is not null, empty, nor consists only of white-space characters.
         /// </summary>
         /// <param name="actual">The value to verify.</param>
         public void IsNotNullOrWhitespace(string actual) => IsNotNullOrWhitespace(actual, null);
+
         /// <summary>
         /// Verifies that a string value string is not null, empty, nor consists only of white-space characters.
         /// </summary>
@@ -371,6 +411,7 @@ namespace Rocketcress.Core
         /// <typeparam name="T">The type of the enumerable elements.</typeparam>
         /// <param name="actual">The value to verify.</param>
         public void IsNullOrEmpty<T>(IEnumerable<T> actual) => IsNullOrEmpty(actual, null);
+
         /// <summary>
         /// Verifies that a enumerable is null or has no elements.
         /// </summary>
@@ -389,6 +430,7 @@ namespace Rocketcress.Core
         /// <typeparam name="T">The type of the enumerable elements.</typeparam>
         /// <param name="actual">The value to verify.</param>
         public void IsNotNullOrEmpty<T>(IEnumerable<T> actual) => IsNotNullOrEmpty(actual, null);
+
         /// <summary>
         /// Verifies that a enumerable is not null and has at least one element.
         /// </summary>
@@ -410,6 +452,7 @@ namespace Rocketcress.Core
         /// <param name="assertSorting">Determines wether the elements has to be contained in the correct order.</param>
         /// <param name="matchExactly">Determines wether the actual enumerable can contain elements that are not specified in the expected elements.</param>
         public void ArrayElements<T>(IEnumerable<T> expected, IEnumerable<T> actual, bool assertSorting, bool matchExactly) => ArrayElements(expected, actual, null, null, null, assertSorting, matchExactly);
+
         /// <summary>
         /// Verifies that a enumerable contains the expected items.
         /// </summary>
@@ -421,6 +464,7 @@ namespace Rocketcress.Core
         /// <param name="assertSorting">Determines wether the elements has to be contained in the correct order.</param>
         /// <param name="matchExactly">Determines wether the actual enumerable can contain elements that are not specified in the expected elements.</param>
         public void ArrayElements<TExpected, TActual>(IEnumerable<TExpected> expected, IEnumerable<TActual> actual, Func<TExpected, TActual, bool> matchFunction, bool assertSorting, bool matchExactly) => ArrayElements(expected, actual, matchFunction, null, null, assertSorting, matchExactly);
+
         /// <summary>
         /// Verifies that a enumerable contains the expected items.
         /// </summary>
@@ -463,6 +507,7 @@ namespace Rocketcress.Core
                     actualList.RemoveAt(i);
                     i--;
                 }
+
                 elementIndex++;
             }
 
@@ -480,14 +525,20 @@ namespace Rocketcress.Core
         /// </summary>
         /// <typeparam name="T">The expected type of the exception.</typeparam>
         /// <param name="action">The action to verify.</param>
-        public void ThrowsException<T>(Action action) where T : Exception => ThrowsException<T>(action, false, false);
+        public void ThrowsException<T>(Action action)
+            where T : Exception
+            => ThrowsException<T>(action, false, false);
+
         /// <summary>
         /// Verifies that an action throws a specific exception.
         /// </summary>
         /// <typeparam name="T">The expected type of the exception.</typeparam>
         /// <param name="action">The action to verify.</param>
         /// <param name="matchExactly">Determines wether the exception type has to match <typeparamref name="T"/> exactly or derived types are allowed.</param>
-        public void ThrowsException<T>(Action action, bool matchExactly) where T : Exception => ThrowsException<T>(action, matchExactly, false);
+        public void ThrowsException<T>(Action action, bool matchExactly)
+            where T : Exception
+            => ThrowsException<T>(action, matchExactly, false);
+
         /// <summary>
         /// Verifies that an action throws a specific exception.
         /// </summary>
@@ -495,10 +546,14 @@ namespace Rocketcress.Core
         /// <param name="action">The action to verify.</param>
         /// <param name="matchExactly">Determines wether the exception type has to match <typeparamref name="T"/> exactly or derived types are allowed.</param>
         /// <param name="validateInnerException">Determine wether to validate the inner exception of the resulting exception, instead of the exception itself. If set to true and no inner exception exists the assert will fail.</param>
-        public void ThrowsException<T>(Action action, bool matchExactly, bool validateInnerException) where T : Exception
+        public void ThrowsException<T>(Action action, bool matchExactly, bool validateInnerException)
+            where T : Exception
         {
             bool hasException = false;
-            try { action(); }
+            try
+            {
+                action();
+            }
             catch (Exception ex)
             {
                 hasException = true;
@@ -508,9 +563,11 @@ namespace Rocketcress.Core
                         ThrowAssertFailed($"The exception that occurred does not have an inner exception.", ex);
                     ex = ex.InnerException;
                 }
-                if (matchExactly && ex.GetType() != typeof(T) || !matchExactly && !typeof(T).IsInstanceOfType(ex))
-                    ThrowAssertFailed($"The action was expected to throw an exception{(matchExactly ? " exactly" : "")} of type \"{typeof(T).FullName}\", but did throw an exception of type \"{ex.GetType().FullName}\".", ex);
+
+                if ((matchExactly && ex.GetType() != typeof(T)) || (!matchExactly && !typeof(T).IsInstanceOfType(ex)))
+                    ThrowAssertFailed($"The action was expected to throw an exception{(matchExactly ? " exactly" : string.Empty)} of type \"{typeof(T).FullName}\", but did throw an exception of type \"{ex.GetType().FullName}\".", ex);
             }
+
             if (!hasException)
                 ThrowAssertFailed($"The action was expected to throw an exception of type \"{typeof(T).FullName}\", but did not throw any exceptions.");
         }
@@ -521,6 +578,7 @@ namespace Rocketcress.Core
         /// <param name="expected">The string that is expected to be contained in the <paramref name="actual"/> string.</param>
         /// <param name="actual">The string to verify.</param>
         public void Contains(string expected, string actual) => Contains(expected, actual, null);
+
         /// <summary>
         /// Verifies that a string contains a specific other string.
         /// </summary>
@@ -533,8 +591,8 @@ namespace Rocketcress.Core
                 ThrowAssertFailed($"Assert.IsNullOrEmpty failed. ExpectedContent:<{expected}>. Actual<{actual ?? "(null)"}> {message}");
         }
 
-
-        private void ThrowAssertFailed(string message) => ThrowAssertFailed(message, null);
+        private void ThrowAssertFailed(string message)
+            => ThrowAssertFailed(message, null);
         private void ThrowAssertFailed(string message, Exception innerException)
         {
             var ex = new AssertFailedException(message, innerException);
@@ -543,10 +601,12 @@ namespace Rocketcress.Core
             {
                 Logger.LogDebug("The Assertion failed due to the following exception: " + innerException);
             }
+
             throw ex;
         }
 
-        private void LogFailedAssertion(AssertFailedException exception, LogLevel logLevel) => LogFailedAssertion(exception.Message + Environment.NewLine + new StackTrace(1), logLevel);
+        private void LogFailedAssertion(AssertFailedException exception, LogLevel logLevel)
+            => LogFailedAssertion(exception.Message + Environment.NewLine + new StackTrace(1), logLevel);
         private void LogFailedAssertion(string message, LogLevel logLevel)
         {
             if (IsFailedAssertionLogEnabled)
@@ -560,6 +620,10 @@ namespace Rocketcress.Core
         }
 
         #region Microsoft.VisualStudio.TestTools.UnitTesting.Assert
+#if SLIM
+#pragma warning disable SA1501 // Statement should not be on a single line
+#endif
+
         /// <summary>
         /// Tests whether the specified floats are equal and throws an exception
         /// if they are not equal.
@@ -586,6 +650,7 @@ namespace Rocketcress.Core
 #else
             => RunAssertAction(() => Assert.AreEqual(expected, actual, delta, message), true);
 #endif
+
         /// <summary>
         /// Tests whether the specified objects are equal and throws an exception
         /// if the two objects are not equal. Different numeric types are treated
@@ -608,6 +673,7 @@ namespace Rocketcress.Core
 #else
             => RunAssertAction(() => Assert.AreEqual(expected, actual, message), true);
 #endif
+
         /// <summary>
         /// Tests whether the specified objects are equal and throws an exception
         /// if the two objects are not equal. Different numeric types are treated
@@ -625,6 +691,7 @@ namespace Rocketcress.Core
 #else
             => RunAssertAction(() => Assert.AreEqual(expected, actual), true);
 #endif
+
         /// <summary>
         /// Tests whether the specified doubles are equal and throws an exception
         /// if they are not equal.
@@ -646,6 +713,7 @@ namespace Rocketcress.Core
 #else
             => RunAssertAction(() => Assert.AreEqual(expected, actual, delta), true);
 #endif
+
         /// <summary>
         /// Tests whether the specified values are equal and throws an exception
         /// if the two values are not equal. Different numeric types are treated
@@ -671,6 +739,7 @@ namespace Rocketcress.Core
 #else
             => RunAssertAction(() => Assert.AreEqual(expected, actual, message), true);
 #endif
+
         /// <summary>
         /// Tests whether the specified values are equal and throws an exception
         /// if the two values are not equal. Different numeric types are treated
@@ -691,6 +760,7 @@ namespace Rocketcress.Core
 #else
             => RunAssertAction(() => Assert.AreEqual(expected, actual), true);
 #endif
+
         /// <summary>
         /// Tests whether the specified doubles are equal and throws an exception
         /// if they are not equal.
@@ -717,6 +787,7 @@ namespace Rocketcress.Core
 #else
             => RunAssertAction(() => Assert.AreEqual(expected, actual, delta, message), true);
 #endif
+
         /// <summary>
         /// Tests whether the specified strings are equal and throws an exception
         /// if they are not equal. The invariant culture is used for the comparison.
@@ -737,6 +808,7 @@ namespace Rocketcress.Core
 #else
             => RunAssertAction(() => Assert.AreEqual(expected, actual, ignoreCase), true);
 #endif
+
         /// <summary>
         /// Tests whether the specified floats are equal and throws an exception
         /// if they are not equal.
@@ -758,6 +830,7 @@ namespace Rocketcress.Core
 #else
             => RunAssertAction(() => Assert.AreEqual(expected, actual, delta), true);
 #endif
+
         /// <summary>
         /// Tests whether the specified strings are equal and throws an exception
         /// if they are not equal. The invariant culture is used for the comparison.
@@ -806,6 +879,7 @@ namespace Rocketcress.Core
 #else
             => RunAssertAction(() => Assert.AreNotEqual(notExpected, actual, delta), true);
 #endif
+
         /// <summary>
         /// Tests whether the specified strings are unequal and throws an exception
         /// if they are equal. The invariant culture is used for the comparison.
@@ -827,6 +901,7 @@ namespace Rocketcress.Core
 #else
             => RunAssertAction(() => Assert.AreNotEqual(notExpected, actual, ignoreCase), true);
 #endif
+
         /// <summary>
         /// Tests whether the specified strings are unequal and throws an exception
         /// if they are equal. The invariant culture is used for the comparison.
@@ -853,6 +928,7 @@ namespace Rocketcress.Core
 #else
             => RunAssertAction(() => Assert.AreNotEqual(notExpected, actual, ignoreCase, message), true);
 #endif
+
         /// <summary>
         /// Tests whether the specified floats are unequal and throws an exception
         /// if they are equal.
@@ -880,6 +956,7 @@ namespace Rocketcress.Core
 #else
             => RunAssertAction(() => Assert.AreNotEqual(notExpected, actual, delta, message), true);
 #endif
+
         /// <summary>
         /// Tests whether the specified doubles are unequal and throws an exception
         /// if they are equal.
@@ -907,6 +984,7 @@ namespace Rocketcress.Core
 #else
             => RunAssertAction(() => Assert.AreNotEqual(notExpected, actual, delta, message), true);
 #endif
+
         /// <summary>
         /// Tests whether the specified floats are unequal and throws an exception
         /// if they are equal.
@@ -929,6 +1007,7 @@ namespace Rocketcress.Core
 #else
             => RunAssertAction(() => Assert.AreNotEqual(notExpected, actual, delta), true);
 #endif
+
         /// <summary>
         /// Tests whether the specified objects are unequal and throws an exception
         /// if the two objects are equal. Different numeric types are treated
@@ -952,6 +1031,7 @@ namespace Rocketcress.Core
 #else
             => RunAssertAction(() => Assert.AreNotEqual(notExpected, actual, message), true);
 #endif
+
         /// <summary>
         /// Tests whether the specified objects are unequal and throws an exception
         /// if the two objects are equal. Different numeric types are treated
@@ -970,6 +1050,7 @@ namespace Rocketcress.Core
 #else
             => RunAssertAction(() => Assert.AreNotEqual(notExpected, actual), true);
 #endif
+
         /// <summary>
         /// Tests whether the specified values are unequal and throws an exception
         /// if the two values are equal. Different numeric types are treated
@@ -996,6 +1077,7 @@ namespace Rocketcress.Core
 #else
             => RunAssertAction(() => Assert.AreNotEqual(notExpected, actual, message), true);
 #endif
+
         /// <summary>
         /// Tests whether the specified values are unequal and throws an exception
         /// if the two values are equal. Different numeric types are treated
@@ -1035,6 +1117,7 @@ namespace Rocketcress.Core
 #else
             => RunAssertAction(() => Assert.AreNotSame(notExpected, actual), true);
 #endif
+
         /// <summary>
         /// Tests whether the specified objects refer to different objects and
         /// throws an exception if the two inputs refer to the same object.
@@ -1079,6 +1162,7 @@ namespace Rocketcress.Core
 #else
             => RunAssertAction(() => Assert.AreSame(expected, actual, message), true);
 #endif
+
         /// <summary>
         /// Tests whether the specified objects both refer to the same object and
         /// throws an exception if the two inputs do not refer to the same object.
@@ -1109,6 +1193,7 @@ namespace Rocketcress.Core
 #else
             => RunAssertAction(() => Assert.Fail(message), true);
 #endif
+
         /// <summary>
         /// Throws an AssertFailedException.
         /// </summary>
@@ -1132,6 +1217,7 @@ namespace Rocketcress.Core
 #else
             => RunAssertAction(() => Assert.Inconclusive(message), true);
 #endif
+
         /// <summary>
         /// Throws an AssertInconclusiveException.
         /// </summary>
@@ -1155,6 +1241,7 @@ namespace Rocketcress.Core
 #else
             => RunAssertAction(() => Assert.IsFalse(condition), true);
 #endif
+
         /// <summary>
         /// Tests whether the specified condition is false and throws an exception
         /// if the condition is true.
@@ -1190,6 +1277,7 @@ namespace Rocketcress.Core
 #else
             => RunAssertAction(() => Assert.IsInstanceOfType(value, expectedType), true);
 #endif
+
         /// <summary>
         /// Tests whether the specified object is an instance of the expected
         /// type and throws an exception if the expected type is not in the
@@ -1212,6 +1300,7 @@ namespace Rocketcress.Core
 #else
             => RunAssertAction(() => Assert.IsInstanceOfType(value, expectedType, message), true);
 #endif
+
         /// <summary>
         /// Tests whether the specified object is not an instance of the wrong
         /// type and throws an exception if the specified type is in the
@@ -1229,6 +1318,7 @@ namespace Rocketcress.Core
 #else
             => RunAssertAction(() => Assert.IsNotInstanceOfType(value, wrongType), true);
 #endif
+
         /// <summary>
         /// Tests whether the specified object is not an instance of the wrong
         /// type and throws an exception if the specified type is in the
@@ -1265,6 +1355,7 @@ namespace Rocketcress.Core
 #else
             => RunAssertAction(() => Assert.IsNotNull(value), true);
 #endif
+
         /// <summary>
         /// Tests whether the specified object is non-null and throws an exception
         /// if it is null.
@@ -1300,6 +1391,7 @@ namespace Rocketcress.Core
 #else
             => RunAssertAction(() => Assert.IsNull(value, message), true);
 #endif
+
         /// <summary>
         /// Tests whether the specified object is null and throws an exception
         /// if it is not.
@@ -1327,6 +1419,7 @@ namespace Rocketcress.Core
 #else
             => RunAssertAction(() => Assert.IsTrue(condition), true);
 #endif
+
         /// <summary>
         /// Tests whether the specified condition is true and throws an exception
         /// if the condition is false.
@@ -1360,34 +1453,79 @@ namespace Rocketcress.Core
 #else
             => Assert.ReplaceNullChars(input);
 #endif
-#endregion
+        #endregion
     }
 
 #if SLIM
+#pragma warning restore SA1501 // Statement should not be on a single line
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+#pragma warning disable SA1402 // File may only contain a single type
     public class UnitTestAssertException : Exception
     {
-        public UnitTestAssertException() { }
-        public UnitTestAssertException(string message) : base(message) { }
-        public UnitTestAssertException(string message, Exception innerException) : base(message, innerException) { }
-        protected UnitTestAssertException(SerializationInfo info, StreamingContext context) : base(info, context) { }
+        public UnitTestAssertException()
+        {
+        }
+
+        public UnitTestAssertException(string message)
+            : base(message)
+        {
+        }
+
+        public UnitTestAssertException(string message, Exception innerException)
+            : base(message, innerException)
+        {
+        }
+
+        protected UnitTestAssertException(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context)
+            : base(info, context)
+        {
+        }
     }
 
     public class AssertFailedException : UnitTestAssertException
     {
-        public AssertFailedException() { }
-        public AssertFailedException(string message) : base(message) { }
-        public AssertFailedException(string message, Exception innerException) : base(message, innerException) { }
-        protected AssertFailedException(SerializationInfo info, StreamingContext context) : base(info, context) { }
+        public AssertFailedException()
+        {
+        }
+
+        public AssertFailedException(string message)
+            : base(message)
+        {
+        }
+
+        public AssertFailedException(string message, Exception innerException)
+            : base(message, innerException)
+        {
+        }
+
+        protected AssertFailedException(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context)
+            : base(info, context)
+        {
+        }
     }
 
     public class AssertInconclusiveException : UnitTestAssertException
     {
-        public AssertInconclusiveException() { }
-        public AssertInconclusiveException(string message) : base(message) { }
-        public AssertInconclusiveException(string message, Exception innerException) : base(message, innerException) { }
-        protected AssertInconclusiveException(SerializationInfo info, StreamingContext context) : base(info, context) { }
+        public AssertInconclusiveException()
+        {
+        }
+
+        public AssertInconclusiveException(string message)
+            : base(message)
+        {
+        }
+
+        public AssertInconclusiveException(string message, Exception innerException)
+            : base(message, innerException)
+        {
+        }
+
+        protected AssertInconclusiveException(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context)
+            : base(info, context)
+        {
+        }
     }
+#pragma warning restore SA1402 // File may only contain a single type
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 #endif
 }

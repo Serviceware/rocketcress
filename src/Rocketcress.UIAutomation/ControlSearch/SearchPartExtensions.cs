@@ -1,5 +1,5 @@
-﻿using Rocketcress.UIAutomation.ControlSearch.Conditions;
-using Rocketcress.Core.Extensions;
+﻿using Rocketcress.Core.Extensions;
+using Rocketcress.UIAutomation.ControlSearch.Conditions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,7 +27,9 @@ namespace Rocketcress.UIAutomation.ControlSearch
                     compositeCondition.Conditions = compositeCondition.Conditions.Distinct().ToList();
                 }
                 else
+                {
                     part.Condition = CreateCompositeCondition(@operator, part.Condition, condition);
+                }
             }
             else
             {
@@ -36,7 +38,8 @@ namespace Rocketcress.UIAutomation.ControlSearch
         }
 
         public static void RemoveCondition(this ISearchPart part, Func<ISearchCondition, bool> predicate) => RemoveCondition<ISearchCondition>(part, predicate);
-        public static void RemoveCondition<T>(this ISearchPart part, Func<T, bool> predicate) where T : ISearchCondition
+        public static void RemoveCondition<T>(this ISearchPart part, Func<T, bool> predicate)
+            where T : ISearchCondition
         {
             if (part.Condition is ICompositeSearchCondition compositeSearchCondition)
             {
@@ -45,9 +48,11 @@ namespace Rocketcress.UIAutomation.ControlSearch
                     part.Condition = compositeSearchCondition.Conditions.FirstOrDefault();
             }
             else if (part.Condition is T condition && predicate(condition))
+            {
                 part.Condition = null;
+            }
         }
-        
+
         public static IEnumerable<ISearchCondition> GetConditionList(this ISearchPart part)
         {
             if (part.Condition != null)
@@ -73,13 +78,15 @@ namespace Rocketcress.UIAutomation.ControlSearch
                 default:
                     throw new ArgumentOutOfRangeException(nameof(@operator));
             }
+
             result.Conditions.AddRange(conditions);
             return result;
         }
 
-        private static bool RemoveConditionRecursion<T>(ICompositeSearchCondition currentCondition, Func<T, bool> predicate) where T : ISearchCondition
+        private static bool RemoveConditionRecursion<T>(ICompositeSearchCondition currentCondition, Func<T, bool> predicate)
+            where T : ISearchCondition
         {
-            foreach(var condition in currentCondition.Conditions.ToList())
+            foreach (var condition in currentCondition.Conditions.ToList())
             {
                 if (condition is ICompositeSearchCondition compositeSearchCondition)
                 {
@@ -93,7 +100,9 @@ namespace Rocketcress.UIAutomation.ControlSearch
                     }
                 }
                 else if (condition is T tCondition && predicate(tCondition))
+                {
                     currentCondition.Conditions.Remove(condition);
+                }
             }
 
             return currentCondition.Conditions.Count < 2;

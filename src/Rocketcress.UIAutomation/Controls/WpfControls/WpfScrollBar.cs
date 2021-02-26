@@ -12,12 +12,34 @@ namespace Rocketcress.UIAutomation.Controls.WpfControls
         #endregion
 
         #region Constructors
-        public WpfScrollBar(By locationKey) : base(locationKey) { }
-        public WpfScrollBar(IUITestControl parent) : base(parent) { }
-        public WpfScrollBar(AutomationElement element) : base(element) { }
-        public WpfScrollBar(By locationKey, AutomationElement parent) : base(locationKey, parent) { }
-        public WpfScrollBar(By locationKey, IUITestControl parent) : base(locationKey, parent) { }
-        protected WpfScrollBar() { }
+        public WpfScrollBar(By locationKey)
+            : base(locationKey)
+        {
+        }
+
+        public WpfScrollBar(IUITestControl parent)
+            : base(parent)
+        {
+        }
+
+        public WpfScrollBar(AutomationElement element)
+            : base(element)
+        {
+        }
+
+        public WpfScrollBar(By locationKey, AutomationElement parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        public WpfScrollBar(By locationKey, IUITestControl parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        protected WpfScrollBar()
+        {
+        }
         #endregion
 
         #region Public Properties

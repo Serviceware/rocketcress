@@ -1,5 +1,5 @@
-﻿using Rocketcress.UIAutomation.Extensions;
-using Rocketcress.Core.Extensions;
+﻿using Rocketcress.Core.Extensions;
+using Rocketcress.UIAutomation.Extensions;
 using System.Linq;
 using System.Windows.Automation;
 
@@ -11,7 +11,11 @@ namespace Rocketcress.UIAutomation.ControlSearch.Conditions
         public object Value { get; set; }
         public ByOptions Options { get; set; }
 
-        public PropertyCondition(AutomationProperty property, object value) : this(property, value, ByOptions.None) { }
+        public PropertyCondition(AutomationProperty property, object value)
+            : this(property, value, ByOptions.None)
+        {
+        }
+
         public PropertyCondition(AutomationProperty property, object value, ByOptions options)
         {
             Property = property;
@@ -40,6 +44,7 @@ namespace Rocketcress.UIAutomation.ControlSearch.Conditions
         {
             return new PropertyCondition(Property, Value, Options);
         }
+
         public override string GetDescription()
         {
             string strValue;

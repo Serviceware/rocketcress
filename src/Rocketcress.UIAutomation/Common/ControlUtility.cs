@@ -9,8 +9,8 @@ namespace Rocketcress.UIAutomation.Common
 {
     public static class ControlUtility
     {
-        private static List<(By locationKey, Type controlType)> _controlRegistry;
-        
+        private static List<(By LocationKey, Type ControlType)> _controlRegistry;
+
         public static IUITestControl GetControl(AutomationElement element)
         {
             if (element == null)
@@ -18,7 +18,7 @@ namespace Rocketcress.UIAutomation.Common
 
             Type targetType = null;
 
-            foreach(var (locationKey, controlType) in GetControlRegistry())
+            foreach (var (locationKey, controlType) in GetControlRegistry())
             {
                 if (locationKey.ElementSearchPart.Condition.Check(element, TreeWalker.RawViewWalker))
                 {
@@ -36,7 +36,7 @@ namespace Rocketcress.UIAutomation.Common
         {
             if (_controlRegistry == null)
             {
-                var types = new List<(Type type, AutoDetectControlAttribute attr)>();
+                var types = new List<(Type Type, AutoDetectControlAttribute Attr)>();
                 foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
                 {
                     Type[] asmTypes;
@@ -48,19 +48,21 @@ namespace Rocketcress.UIAutomation.Common
                     {
                         asmTypes = ex.Types;
                     }
+
                     types.AddRange(from t in asmTypes
                                    let attr = t?.GetCustomAttribute<AutoDetectControlAttribute>()
                                    where t != null && attr != null
                                    select (t, attr));
                 }
+
                 _controlRegistry = (from t in types
-                                    orderby t.attr.Priority descending
-                                    let locationKey = UITestControl.GetBaseLocationKey(t.type)
-                                    select (locationKey, t.type)).ToList();
+                                    orderby t.Attr.Priority descending
+                                    let locationKey = UITestControl.GetBaseLocationKey(t.Type)
+                                    select (locationKey, t.Type)).ToList();
             }
         }
 
-        private static List<(By locationKey, Type controlType)> GetControlRegistry()
+        private static List<(By LocationKey, Type ControlType)> GetControlRegistry()
         {
             EnsureControlRegistryIsFilled();
             return _controlRegistry;

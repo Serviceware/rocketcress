@@ -6,6 +6,7 @@
     <NoWarn>$(NoWarn);NU5104</NoWarn>
 
     <OutputPath>..\..\bin\$(Configuration)</OutputPath>
+    <CodeAnalysisRuleSet>../../build/Rocketcress.ruleset</CodeAnalysisRuleSet>
     <DocumentationFile>$(OutputPath)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
 
     <Description>You can reference this library if you want to write tests using the Selenium framework.</Description>

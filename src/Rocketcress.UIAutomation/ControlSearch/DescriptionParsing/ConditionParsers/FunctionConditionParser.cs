@@ -28,10 +28,14 @@ namespace Rocketcress.UIAutomation.ControlSearch.DescriptionParsing.ConditionPar
                     result = new Conditions.PropertyCondition(property, stringValue, ByOptions.UseContains);
                 }
                 else
+                {
                     throw new InvalidOperationException("Parameters of contains functions faulty. " + conditionMatch.Value);
+                }
             }
             else
+            {
                 throw new InvalidOperationException($"Function with the name '{functionName}' not found.");
+            }
 
             return result;
         }

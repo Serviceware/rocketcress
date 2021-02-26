@@ -1,10 +1,11 @@
-﻿using Rocketcress.UIAutomation.Common;
-using Rocketcress.UIAutomation.Interaction;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Rocketcress.Core;
 using Rocketcress.Core.Attributes;
 using Rocketcress.Core.Base;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Rocketcress.UIAutomation.Common;
+using Rocketcress.UIAutomation.Interaction;
 using System;
-using Rocketcress.Core;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Rocketcress.UIAutomation
 {
@@ -29,14 +30,15 @@ namespace Rocketcress.UIAutomation
 
     [TestClass]
     [AddKeysClass("SettingKeys")]
-    public abstract class UIAutomationTestBase<TSettings, TContext> : TestBase<TSettings, TContext> 
-        where TSettings : Settings 
+    [SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1402:File may only contain a single type", Justification = "Generic representation")]
+    public abstract class UIAutomationTestBase<TSettings, TContext> : TestBase<TSettings, TContext>
+        where TSettings : Settings
         where TContext : UIAutomationTestContext
     {
         public virtual Application CurrentApp { get; protected set; }
-        
+
         [TestInitialize]
-        public override void InitializeTest() 
+        public override void InitializeTest()
         {
             base.InitializeTest();
 
@@ -53,6 +55,7 @@ namespace Rocketcress.UIAutomation
             {
                 CurrentContext.TakeAndAppendScreenshot();
             }
+
             CurrentContext.Dispose();
         }
     }

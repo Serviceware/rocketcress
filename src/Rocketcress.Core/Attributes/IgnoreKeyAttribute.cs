@@ -6,5 +6,7 @@ namespace Rocketcress.Core.Attributes
     /// Used to ignore a specific key in the key check.
     /// </summary>
     [AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
-    public class IgnoreKeyAttribute : Attribute { }
+    public class IgnoreKeyAttribute : Attribute
+    {
+    }
 }

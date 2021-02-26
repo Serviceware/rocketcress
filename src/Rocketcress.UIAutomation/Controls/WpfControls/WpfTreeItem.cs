@@ -27,12 +27,34 @@ namespace Rocketcress.UIAutomation.Controls.WpfControls
         #endregion
 
         #region Constructors
-        public WpfTreeItem(By locationKey) : base(locationKey) { }
-        public WpfTreeItem(IUITestControl parent) : base(parent) { }
-        public WpfTreeItem(AutomationElement element) : base(element) { }
-        public WpfTreeItem(By locationKey, AutomationElement parent) : base(locationKey, parent) { }
-        public WpfTreeItem(By locationKey, IUITestControl parent) : base(locationKey, parent) { }
-        protected WpfTreeItem() { }
+        public WpfTreeItem(By locationKey)
+            : base(locationKey)
+        {
+        }
+
+        public WpfTreeItem(IUITestControl parent)
+            : base(parent)
+        {
+        }
+
+        public WpfTreeItem(AutomationElement element)
+            : base(element)
+        {
+        }
+
+        public WpfTreeItem(By locationKey, AutomationElement parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        public WpfTreeItem(By locationKey, IUITestControl parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        protected WpfTreeItem()
+        {
+        }
 
         protected override void Initialize()
         {
@@ -53,6 +75,7 @@ namespace Rocketcress.UIAutomation.Controls.WpfControls
             get => ExpandCollapsePattern.Current.ExpandCollapseState == ExpandCollapseState.Expanded;
             set => (value ? (Action)ExpandCollapsePattern.Expand : ExpandCollapsePattern.Collapse)();
         }
+
         public virtual bool HasChildNodes => ExpandCollapsePattern.Current.ExpandCollapseState != ExpandCollapseState.LeafNode;
         public virtual string Header => HeaderControl.DisplayText;
         public virtual IEnumerable<IUITestControl> Nodes => _menuControlSupport.EnumerateItems().Select(x => ControlUtility.GetControl(x));

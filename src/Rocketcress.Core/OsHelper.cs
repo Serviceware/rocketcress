@@ -34,7 +34,7 @@ namespace Rocketcress.Core
                     RedirectStandardOutput = true,
                     UseShellExecute = false,
                     CreateNoWindow = true,
-                }
+                },
             };
             process.Start();
             string result = process.StandardOutput.ReadToEnd();

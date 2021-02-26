@@ -1,7 +1,7 @@
-﻿using Rocketcress.UIAutomation.Controls.ControlSupport;
-using Rocketcress.Core;
-using System.Windows.Automation;
+﻿using Rocketcress.Core;
+using Rocketcress.UIAutomation.Controls.ControlSupport;
 using System.Windows;
+using System.Windows.Automation;
 
 namespace Rocketcress.UIAutomation.Controls.WpfControls
 {
@@ -22,19 +22,47 @@ namespace Rocketcress.UIAutomation.Controls.WpfControls
         #endregion
 
         #region Constructors
-        public WpfWindow(AutomationElement element) : base(element) { }
-        public WpfWindow(Application app) : this(By.Empty, app) { }
-        public WpfWindow(By locationKey) : base(locationKey) { }
-        public WpfWindow(IUITestControl parent) : base(parent) { }
-        public WpfWindow(By locationKey, AutomationElement parent) : base(locationKey, parent) { }
-        public WpfWindow(By locationKey, IUITestControl parent) : base(locationKey, parent) { }
-        public WpfWindow(By locationKey, Application app) : base(locationKey)
+        public WpfWindow(AutomationElement element)
+            : base(element)
+        {
+        }
+
+        public WpfWindow(Application app)
+            : this(By.Empty, app)
+        {
+        }
+
+        public WpfWindow(By locationKey)
+            : base(locationKey)
+        {
+        }
+
+        public WpfWindow(IUITestControl parent)
+            : base(parent)
+        {
+        }
+
+        public WpfWindow(By locationKey, AutomationElement parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        public WpfWindow(By locationKey, IUITestControl parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        public WpfWindow(By locationKey, Application app)
+            : base(locationKey)
         {
             _application = app;
             if (app != null)
                 LocationKey.Append(By.ProcessId(app.Process.Id), false, false);
         }
-        protected WpfWindow() { }
+
+        protected WpfWindow()
+        {
+        }
 
         protected override void Initialize()
         {
@@ -49,6 +77,7 @@ namespace Rocketcress.UIAutomation.Controls.WpfControls
             get => WindowPattern.Current.WindowVisualState == WindowVisualState.Maximized;
             set => WindowPattern.SetWindowVisualState(value ? WindowVisualState.Maximized : WindowVisualState.Normal);
         }
+
         public override bool Exists => base.Exists && _windowControlSupport.IsWindow();
         public override bool Displayed => Exists && _windowControlSupport.IsWindowVisible();
         #endregion

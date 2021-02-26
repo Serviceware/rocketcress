@@ -1,8 +1,8 @@
-﻿using Rocketcress.UIAutomation.Common;
+﻿using Rocketcress.Core;
+using Rocketcress.UIAutomation.Common;
 using Rocketcress.UIAutomation.Controls.CommonControls;
 using Rocketcress.UIAutomation.Controls.ControlSupport;
 using Rocketcress.UIAutomation.Exceptions;
-using Rocketcress.Core;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Automation;
@@ -31,12 +31,34 @@ namespace Rocketcress.UIAutomation.Controls.WinFormsControls
         #endregion
 
         #region Constructors
-        public WinComboBox(By locationKey) : base(locationKey) { }
-        public WinComboBox(IUITestControl parent) : base(parent) { }
-        public WinComboBox(AutomationElement element) : base(element) { }
-        public WinComboBox(By locationKey, AutomationElement parent) : base(locationKey, parent) { }
-        public WinComboBox(By locationKey, IUITestControl parent) : base(locationKey, parent) { }
-        protected WinComboBox() { }
+        public WinComboBox(By locationKey)
+            : base(locationKey)
+        {
+        }
+
+        public WinComboBox(IUITestControl parent)
+            : base(parent)
+        {
+        }
+
+        public WinComboBox(AutomationElement element)
+            : base(element)
+        {
+        }
+
+        public WinComboBox(By locationKey, AutomationElement parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        public WinComboBox(By locationKey, IUITestControl parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        protected WinComboBox()
+        {
+        }
 
         protected override void Initialize()
         {
@@ -90,7 +112,7 @@ namespace Rocketcress.UIAutomation.Controls.WinFormsControls
             get => _listControl.Displayed;
             set
             {
-                if(_listControl.Displayed != value)
+                if (_listControl.Displayed != value)
                 {
                     _expandButton.Click();
                     Waiter.WaitUntil(() => _listControl.Displayed == value, 2000);

@@ -1,5 +1,5 @@
-﻿using Rocketcress.Core;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Rocketcress.Core;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -14,10 +14,10 @@ namespace Rocketcress.Selenium
     [AttributeUsage(AttributeTargets.Method)]
     public class BrowserDataSourceAttribute : Attribute, ITestDataSource
     {
-        private readonly (Browser browser, CultureInfo language)[] _browsers;
+        private readonly (Browser Browser, CultureInfo Language)[] _browsers;
 
         /// <summary>
-        /// Initializes a new Instance of the <see cref="BrowserDataSourceAttribute"/> class.
+        /// Initializes a new instance of the <see cref="BrowserDataSourceAttribute"/> class.
         /// </summary>
         /// <param name="browsers">Determine the browsers on which to execute the test. Seperate multiple browsers by a ';'. You can also specify the language by adding @[lang] (e.g. Chrome@en-US) - default is en-US.</param>
         public BrowserDataSourceAttribute(string browsers)
@@ -33,12 +33,19 @@ namespace Rocketcress.Selenium
                     CultureInfo language;
                     if (split.Length >= 2)
                     {
-                        try { language = CultureInfo.GetCultureInfo(split[1]); }
-                        catch (CultureNotFoundException ex) { throw new InvalidOperationException($"The culture {split[1]} is unknown.", ex); }
+                        try
+                        {
+                            language = CultureInfo.GetCultureInfo(split[1]);
+                        }
+                        catch (CultureNotFoundException ex)
+                        {
+                            throw new InvalidOperationException($"The culture {split[1]} is unknown.", ex);
+                        }
                     }
                     else
+                    {
                         language = CultureInfo.GetCultureInfo("en-US");
-
+                    }
 
                     return (browser, language);
                 })

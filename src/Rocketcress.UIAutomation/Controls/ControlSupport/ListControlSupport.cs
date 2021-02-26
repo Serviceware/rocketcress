@@ -1,7 +1,7 @@
-﻿using Rocketcress.UIAutomation.Controls.WpfControls;
+﻿using Rocketcress.Core;
+using Rocketcress.UIAutomation.Controls.WpfControls;
 using Rocketcress.UIAutomation.ControlSearch;
 using Rocketcress.UIAutomation.Exceptions;
-using Rocketcress.Core;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Automation;
@@ -37,6 +37,7 @@ namespace Rocketcress.UIAutomation.Controls.ControlSupport
                     if (selectedElements.Count == 0)
                         break;
                 }
+
                 index++;
             }
         }
@@ -82,6 +83,7 @@ namespace Rocketcress.UIAutomation.Controls.ControlSupport
                         break;
                 }
             }
+
             if (value.Any(x => x >= index || x < 0))
                 throw new UIAutomationControlException($"One or more indizes are out of range. Valid range is from 0 to {index - 1}.", _control);
 
@@ -112,6 +114,7 @@ namespace Rocketcress.UIAutomation.Controls.ControlSupport
 
             expand?.Collapse();
         }
+
         public void SetSelectedItems(ICollection<string> value)
         {
             if (value.Count == 1)
@@ -143,6 +146,7 @@ namespace Rocketcress.UIAutomation.Controls.ControlSupport
                         break;
                 }
             }
+
             if (items.Count > 0)
                 throw new UIAutomationControlException("The following elements were not found in the list: " + string.Join(", ", items), _control);
 
@@ -194,6 +198,7 @@ namespace Rocketcress.UIAutomation.Controls.ControlSupport
                         yield return element;
                     }
                 }
+
                 isFirst = false;
             }
         }

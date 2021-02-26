@@ -18,12 +18,34 @@ namespace Rocketcress.UIAutomation.Controls.WpfControls
         #endregion
 
         #region Construcotrs
-        public WpfRow(By locationKey) : base(locationKey) { }
-        public WpfRow(IUITestControl parent) : base(parent) { }
-        public WpfRow(AutomationElement element) : base(element) { }
-        public WpfRow(By locationKey, AutomationElement parent) : base(locationKey, parent) { }
-        public WpfRow(By locationKey, IUITestControl parent) : base(locationKey, parent) { }
-        protected WpfRow() { }
+        public WpfRow(By locationKey)
+            : base(locationKey)
+        {
+        }
+
+        public WpfRow(IUITestControl parent)
+            : base(parent)
+        {
+        }
+
+        public WpfRow(AutomationElement element)
+            : base(element)
+        {
+        }
+
+        public WpfRow(By locationKey, AutomationElement parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        public WpfRow(By locationKey, IUITestControl parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        protected WpfRow()
+        {
+        }
         #endregion
 
         #region Public Properties

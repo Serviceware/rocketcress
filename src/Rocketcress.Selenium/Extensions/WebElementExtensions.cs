@@ -1,5 +1,5 @@
-﻿using Rocketcress.Selenium.Controls;
-using OpenQA.Selenium;
+﻿using OpenQA.Selenium;
+using Rocketcress.Selenium.Controls;
 
 namespace Rocketcress.Selenium.Extensions
 {
@@ -13,7 +13,7 @@ namespace Rocketcress.Selenium.Extensions
         /// If the current <see cref="IWebElement"/> is a <see cref="WebElement"/> this will be returned.
         /// </summary>
         /// <param name="element">The element to extend.</param>
-        /// <returns>A <see cref="WebElement"/> that is a wrapper for the <see cref="IWebElement"/></returns>
+        /// <returns>A <see cref="WebElement"/> that is a wrapper for the <see cref="IWebElement"/>.</returns>
         public static WebElement Extend(this IWebElement element)
         {
             if (element is not WebElement result)

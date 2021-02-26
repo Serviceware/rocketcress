@@ -1,7 +1,7 @@
-﻿using Rocketcress.Core;
-using Rocketcress.Core.Base;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using Rocketcress.Core;
+using Rocketcress.Core.Base;
 using System;
 using System.Drawing;
 using System.Globalization;
@@ -38,7 +38,7 @@ namespace Rocketcress.Selenium
         /// Gets or sets the URL to the login page of the tested application.
         /// </summary>
         public virtual string LoginUrl { get; set; }
-        
+
         /// <summary>
         /// Gets or sets the resolution that the browser should be opened in.
         /// </summary>
@@ -80,7 +80,7 @@ namespace Rocketcress.Selenium
         public virtual string RemoteDriverUrl { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating wether all processes of the current Browser should be killed.
+        /// Gets or sets a value indicating whether all processes of the current Browser should be killed.
         /// </summary>
         public virtual bool KillAllBrowserProcessesOnCleanup
         {

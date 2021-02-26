@@ -8,8 +8,15 @@ namespace Rocketcress.UIAutomation.ControlSearch.Conditions
     {
         public override SearchConditionOperator OperatorType => SearchConditionOperator.And;
 
-        public AndCondition(params ISearchCondition[] conditions) : base(conditions) { }
-        public AndCondition(IEnumerable<ISearchCondition> conditions) : base(conditions) { }
+        public AndCondition(params ISearchCondition[] conditions)
+            : base(conditions)
+        {
+        }
+
+        public AndCondition(IEnumerable<ISearchCondition> conditions)
+            : base(conditions)
+        {
+        }
 
         public override bool Check(AutomationElement element, TreeWalker treeWalker)
         {
@@ -20,6 +27,7 @@ namespace Rocketcress.UIAutomation.ControlSearch.Conditions
                 if (!result)
                     break;
             }
+
             return result;
         }
 

@@ -1,5 +1,4 @@
-﻿
-namespace Rocketcress.UIAutomation.ControlSearch.DescriptionParsing
+﻿namespace Rocketcress.UIAutomation.ControlSearch.DescriptionParsing
 {
     internal interface IConditionParser
     {

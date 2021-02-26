@@ -80,15 +80,17 @@ namespace Rocketcress.UIAutomation.Interaction
             int startX = GetDx(Cursor.Position.X);
             int startY = GetDy(Cursor.Position.Y);
 
-            if(duration==0)
+            if (duration == 0)
+            {
                 WindowsApiHelper.mouse_event(eventFlags, dx, dy, 0, UIntPtr.Zero);
+            }
             else
             {
                 duration /= 10;
-                for(double i = 1;i <duration; i++)
+                for (double i = 1; i < duration; i++)
                 {
-                    var currentX = startX + i * ((dx - startX) / duration);
-                    var currentY = startY + i * ((dy - startY) / duration);
+                    var currentX = startX + (i * ((dx - startX) / duration));
+                    var currentY = startY + (i * ((dy - startY) / duration));
                     WindowsApiHelper.mouse_event(eventFlags, Convert.ToInt32(currentX), Convert.ToInt32(currentY), 0, UIntPtr.Zero);
                     Thread.Sleep(10);
                 }
@@ -124,7 +126,7 @@ namespace Rocketcress.UIAutomation.Interaction
         {
             var (dx, dy) = GetCoordinates(control, point, false);
             var eventFlags = MouseEventFlags.Absolute | MouseEventFlags.Move | GetFlagsForButton(MouseButtons.Left | MouseButtons.Right | MouseButtons.Middle | MouseButtons.XButton1 | MouseButtons.XButton2, false, true);
-            
+
             WindowsApiHelper.mouse_event(eventFlags, dx, dy, 0, UIntPtr.Zero);
             if (IsWaitForControlReadyEnabled)
                 control?.WaitForControlReady();
@@ -145,6 +147,7 @@ namespace Rocketcress.UIAutomation.Interaction
                 AppendButtonFlag(ref result, MouseEventFlags.XDown, MouseEventFlags.XUp, addPress, addRelease);
             return result;
         }
+
         private static void AppendButtonFlag(ref MouseEventFlags flags, MouseEventFlags pressFlag, MouseEventFlags releaseFlag, bool addPress, bool addRelease)
         {
             if (addPress)
@@ -153,7 +156,7 @@ namespace Rocketcress.UIAutomation.Interaction
                 flags |= releaseFlag;
         }
 
-        private static (int dx, int dy) GetCoordinates(IUITestControl control, Point? point, bool isDisplacement)
+        private static (int Dx, int Dy) GetCoordinates(IUITestControl control, Point? point, bool isDisplacement)
         {
             var mousePos = Cursor.Position;
             Point coordinates;
@@ -168,8 +171,8 @@ namespace Rocketcress.UIAutomation.Interaction
             return (GetDx((int)coordinates.X), GetDy((int)coordinates.Y));
         }
 
-        private static int GetDx(int x) => (int)(65536.0 / WindowsApiHelper.GetSystemMetrics(SystemMetric.SM_CXSCREEN) * x - 1);
-        private static int GetDy(int y) => (int)(65536.0 / WindowsApiHelper.GetSystemMetrics(SystemMetric.SM_CYSCREEN) * y - 1);
+        private static int GetDx(int x) => (int)((65536.0 / WindowsApiHelper.GetSystemMetrics(SystemMetric.SM_CXSCREEN) * x) - 1);
+        private static int GetDy(int y) => (int)((65536.0 / WindowsApiHelper.GetSystemMetrics(SystemMetric.SM_CYSCREEN) * y) - 1);
         private static Point ConcatPoints(Point a, Point b) => new Point(a.X + b.X, a.Y + b.Y);
     }
 }

@@ -12,6 +12,7 @@ namespace Rocketcress.Selenium.SeleniumWrappers
         /// Gets the driver that is wrapped.
         /// </summary>
         protected WebDriver Driver { get; }
+
         /// <summary>
         /// Gets the navigation instance that is wrapped.
         /// </summary>
@@ -20,8 +21,8 @@ namespace Rocketcress.Selenium.SeleniumWrappers
         /// <summary>
         /// Initializes a new instance of the <see cref="NavigationWrapper"/> class.
         /// </summary>
-        /// <param name="driver"></param>
-        /// <param name="wrappedNavigation"></param>
+        /// <param name="driver">The driver that is wrapped.</param>
+        /// <param name="wrappedNavigation">The <see cref="INavigation"/> that is wrapped.</param>
         public NavigationWrapper(WebDriver driver, INavigation wrappedNavigation)
         {
             Driver = driver;
@@ -32,11 +33,13 @@ namespace Rocketcress.Selenium.SeleniumWrappers
         /// Move back a single entry in the browser's history.
         /// </summary>
         public virtual void Back() => WrappedNavigation.Back();
+
         /// <summary>
         /// Move a single "item" forward in the browser's history.
         /// </summary>
         /// <remarks>Does nothing if we are on the latest page viewed.</remarks>
         public virtual void Forward() => WrappedNavigation.Forward();
+
         /// <summary>
         /// Refreshes the current page.
         /// </summary>
@@ -45,31 +48,36 @@ namespace Rocketcress.Selenium.SeleniumWrappers
         /// <summary>
         /// Load a new web page in the current browser window.
         /// </summary>
-        /// <param name="url">The URL to load. It is best to use a fully qualified URL</param>
+        /// <param name="url">The URL to load. It is best to use a fully qualified URL.</param>
         public void GoToUrl(string url) => GoToUrlImpl(url, null);
+
         /// <summary>
         /// Load a new web page in the current browser window.
         /// </summary>
-        /// <param name="url">The URL to load. It is best to use a fully qualified URL</param>
+        /// <param name="url">The URL to load. It is best to use a fully qualified URL.</param>
         /// <param name="timeout">The timeout in miliseconds.</param>
         public void GoToUrl(string url, int timeout) => GoToUrlImpl(url, TimeSpan.FromMilliseconds(timeout));
+
         /// <summary>
         /// Load a new web page in the current browser window.
         /// </summary>
-        /// <param name="url">The URL to load. It is best to use a fully qualified URL</param>
+        /// <param name="url">The URL to load. It is best to use a fully qualified URL.</param>
         /// <param name="timeout">The timeout.</param>
         public void GoToUrl(string url, TimeSpan timeout) => GoToUrlImpl(url, timeout);
+
         /// <summary>
         /// Load a new web page in the current browser window.
         /// </summary>
         /// <param name="url">The URL to load.</param>
         public void GoToUrl(Uri url) => GoToUrlImpl(url, null);
+
         /// <summary>
         /// Load a new web page in the current browser window.
         /// </summary>
         /// <param name="url">The URL to load.</param>
         /// <param name="timeout">The timeout in miliseconds.</param>
         public void GoToUrl(Uri url, int timeout) => GoToUrlImpl(url, TimeSpan.FromMilliseconds(timeout));
+
         /// <summary>
         /// Load a new web page in the current browser window.
         /// </summary>

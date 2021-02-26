@@ -12,12 +12,34 @@ namespace Rocketcress.UIAutomation.Controls.WinFormsControls
         #endregion
 
         #region Constructors
-        public WinTabPage(By locationKey) : base(locationKey) { }
-        public WinTabPage(IUITestControl parent) : base(parent) { }
-        public WinTabPage(AutomationElement element) : base(element) { }
-        public WinTabPage(By locationKey, AutomationElement parent) : base(locationKey, parent) { }
-        public WinTabPage(By locationKey, IUITestControl parent) : base(locationKey, parent) { }
-        protected WinTabPage() { }
+        public WinTabPage(By locationKey)
+            : base(locationKey)
+        {
+        }
+
+        public WinTabPage(IUITestControl parent)
+            : base(parent)
+        {
+        }
+
+        public WinTabPage(AutomationElement element)
+            : base(element)
+        {
+        }
+
+        public WinTabPage(By locationKey, AutomationElement parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        public WinTabPage(By locationKey, IUITestControl parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        protected WinTabPage()
+        {
+        }
 
         protected override void Initialize()
         {

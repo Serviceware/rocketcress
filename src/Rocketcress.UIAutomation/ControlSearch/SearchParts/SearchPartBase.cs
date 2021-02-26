@@ -11,7 +11,7 @@ namespace Rocketcress.UIAutomation.ControlSearch.SearchParts
         public virtual ISearchCondition Condition { get; set; }
         public virtual int? SkipCount { get; set; }
         public virtual int? TakeCount { get; set; }
-        
+
         public IEnumerable<AutomationElement> FindElements(AutomationElement element, TreeWalker treeWalker)
         {
             var result = FindElementsInternal(element, treeWalker);
@@ -27,9 +27,30 @@ namespace Rocketcress.UIAutomation.ControlSearch.SearchParts
         public object Clone()
         {
             var clone = CloneInternal();
-            try { clone.Condition = (ISearchCondition)Condition?.Clone(); } catch { }
-            try { clone.SkipCount = SkipCount; } catch { }
-            try { clone.TakeCount = TakeCount; } catch { }
+            try
+            {
+                clone.Condition = (ISearchCondition)Condition?.Clone();
+            }
+            catch
+            {
+            }
+
+            try
+            {
+                clone.SkipCount = SkipCount;
+            }
+            catch
+            {
+            }
+
+            try
+            {
+                clone.TakeCount = TakeCount;
+            }
+            catch
+            {
+            }
+
             return clone;
         }
 
@@ -39,16 +60,16 @@ namespace Rocketcress.UIAutomation.ControlSearch.SearchParts
         protected string GetSkipTakeDescription()
         {
             if (SkipCount.HasValue || TakeCount.HasValue)
-                return $"[{(SkipCount ?? 0) + 1}{(TakeCount.HasValue ? $":{TakeCount}" : "")}]";
+                return $"[{(SkipCount ?? 0) + 1}{(TakeCount.HasValue ? $":{TakeCount}" : string.Empty)}]";
             return null;
         }
 
         protected string GetConditionDescription()
         {
             if (Condition == null)
-                return "";
+                return string.Empty;
 
-            var prefix = "";
+            var prefix = string.Empty;
             var condition = Condition;
             if (Condition is ICompositeSearchCondition compositeCondition &&
                 compositeCondition.Conditions.OfType<PropertyCondition>().TryFirst(x => x.Property == AutomationElement.ControlTypeProperty, out var tempCtp))

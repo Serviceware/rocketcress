@@ -1,9 +1,9 @@
 ﻿using Rocketcress.Core.Attributes;
 using System;
-using System.Linq;
-using System.Runtime.ExceptionServices;
 using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
+using System.Runtime.ExceptionServices;
 #if !SLIM
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 #endif
@@ -19,11 +19,12 @@ namespace Rocketcress.Core.Base
     [DeploymentItem("TestSettings/", "TestSettings/")]
     [DeploymentItem("TestSettings\\", "TestSettings\\")]
 #endif
-    public abstract class TestBase<TSettings, TContext> : TestObjectBase 
-        where TSettings : SettingsBase 
+    public abstract class TestBase<TSettings, TContext> : TestObjectBase
+        where TSettings : SettingsBase
         where TContext : TestContextBase
     {
         #region Properties
+
 #if !SLIM
         /// <summary>
         /// Gets or sets the current MSTest <see cref="TestContext"/>.
@@ -49,15 +50,18 @@ namespace Rocketcress.Core.Base
         /// Gets the last exception that occurred in the current AppDomain.
         /// </summary>
         protected Exception LastException { get; private set; }
+
         #endregion
 
         #region Members for settings
+
         /// <summary>
         /// Determines the settings file to use.
         /// </summary>
         /// <param name="default">Determines wether the default settings.json should be loaded.</param>
         /// <returns>Returns the path to the correct settings file.</returns>
         protected virtual string GetSettingFile(bool @default) => SettingsBase.GetSettingFile(GetType().Assembly, null, @default);
+
         /// <summary>
         /// Loads the settings from the given settings files.
         /// </summary>
@@ -65,9 +69,11 @@ namespace Rocketcress.Core.Base
         /// <param name="defaultSettingsFile">The default settings file.</param>
         /// <returns>Returns the settings from <paramref name="defaultSettingsFile"/> which values are overwritten by <paramref name="settingsFile"/>.</returns>
         protected virtual TSettings LoadSettings(string settingsFile, string defaultSettingsFile) => SettingsBase.GetFromFiles<TSettings>(settingsFile, defaultSettingsFile);
+
         #endregion
 
         #region Test Initialize/Cleanup
+
         /// <summary>
         /// Initializes a Test.
         /// </summary>
@@ -103,7 +109,7 @@ namespace Rocketcress.Core.Base
             var result = LoadSettings(settingsFile, defaultSettingsFile);
 
             CheckRequiredKeys(result, GetType());
-            
+
             return result;
         }
 
@@ -124,14 +130,17 @@ namespace Rocketcress.Core.Base
 
             AppDomain.CurrentDomain.FirstChanceException -= AppDomain_FirstChanceException;
         }
+
         #endregion
 
         /// <summary>
         /// Is used to create the test context.
         /// </summary>
+        /// <returns>The created context.</returns>
         protected abstract TContext OnCreateContext();
 
         #region Public Functions
+
         /// <summary>
         /// Checks if the settings contain all the settings keys defined by the given type.
         /// </summary>
@@ -149,9 +158,11 @@ namespace Rocketcress.Core.Base
                     Environment.NewLine + "\t- " + string.Join(Environment.NewLine + "\t- ", missingSettings));
             }
         }
+
         #endregion
 
         #region Private Methods
+
         private void AppDomain_FirstChanceException(object sender, FirstChanceExceptionEventArgs e)
         {
             LastException = e.Exception;
@@ -162,6 +173,7 @@ namespace Rocketcress.Core.Base
             var debuggableAttribute = GetType().Assembly.GetCustomAttribute<DebuggableAttribute>();
             return debuggableAttribute?.IsJITOptimizerDisabled == true;
         }
+
         #endregion
     }
 }

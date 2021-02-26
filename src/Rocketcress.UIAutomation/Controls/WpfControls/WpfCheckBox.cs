@@ -19,12 +19,34 @@ namespace Rocketcress.UIAutomation.Controls.WpfControls
         #endregion
 
         #region Construcotrs
-        public WpfCheckBox(By locationKey) : base(locationKey) { }
-        public WpfCheckBox(IUITestControl parent) : base(parent) { }
-        public WpfCheckBox(AutomationElement element) : base(element) { }
-        public WpfCheckBox(By locationKey, AutomationElement parent) : base(locationKey, parent) { }
-        public WpfCheckBox(By locationKey, IUITestControl parent) : base(locationKey, parent) { }
-        protected WpfCheckBox() { }
+        public WpfCheckBox(By locationKey)
+            : base(locationKey)
+        {
+        }
+
+        public WpfCheckBox(IUITestControl parent)
+            : base(parent)
+        {
+        }
+
+        public WpfCheckBox(AutomationElement element)
+            : base(element)
+        {
+        }
+
+        public WpfCheckBox(By locationKey, AutomationElement parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        public WpfCheckBox(By locationKey, IUITestControl parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        protected WpfCheckBox()
+        {
+        }
 
         protected override void Initialize()
         {
@@ -46,6 +68,7 @@ namespace Rocketcress.UIAutomation.Controls.WpfControls
             else
                 throw new InvalidOperationException();
         }
+
         public object GetValue()
         {
             return Checked;

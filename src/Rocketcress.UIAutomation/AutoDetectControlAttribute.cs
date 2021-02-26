@@ -9,7 +9,7 @@ namespace Rocketcress.UIAutomation
     public class AutoDetectControlAttribute : Attribute
     {
         /// <summary>
-        /// The priority of this control class.
+        /// Gets or sets the priority of this control class.
         /// </summary>
         public int Priority { get; set; }
     }

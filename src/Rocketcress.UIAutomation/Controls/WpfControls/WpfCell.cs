@@ -32,12 +32,34 @@ namespace Rocketcress.UIAutomation.Controls.WpfControls
         #endregion
 
         #region Construcotrs
-        public WpfCell(By locationKey) : base(locationKey) { }
-        public WpfCell(IUITestControl parent) : base(parent) { }
-        public WpfCell(AutomationElement element) : base(element) { }
-        public WpfCell(By locationKey, AutomationElement parent) : base(locationKey, parent) { }
-        public WpfCell(By locationKey, IUITestControl parent) : base(locationKey, parent) { }
-        protected WpfCell() { }
+        public WpfCell(By locationKey)
+            : base(locationKey)
+        {
+        }
+
+        public WpfCell(IUITestControl parent)
+            : base(parent)
+        {
+        }
+
+        public WpfCell(AutomationElement element)
+            : base(element)
+        {
+        }
+
+        public WpfCell(By locationKey, AutomationElement parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        public WpfCell(By locationKey, IUITestControl parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        protected WpfCell()
+        {
+        }
 
         protected override void Initialize()
         {
@@ -47,7 +69,6 @@ namespace Rocketcress.UIAutomation.Controls.WpfControls
             _toggleControlSupport = new ToggleControlSupport(_checkBox);
             _comboBox = new WpfComboBox(this);
             _listControlSupport = new ListControlSupport(_comboBox, ByItem);
-
         }
         #endregion
 
@@ -61,17 +82,19 @@ namespace Rocketcress.UIAutomation.Controls.WpfControls
                 SendKeys("{ENTER}");
             }
         }
+
         public virtual int RowIndex => GridItemPattern.Current.Row;
         public virtual int ColumnIndex => GridItemPattern.Current.Column;
         public virtual bool Checked
         {
+            get => _toggleControlSupport.GetChecked();
             set
             {
                 SetFocus();
                 _toggleControlSupport.SetChecked(value);
             }
-            get => _toggleControlSupport.GetChecked();
         }
+
         public virtual string SelectedItem
         {
             get => _listControlSupport.GetSelectedItems().FirstOrDefault();

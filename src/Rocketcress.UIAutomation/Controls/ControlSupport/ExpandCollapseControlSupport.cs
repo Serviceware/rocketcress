@@ -1,5 +1,5 @@
-﻿using Rocketcress.UIAutomation.Exceptions;
-using Rocketcress.Core;
+﻿using Rocketcress.Core;
+using Rocketcress.UIAutomation.Exceptions;
 using System;
 using System.Windows.Automation;
 
@@ -20,6 +20,7 @@ namespace Rocketcress.UIAutomation.Controls.ControlSupport
                 throw new UIActionNotSupportedException("This control does not support expanding/collapsing (ExpandCollapsePattern not available)", _control);
             return GetExpanded(expandCollapsePattern);
         }
+
         private bool GetExpanded(ExpandCollapsePattern expandCollapsePattern)
         {
             return expandCollapsePattern.Current.ExpandCollapseState == ExpandCollapseState.Expanded;

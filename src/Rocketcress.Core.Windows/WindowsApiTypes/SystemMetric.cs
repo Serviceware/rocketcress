@@ -2,10 +2,10 @@
 {
     /// <summary>
     /// Flags used with the Windows API (User32.dll):GetSystemMetrics(SystemMetric smIndex)
-    ///   
+    ///
     /// This Enum and declaration signature was written by Gabriel T. Sharp
     /// ai_productions@verizon.net or osirisgothra@hotmail.com
-    /// Obtained on pinvoke.net, please contribute your code to support the wiki!
+    /// Obtained on pinvoke.net, please contribute your code to support the wiki.
     /// </summary>
     public enum SystemMetric : int
     {
@@ -15,7 +15,7 @@
         SM_ARRANGE = 56,
 
         /// <summary>
-        /// The value that specifies how the system is started: 
+        /// The value that specifies how the system is started:
         /// 0 Normal boot
         /// 1 Fail-safe boot
         /// 2 Fail-safe with network boot
@@ -57,8 +57,8 @@
         SM_CXDOUBLECLK = 36,
 
         /// <summary>
-        /// The number of pixels on either side of a mouse-down point that the mouse pointer can move before a drag operation begins. 
-        /// This allows the user to click and release the mouse button easily without unintentionally starting a drag operation. 
+        /// The number of pixels on either side of a mouse-down point that the mouse pointer can move before a drag operation begins.
+        /// This allows the user to click and release the mouse button easily without unintentionally starting a drag operation.
         /// If this value is negative, it is subtracted from the left of the mouse-down point and added to the right of it.
         /// </summary>
         SM_CXDRAG = 68,
@@ -76,8 +76,8 @@
         SM_CXFIXEDFRAME = 7,
 
         /// <summary>
-        /// The width of the left and right edges of the focus rectangle that the DrawFocusRectdraws. 
-        /// This value is in pixels. 
+        /// The width of the left and right edges of the focus rectangle that the DrawFocusRectdraws.
+        /// This value is in pixels.
         /// Windows 2000:  This value is not supported.
         /// </summary>
         SM_CXFOCUSBORDER = 83,
@@ -88,8 +88,8 @@
         SM_CXFRAME = 32,
 
         /// <summary>
-        /// The width of the client area for a full-screen window on the primary display monitor, in pixels. 
-        /// To get the coordinates of the portion of the screen that is not obscured by the system taskbar or by application desktop toolbars, 
+        /// The width of the client area for a full-screen window on the primary display monitor, in pixels.
+        /// To get the coordinates of the portion of the screen that is not obscured by the system taskbar or by application desktop toolbars,
         /// call the SystemParametersInfofunction with the SPI_GETWORKAREA value.
         /// </summary>
         SM_CXFULLSCREEN = 16,
@@ -105,13 +105,13 @@
         SM_CXHTHUMB = 10,
 
         /// <summary>
-        /// The default width of an icon, in pixels. The LoadIcon function can load only icons with the dimensions 
+        /// The default width of an icon, in pixels. The LoadIcon function can load only icons with the dimensions
         /// that SM_CXICON and SM_CYICON specifies.
         /// </summary>
         SM_CXICON = 11,
 
         /// <summary>
-        /// The width of a grid cell for items in large icon view, in pixels. Each item fits into a rectangle of size 
+        /// The width of a grid cell for items in large icon view, in pixels. Each item fits into a rectangle of size
         /// SM_CXICONSPACING by SM_CYICONSPACING when arranged. This value is always greater than or equal to SM_CXICON.
         /// </summary>
         SM_CXICONSPACING = 38,
@@ -122,8 +122,8 @@
         SM_CXMAXIMIZED = 61,
 
         /// <summary>
-        /// The default maximum width of a window that has a caption and sizing borders, in pixels. 
-        /// This metric refers to the entire desktop. The user cannot drag the window frame to a size larger than these dimensions. 
+        /// The default maximum width of a window that has a caption and sizing borders, in pixels.
+        /// This metric refers to the entire desktop. The user cannot drag the window frame to a size larger than these dimensions.
         /// A window can override this value by processing the WM_GETMINMAXINFO message.
         /// </summary>
         SM_CXMAXTRACK = 59,
@@ -149,13 +149,13 @@
         SM_CXMINIMIZED = 57,
 
         /// <summary>
-        /// The width of a grid cell for a minimized window, in pixels. Each minimized window fits into a rectangle this size when arranged. 
+        /// The width of a grid cell for a minimized window, in pixels. Each minimized window fits into a rectangle this size when arranged.
         /// This value is always greater than or equal to SM_CXMINIMIZED.
         /// </summary>
         SM_CXMINSPACING = 47,
 
         /// <summary>
-        /// The minimum tracking width of a window, in pixels. The user cannot drag the window frame to a size smaller than these dimensions. 
+        /// The minimum tracking width of a window, in pixels. The user cannot drag the window frame to a size smaller than these dimensions.
         /// A window can override this value by processing the WM_GETMINMAXINFO message.
         /// </summary>
         SM_CXMINTRACK = 34,
@@ -166,7 +166,7 @@
         SM_CXPADDEDBORDER = 92,
 
         /// <summary>
-        /// The width of the screen of the primary display monitor, in pixels. This is the same value obtained by calling 
+        /// The width of the screen of the primary display monitor, in pixels. This is the same value obtained by calling
         /// GetDeviceCaps as follows: GetDeviceCaps( hdcPrimaryMonitor, HORZRES).
         /// </summary>
         SM_CXSCREEN = 0,
@@ -177,8 +177,8 @@
         SM_CXSIZE = 30,
 
         /// <summary>
-        /// The thickness of the sizing border around the perimeter of a window that can be resized, in pixels. 
-        /// SM_CXSIZEFRAME is the width of the horizontal border, and SM_CYSIZEFRAME is the height of the vertical border. 
+        /// The thickness of the sizing border around the perimeter of a window that can be resized, in pixels.
+        /// SM_CXSIZEFRAME is the width of the horizontal border, and SM_CYSIZEFRAME is the height of the vertical border.
         /// This value is the same as SM_CXFRAME.
         /// </summary>
         SM_CXSIZEFRAME = 32,
@@ -194,7 +194,7 @@
         SM_CXSMSIZE = 52,
 
         /// <summary>
-        /// The width of the virtual screen, in pixels. The virtual screen is the bounding rectangle of all display monitors. 
+        /// The width of the virtual screen, in pixels. The virtual screen is the bounding rectangle of all display monitors.
         /// The SM_XVIRTUALSCREEN metric is the coordinates for the left side of the virtual screen.
         /// </summary>
         SM_CXVIRTUALSCREEN = 78,
@@ -225,16 +225,16 @@
         SM_CYDLGFRAME = 8,
 
         /// <summary>
-        /// The height of the rectangle around the location of a first click in a double-click sequence, in pixels. 
-        /// The second click must occur within the rectangle defined by SM_CXDOUBLECLK and SM_CYDOUBLECLK for the system to consider 
-        /// the two clicks a double-click. The two clicks must also occur within a specified time. To set the height of the double-click 
+        /// The height of the rectangle around the location of a first click in a double-click sequence, in pixels.
+        /// The second click must occur within the rectangle defined by SM_CXDOUBLECLK and SM_CYDOUBLECLK for the system to consider
+        /// the two clicks a double-click. The two clicks must also occur within a specified time. To set the height of the double-click
         /// rectangle, call SystemParametersInfo with SPI_SETDOUBLECLKHEIGHT.
         /// </summary>
         SM_CYDOUBLECLK = 37,
 
         /// <summary>
-        /// The number of pixels above and below a mouse-down point that the mouse pointer can move before a drag operation begins. 
-        /// This allows the user to click and release the mouse button easily without unintentionally starting a drag operation. 
+        /// The number of pixels above and below a mouse-down point that the mouse pointer can move before a drag operation begins.
+        /// This allows the user to click and release the mouse button easily without unintentionally starting a drag operation.
         /// If this value is negative, it is subtracted from above the mouse-down point and added below it.
         /// </summary>
         SM_CYDRAG = 69,
@@ -245,15 +245,15 @@
         SM_CYEDGE = 46,
 
         /// <summary>
-        /// The thickness of the frame around the perimeter of a window that has a caption but is not sizable, in pixels. 
-        /// SM_CXFIXEDFRAME is the height of the horizontal border, and SM_CYFIXEDFRAME is the width of the vertical border. 
+        /// The thickness of the frame around the perimeter of a window that has a caption but is not sizable, in pixels.
+        /// SM_CXFIXEDFRAME is the height of the horizontal border, and SM_CYFIXEDFRAME is the width of the vertical border.
         /// This value is the same as SM_CYDLGFRAME.
         /// </summary>
         SM_CYFIXEDFRAME = 8,
 
         /// <summary>
-        /// The height of the top and bottom edges of the focus rectangle drawn byDrawFocusRect. 
-        /// This value is in pixels. 
+        /// The height of the top and bottom edges of the focus rectangle drawn byDrawFocusRect.
+        /// This value is in pixels.
         /// Windows 2000:  This value is not supported.
         /// </summary>
         SM_CYFOCUSBORDER = 84,
@@ -264,7 +264,7 @@
         SM_CYFRAME = 33,
 
         /// <summary>
-        /// The height of the client area for a full-screen window on the primary display monitor, in pixels. 
+        /// The height of the client area for a full-screen window on the primary display monitor, in pixels.
         /// To get the coordinates of the portion of the screen not obscured by the system taskbar or by application desktop toolbars,
         /// call the SystemParametersInfo function with the SPI_GETWORKAREA value.
         /// </summary>
@@ -281,7 +281,7 @@
         SM_CYICON = 12,
 
         /// <summary>
-        /// The height of a grid cell for items in large icon view, in pixels. Each item fits into a rectangle of size 
+        /// The height of a grid cell for items in large icon view, in pixels. Each item fits into a rectangle of size
         /// SM_CXICONSPACING by SM_CYICONSPACING when arranged. This value is always greater than or equal to SM_CYICON.
         /// </summary>
         SM_CYICONSPACING = 39,
@@ -297,8 +297,8 @@
         SM_CYMAXIMIZED = 62,
 
         /// <summary>
-        /// The default maximum height of a window that has a caption and sizing borders, in pixels. This metric refers to the entire desktop. 
-        /// The user cannot drag the window frame to a size larger than these dimensions. A window can override this value by processing 
+        /// The default maximum height of a window that has a caption and sizing borders, in pixels. This metric refers to the entire desktop.
+        /// The user cannot drag the window frame to a size larger than these dimensions. A window can override this value by processing
         /// the WM_GETMINMAXINFO message.
         /// </summary>
         SM_CYMAXTRACK = 60,
@@ -329,19 +329,19 @@
         SM_CYMINIMIZED = 58,
 
         /// <summary>
-        /// The height of a grid cell for a minimized window, in pixels. Each minimized window fits into a rectangle this size when arranged. 
+        /// The height of a grid cell for a minimized window, in pixels. Each minimized window fits into a rectangle this size when arranged.
         /// This value is always greater than or equal to SM_CYMINIMIZED.
         /// </summary>
         SM_CYMINSPACING = 48,
 
         /// <summary>
-        /// The minimum tracking height of a window, in pixels. The user cannot drag the window frame to a size smaller than these dimensions. 
+        /// The minimum tracking height of a window, in pixels. The user cannot drag the window frame to a size smaller than these dimensions.
         /// A window can override this value by processing the WM_GETMINMAXINFO message.
         /// </summary>
         SM_CYMINTRACK = 35,
 
         /// <summary>
-        /// The height of the screen of the primary display monitor, in pixels. This is the same value obtained by calling 
+        /// The height of the screen of the primary display monitor, in pixels. This is the same value obtained by calling
         /// GetDeviceCaps as follows: GetDeviceCaps( hdcPrimaryMonitor, VERTRES).
         /// </summary>
         SM_CYSCREEN = 1,
@@ -352,8 +352,8 @@
         SM_CYSIZE = 31,
 
         /// <summary>
-        /// The thickness of the sizing border around the perimeter of a window that can be resized, in pixels. 
-        /// SM_CXSIZEFRAME is the width of the horizontal border, and SM_CYSIZEFRAME is the height of the vertical border. 
+        /// The thickness of the sizing border around the perimeter of a window that can be resized, in pixels.
+        /// SM_CXSIZEFRAME is the width of the horizontal border, and SM_CYSIZEFRAME is the height of the vertical border.
         /// This value is the same as SM_CYFRAME.
         /// </summary>
         SM_CYSIZEFRAME = 33,
@@ -374,7 +374,7 @@
         SM_CYSMSIZE = 53,
 
         /// <summary>
-        /// The height of the virtual screen, in pixels. The virtual screen is the bounding rectangle of all display monitors. 
+        /// The height of the virtual screen, in pixels. The virtual screen is the bounding rectangle of all display monitors.
         /// The SM_YVIRTUALSCREEN metric is the coordinates for the top of the virtual screen.
         /// </summary>
         SM_CYVIRTUALSCREEN = 79,
@@ -400,16 +400,16 @@
         SM_DEBUG = 22,
 
         /// <summary>
-        /// Nonzero if the current operating system is Windows 7 or Windows Server 2008 R2 and the Tablet PC Input 
-        /// service is started; otherwise, 0. The return value is a bitmask that specifies the type of digitizer input supported by the device. 
-        /// For more information, see Remarks. 
+        /// Nonzero if the current operating system is Windows 7 or Windows Server 2008 R2 and the Tablet PC Input
+        /// service is started; otherwise, 0. The return value is a bitmask that specifies the type of digitizer input supported by the device.
+        /// For more information, see Remarks.
         /// Windows Server 2008, Windows Vista, and Windows XP/2000:  This value is not supported.
         /// </summary>
         SM_DIGITIZER = 94,
 
         /// <summary>
-        /// Nonzero if Input Method Manager/Input Method Editor features are enabled; otherwise, 0. 
-        /// SM_IMMENABLED indicates whether the system is ready to use a Unicode-based IME on a Unicode application. 
+        /// Nonzero if Input Method Manager/Input Method Editor features are enabled; otherwise, 0.
+        /// SM_IMMENABLED indicates whether the system is ready to use a Unicode-based IME on a Unicode application.
         /// To ensure that a language-dependent IME works, check SM_DBCSENABLED and the system ANSI code page.
         /// Otherwise the ANSI-to-Unicode conversion may not be performed correctly, or some components like fonts
         /// or registry settings may not be present.
@@ -417,9 +417,9 @@
         SM_IMMENABLED = 82,
 
         /// <summary>
-        /// Nonzero if there are digitizers in the system; otherwise, 0. SM_MAXIMUMTOUCHES returns the aggregate maximum of the 
-        /// maximum number of contacts supported by every digitizer in the system. If the system has only single-touch digitizers, 
-        /// the return value is 1. If the system has multi-touch digitizers, the return value is the number of simultaneous contacts 
+        /// Nonzero if there are digitizers in the system; otherwise, 0. SM_MAXIMUMTOUCHES returns the aggregate maximum of the
+        /// maximum number of contacts supported by every digitizer in the system. If the system has only single-touch digitizers,
+        /// the return value is 1. If the system has multi-touch digitizers, the return value is the number of simultaneous contacts
         /// the hardware can provide. Windows Server 2008, Windows Vista, and Windows XP/2000:  This value is not supported.
         /// </summary>
         SM_MAXIMUMTOUCHES = 95,
@@ -440,7 +440,7 @@
         SM_MIDEASTENABLED = 74,
 
         /// <summary>
-        /// Nonzero if a mouse is installed; otherwise, 0. This value is rarely zero, because of support for virtual mice and because 
+        /// Nonzero if a mouse is installed; otherwise, 0. This value is rarely zero, because of support for virtual mice and because
         /// some systems detect the presence of the port instead of the presence of a mouse.
         /// </summary>
         SM_MOUSEPRESENT = 19,
@@ -466,26 +466,26 @@
         SM_PENWINDOWS = 41,
 
         /// <summary>
-        /// This system metric is used in a Terminal Services environment to determine if the current Terminal Server session is 
-        /// being remotely controlled. Its value is nonzero if the current session is remotely controlled; otherwise, 0. 
-        /// You can use terminal services management tools such as Terminal Services Manager (tsadmin.msc) and shadow.exe to 
-        /// control a remote session. When a session is being remotely controlled, another user can view the contents of that session 
+        /// This system metric is used in a Terminal Services environment to determine if the current Terminal Server session is
+        /// being remotely controlled. Its value is nonzero if the current session is remotely controlled; otherwise, 0.
+        /// You can use terminal services management tools such as Terminal Services Manager (tsadmin.msc) and shadow.exe to
+        /// control a remote session. When a session is being remotely controlled, another user can view the contents of that session
         /// and potentially interact with it.
         /// </summary>
         SM_REMOTECONTROL = 0x2001,
 
         /// <summary>
-        /// This system metric is used in a Terminal Services environment. If the calling process is associated with a Terminal Services 
-        /// client session, the return value is nonzero. If the calling process is associated with the Terminal Services console session, 
-        /// the return value is 0. 
-        /// Windows Server 2003 and Windows XP:  The console session is not necessarily the physical console. 
+        /// This system metric is used in a Terminal Services environment. If the calling process is associated with a Terminal Services
+        /// client session, the return value is nonzero. If the calling process is associated with the Terminal Services console session,
+        /// the return value is 0.
+        /// Windows Server 2003 and Windows XP:  The console session is not necessarily the physical console.
         /// For more information, seeWTSGetActiveConsoleSessionId.
         /// </summary>
         SM_REMOTESESSION = 0x1000,
 
         /// <summary>
-        /// Nonzero if all the display monitors have the same color format, otherwise, 0. Two displays can have the same bit depth, 
-        /// but different color formats. For example, the red, green, and blue pixels can be encoded with different numbers of bits, 
+        /// Nonzero if all the display monitors have the same color format, otherwise, 0. Two displays can have the same bit depth,
+        /// but different color formats. For example, the red, green, and blue pixels can be encoded with different numbers of bits,
         /// or those bits can be located in different places in a pixel color value.
         /// </summary>
         SM_SAMEDISPLAYFORMAT = 81,
@@ -501,7 +501,7 @@
         SM_SERVERR2 = 89,
 
         /// <summary>
-        /// Nonzero if the user requires an application to present information visually in situations where it would otherwise present 
+        /// Nonzero if the user requires an application to present information visually in situations where it would otherwise present
         /// the information only in audible form; otherwise, 0.
         /// </summary>
         SM_SHOWSOUNDS = 70,
@@ -528,19 +528,19 @@
 
         /// <summary>
         /// Nonzero if the current operating system is the Windows XP Tablet PC edition or if the current operating system is Windows Vista
-        /// or Windows 7 and the Tablet PC Input service is started; otherwise, 0. The SM_DIGITIZER setting indicates the type of digitizer 
+        /// or Windows 7 and the Tablet PC Input service is started; otherwise, 0. The SM_DIGITIZER setting indicates the type of digitizer
         /// input supported by a device running Windows 7 or Windows Server 2008 R2. For more information, see Remarks.
         /// </summary>
         SM_TABLETPC = 86,
 
         /// <summary>
-        /// The coordinates for the left side of the virtual screen. The virtual screen is the bounding rectangle of all display monitors. 
+        /// The coordinates for the left side of the virtual screen. The virtual screen is the bounding rectangle of all display monitors.
         /// The SM_CXVIRTUALSCREEN metric is the width of the virtual screen.
         /// </summary>
         SM_XVIRTUALSCREEN = 76,
 
         /// <summary>
-        /// The coordinates for the top of the virtual screen. The virtual screen is the bounding rectangle of all display monitors. 
+        /// The coordinates for the top of the virtual screen. The virtual screen is the bounding rectangle of all display monitors.
         /// The SM_CYVIRTUALSCREEN metric is the height of the virtual screen.
         /// </summary>
         SM_YVIRTUALSCREEN = 77,

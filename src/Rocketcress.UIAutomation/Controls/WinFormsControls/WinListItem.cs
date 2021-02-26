@@ -14,12 +14,34 @@ namespace Rocketcress.UIAutomation.Controls.WinFormsControls
         #endregion
 
         #region Constructors
-        public WinListItem(By locationKey) : base(locationKey) { }
-        public WinListItem(IUITestControl parent) : base(parent) { }
-        public WinListItem(AutomationElement element) : base(element) { }
-        public WinListItem(By locationKey, AutomationElement parent) : base(locationKey, parent) { }
-        public WinListItem(By locationKey, IUITestControl parent) : base(locationKey, parent) { }
-        protected WinListItem() { }
+        public WinListItem(By locationKey)
+            : base(locationKey)
+        {
+        }
+
+        public WinListItem(IUITestControl parent)
+            : base(parent)
+        {
+        }
+
+        public WinListItem(AutomationElement element)
+            : base(element)
+        {
+        }
+
+        public WinListItem(By locationKey, AutomationElement parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        public WinListItem(By locationKey, IUITestControl parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        protected WinListItem()
+        {
+        }
         #endregion
 
         #region Public Properties
@@ -34,6 +56,7 @@ namespace Rocketcress.UIAutomation.Controls.WinFormsControls
                     SelectionItemPattern.RemoveFromSelection();
             }
         }
+
         public virtual string DisplayText => Name;
         #endregion
 

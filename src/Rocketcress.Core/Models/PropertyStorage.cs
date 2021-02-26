@@ -18,8 +18,9 @@ namespace Rocketcress.Core.Models
         /// </summary>
         /// <typeparam name="T">The type of the property value.</typeparam>
         /// <param name="propertyName">The name of the property.</param>
-        /// <returns>Returns the value of the property</returns>
-        public virtual T GetProperty<T>([CallerMemberName] string propertyName = null) => GetProperty<T>(null, propertyName);
+        /// <returns>Returns the value of the property.</returns>
+        public virtual T GetProperty<T>([CallerMemberName] string propertyName = null)
+            => GetProperty<T>(null, propertyName);
 
         /// <summary>
         /// Retrieves the value of a property.
@@ -27,15 +28,15 @@ namespace Rocketcress.Core.Models
         /// <typeparam name="T">The type of the property value.</typeparam>
         /// <param name="initializer">The function that is executed when a value for the property does not exist.</param>
         /// <param name="propertyName">The name of the property.</param>
-        /// <returns>Returns the value of the property</returns>
+        /// <returns>Returns the value of the property.</returns>
         public virtual T GetProperty<T>(Func<T> initializer, [CallerMemberName] string propertyName = null)
         {
             if (propertyName == null)
-                return default(T);
+                return default;
             lock (_lock)
             {
                 if (!_propertyValues.ContainsKey(propertyName))
-                    _propertyValues[propertyName] = initializer == null ? default(T) : initializer();
+                    _propertyValues[propertyName] = initializer == null ? default : initializer();
                 return (T)_propertyValues[propertyName];
             }
         }
@@ -55,7 +56,7 @@ namespace Rocketcress.Core.Models
         }
 
         /// <summary>
-        /// Resets the value of a property
+        /// Resets the value of a property.
         /// </summary>
         /// <param name="propertyName">The name of the property.</param>
         public virtual void ResetProperty([CallerMemberName] string propertyName = null)

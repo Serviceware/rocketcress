@@ -11,12 +11,34 @@ namespace Rocketcress.UIAutomation.Controls.CommonControls
 
         public InvokePattern InvokePattern => GetPattern<InvokePattern>();
 
-        public CommonButton(By locationKey) : base(locationKey) { }
-        public CommonButton(IUITestControl parent) : base(parent) { }
-        public CommonButton(AutomationElement element) : base(element) { }
-        public CommonButton(By locationKey, AutomationElement parent) : base(locationKey, parent) { }
-        public CommonButton(By locationKey, IUITestControl parent) : base(locationKey, parent) { }
-        protected CommonButton() { }
+        public CommonButton(By locationKey)
+            : base(locationKey)
+        {
+        }
+
+        public CommonButton(IUITestControl parent)
+            : base(parent)
+        {
+        }
+
+        public CommonButton(AutomationElement element)
+            : base(element)
+        {
+        }
+
+        public CommonButton(By locationKey, AutomationElement parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        public CommonButton(By locationKey, IUITestControl parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        protected CommonButton()
+        {
+        }
 
         public override Point ClickablePoint => BoundingRectangle.GetAbsoluteCenter();
 

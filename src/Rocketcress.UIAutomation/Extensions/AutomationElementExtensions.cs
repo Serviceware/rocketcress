@@ -28,16 +28,23 @@ namespace Rocketcress.UIAutomation.Extensions
                     return true;
                 return element.Current.Name == "{DisconnectedItem}";
             }
-            catch (ElementNotAvailableException) { return true; }
+            catch (ElementNotAvailableException)
+            {
+                return true;
+            }
         }
 
         public static string GetSearchDescription(this AutomationElement element)
         {
             var result = new StringBuilder();
             if (element == null)
+            {
                 result.Append("(null)");
+            }
             else if (element.IsStale())
+            {
                 result.Append("(stale)");
+            }
             else
             {
                 bool isFirst = true;
@@ -53,7 +60,9 @@ namespace Rocketcress.UIAutomation.Extensions
                               .Append(value);
                         isFirst = false;
                     }
-                    catch { /* Ignore not supported properties. */ }
+                    catch
+                    { /* Ignore not supported properties. */
+                    }
                 }
 
                 TryAddProperty("ControlType", () => element.Current.ControlType.ProgrammaticName);
@@ -61,6 +70,7 @@ namespace Rocketcress.UIAutomation.Extensions
                 TryAddProperty("ClassName", () => element.Current.ClassName);
                 TryAddProperty("NativeWindowHandle", () => "0x" + Convert.ToString(element.Current.NativeWindowHandle, 16));
             }
+
             return result.ToString();
         }
     }

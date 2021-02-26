@@ -12,12 +12,34 @@ namespace Rocketcress.UIAutomation.Controls.WinFormsControls
         #endregion
 
         #region Construcotrs
-        public WinTitleBar(By locationKey) : base(locationKey) { }
-        public WinTitleBar(IUITestControl parent) : base(parent) { }
-        public WinTitleBar(AutomationElement element) : base(element) { }
-        public WinTitleBar(By locationKey, AutomationElement parent) : base(locationKey, parent) { }
-        public WinTitleBar(By locationKey, IUITestControl parent) : base(locationKey, parent) { }
-        protected WinTitleBar() { }
+        public WinTitleBar(By locationKey)
+            : base(locationKey)
+        {
+        }
+
+        public WinTitleBar(IUITestControl parent)
+            : base(parent)
+        {
+        }
+
+        public WinTitleBar(AutomationElement element)
+            : base(element)
+        {
+        }
+
+        public WinTitleBar(By locationKey, AutomationElement parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        public WinTitleBar(By locationKey, IUITestControl parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        protected WinTitleBar()
+        {
+        }
         #endregion
 
         #region Public Properties

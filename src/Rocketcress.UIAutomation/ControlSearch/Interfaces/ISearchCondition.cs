@@ -19,6 +19,6 @@ namespace Rocketcress.UIAutomation.ControlSearch
     public enum SearchConditionOperator
     {
         And,
-        Or
+        Or,
     }
 }

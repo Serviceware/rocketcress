@@ -4,8 +4,12 @@ using System.Windows.Automation;
 namespace Rocketcress.UIAutomation.ControlSearch.SearchParts
 {
     public class IdentitySearchPart : SearchPartBase
-    {        
-        public IdentitySearchPart() : this(null) { }
+    {
+        public IdentitySearchPart()
+            : this(null)
+        {
+        }
+
         public IdentitySearchPart(ISearchCondition condition)
         {
             Condition = condition;

@@ -75,11 +75,13 @@ namespace Rocketcress.Core.Extensions
                 while (result.Length >= trimString.Length && string.Equals(result.ToString(0, trimString.Length), trimString, comparison))
                     result.Remove(0, trimString.Length);
             }
+
             if (trimEnd)
             {
                 while (result.Length >= trimString.Length && string.Equals(result.ToString(result.Length - trimString.Length, trimString.Length), trimString, comparison))
                     result.Remove(result.Length - trimString.Length, trimString.Length);
             }
+
             return result.ToString();
         }
     }

@@ -1,12 +1,12 @@
 ﻿using OpenQA.Selenium;
-using System;
-using System.Collections.ObjectModel;
 using OpenQA.Selenium.Support.UI;
-using System.Collections.Generic;
-using System.Linq;
-using Rocketcress.Selenium.Interactions;
 using Rocketcress.Core;
+using Rocketcress.Selenium.Interactions;
 using Rocketcress.Selenium.SeleniumWrappers;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace Rocketcress.Selenium
 {
@@ -16,25 +16,27 @@ namespace Rocketcress.Selenium
     public class WebDriver : IWait<WebDriver>, IWebDriver, IJavaScriptExecutor, ITakesScreenshot
     {
         /// <summary>
-        /// Ther underlying driver.
+        /// Gets the underlying driver.
         /// </summary>
         public IWebDriver Driver { get; private set; }
+
         /// <summary>
-        /// The underlying javascript executor.
+        /// Gets the underlying javascript executor.
         /// </summary>
         public IJavaScriptExecutor JavaScriptExecutor { get; private set; }
+
         /// <summary>
-        /// The underlying wait driver
+        /// Gets or sets the underlying wait driver.
         /// </summary>
         public DefaultWait<WebDriver> WaitDriver { get; set; }
-        
+
         /// <summary>
-        /// A list of all the known window handles.
+        /// Gets or sets a list of all the known window handles.
         /// </summary>
         public List<string> KnownWindowHandles { get; set; }
 
         /// <summary>
-        /// Initializes a new instance of the WebDriver class.
+        /// Initializes a new instance of the <see cref="WebDriver"/> class.
         /// </summary>
         /// <param name="driver">The driver to wrap.</param>
         /// <param name="timeout">The timeout to use.</param>
@@ -57,10 +59,16 @@ namespace Rocketcress.Selenium
         /// <returns>Return true if the readyState of the document is complete; otherwise false.</returns>
         public bool IsPageLoadComplete()
         {
-            try { return JavaScriptExecutor.ExecuteScript("return document.readyState").Equals("complete"); }
-            catch { return false; }
+            try
+            {
+                return JavaScriptExecutor.ExecuteScript("return document.readyState").Equals("complete");
+            }
+            catch
+            {
+                return false;
+            }
         }
-        
+
         /// <summary>
         /// Waits until the current page is loaded.
         /// </summary>
@@ -119,6 +127,7 @@ namespace Rocketcress.Selenium
                     TestHelper.Try(() => SwitchTo().Alert().Dismiss());
                 Close();
             }
+
             if (unknownHandles.Any())
                 SwitchTo().Window(prevHandle);
         }
@@ -146,6 +155,7 @@ namespace Rocketcress.Selenium
                 browserWindow.WindowHandle = unknwonHandle;
                 KnownWindowHandles.Add(unknwonHandle);
             }
+
             if (Driver.CurrentWindowHandle != unknwonHandle)
                 SwitchTo(browserWindow);
             return browserWindow.WaitUntilExists(activeTimeout, assert);
@@ -158,11 +168,12 @@ namespace Rocketcress.Selenium
         /// <param name="nextView">The view to switch to after closing.</param>
         /// <param name="timeout">The timeout in miliseconds for this wait operation. If null the default timeout is used.</param>
         /// <param name="assert">Determines wether to assert when the timeout has been reached.</param>
+        /// <returns><c>true</c> when the handle has been closed; otherwise <c>false</c>.</returns>
         public bool WaitForHandleToClose(View view, View nextView, int? timeout = null, bool assert = true)
         {
             int activeTimeout = timeout ?? (int)Timeout.TotalMilliseconds;
 
-            var result = Waiter.WaitUntil(() => 
+            var result = Waiter.WaitUntil(() =>
             {
                 try
                 {
@@ -241,8 +252,13 @@ namespace Rocketcress.Selenium
         /// <returns>Returns an alert if one has popped up; otherwise null.</returns>
         public IAlert GetAlertFromAction(Action action, bool alertExpected, bool autoDismiss)
         {
-            try { action(); }
-            catch (UnhandledAlertException) { }
+            try
+            {
+                action();
+            }
+            catch (UnhandledAlertException)
+            {
+            }
 
             return GetAlert(alertExpected, autoDismiss);
         }
@@ -257,8 +273,14 @@ namespace Rocketcress.Selenium
         {
             IAlert GetAlert()
             {
-                try { return SwitchTo().Alert(); }
-                catch (NoAlertPresentException) { return null; }
+                try
+                {
+                    return SwitchTo().Alert();
+                }
+                catch (NoAlertPresentException)
+                {
+                    return null;
+                }
             }
 
             IAlert alert;
@@ -273,7 +295,7 @@ namespace Rocketcress.Selenium
                 {
                     Logger.LogDebug("Alert appeared with text: {0}", alert.Text);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     Logger.LogWarning("Alert appeared but text could not be retrieved: " + ex.Message);
                 }
@@ -281,7 +303,7 @@ namespace Rocketcress.Selenium
                 if (autoDismiss)
                     alert.Dismiss();
             }
-            
+
             return alert;
         }
 
@@ -289,20 +311,38 @@ namespace Rocketcress.Selenium
         /// Creates a new Action object that is used to execute a bunch of actions on the browser.
         /// </summary>
         /// <returns>Returns an instance of the ActionsEx class that is mapped to this driver.</returns>
-        public ActionsEx GetActions() { return new ActionsEx(Driver); }
+        public ActionsEx GetActions()
+        {
+            return new ActionsEx(Driver);
+        }
 
         /// <summary>
-        /// Determines if the current window handle is open.
+        /// Gets a value indicating whether the current window handle is open.
         /// </summary>
         public bool IsCurrentHandleOpen
         {
             get
             {
-                try { return WindowHandles.Contains(CurrentWindowHandle); }
-                catch (UnhandledAlertException) { return true; /* Danke IE für diese Ausnahme -.- */ }
-                catch (NoSuchWindowException) { return false; }
-                catch (WebDriverException ex) when (ex.Message?.ToLower().Contains("timed out") == true) { return false; }
-                catch (WebDriverException ex) when (ex.Message?.ToLower().Contains("null response") == true) { return true; }
+                try
+                {
+                    return WindowHandles.Contains(CurrentWindowHandle);
+                }
+                catch (UnhandledAlertException)
+                {
+                    return true; /* Danke IE für diese Ausnahme -.- */
+                }
+                catch (NoSuchWindowException)
+                {
+                    return false;
+                }
+                catch (WebDriverException ex) when (ex.Message?.ToLower().Contains("timed out") == true)
+                {
+                    return false;
+                }
+                catch (WebDriverException ex) when (ex.Message?.ToLower().Contains("null response") == true)
+                {
+                    return true;
+                }
             }
         }
 
@@ -317,6 +357,7 @@ namespace Rocketcress.Selenium
                 ExecuteScript("try {document.getElementById('overridelink').click();} catch (err) {console.log('probably cert warn already accepted');}");
                 waitForPageLoad = true;
             }
+
             if (waitForPageLoad)
                 UntilPageLoaded();
         }
@@ -339,13 +380,18 @@ namespace Rocketcress.Selenium
         }
 
         #region IWait<WebDriver> Members
+
         /// <summary>
         /// Gets or sets how long to wait for the evaluated condition to be true.
         /// </summary>
         public TimeSpan Timeout
         {
-            get { return WaitDriver.Timeout; }
-            set { Waiter.DefaultTimeout = value; WaitDriver.Timeout = value; }
+            get => WaitDriver.Timeout;
+            set
+            {
+                Waiter.DefaultTimeout = value;
+                WaitDriver.Timeout = value;
+            }
         }
 
         /// <summary>
@@ -353,8 +399,12 @@ namespace Rocketcress.Selenium
         /// </summary>
         public TimeSpan PollingInterval
         {
-            get { return WaitDriver.PollingInterval; }
-            set { Waiter.DefaultWaitBetweenChecks = (int)value.TotalMilliseconds; WaitDriver.PollingInterval = value; }
+            get => WaitDriver.PollingInterval;
+            set
+            {
+                Waiter.DefaultWaitBetweenChecks = (int)value.TotalMilliseconds;
+                WaitDriver.PollingInterval = value;
+            }
         }
 
         /// <summary>
@@ -362,8 +412,8 @@ namespace Rocketcress.Selenium
         /// </summary>
         public string Message
         {
-            get { return WaitDriver.Message; }
-            set { WaitDriver.Message = value; }
+            get => WaitDriver.Message;
+            set => WaitDriver.Message = value;
         }
 
         /// <summary>
@@ -385,9 +435,11 @@ namespace Rocketcress.Selenium
         {
             return Waiter.WaitUntil(() => condition(this), Timeout, (int)PollingInterval.TotalMilliseconds, true);
         }
+
         #endregion
 
         #region ITakesScreenshot Member
+
         /// <summary>
         /// Gets a OpenQA.Selenium.Screenshot object representing the image of the page on the screen.
         /// </summary>
@@ -396,9 +448,11 @@ namespace Rocketcress.Selenium
         {
             return ((ITakesScreenshot)Driver).GetScreenshot();
         }
+
         #endregion
 
         #region IJavaScriptExecutor Member
+
         /// <summary>
         /// Executes JavaScript asynchronously in the context of the currently selected frame or window.
         /// </summary>
@@ -420,9 +474,11 @@ namespace Rocketcress.Selenium
         {
             return JavaScriptExecutor.ExecuteAsyncScript(script, args);
         }
+
         #endregion
 
         #region IWebDriver Member
+
         /// <summary>
         /// Gets the current window handle, which is an opaque handle to this window that uniquely identifies it within this driver instance.
         /// </summary>
@@ -443,8 +499,8 @@ namespace Rocketcress.Selenium
         /// </summary>
         public string Url
         {
-            get { return Driver.Url; }
-            set { Driver.Url = value; }
+            get => Driver.Url;
+            set => Driver.Url = value;
         }
 
         /// <summary>
@@ -467,7 +523,7 @@ namespace Rocketcress.Selenium
         /// <param name="handle">The handle of the window to close.</param>
         public void Close(string handle)
         {
-            if(!string.IsNullOrEmpty(handle) && WindowHandles.Contains(handle))
+            if (!string.IsNullOrEmpty(handle) && WindowHandles.Contains(handle))
             {
                 RemoveKnownHandle(handle);
                 if (CurrentWindowHandle != handle)
@@ -578,12 +634,14 @@ namespace Rocketcress.Selenium
         {
             return Driver.SwitchTo();
         }
+
         #endregion
 
         #region Private Methods
+
         private readonly Type[] _allowedExceptionsGetWebDriverProp = new[]
         {
-            typeof(WebDriverTimeoutException)
+            typeof(WebDriverTimeoutException),
         };
 
         private T GetWebDriverProperty<T>(Func<IWebDriver, T> propertyFunction, bool throwEx, T returnOnError = default)
@@ -591,20 +649,22 @@ namespace Rocketcress.Selenium
             T result = default;
             Exception lastException = null;
 
-            bool onException(Exception ex)
+            bool OnException(Exception ex)
             {
                 lastException = ex;
                 return _allowedExceptionsGetWebDriverProp.Contains(ex.GetType());
             }
 
-            if (!TestHelper.RetryActionCancelable(() => result = propertyFunction(Driver), 5, 1000, onException: onException))
+            if (!TestHelper.RetryActionCancelable(() => result = propertyFunction(Driver), 5, 1000, onException: OnException))
             {
                 if (throwEx && lastException != null)
                     throw lastException;
                 result = returnOnError;
             }
+
             return result;
         }
+
         #endregion
     }
 }

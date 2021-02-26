@@ -12,6 +12,7 @@ namespace Rocketcress.UIAutomation.ControlSearch.SearchParts
             get => Parts[Parts.Count - 1];
             set => Parts[Parts.Count - 1] = value;
         }
+
         public IList<ISearchPart> Parts { get; set; }
 
         public override ISearchCondition Condition
@@ -20,7 +21,11 @@ namespace Rocketcress.UIAutomation.ControlSearch.SearchParts
             set => throw new NotSupportedException("Setting the condition is not supporten on a nested search part.");
         }
 
-        public NestedSearchPart(params ISearchPart[] parts) : this((IEnumerable<ISearchPart>)parts) { }
+        public NestedSearchPart(params ISearchPart[] parts)
+            : this((IEnumerable<ISearchPart>)parts)
+        {
+        }
+
         public NestedSearchPart(IEnumerable<ISearchPart> parts)
         {
             Parts = parts.ToList();
@@ -41,7 +46,9 @@ namespace Rocketcress.UIAutomation.ControlSearch.SearchParts
                         yield return recursiveMatch;
                 }
                 else
+                {
                     yield return match;
+                }
             }
         }
 

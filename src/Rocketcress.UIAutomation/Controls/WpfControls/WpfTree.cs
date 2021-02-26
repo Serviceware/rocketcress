@@ -23,12 +23,34 @@ namespace Rocketcress.UIAutomation.Controls.WpfControls
         #endregion
 
         #region Construcotrs
-        public WpfTree(By locationKey) : base(locationKey) { }
-        public WpfTree(IUITestControl parent) : base(parent) { }
-        public WpfTree(AutomationElement element) : base(element) { }
-        public WpfTree(By locationKey, AutomationElement parent) : base(locationKey, parent) { }
-        public WpfTree(By locationKey, IUITestControl parent) : base(locationKey, parent) { }
-        protected WpfTree() { }
+        public WpfTree(By locationKey)
+            : base(locationKey)
+        {
+        }
+
+        public WpfTree(IUITestControl parent)
+            : base(parent)
+        {
+        }
+
+        public WpfTree(AutomationElement element)
+            : base(element)
+        {
+        }
+
+        public WpfTree(By locationKey, AutomationElement parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        public WpfTree(By locationKey, IUITestControl parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        protected WpfTree()
+        {
+        }
 
         protected override void Initialize()
         {

@@ -17,13 +17,35 @@ namespace Rocketcress.UIAutomation.Controls.WpfControls
         #endregion
 
         #region Constructors
-        public WpfMenu(By locationKey) : base(locationKey) { }
-        public WpfMenu(IUITestControl parent) : base(parent) { }
-        public WpfMenu(AutomationElement element) : base(element) { }
-        public WpfMenu(By locationKey, AutomationElement parent) : base(locationKey, parent) { }
-        public WpfMenu(By locationKey, IUITestControl parent) : base(locationKey, parent) { }
-        protected WpfMenu() { }
-   
+        public WpfMenu(By locationKey)
+            : base(locationKey)
+        {
+        }
+
+        public WpfMenu(IUITestControl parent)
+            : base(parent)
+        {
+        }
+
+        public WpfMenu(AutomationElement element)
+            : base(element)
+        {
+        }
+
+        public WpfMenu(By locationKey, AutomationElement parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        public WpfMenu(By locationKey, IUITestControl parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        protected WpfMenu()
+        {
+        }
+
         protected override void Initialize()
         {
             base.Initialize();

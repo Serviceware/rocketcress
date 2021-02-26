@@ -10,7 +10,8 @@ namespace Rocketcress.UIAutomation.Controls
         bool IsMultiSelection { get; }
     }
 
-    public interface IUITestListControl<TListItem> : IUITestListControl where TListItem : IUITestListItemControl
+    public interface IUITestListControl<TListItem> : IUITestListControl
+        where TListItem : IUITestListItemControl
     {
         new IEnumerable<TListItem> Items { get; }
     }

@@ -1,6 +1,6 @@
-﻿using Rocketcress.UIAutomation.Common;
+﻿using Rocketcress.Core.Extensions;
+using Rocketcress.UIAutomation.Common;
 using Rocketcress.UIAutomation.Controls.ControlSupport;
-using Rocketcress.Core.Extensions;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Automation;
@@ -21,12 +21,34 @@ namespace Rocketcress.UIAutomation.Controls.WinFormsControls
         #endregion
 
         #region Constructors
-        public WinTabList(By locationKey) : base(locationKey) { }
-        public WinTabList(IUITestControl parent) : base(parent) { }
-        public WinTabList(AutomationElement element) : base(element) { }
-        public WinTabList(By locationKey, AutomationElement parent) : base(locationKey, parent) { }
-        public WinTabList(By locationKey, IUITestControl parent) : base(locationKey, parent) { }
-        protected WinTabList() { }
+        public WinTabList(By locationKey)
+            : base(locationKey)
+        {
+        }
+
+        public WinTabList(IUITestControl parent)
+            : base(parent)
+        {
+        }
+
+        public WinTabList(AutomationElement element)
+            : base(element)
+        {
+        }
+
+        public WinTabList(By locationKey, AutomationElement parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        public WinTabList(By locationKey, IUITestControl parent)
+            : base(locationKey, parent)
+        {
+        }
+
+        protected WinTabList()
+        {
+        }
 
         protected override void Initialize()
         {
@@ -45,6 +67,7 @@ namespace Rocketcress.UIAutomation.Controls.WinFormsControls
             get => _listControlSupport.GetSelectedIndices().TryFirst(out var index) ? index : -1;
             set => _listControlSupport.SetSelectedIndex(value);
         }
+
         public IEnumerable<WinTabPage> Tabs => TabsInternal.OfType<WinTabPage>();
         #endregion
 
