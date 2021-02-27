@@ -9,7 +9,7 @@
 
     <Description>Contains core functionality of for all Rocketcress libraries and tests.</Description>
     <PackageTags>Rocketcress;Test;Tests</PackageTags>
-    <Version>1.0.8</Version>
+    <Version>1.0.9</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="$(Configuration.EndsWith('-Slim'))">
@@ -19,17 +19,15 @@
   </PropertyGroup>
 
   <ItemGroup Condition="$(Configuration.EndsWith('-Slim'))">
-    <None Include="Rocketcress.Core.targets" />
-    <Content Include="Rocketcress.Core.Slim.targets" Pack="true" PackagePath="build;buildCrossTargeting">
+    <None Include="Serviceware.Rocketcress.Core.targets" />
+    <Content Include="Serviceware.Rocketcress.Core.Slim.targets" Pack="true" PackagePath="build;buildCrossTargeting">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 
   <ItemGroup Condition="!$(Configuration.EndsWith('-Slim'))">
     <PackageReference Include="MSTest.TestFramework" Version="2.1.2" />
-
-    <None Include="Rocketcress.Core.Slim.targets" />
-    <Content Include="Rocketcress.Core.targets" Pack="true" PackagePath="build;buildCrossTargeting">
+    <Content Include="Serviceware.Rocketcress.Core.targets" Pack="true" PackagePath="build;buildCrossTargeting">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

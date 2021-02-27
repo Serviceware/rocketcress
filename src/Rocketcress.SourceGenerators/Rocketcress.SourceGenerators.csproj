@@ -11,7 +11,7 @@
     <PackageId>Serviceware.$(AssemblyName)</PackageId>
     <Description>This library contains C# 9 Source Generators that can be used by test projects.</Description>
     <PackageTags>Rocketcress;Test;Tests;Generator;Generators;SourceGenerator;SourceGenerators</PackageTags>
-    <Version>1.1.0</Version>
+    <Version>1.1.1</Version>
 
     <IsPackable>True</IsPackable>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
@@ -34,12 +34,17 @@
   <ItemGroup>
     <None Include="$(OutputPath)\Newtonsoft.Json.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
     <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
-    <None Include="Rocketcress.SourceGenerators.targets" Pack="true" PackagePath="build" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Extensions\" />
     <Folder Include="Attributes\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Serviceware.Rocketcress.SourceGenerators.targets" Pack="true" PackagePath="build;buildCrossTargeting">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>
