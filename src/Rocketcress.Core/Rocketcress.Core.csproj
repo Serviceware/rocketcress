@@ -9,7 +9,7 @@
 
     <Description>Contains core functionality of for all Rocketcress libraries and tests.</Description>
     <PackageTags>Rocketcress;Test;Tests</PackageTags>
-    <Version>1.0.7</Version>
+    <Version>1.0.8</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="$(Configuration.EndsWith('-Slim'))">

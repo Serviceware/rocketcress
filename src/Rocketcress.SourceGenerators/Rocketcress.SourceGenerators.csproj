@@ -11,13 +11,19 @@
     <PackageId>Serviceware.$(AssemblyName)</PackageId>
     <Description>This library contains C# 9 Source Generators that can be used by test projects.</Description>
     <PackageTags>Rocketcress;Test;Tests;Generator;Generators;SourceGenerator;SourceGenerators</PackageTags>
-    <Version>1.0.7</Version>
+    <Version>1.1.0</Version>
 
     <IsPackable>True</IsPackable>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <IncludeBuildOutput>False</IncludeBuildOutput>
     <NoPackageAnalysis>True</NoPackageAnalysis>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Rocketcress.Core\Attributes\DebugGeneratorAttribute.cs" Link="Attributes\DebugGeneratorAttribute.cs" />
+    <Compile Include="..\Rocketcress.Core\Attributes\GenerationAttributes.cs" Link="Attributes\GenerationAttributes.cs" />
+    <Compile Include="..\Rocketcress.Core\Extensions\ArrayExtensions.cs" Link="Extensions\ArrayExtensions.cs" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.8.0" PrivateAssets="all" />
@@ -29,6 +35,11 @@
     <None Include="$(OutputPath)\Newtonsoft.Json.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
     <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
     <None Include="Rocketcress.SourceGenerators.targets" Pack="true" PackagePath="build" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Extensions\" />
+    <Folder Include="Attributes\" />
   </ItemGroup>
 
 </Project>
