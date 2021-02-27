@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using static Rocketcress.SourceGenerators.Common.CodeGenerationHelpers;
 
 namespace Rocketcress.SourceGenerators
 {
@@ -27,7 +28,7 @@ namespace Rocketcress.SourceGenerators
 
                 var source = GenerateFromFile(settingsFile.Path, globalNamespaceName, contextClassName);
 
-                context.AddSource("Settings.Designer.cs", SourceText.From(source, Encoding.UTF8));
+                context.AddSource(CreateHintName("Settings", nameof(SettingsGenerator)), SourceText.From(source, Encoding.UTF8));
             }
         }
 

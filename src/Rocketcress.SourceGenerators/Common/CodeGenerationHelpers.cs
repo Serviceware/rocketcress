@@ -152,6 +152,15 @@ namespace Rocketcress.SourceGenerators.Common
             => CreateHintName(symbol, x => (x, generatorName).GetHashCode());
 
         /// <summary>
+        /// Creates a file name that can be used for a generated file.
+        /// </summary>
+        /// <param name="name">The name of the file to use.</param>
+        /// <param name="generatorName">The name of the generator.</param>
+        /// <returns>Returns a name that can be used for a generated file.</returns>
+        public static string CreateHintName(string name, string generatorName)
+            => CreateHintName(name, x => (x, generatorName).GetHashCode());
+
+        /// <summary>
         /// Creates a name out of a <see cref="ISymbol"/> that can be used for the generated file.
         /// </summary>
         /// <param name="symbol">The type symbol to use.</param>
@@ -161,6 +170,16 @@ namespace Rocketcress.SourceGenerators.Common
         public static string CreateHintName(this ISymbol symbol, string generatorName, string additionalGenerationInfo)
             => CreateHintName(symbol, x => (x, generatorName, additionalGenerationInfo).GetHashCode());
 
+        /// <summary>
+        /// Creates a file name that can be used for a generated file.
+        /// </summary>
+        /// <param name="name">The name of the file to use.</param>
+        /// <param name="generatorName">The name of the generator.</param>
+        /// <param name="additionalGenerationInfo">Additional info to create a unique hash for this generation.</param>
+        /// <returns>Returns a name that can be used for a generated file.</returns>
+        public static string CreateHintName(string name, string generatorName, string additionalGenerationInfo)
+            => CreateHintName(name, x => (x, generatorName, additionalGenerationInfo).GetHashCode());
+
         private static string CreateHintName(ISymbol symbol, Func<string, int> hashFunc)
         {
             var unescapedName = symbol switch
@@ -169,6 +188,11 @@ namespace Rocketcress.SourceGenerators.Common
                 _ => symbol.ToDisplayString(),
             };
             var name = Regex.Replace(unescapedName, @"[\.+]", "-");
+            return CreateHintName(name, hashFunc);
+        }
+
+        private static string CreateHintName(string name, Func<string, int> hashFunc)
+        {
             return $"{name}-{BitConverter.GetBytes(hashFunc(name)).ToHexString()}";
         }
 
