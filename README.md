@@ -25,13 +25,25 @@ Rocketcress is a colection of libraries that help you to easily write Integratio
 <br>
 
 # 📚 Library List <a id="library-list"></a>
-| Name | Description | Supported frameworks |
-|------|-------------|----------------------|
-| Rocketcress.Core | Contains core functionality of for all Rocketcress libraries and tests | <span style="white-space:nowrap;">`.NET 5.0` <br> `.NET Framework 4.8`</span> |
-| Rocketcress.Core.Windows | Contains core functionality specifically for Windows of for all Rocketcress libraries and tests | <span style="white-space:nowrap;">`.NET Framework 4.8`</span> |
-| Rocketcress.Selenium | You can reference this library if you want to write tests using the [Selenium](https://github.com/SeleniumHQ/selenium) framework | <span style="white-space:nowrap;">`.NET 5.0` <br> `.NET Framework 4.8`</span> |
-| Rocketcress.SourceGenerators | Contains C# 9.0 Source Generators that are useful to test projects. | <span style="white-space:nowrap;">`.NET 5.0` <br> `.NET Framework 4.8`</span> |
-| Rocketcress.UIAutomation | You can reference this library if you want to write tests using the [UIAutomation](https://docs.microsoft.com/en-us/dotnet/framework/ui-automation/ui-automation-overview) framework | <span style="white-space:nowrap;">`.NET 5.0` <br> `.NET Framework 4.8`</span> |
+| Name | NuGet.org | Description |
+|------|-----------|-------------|
+| Rocketcress.Core | [![NuGet](https://img.shields.io/nuget/v/Serviceware.Rocketcress.Core.svg)](https://www.nuget.org/packages/Serviceware.Rocketcress.Core/) | Contains core functionality of for all Rocketcress libraries and tests. |
+| Rocketcress.Core.Windows | [![NuGet](https://img.shields.io/nuget/v/Serviceware.Rocketcress.Core.Windows.svg)](https://www.nuget.org/packages/Serviceware.Rocketcress.Core.Windows/) | Contains core functionality specifically for Windows of for all Rocketcress libraries and tests. |
+| Rocketcress.Composition | [![NuGet](https://img.shields.io/nuget/v/Serviceware.Rocketcress.Composition.svg)](https://www.nuget.org/packages/Serviceware.Rocketcress.Composition/) | Extends Rocketcress.Core with System.ComponentModel.Composition specific functionalities. |
+| Rocketcress.Mail | [![NuGet](https://img.shields.io/nuget/v/Serviceware.Rocketcress.Mail.svg)](https://www.nuget.org/packages/Serviceware.Rocketcress.Mail/) | Extends Rocketcress.Core with e-mail functionality. |
+| Rocketcress.Selenium | [![NuGet](https://img.shields.io/nuget/v/Serviceware.Rocketcress.Selenium.svg)](https://www.nuget.org/packages/Serviceware.Rocketcress.Selenium/) | You can reference this library if you want to write tests using the [Selenium](https://github.com/SeleniumHQ/selenium) framework. |
+| Rocketcress.SourceGenerators | [![NuGet](https://img.shields.io/nuget/v/Serviceware.Rocketcress.SourceGenerators.svg)](https://www.nuget.org/packages/Serviceware.Rocketcress.SourceGenerators/) | Contains C# 9.0 Source Generators that are useful to test projects. |
+| Rocketcress.UIAutomation | [![NuGet](https://img.shields.io/nuget/v/Serviceware.Rocketcress.UIAutomation.svg)](https://www.nuget.org/packages/Serviceware.Rocketcress.UIAutomation/) | You can reference this library if you want to write tests using the [UIAutomation](https://docs.microsoft.com/en-us/dotnet/framework/ui-automation/ui-automation-overview) framework. |
+
+The following packages are also available as Slim variants which do not require a reference to MSTest v2:
+| Name | NuGet.org |
+|------|-----------|
+| Rocketcress.Core.Slim | [![NuGet](https://img.shields.io/nuget/v/Serviceware.Rocketcress.Core.Slim.svg)](https://www.nuget.org/packages/Serviceware.Rocketcress.Core.Slim/) |
+| Rocketcress.Core.Windows.Slim | [![NuGet](https://img.shields.io/nuget/v/Serviceware.Rocketcress.Core.Windows.Slim.svg)](https://www.nuget.org/packages/Serviceware.Rocketcress.Core.Windows.Slim/) |
+| Rocketcress.Composition.Slim | [![NuGet](https://img.shields.io/nuget/v/Serviceware.Rocketcress.Composition.Slim.svg)](https://www.nuget.org/packages/Serviceware.Rocketcress.Composition.Slim/) |
+| Rocketcress.Mail.Slim | [![NuGet](https://img.shields.io/nuget/v/Serviceware.Rocketcress.Mail.Slim.svg)](https://www.nuget.org/packages/Serviceware.Rocketcress.Mail.Slim/) |
+| Rocketcress.Selenium.Slim | [![NuGet](https://img.shields.io/nuget/v/Serviceware.Rocketcress.Selenium.Slim.svg)](https://www.nuget.org/packages/Serviceware.Rocketcress.Selenium.Slim/) |
+| Rocketcress.UIAutomation.Slim | [![NuGet](https://img.shields.io/nuget/v/Serviceware.Rocketcress.UIAutomation.Slim.svg)](https://www.nuget.org/packages/Serviceware.Rocketcress.UIAutomation.Slim/) |
 
 <br>
 

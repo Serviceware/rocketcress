@@ -22,7 +22,7 @@ steps:
   displayName: "\U0001F6E0 Build slim projects"
   inputs:
     command: 'build'
-    projects: 'src/Rocketcress.Core/Rocketcress.Core.csproj'
+    projects: '**/*.csproj;!*SourceGenerators*.csproj'
     arguments: '-c Release-Slim -p:TreatWarningsAsErrors=true'
 
 - task: DotNetCoreCLI@2
@@ -40,7 +40,7 @@ steps:
   displayName: "\U0001F4E6 Pack slim projects"
   inputs:
     command: 'pack'
-    packagesToPack: 'src/Rocketcress.Core/Rocketcress.Core.csproj'
+    packagesToPack: '**/*.csproj;!src/Test/*/*.csproj;src/Test/Test.*/*.csproj;!*SourceGenerators.csproj'
     configuration: 'Release-Slim'
     nobuild: true
     includesymbols: true
