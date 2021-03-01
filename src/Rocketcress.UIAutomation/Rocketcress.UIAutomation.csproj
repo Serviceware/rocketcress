@@ -1,20 +1,19 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="../../build/Rocketcress.props" />
-
   <PropertyGroup>
     <TargetFrameworks>net5.0-windows;net48</TargetFrameworks>
-    
+
     <OutputPath>..\..\bin\$(Configuration)</OutputPath>
     <CodeAnalysisRuleSet>../../build/Rocketcress.ruleset</CodeAnalysisRuleSet>
-    <DocumentationFile>$(OutputPath)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
     <SupportedOSPlatform>windows</SupportedOSPlatform>
+    <ConfigureSlim>true</ConfigureSlim>
 
-    <PackageId>Serviceware.$(AssemblyName)</PackageId>
     <Description>You can reference this library if you want to write tests using the UIAutomation framework.</Description>
     <PackageTags>Rocketcress;Test;Tests;UIA;UIAutomation;UITest;UITest;UI</PackageTags>
     <Version>1.0.8</Version>
   </PropertyGroup>
-
+  
+  <Import Project="../../build/Rocketcress.props" />
+  
   <PropertyGroup Condition=" '$(TargetFramework)' != 'net48' ">
     <UseWindowsForms>true</UseWindowsForms>
     <UseWpf>true</UseWpf>
@@ -24,8 +23,23 @@
     <NoWarn>$(NoWarn);1591</NoWarn>
   </PropertyGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition=" $(IsSlim) == 'true' ">
+    <None Include="Serviceware.Rocketcress.UIAutomation.targets" />
+    <Content Include="Serviceware.Rocketcress.UIAutomation.Slim.targets" Pack="true" PackagePath="build;buildCrossTargeting">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup Condition=" $(IsSlim) == 'false' ">
     <PackageReference Include="MSTest.TestFramework" Version="2.1.2" />
+
+    <None Include="Serviceware.Rocketcress.UIAutomation.Slim.targets" />
+    <Content Include="Serviceware.Rocketcress.UIAutomation.targets" Pack="true" PackagePath="build;buildCrossTargeting">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
   </ItemGroup>
 
@@ -39,11 +53,4 @@
     <ProjectReference Include="..\Rocketcress.Core.Windows\Rocketcress.Core.Windows.csproj" />
     <ProjectReference Include="..\Rocketcress.Core\Rocketcress.Core.csproj" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="Serviceware.Rocketcress.UIAutomation.targets" Pack="true" PackagePath="build;buildCrossTargeting">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-
 </Project>

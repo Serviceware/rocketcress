@@ -1,17 +1,19 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using OpenQA.Selenium;
+﻿using OpenQA.Selenium;
 using Rocketcress.Core;
 using Rocketcress.Core.Base;
 using Rocketcress.Core.Extensions;
 using Rocketcress.Selenium.DriverProviders;
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+#if !SLIM
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+#endif
 
 namespace Rocketcress.Selenium
 {
@@ -208,6 +210,8 @@ namespace Rocketcress.Selenium
 
         #region Public Functions
 
+#pragma warning disable CS1572 // XML comment has a param tag, but there is no parameter by that name
+#pragma warning disable SA1612 // Element parameter documentation should match element parameters
         /// <summary>
         /// Creates a new <see cref="SeleniumTestContext"/> as uses it as the current test context. Please make sure to dispose any preexisting <see cref="TestContextBase"/> instances beforehand.
         /// </summary>
@@ -217,10 +221,22 @@ namespace Rocketcress.Selenium
         /// <param name="testContext">The MSTest Test Context.</param>
         /// <param name="initAction">An action that is executed before the new context is set as current context. Add additional information to the object here if needed.</param>
         /// <returns>The created context.</returns>
-        protected static T CreateContext<T>(Func<T> activationFunc, Settings settings, TestContext testContext, Action<T> initAction)
+        protected static T CreateContext<T>(
+            Func<T> activationFunc,
+            Settings settings,
+#if !SLIM
+            TestContext testContext,
+#endif
+            Action<T> initAction)
             where T : SeleniumTestContext
         {
-            return TestContextBase.CreateContext<T>(activationFunc, settings, testContext, Initialize);
+            return TestContextBase.CreateContext<T>(
+                activationFunc,
+                settings,
+#if !SLIM
+                testContext,
+#endif
+                Initialize);
 
             void Initialize(T ctx)
             {
@@ -236,8 +252,28 @@ namespace Rocketcress.Selenium
         /// <param name="settings">The settings for the test run.</param>
         /// <param name="context">The test context of the test run.</param>
         /// <returns>The created context.</returns>
-        public static SeleniumTestContext CreateContext(Settings settings, TestContext context)
-            => CreateContext(() => new SeleniumTestContext(), settings, context, null);
+        [SuppressMessage("StyleCop.CSharp.SpacingRules", "SA1009:Closing parenthesis should be spaced correctly", Justification = "SLIM check")]
+        [SuppressMessage("StyleCop.CSharp.ReadabilityRules", "SA1111:Closing parenthesis should be on line of last parameter", Justification = "SLIM check")]
+        [SuppressMessage("StyleCop.CSharp.ReadabilityRules", "SA1115:Parameter should follow comma", Justification = "SLIM check")]
+        [SuppressMessage("StyleCop.CSharp.SpacingRules", "SA1001:Commas should be spaced correctly", Justification = "SLIM check")]
+        [SuppressMessage("StyleCop.CSharp.ReadabilityRules", "SA1113:Comma should be on the same line as previous parameter", Justification = "SLIM check")]
+        public static SeleniumTestContext CreateContext(
+            Settings settings
+#if !SLIM
+          , TestContext context
+#endif
+            )
+        {
+            return CreateContext(
+                () => new SeleniumTestContext(),
+                settings,
+#if !SLIM
+                context,
+#endif
+                null);
+        }
+#pragma warning restore SA1612 // Element parameter documentation should match element parameters
+#pragma warning restore CS1572 // XML comment has a param tag, but there is no parameter by that name
 
         /// <summary>
         /// Creates a new <see cref="IWebDriver"/>-Object for the given browser.
@@ -314,9 +350,21 @@ namespace Rocketcress.Selenium
         #region Cleanup
 
         /// <inheritdoc />
+        [SuppressMessage("StyleCop.CSharp.SpacingRules", "SA1009:Closing parenthesis should be spaced correctly", Justification = "SLIM check")]
+        [SuppressMessage("StyleCop.CSharp.ReadabilityRules", "SA1111:Closing parenthesis should be on line of last parameter", Justification = "SLIM check")]
         protected override void Dispose(bool disposing)
         {
-            var disposeTasks = AllOpenedDrivers.Select(x => Task.Run(() => DisposeDriver(x, Settings, TestContext?.CurrentTestOutcome != UnitTestOutcome.Passed))).ToArray();
+            var disposeTasks = AllOpenedDrivers.Select(
+                x => Task.Run(
+                    () => DisposeDriver(
+                        x,
+                        Settings,
+#if SLIM
+                        true
+#else
+                        TestContext?.CurrentTestOutcome != UnitTestOutcome.Passed
+#endif
+                        ))).ToArray();
             Task.WaitAll(disposeTasks, 120000);
             AllOpenedDrivers.Clear();
             Driver = null;

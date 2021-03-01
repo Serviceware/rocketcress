@@ -1,21 +1,25 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using OpenQA.Selenium;
+﻿using OpenQA.Selenium;
 using Rocketcress.Core;
 using Rocketcress.Core.Attributes;
 using Rocketcress.Core.Base;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+#if !SLIM
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+#endif
 
 namespace Rocketcress.Selenium
 {
     /// <summary>
     /// Base class for a test class containing Selenium tests.
     /// </summary>
+#if !SLIM
     [TestClass]
     [DeploymentItem("geckodriver.exe")]
     [DeploymentItem("IEDriverServer.exe")]
     [DeploymentItem("webdriver_prefs.json")]
+#endif
     [AddKeysClass("SettingKeys")]
     public abstract class SeleniumTestBase : SeleniumTestBase<Settings, SeleniumTestContext>
     {
@@ -34,11 +38,13 @@ namespace Rocketcress.Selenium
             Logger.LogDebug("Initializing test with browser {0}", SeleniumTestContext.CurrentBrowser);
             Logger.LogDebug("Running selenium test with selenium version {0}", typeof(IWebElement)?.Assembly?.GetName()?.Version?.ToString() ?? "(null)");
 
+#if !SLIM
             Logger.LogDebug("TestContext.Properties:");
             foreach (var p in context.TestContext.Properties.Keys)
             {
                 Logger.LogDebug($"    {p} = {context.TestContext.Properties[p]}");
             }
+#endif
 
             if (SeleniumTestContext.CurrentBrowser != Browser.Unknown)
             {
@@ -46,9 +52,12 @@ namespace Rocketcress.Selenium
             }
             else
             {
-                var sBrowser = Convert.ToString(context.TestContext.Properties["TestConfiguration"])?.ToLower();
+                string sBrowser = null;
+#if !SLIM
+                sBrowser = Convert.ToString(context.TestContext.Properties["TestConfiguration"])?.ToLower();
                 if (string.IsNullOrEmpty(sBrowser))
                     sBrowser = Convert.ToString(context.TestContext.Properties["__Tfs_TestConfigurationName__"])?.ToLower();
+#endif
 
                 Logger.LogDebug("TestConfiguration = '{0}'", sBrowser ?? "(null)");
                 if (sBrowser != null)
@@ -71,7 +80,9 @@ namespace Rocketcress.Selenium
             else
                 SeleniumTestContext.CurrentBrowserLanguage = settings.CurrentBrowserLanguage;
 
+#if !SLIM
             Logger.LogDebug("Running test \"{0}\" with browser \"{1}\" (lang: {2})...", context.TestContext.TestName, settings.CurrentBrowser, settings.CurrentBrowserLanguage.IetfLanguageTag);
+#endif
 
             context.CreateAndSwitchToNewDriver(settings.CurrentBrowser, null, driverConfiguration);
             context.Driver.Manage().Timeouts().PageLoad = settings.Timeout;
@@ -89,18 +100,22 @@ namespace Rocketcress.Selenium
         public static void Cleanup<T>(T context)
             where T : SeleniumTestContext
         {
+#if !SLIM
             bool isFailed = context.TestContext.CurrentTestOutcome != UnitTestOutcome.Passed;
             if (isFailed)
             {
                 context.TakeAndAppendScreenshot();
             }
+#endif
 
             context.Dispose();
         }
 
+#if !SLIM
         /// <inheritdoc />
         protected override SeleniumTestContext OnCreateContext()
             => SeleniumTestContext.CreateContext(Settings, TestContext);
+#endif
     }
 
     /// <summary>
@@ -108,10 +123,12 @@ namespace Rocketcress.Selenium
     /// </summary>
     /// <typeparam name="TSettings">The type of the settings.</typeparam>
     /// <typeparam name="TContext">The type of the test context.</typeparam>
+#if !SLIM
     [TestClass]
     [DeploymentItem("geckodriver.exe")]
     [DeploymentItem("IEDriverServer.exe")]
     [DeploymentItem("webdriver_prefs.json")]
+#endif
     [AddKeysClass("SettingKeys")]
     [SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1402:File may only contain a single type", Justification = "Generic representation")]
     public abstract class SeleniumTestBase<TSettings, TContext> : TestBase<TSettings, TContext>, IDriverConfiguration
@@ -124,7 +141,9 @@ namespace Rocketcress.Selenium
         public static WebDriver CurrentDriver => SeleniumTestContext.CurrentContext.Driver;
 
         /// <inheritdoc />
+#if !SLIM
         [TestInitialize]
+#endif
         public override void InitializeTest()
         {
             base.InitializeTest();
@@ -142,7 +161,9 @@ namespace Rocketcress.Selenium
         }
 
         /// <inheritdoc />
+#if !SLIM
         [TestCleanup]
+#endif
         public override void CleanupTest()
         {
             base.CleanupTest();

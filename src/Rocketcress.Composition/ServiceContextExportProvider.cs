@@ -14,11 +14,18 @@ namespace Rocketcress.Composition
     {
         private readonly ServiceContext _serviceContext;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ServiceContextExportProvider"/> class.
+        /// </summary>
         public ServiceContextExportProvider()
             : this(ServiceContext.Instance)
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ServiceContextExportProvider"/> class.
+        /// </summary>
+        /// <param name="serviceContext">The service context to use.</param>
         public ServiceContextExportProvider(ServiceContext serviceContext)
         {
             _serviceContext = serviceContext;

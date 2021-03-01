@@ -10,6 +10,19 @@
     <RepositoryType>Git</RepositoryType>
     
     <Configurations>Debug;Release;Debug-Slim;Release-Slim</Configurations>
+    <IsSlim>false</IsSlim>
+    <IsSlim Condition=" $(ConfigureSlim) == 'true' ">$(Configuration.EndsWith('-Slim'))</IsSlim>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" $(IsSlim) == 'true' ">
+    <Description>Contains code from $(AssemblyName) without the need to use MSTest v2.</Description>
+    <AssemblyName>$(AssemblyName).Slim</AssemblyName>
+    <DefineConstants>$(DefineConstants);SLIM</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <DocumentationFile Condition=" $(NoDocumentation) != 'true' ">$(OutputPath)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
+    <PackageId>Serviceware.$(AssemblyName)</PackageId>
   </PropertyGroup>
 
   <ItemGroup>

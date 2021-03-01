@@ -1,17 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="../../build/Rocketcress.props" />
-
   <PropertyGroup>
     <TargetFrameworks>net5.0;net48</TargetFrameworks>
 
     <OutputPath>..\..\bin\$(Configuration)</OutputPath>
     <CodeAnalysisRuleSet>../../build/Rocketcress.ruleset</CodeAnalysisRuleSet>
+    <ConfigureSlim>true</ConfigureSlim>
 
     <PackageId>Serviceware.$(AssemblyName)</PackageId>
     <Description>Extends Rocketcress.Core with e-mail functionality.</Description>
     <PackageTags>Rocketcress;Test;Tests;Mail</PackageTags>
     <Version>1.0.7</Version>
   </PropertyGroup>
+
+  <Import Project="../../build/Rocketcress.props" />
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Exchange.WebServices.NETStandard" Version="1.1.3" />

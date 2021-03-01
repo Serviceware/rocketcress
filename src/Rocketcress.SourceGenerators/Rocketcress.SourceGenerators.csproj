@@ -1,14 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="../../build/Rocketcress.props" />
-
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
 
     <OutputPath>..\..\bin\$(Configuration)</OutputPath>
     <CodeAnalysisRuleSet>../../build/Rocketcress.ruleset</CodeAnalysisRuleSet>
+    <NoDocumentation>true</NoDocumentation>
 
-    <PackageId>Serviceware.$(AssemblyName)</PackageId>
     <Description>This library contains C# 9 Source Generators that can be used by test projects.</Description>
     <PackageTags>Rocketcress;Test;Tests;Generator;Generators;SourceGenerator;SourceGenerators</PackageTags>
     <Version>1.1.1</Version>
@@ -18,6 +16,8 @@
     <IncludeBuildOutput>False</IncludeBuildOutput>
     <NoPackageAnalysis>True</NoPackageAnalysis>
   </PropertyGroup>
+  
+  <Import Project="../../build/Rocketcress.props" />
 
   <ItemGroup>
     <Compile Include="..\Rocketcress.Core\Attributes\DebugGeneratorAttribute.cs" Link="Attributes\DebugGeneratorAttribute.cs" />

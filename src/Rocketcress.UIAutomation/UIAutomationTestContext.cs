@@ -1,7 +1,10 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Rocketcress.Core.Base;
+﻿using Rocketcress.Core.Base;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+#if !SLIM
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+#endif
 
 namespace Rocketcress.UIAutomation
 {
@@ -61,6 +64,8 @@ namespace Rocketcress.UIAutomation
             base.Dispose(disposing);
         }
 
+#pragma warning disable CS1572 // XML comment has a param tag, but there is no parameter by that name
+#pragma warning disable SA1612 // Element parameter documentation should match element parameters
         /// <summary>
         /// Creates a new <see cref="UIAutomationTestContext"/> as uses it as the current test context. Please make sure to dispose any preexisting <see cref="TestContextBase"/> instances beforehand.
         /// </summary>
@@ -70,10 +75,22 @@ namespace Rocketcress.UIAutomation
         /// <param name="testContext">The MSTest Test Context.</param>
         /// <param name="initAction">An action that is executed before the new context is set as current context. Add additional information to the object here if needed.</param>
         /// <returns>The created context.</returns>
-        protected static T CreateContext<T>(Func<T> activationFunc, Settings settings, TestContext testContext, Action<T> initAction)
+        protected static T CreateContext<T>(
+            Func<T> activationFunc,
+            Settings settings,
+#if !SLIM
+            TestContext testContext,
+#endif
+            Action<T> initAction)
             where T : UIAutomationTestContext
         {
-            return TestContextBase.CreateContext<T>(activationFunc, settings, testContext, Initialize);
+            return TestContextBase.CreateContext<T>(
+                activationFunc,
+                settings,
+#if !SLIM
+                testContext,
+#endif
+                Initialize);
 
             void Initialize(T ctx)
             {
@@ -88,7 +105,27 @@ namespace Rocketcress.UIAutomation
         /// <param name="settings">The settings to use during the test.</param>
         /// <param name="testContext">The MSTest Test Context.</param>
         /// <returns>The created context.</returns>
-        public static UIAutomationTestContext CreateContext(Settings settings, TestContext testContext)
-            => CreateContext(() => new UIAutomationTestContext(), settings, testContext, null);
+        [SuppressMessage("StyleCop.CSharp.SpacingRules", "SA1009:Closing parenthesis should be spaced correctly", Justification = "SLIM check")]
+        [SuppressMessage("StyleCop.CSharp.ReadabilityRules", "SA1111:Closing parenthesis should be on line of last parameter", Justification = "SLIM check")]
+        [SuppressMessage("StyleCop.CSharp.ReadabilityRules", "SA1115:Parameter should follow comma", Justification = "SLIM check")]
+        [SuppressMessage("StyleCop.CSharp.SpacingRules", "SA1001:Commas should be spaced correctly", Justification = "SLIM check")]
+        [SuppressMessage("StyleCop.CSharp.ReadabilityRules", "SA1113:Comma should be on the same line as previous parameter", Justification = "SLIM check")]
+        public static UIAutomationTestContext CreateContext(
+            Settings settings
+#if !SLIM
+          , TestContext testContext
+#endif
+            )
+        {
+            return CreateContext(
+                () => new UIAutomationTestContext(),
+                settings,
+#if !SLIM
+                testContext,
+#endif
+                null);
+        }
+#pragma warning restore SA1612 // Element parameter documentation should match element parameters
+#pragma warning restore CS1572 // XML comment has a param tag, but there is no parameter by that name
     }
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿#if !SLIM
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Rocketcress.Core;
 using System;
 using System.Collections.Generic;
@@ -72,3 +73,4 @@ namespace Rocketcress.Selenium
         }
     }
 }
+#endif
