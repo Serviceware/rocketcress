@@ -22,7 +22,7 @@ steps:
   displayName: "\U0001F6E0 Build slim projects"
   inputs:
     command: 'build'
-    projects: '**/*.csproj;!*SourceGenerators*.csproj'
+    projects: '**/*.csproj'
     arguments: '-c Release-Slim -p:TreatWarningsAsErrors=true'
 
 - task: DotNetCoreCLI@2
