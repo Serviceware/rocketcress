@@ -31,7 +31,7 @@ steps:
     command: 'pack'
     packagesToPack: '**/*.csproj;!src/Test/*/*.csproj;src/Test/Test.*/*.csproj'
     configuration: 'Release'
-    nobuild: true
+    nobuild: false
     includesymbols: true
     versioningScheme: 'off'
     verbosityPack: 'Minimal'
@@ -42,7 +42,7 @@ steps:
     command: 'pack'
     packagesToPack: '**/*.csproj;!src/Test/*/*.csproj;src/Test/Test.*/*.csproj;!*SourceGenerators.csproj'
     configuration: 'Release-Slim'
-    nobuild: true
+    nobuild: false
     includesymbols: true
     versioningScheme: 'off'
     verbosityPack: 'Minimal'
