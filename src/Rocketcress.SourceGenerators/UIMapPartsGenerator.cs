@@ -175,7 +175,7 @@ namespace Rocketcress.SourceGenerators
             using (builder.AddBlock($"protected override void {InitializeName[frameworkType]}()"))
             {
                 builder.AppendLine("OnInitializing();")
-                       .AppendLine("base.Initialize();")
+                       .AppendLine($"base.{InitializeName[frameworkType]}();")
                        .AppendLine("OnBaseInitialized();");
 
                 var propNames = new HashSet<string>(controls.Where(x => x.Initialize).Select(x => x.Property.Name));
