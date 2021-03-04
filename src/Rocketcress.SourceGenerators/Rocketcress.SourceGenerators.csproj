@@ -20,8 +20,7 @@
   <Import Project="../../build/Rocketcress.props" />
 
   <ItemGroup>
-    <Compile Include="..\Rocketcress.Core\Attributes\DebugGeneratorAttribute.cs" Link="Attributes\DebugGeneratorAttribute.cs" />
-    <Compile Include="..\Rocketcress.Core\Attributes\GenerationAttributes.cs" Link="Attributes\GenerationAttributes.cs" />
+    <Compile Include="..\Rocketcress.Core\Attributes\Globals.cs" Link="Attributes\Globals.cs" />
     <Compile Include="..\Rocketcress.Core\Extensions\ArrayExtensions.cs" Link="Extensions\ArrayExtensions.cs" />
   </ItemGroup>
 

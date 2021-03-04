@@ -16,12 +16,12 @@ namespace Rocketcress.Core.Attributes
         /// <summary>
         /// Gets or sets the type from which to take the control properties that should be generated.
         /// </summary>
-        public Type ControlsDefinition { get; set; }
+        public Type ControlsDefinition { get; set; } = GenerateUIMapPartsAttributeDefaults.ControlsDefinition;
 
         /// <summary>
         /// Gets or sets a value indicating whether to generate the same constructors as the base class.
         /// </summary>
-        public bool GenerateDefaultConstructors { get; set; } = true;
+        public bool GenerateDefaultConstructors { get; set; } = GenerateUIMapPartsAttributeDefaults.GenerateDefaultConstructors;
     }
 
     /// <summary>
@@ -36,11 +36,21 @@ namespace Rocketcress.Core.Attributes
         /// Gets or sets a value indicating whether to generate initialization code for this control property.
         /// If set to <c>false</c> the property needs to be initialized manually using the partial methods that are provided.
         /// </summary>
-        public bool Initialize { get; set; } = true;
+        public bool Initialize { get; set; } = UIMapControlOptionsAttributeDefault.Initialize;
 
         /// <summary>
         /// Gets or sets the parent control name. By default this is set to <c>this</c>.
         /// </summary>
-        public string ParentControl { get; set; } = "this";
+        public string ParentControl { get; set; } = UIMapControlOptionsAttributeDefault.ParentControl;
+
+        /// <summary>
+        /// Gets or sets the accessibility of the generated control property.
+        /// </summary>
+        public ControlPropertyAccessibility Accessibility { get; set; } = UIMapControlOptionsAttributeDefault.Accessibility;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the generated control should be marked as <c>virtual</c>.
+        /// </summary>
+        public bool IsVirtual { get; set; } = UIMapControlOptionsAttributeDefault.IsVirtual;
     }
 }
