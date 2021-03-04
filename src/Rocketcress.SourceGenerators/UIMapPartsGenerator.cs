@@ -126,7 +126,7 @@ namespace Rocketcress.SourceGenerators
                 if (!hasCtor && !isFirst)
                     builder.AppendLine();
 
-                var doc = ctor.GetFormattedDocumentationCommentXml().Replace(BaseControlClassFullName[frameworkType], typeSymbol.ToDisplayString(DefinitionFormat));
+                var doc = ctor.GetFormattedDocumentationCommentXml()?.Replace(BaseControlClassFullName[frameworkType], typeSymbol.ToDisplayString(DefinitionFormat));
                 if (!string.IsNullOrWhiteSpace(doc))
                     builder.AppendLine(doc);
 
