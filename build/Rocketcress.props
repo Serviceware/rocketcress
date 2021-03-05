@@ -12,6 +12,9 @@
     <Configurations>Debug;Release;Debug-Slim;Release-Slim</Configurations>
     <IsSlim>false</IsSlim>
     <IsSlim Condition=" $(ConfigureSlim) == 'true' ">$(Configuration.EndsWith('-Slim'))</IsSlim>
+    <IsPackable Condition="($(IsSlim) == 'false' and $(Configuration.EndsWith('-Slim'))) or ($(ConfigureSign) == 'true' and $(CanSign) != 'true')">
+      false
+    </IsPackable>
   </PropertyGroup>
 
   <PropertyGroup Condition=" $(IsSlim) == 'true' ">
