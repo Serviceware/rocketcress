@@ -11,7 +11,7 @@ pool:
   vmImage: 'windows-2019'
 
 variables:
-  packArguments: '-o "$(Build.ArtifactStagingDirectory)" -p:TreatWarningsAsErrors=true'
+  packArguments: '-o "$(Build.ArtifactStagingDirectory)" -p:TreatWarningsAsErrors=true -p:ContinuousIntegrationBuild=true'
 
 steps:
 - task: DotNetCoreCLI@2
