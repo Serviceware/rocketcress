@@ -10,6 +10,9 @@ trigger:
 pool:
   vmImage: 'windows-2019'
 
+variables:
+  packArguments: '--include-symbols -o "$(Build.ArtifactStagingDirectory)" -p:TreatWarningsAsErrors=true -p:SourceLinkCreate=true -p:SymbolPackageFormat=snupkg -p:PublishRepositoryUrl=true'
+
 steps:
 - task: DotNetCoreCLI@2
   displayName: "\U0001F6E0 Build and pack projects"
@@ -17,7 +20,7 @@ steps:
     command: 'custom'
     projects: 'Rocketcress.sln'
     custom: 'pack'
-    arguments: '-c Release -p:TreatWarningsAsErrors=true --include-symbols -o "$(Build.ArtifactStagingDirectory)"'
+    arguments: '-c Release $(packArguments)'
 
 - task: DotNetCoreCLI@2
   displayName: "\U0001F6E0 Build and pack projects (signed)"
@@ -25,7 +28,7 @@ steps:
     command: 'custom'
     projects: 'Rocketcress.sln'
     custom: 'pack'
-    arguments: '-c Release -p:TreatWarningsAsErrors=true -p:ConfigureSign=true --include-symbols -o "$(Build.ArtifactStagingDirectory)"'
+    arguments: '-c Release -p:ConfigureSign=true $(packArguments)'
 
 - task: DotNetCoreCLI@2
   displayName: "\U0001F6E0 Build and pack slim projects"
@@ -33,7 +36,7 @@ steps:
     command: 'custom'
     projects: 'Rocketcress.sln'
     custom: 'pack'
-    arguments: '-c Release-Slim -p:TreatWarningsAsErrors=true --include-symbols -o "$(Build.ArtifactStagingDirectory)"'
+    arguments: '-c Release-Slim $(packArguments)'
 
 - task: DotNetCoreCLI@2
   displayName: "\U0001F6E0 Build and pack slim projects (signed)"
@@ -41,7 +44,7 @@ steps:
     command: 'custom'
     projects: 'Rocketcress.sln'
     custom: 'pack'
-    arguments: '-c Release-Slim -p:TreatWarningsAsErrors=true -p:ConfigureSign=true --include-symbols -o "$(Build.ArtifactStagingDirectory)"'
+    arguments: '-c Release-Slim -p:ConfigureSign=true $(packArguments)'
 
 - task: PublishBuildArtifacts@1
   displayName: "\U0001F6EB Publish packages to Azure Pipeline"
@@ -50,7 +53,7 @@ steps:
     ArtifactName: 'drop'
     publishLocation: 'Container'
 
-- script: dotnet nuget push --api-key $(NUGETAPIKEY) --skip-duplicate --source https://api.nuget.org/v3/index.json *.symbols.nupkg
+- script: dotnet nuget push --api-key $(NUGETAPIKEY) --skip-duplicate --source https://api.nuget.org/v3/index.json *.*nupkg
   displayName: "\U0001F680 Publish packages to nuget.org"
   workingDirectory: $(Build.ArtifactStagingDirectory)
   condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
