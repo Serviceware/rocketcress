@@ -5,6 +5,9 @@
     <OutputPath>..\..\bin\$(Configuration)</OutputPath>
     <CodeAnalysisRuleSet>../../build/Rocketcress.ruleset</CodeAnalysisRuleSet>
     <ConfigureSlim>true</ConfigureSlim>
+    <CanSign>true</CanSign>
+    <TargetFilePath>Rocketcress.Core.targets</TargetFilePath>
+    <AssemblyOriginatorKeyFile>Rocketcress.snk</AssemblyOriginatorKeyFile>
 
     <Description>Contains core functionality for all Rocketcress libraries and tests.</Description>
     <PackageTags>Rocketcress;Test;Tests</PackageTags>
@@ -13,22 +16,10 @@
   
   <Import Project="../../build/Rocketcress.props" />
 
-  <ItemGroup Condition=" $(IsSlim) == 'true' ">
-    <None Include="Serviceware.Rocketcress.Core.targets" />
-    <Content Include="Serviceware.Rocketcress.Core.Slim.targets" Pack="true" PackagePath="build;buildCrossTargeting">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-
   <ItemGroup Condition=" $(IsSlim) == 'false' ">
     <PackageReference Include="MSTest.TestFramework" Version="2.1.2" />
-
-    <None Include="Serviceware.Rocketcress.Core.Slim.targets" />
-    <Content Include="Serviceware.Rocketcress.Core.targets" Pack="true" PackagePath="build;buildCrossTargeting">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
-
+  
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
   </ItemGroup>

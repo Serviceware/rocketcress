@@ -6,6 +6,7 @@
     <OutputPath>..\..\bin\$(Configuration)</OutputPath>
     <CodeAnalysisRuleSet>../../build/Rocketcress.ruleset</CodeAnalysisRuleSet>
     <NoDocumentation>true</NoDocumentation>
+    <TargetFilePath>Rocketcress.SourceGenerators.targets</TargetFilePath>
 
     <Description>This library contains C# 9 Source Generators that can be used by test projects.</Description>
     <PackageTags>Rocketcress;Test;Tests;Generator;Generators;SourceGenerator;SourceGenerators</PackageTags>
@@ -15,11 +16,14 @@
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <IncludeBuildOutput>False</IncludeBuildOutput>
     <NoPackageAnalysis>True</NoPackageAnalysis>
-    <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>Rocketcress.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   
   <Import Project="../../build/Rocketcress.props" />
+  
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>Rocketcress.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
 
   <ItemGroup>
     <Compile Include="..\Rocketcress.Core\Attributes\Globals.cs" Link="Attributes\Globals.cs" />
@@ -44,11 +48,4 @@
     <Folder Include="Extensions\" />
     <Folder Include="Attributes\" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="Serviceware.Rocketcress.SourceGenerators.targets" Pack="true" PackagePath="build;buildCrossTargeting">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-
 </Project>

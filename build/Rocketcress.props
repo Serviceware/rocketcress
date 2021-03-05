@@ -20,6 +20,13 @@
     <DefineConstants>$(DefineConstants);SLIM</DefineConstants>
   </PropertyGroup>
 
+  <PropertyGroup Condition=" $(ConfigureSign) == 'true' and $(CanSign) == 'true' ">
+    <SignAssembly>true</SignAssembly>
+    <Description>$(Description) The assemblies in this package are signed.</Description>
+    <AssemblyName>$(AssemblyName).Signed</AssemblyName>
+    <OutputPath>$(OutputPath)/signed</OutputPath>
+  </PropertyGroup>
+
   <PropertyGroup>
     <DocumentationFile Condition=" $(NoDocumentation) != 'true' ">$(OutputPath)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
     <PackageId>Serviceware.$(AssemblyName)</PackageId>
@@ -34,5 +41,13 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+  </ItemGroup>
+
+  <Target Name="CopyTargetsFile" AfterTargets="BeforeBuild" Condition=" $(TargetFilePath) != '' ">
+    <Copy SourceFiles="$(TargetFilePath)" DestinationFiles=".targets/$(PackageId).targets" />
+  </Target>
+
+  <ItemGroup Condition=" $(TargetFilePath) != '' ">
+    <Content Include=".targets/$(PackageId).targets" Pack="true" PackagePath="build;buildCrossTargeting" Visible="false" />
   </ItemGroup>
 </Project>

@@ -6,6 +6,7 @@
     <OutputPath>..\..\bin\$(Configuration)</OutputPath>
     <CodeAnalysisRuleSet>../../build/Rocketcress.ruleset</CodeAnalysisRuleSet>
     <ConfigureSlim>true</ConfigureSlim>
+    <TargetFilePath>Rocketcress.Selenium.targets</TargetFilePath>
 
     <Description>You can reference this library if you want to write tests using the Selenium framework.</Description>
     <PackageTags>Rocketcress;Test;Tests;Selenium;UITest;UITest;UI</PackageTags>
@@ -16,20 +17,8 @@
   
   <Import Project="../../build/Rocketcress.props" />
 
-  <ItemGroup Condition=" $(IsSlim) == 'true' ">
-    <None Include="Serviceware.Rocketcress.Selenium.targets" />
-    <Content Include="Serviceware.Rocketcress.Selenium.Slim.targets" Pack="true" PackagePath="build;buildCrossTargeting">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-
   <ItemGroup Condition=" $(IsSlim) == 'false' ">
     <PackageReference Include="MSTest.TestFramework" Version="2.1.2" />
-
-    <None Include="Serviceware.Rocketcress.Selenium.Slim.targets" />
-    <Content Include="Serviceware.Rocketcress.Selenium.targets" Pack="true" PackagePath="build;buildCrossTargeting">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
 
   <ItemGroup>
