@@ -48,8 +48,4 @@
     <Folder Include="Extensions\" />
     <Folder Include="Attributes\" />
   </ItemGroup>
-
-  <Target Name="RemoveNuGetPackageSymbols" AfterTargets="Pack">
-    <Delete Files="$(PackageOutputPath)/$(PackageId).$(Version).snupkg" />
-  </Target>
 </Project>

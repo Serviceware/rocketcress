@@ -5,10 +5,11 @@
     <OutputPath>..\..\bin\$(Configuration)</OutputPath>
     <CodeAnalysisRuleSet>../../build/Rocketcress.ruleset</CodeAnalysisRuleSet>
     <ConfigureSlim>true</ConfigureSlim>
+    <ConfigureSourceLink>true</ConfigureSourceLink>
 
     <Description>Extends Rocketcress.Core with System.ComponentModel.Composition specific functionalities.</Description>
     <PackageTags>Rocketcress;Test;Tests;Composition</PackageTags>
-    <Version>1.0.8</Version>
+    <Version>1.0.9</Version>
   </PropertyGroup>
 
   <Import Project="../../build/Rocketcress.props" />

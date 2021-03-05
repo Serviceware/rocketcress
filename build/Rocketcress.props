@@ -27,10 +27,21 @@
     <OutputPath>$(OutputPath)/signed</OutputPath>
   </PropertyGroup>
 
+  <PropertyGroup Condition=" $(ConfigureSourceLink) == 'true' ">
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+
   <PropertyGroup>
     <DocumentationFile Condition=" $(NoDocumentation) != 'true' ">$(OutputPath)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
     <PackageId>Serviceware.$(AssemblyName)</PackageId>
   </PropertyGroup>
+
+  <ItemGroup Condition=" $(ConfigureSourceLink) == 'true' ">
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All"/>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="5.0.3">

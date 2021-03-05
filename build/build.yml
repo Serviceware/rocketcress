@@ -11,7 +11,7 @@ pool:
   vmImage: 'windows-2019'
 
 variables:
-  packArguments: '--include-symbols -o "$(Build.ArtifactStagingDirectory)" -p:TreatWarningsAsErrors=true -p:SourceLinkCreate=true -p:SymbolPackageFormat=snupkg -p:PublishRepositoryUrl=true'
+  packArguments: '-o "$(Build.ArtifactStagingDirectory)" -p:TreatWarningsAsErrors=true'
 
 steps:
 - task: DotNetCoreCLI@2
