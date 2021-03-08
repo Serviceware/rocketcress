@@ -11,9 +11,20 @@ pool:
   vmImage: 'windows-2019'
 
 variables:
-  packArguments: '-o "$(Build.ArtifactStagingDirectory)" -p:TreatWarningsAsErrors=true -p:ContinuousIntegrationBuild=true'
+  packArguments: '--no-restore -o "$(Build.ArtifactStagingDirectory)" -p:TreatWarningsAsErrors=true -p:ContinuousIntegrationBuild=true'
 
 steps:
+- script: dotnet nuget locals all --clear
+  displayName: "\U0001F4A3 Cleanup NuGet"
+
+- task: DotNetCoreCLI@2
+  displayName: "\U0001F4E6 NuGet restore"
+  inputs:
+    command: 'custom'
+    projects: 'Rocketcress.sln'
+    custom: 'restore'
+    arguments: '-c Release'
+
 - task: DotNetCoreCLI@2
   displayName: "\U0001F6E0 Build and pack projects"
   inputs:
@@ -29,6 +40,14 @@ steps:
     projects: 'Rocketcress.sln'
     custom: 'pack'
     arguments: '-c Release -p:ConfigureSign=true $(packArguments)'
+
+- task: DotNetCoreCLI@2
+  displayName: "\U0001F4E6 NuGet restore slim"
+  inputs:
+    command: 'custom'
+    projects: 'Rocketcress.sln'
+    custom: 'restore'
+    arguments: '-c Release-Slim'
 
 - task: DotNetCoreCLI@2
   displayName: "\U0001F6E0 Build and pack slim projects"
@@ -53,7 +72,21 @@ steps:
     ArtifactName: 'drop'
     publishLocation: 'Container'
 
-- script: dotnet nuget push --api-key $(NUGETAPIKEY) --skip-duplicate --source https://api.nuget.org/v3/index.json *.nupkg
+- powershell: |
+    foreach ($file in Get-ChildItem *.nupkg) {
+        Write-Output "Pushing $($file.name)..."
+        [string]$output = dotnet nuget push --api-key $(NuGetApiKey) --source https://api.nuget.org/v3/index.json $file.FullName
+        if ($output.Contains("already exists")) {
+            Write-Output "Package already exists: $($file.Name)"
+            $LASTEXITCODE = 0
+        } elseif ($LASTEXITCODE -ne 0) {
+            Write-Output $output
+            break
+        } else {
+            Write-Output "Successfully pushed package: $($file.Name)"
+        }
+        Write-Output ""
+    }
   displayName: "\U0001F680 Publish packages to nuget.org"
   workingDirectory: $(Build.ArtifactStagingDirectory)
   condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
