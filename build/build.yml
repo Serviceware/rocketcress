@@ -23,7 +23,7 @@ steps:
     command: 'custom'
     projects: 'Rocketcress.sln'
     custom: 'restore'
-    arguments: '-c Release'
+    arguments: '-p:Configuration=Release'
 
 - task: DotNetCoreCLI@2
   displayName: "\U0001F6E0 Build and pack projects"
@@ -47,7 +47,7 @@ steps:
     command: 'custom'
     projects: 'Rocketcress.sln'
     custom: 'restore'
-    arguments: '-c Release-Slim'
+    arguments: '-p:Configuration=Release-Slim'
 
 - task: DotNetCoreCLI@2
   displayName: "\U0001F6E0 Build and pack slim projects"
