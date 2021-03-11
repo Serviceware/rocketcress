@@ -1,15 +1,14 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>net5.0;net48</TargetFrameworks>
 
-    <OutputPath>..\..\bin\$(Configuration)</OutputPath>
-    <CodeAnalysisRuleSet>../../build/Rocketcress.ruleset</CodeAnalysisRuleSet>
     <ConfigureSlim>true</ConfigureSlim>
     <ConfigureSourceLink>true</ConfigureSourceLink>
+    <SignAssembly>true</SignAssembly>
 
     <Description>Extends Rocketcress.Core with System.ComponentModel.Composition specific functionalities.</Description>
     <PackageTags>Rocketcress;Test;Tests;Composition</PackageTags>
-    <Version>1.0.11</Version>
+    <Version>1.0.12</Version>
   </PropertyGroup>
 
   <Import Project="../../build/Rocketcress.props" />

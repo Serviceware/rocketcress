@@ -2,17 +2,15 @@
   <PropertyGroup>
     <TargetFrameworks>net5.0;net48</TargetFrameworks>
 
-    <OutputPath>..\..\bin\$(Configuration)</OutputPath>
-    <CodeAnalysisRuleSet>../../build/Rocketcress.ruleset</CodeAnalysisRuleSet>
     <ConfigureSlim>true</ConfigureSlim>
     <ConfigureSourceLink>true</ConfigureSourceLink>
-    <CanSign>true</CanSign>
+    <SignAssembly>true</SignAssembly>
     <TargetFilePath>Rocketcress.Core.targets</TargetFilePath>
     <AssemblyOriginatorKeyFile>Rocketcress.snk</AssemblyOriginatorKeyFile>
 
     <Description>Contains core functionality for all Rocketcress libraries and tests.</Description>
     <PackageTags>Rocketcress;Test;Tests</PackageTags>
-    <Version>1.0.13</Version>
+    <Version>1.0.14</Version>
   </PropertyGroup>
   
   <Import Project="../../build/Rocketcress.props" />

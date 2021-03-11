@@ -8,6 +8,9 @@
     <PackageProjectUrl>https://github.com/Serviceware/rocketcress</PackageProjectUrl>
     <RepositoryUrl>https://github.com/Serviceware/rocketcress</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
+    <AssemblyOriginatorKeyFile Condition=" $(SignAssembly) == 'true' ">$(MSBuildThisFileDirectory)Rocketcress.snk</AssemblyOriginatorKeyFile>
+    <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)Rocketcress.ruleset</CodeAnalysisRuleSet>
+    <OutputPath>$(MSBuildThisFileDirectory)..\bin\$(Configuration)</OutputPath>
     
     <Configurations>Debug;Release;Debug-Slim;Release-Slim</Configurations>
     <IsSlim>false</IsSlim>
@@ -21,13 +24,6 @@
     <Description>Contains code from $(AssemblyName) without the need to use MSTest v2.</Description>
     <AssemblyName>$(AssemblyName).Slim</AssemblyName>
     <DefineConstants>$(DefineConstants);SLIM</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" $(ConfigureSign) == 'true' and $(CanSign) == 'true' ">
-    <SignAssembly>true</SignAssembly>
-    <Description>$(Description) The assemblies in this package are signed.</Description>
-    <AssemblyName>$(AssemblyName).Signed</AssemblyName>
-    <OutputPath>$(OutputPath)/signed</OutputPath>
   </PropertyGroup>
 
   <PropertyGroup Condition=" $(ConfigureSourceLink) == 'true' ">

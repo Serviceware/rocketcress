@@ -3,14 +3,13 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
 
-    <OutputPath>..\..\bin\$(Configuration)</OutputPath>
-    <CodeAnalysisRuleSet>../../build/Rocketcress.ruleset</CodeAnalysisRuleSet>
     <NoDocumentation>true</NoDocumentation>
     <TargetFilePath>Rocketcress.SourceGenerators.targets</TargetFilePath>
+    <SignAssembly>true</SignAssembly>
 
     <Description>This library contains C# 9 Source Generators that can be used by test projects.</Description>
     <PackageTags>Rocketcress;Test;Tests;Generator;Generators;SourceGenerator;SourceGenerators</PackageTags>
-    <Version>1.1.5</Version>
+    <Version>1.1.6</Version>
 
     <IsPackable>True</IsPackable>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>

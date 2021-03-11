@@ -3,8 +3,6 @@
     <TargetFrameworks>net5.0;net48</TargetFrameworks>
     <NoWarn>$(NoWarn);NU5104</NoWarn>
 
-    <OutputPath>..\..\bin\$(Configuration)</OutputPath>
-    <CodeAnalysisRuleSet>../../build/Rocketcress.ruleset</CodeAnalysisRuleSet>
     <ConfigureSlim>true</ConfigureSlim>
     <ConfigureSourceLink>true</ConfigureSourceLink>
     <TargetFilePath>Rocketcress.Selenium.targets</TargetFilePath>

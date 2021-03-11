@@ -3,16 +3,14 @@
     <RootNamespace>Rocketcress.Core</RootNamespace>
     <TargetFrameworks>net5.0-windows;net48</TargetFrameworks>
 
-    <OutputPath>..\..\bin\$(Configuration)</OutputPath>
-    <CodeAnalysisRuleSet>../../build/Rocketcress.ruleset</CodeAnalysisRuleSet>
-    <DocumentationFile>$(OutputPath)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
     <SupportedOSPlatform>windows</SupportedOSPlatform>
     <ConfigureSlim>true</ConfigureSlim>
     <ConfigureSourceLink>true</ConfigureSourceLink>
+    <SignAssembly>true</SignAssembly>
 
     <Description>Contains core functionality of for all Rocketcress libraries and tests on windows.</Description>
     <PackageTags>Rocketcress;Test;Tests;Windows</PackageTags>
-    <Version>1.0.11</Version>
+    <Version>1.0.12</Version>
   </PropertyGroup>
   
   <Import Project="../../build/Rocketcress.props" />
