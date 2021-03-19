@@ -112,7 +112,7 @@ namespace Rocketcress.SourceGenerators
                 // Do not include interface implementation automatically because of potential private members.
                 // var impl = typeStack.Count == 0 && controlDefType != null ? $" : {controlDefType.ToDisplayString(DefinitionFormat)}" : string.Empty;
                 var impl = string.Empty;
-                blockStack.Push(builder.AddBlock($"partial class {typeStack.Pop().Name}{impl}"));
+                blockStack.Push(builder.AddBlock($"partial class {typeStack.Pop().ToDisplayString(TypeDefinitionFormat)}{impl}"));
             }
 
             return blockStack;

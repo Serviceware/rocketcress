@@ -19,7 +19,7 @@ namespace Rocketcress.SourceGenerators.Common
         /// <summary>
         /// Format that can be used to get the definition syntax of a Symbol.
         /// </summary>
-        public static readonly SymbolDisplayFormat DefinitionFormat = new SymbolDisplayFormat(
+        public static readonly SymbolDisplayFormat DefinitionFormat = new(
             SymbolDisplayGlobalNamespaceStyle.Omitted,
             SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces,
             SymbolDisplayGenericsOptions.IncludeTypeParameters | SymbolDisplayGenericsOptions.IncludeTypeConstraints | SymbolDisplayGenericsOptions.IncludeVariance,
@@ -32,10 +32,23 @@ namespace Rocketcress.SourceGenerators.Common
             SymbolDisplayKindOptions.IncludeMemberKeyword,
             SymbolDisplayMiscellaneousOptions.UseSpecialTypes);
 
+        public static readonly SymbolDisplayFormat TypeDefinitionFormat = new(
+            SymbolDisplayGlobalNamespaceStyle.Omitted,
+            SymbolDisplayTypeQualificationStyle.NameAndContainingTypes,
+            SymbolDisplayGenericsOptions.IncludeTypeParameters | SymbolDisplayGenericsOptions.IncludeVariance,
+            SymbolDisplayMemberOptions.IncludeType | SymbolDisplayMemberOptions.IncludeParameters | SymbolDisplayMemberOptions.IncludeRef,
+            SymbolDisplayDelegateStyle.NameAndSignature,
+            SymbolDisplayExtensionMethodStyle.Default,
+            SymbolDisplayParameterOptions.IncludeParamsRefOut | SymbolDisplayParameterOptions.IncludeType | SymbolDisplayParameterOptions.IncludeName | SymbolDisplayParameterOptions.IncludeDefaultValue,
+            SymbolDisplayPropertyStyle.NameOnly,
+            SymbolDisplayLocalOptions.None,
+            SymbolDisplayKindOptions.IncludeMemberKeyword,
+            SymbolDisplayMiscellaneousOptions.UseSpecialTypes);
+
         /// <summary>
         /// Format that can be used to get the usage syntax of a Symbol.
         /// </summary>
-        public static readonly SymbolDisplayFormat UsageFormat = new SymbolDisplayFormat(
+        public static readonly SymbolDisplayFormat UsageFormat = new(
             SymbolDisplayGlobalNamespaceStyle.Omitted,
             SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces,
             SymbolDisplayGenericsOptions.IncludeTypeParameters,
@@ -158,7 +171,7 @@ namespace Rocketcress.SourceGenerators.Common
         /// <param name="generatorName">The name of the generator.</param>
         /// <returns>Returns a name that can be used for a generated file.</returns>
         public static string CreateHintName(string name, string generatorName)
-            => CreateHintName(name, x => (x, generatorName).GetHashCode());
+            => CreateHintName(name, (name, generatorName).GetHashCode());
 
         /// <summary>
         /// Creates a name out of a <see cref="ISymbol"/> that can be used for the generated file.
@@ -178,22 +191,32 @@ namespace Rocketcress.SourceGenerators.Common
         /// <param name="additionalGenerationInfo">Additional info to create a unique hash for this generation.</param>
         /// <returns>Returns a name that can be used for a generated file.</returns>
         public static string CreateHintName(string name, string generatorName, string additionalGenerationInfo)
-            => CreateHintName(name, x => (x, generatorName, additionalGenerationInfo).GetHashCode());
+            => CreateHintName(name, (name, generatorName, additionalGenerationInfo).GetHashCode());
 
         private static string CreateHintName(ISymbol symbol, Func<string, int> hashFunc)
         {
-            var unescapedName = symbol switch
+            string unescapedFileName;
+            string hashBaseName;
+
+            switch (symbol)
             {
-                IAssemblySymbol assembly => assembly.Name,
-                _ => symbol.ToDisplayString(),
-            };
-            var name = Regex.Replace(unescapedName, @"[\.+]", "-");
-            return CreateHintName(name, hashFunc);
+                case IAssemblySymbol assembly:
+                    unescapedFileName = assembly.Name;
+                    hashBaseName = assembly.Name;
+                    break;
+                default:
+                    unescapedFileName = symbol.Name;
+                    hashBaseName = symbol.ToDisplayString(DefinitionFormat.WithGenericsOptions(SymbolDisplayGenericsOptions.IncludeTypeParameters));
+                    break;
+            }
+
+            var name = Regex.Replace(unescapedFileName, @"[\.+]", "-");
+            return CreateHintName(name, hashFunc(hashBaseName));
         }
 
-        private static string CreateHintName(string name, Func<string, int> hashFunc)
+        private static string CreateHintName(string name, int hash)
         {
-            return $"{name}-{BitConverter.GetBytes(hashFunc(name)).ToHexString()}";
+            return $"{name}-{BitConverter.GetBytes(hash).ToHexString()}";
         }
 
         /// <summary>
