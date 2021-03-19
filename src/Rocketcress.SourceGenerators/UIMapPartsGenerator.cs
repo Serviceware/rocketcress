@@ -108,14 +108,20 @@ namespace Rocketcress.SourceGenerators
 
             var blockStack = new DisposableStack();
             while (typeStack.Count > 0)
-                blockStack.Push(builder.AddBlock($"partial class {typeStack.Pop().Name}{(typeStack.Count == 0 && controlDefType != null ? $" : {controlDefType.ToDisplayString(DefinitionFormat)}" : string.Empty)}"));
+            {
+                // Do not include interface implementation automatically because of potential private members.
+                // var impl = typeStack.Count == 0 && controlDefType != null ? $" : {controlDefType.ToDisplayString(DefinitionFormat)}" : string.Empty;
+                var impl = string.Empty;
+                blockStack.Push(builder.AddBlock($"partial class {typeStack.Pop().Name}{impl}"));
+            }
+
             return blockStack;
         }
 
         private static bool AddConstructors(bool isFirst, SourceBuilder builder, INamedTypeSymbol typeSymbol, FrameworkType frameworkType)
         {
-            var ctors = typeSymbol.BaseType.GetMembers().OfType<IMethodSymbol>().Where(x => x.MethodKind == MethodKind.Constructor && !x.IsStatic && (x.DeclaredAccessibility == Microsoft.CodeAnalysis.Accessibility.Public || x.DeclaredAccessibility == Microsoft.CodeAnalysis.Accessibility.Protected));
-            var xCtors = typeSymbol.GetMembers().OfType<IMethodSymbol>().Where(x => x.MethodKind == MethodKind.Constructor && !x.IsStatic && (x.DeclaredAccessibility == Microsoft.CodeAnalysis.Accessibility.Public || x.DeclaredAccessibility == Microsoft.CodeAnalysis.Accessibility.Protected));
+            var ctors = typeSymbol.BaseType.GetMembers().OfType<IMethodSymbol>().Where(x => x.MethodKind == MethodKind.Constructor && !x.IsStatic && (x.DeclaredAccessibility == Accessibility.Public || x.DeclaredAccessibility == Accessibility.Protected));
+            var xCtors = typeSymbol.GetMembers().OfType<IMethodSymbol>().Where(x => !x.IsImplicitlyDeclared && x.MethodKind == MethodKind.Constructor && !x.IsStatic && (x.DeclaredAccessibility == Accessibility.Public || x.DeclaredAccessibility == Accessibility.Protected));
 
             bool hasCtor = false;
             foreach (var ctor in ctors)
@@ -126,11 +132,13 @@ namespace Rocketcress.SourceGenerators
                 if (!hasCtor && !isFirst)
                     builder.AppendLine();
 
+                /* Visual Studio currently has problems with XML documentation on constructors in partial classes
                 var doc = ctor.GetFormattedDocumentationCommentXml()?.Replace(BaseControlClassFullName[frameworkType], typeSymbol.ToDisplayString(DefinitionFormat));
                 if (!string.IsNullOrWhiteSpace(doc))
                     builder.AppendLine(doc);
+                */
 
-                var accessibility = ctor.DeclaredAccessibility == Microsoft.CodeAnalysis.Accessibility.Public ? "public" : "protected";
+                var accessibility = ctor.DeclaredAccessibility == Accessibility.Public ? "public" : "protected";
                 var paramDef = string.Join(", ", ctor.Parameters.Select(y => y.ToDisplayString(DefinitionFormat)));
                 var paramUsg = string.Join(", ", ctor.Parameters.Select(y => y.ToDisplayString(UsageFormat)));
                 builder.AppendLine($"{accessibility} {typeSymbol.Name}({paramDef}) : base({paramUsg}) {{ }}");
