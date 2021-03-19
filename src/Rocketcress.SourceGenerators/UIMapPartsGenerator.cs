@@ -11,6 +11,11 @@ namespace Rocketcress.SourceGenerators
     [Generator]
     public class UIMapPartsGenerator : ISourceGenerator
     {
+        private static void LaunchDebuggerOnBuild() => CodeGenerationHelpers.LaunchDebuggerOnBuild();
+        private static SymbolDisplayFormat DefinitionFormat => CodeGenerationHelpers.DefinitionFormat;
+        private static SymbolDisplayFormat UsageFormat => CodeGenerationHelpers.UsageFormat;
+        private static SymbolDisplayFormat TypeDefinitionFormat => CodeGenerationHelpers.TypeDefinitionFormat;
+
         private static readonly Dictionary<FrameworkType, string> ByFullName = new()
         {
             [FrameworkType.UIAutomation] = "Rocketcress.UIAutomation.By",
@@ -26,10 +31,14 @@ namespace Rocketcress.SourceGenerators
             [FrameworkType.UIAutomation] = "Initialize",
             [FrameworkType.Selenium] = "InitializeControls",
         };
-        private static readonly Dictionary<FrameworkType, string> BaseControlClassFullName = new()
+        private static readonly Dictionary<FrameworkType, string[]> BaseControlClassFullName = new()
         {
-            [FrameworkType.UIAutomation] = "Rocketcress.UIAutomation.Controls.UITestControl",
-            [FrameworkType.Selenium] = "Rocketcress.Selenium.Controls.WebElement",
+            [FrameworkType.UIAutomation] = new[] { "Rocketcress.UIAutomation.Controls.UITestControl" },
+            [FrameworkType.Selenium] = new[]
+            {
+                "Rocketcress.Selenium.Controls.WebElement",
+                "Rocketcress.Selenium.View",
+            },
         };
 
         public void Initialize(GeneratorInitializationContext context)
@@ -44,7 +53,8 @@ namespace Rocketcress.SourceGenerators
             var controlOptionsAttributeSymbol = context.Compilation.GetTypeByMetadataName("Rocketcress.Core.Attributes.UIMapControlOptionsAttribute");
 
             var controlSymbols = (from kv in BaseControlClassFullName
-                                  let symbol = context.Compilation.GetTypeByMetadataName(kv.Value)
+                                  from className in kv.Value
+                                  let symbol = context.Compilation.GetTypeByMetadataName(className)
                                   where symbol != null
                                   select (FrameworkType: (FrameworkType?)kv.Key, TypeSymbol: symbol)).ToArray();
 
@@ -67,7 +77,15 @@ namespace Rocketcress.SourceGenerators
                 var generateCtors = generateAttr.NamedArguments.FirstOrDefault(x => x.Key == "GenerateDefaultConstructors").Value.Value is bool tmpCtor ? tmpCtor : GenerateUIMapPartsAttributeDefaults.GenerateDefaultConstructors;
                 var controlDefType = generateAttr.NamedArguments.FirstOrDefault(x => x.Key == "ControlsDefinition").Value.Value as INamedTypeSymbol;
 
-                var controls = (from prop in controlDefType?.GetMembers().OfType<IPropertySymbol>() ?? Array.Empty<IPropertySymbol>()
+                var controls = (from prop in controlDefType?
+#pragma warning disable RS1024 // Compare symbols correctly
+                                .GetAllBaseTypes()
+                                    .Prepend(controlDefType)
+                                    .SelectMany(x => x.Interfaces.Prepend(x))
+                                    .SelectMany(x => x.GetMembers().OfType<IPropertySymbol>().Where(y => y.IsVirtual || x.TypeKind == TypeKind.Interface))
+                                    .Distinct(new PropertySymbolNameEqualityComparer())
+#pragma warning restore RS1024 // Compare symbols correctly
+                                ?? Array.Empty<IPropertySymbol>()
                                 where prop.GetMethod != null
                                 let optionsAttr = controlOptionsAttributeSymbol == null ? null : prop.GetAttributes().FirstOrDefault(x => SymbolEqualityComparer.Default.Equals(x.AttributeClass, controlOptionsAttributeSymbol))
                                 let initialize = optionsAttr?.NamedArguments.FirstOrDefault(x => x.Key == "Initialize").Value.Value is bool tmpInit ? tmpInit : UIMapControlOptionsAttributeDefault.Initialize
@@ -87,9 +105,9 @@ namespace Rocketcress.SourceGenerators
                     hasContent |= AddFieldsAndProperties(!hasContent, builder, typeSymbol, frameworkType, controls);
 
                     if (generateCtors)
-                        hasContent |= AddConstructors(!hasContent, builder, typeSymbol, frameworkType);
+                        hasContent |= AddConstructors(!hasContent, builder, generateAttributeSymbol, typeSymbol, frameworkType);
 
-                    hasContent |= AddInitialize(!hasContent, builder, frameworkType, controls);
+                    hasContent |= AddInitialize(!hasContent, builder, typeSymbol, frameworkType, controls);
                 }
 
                 context.AddSource(typeSymbol, builder, nameof(UIMapPartsGenerator));
@@ -118,10 +136,10 @@ namespace Rocketcress.SourceGenerators
             return blockStack;
         }
 
-        private static bool AddConstructors(bool isFirst, SourceBuilder builder, INamedTypeSymbol typeSymbol, FrameworkType frameworkType)
+        private static bool AddConstructors(bool isFirst, SourceBuilder builder, INamedTypeSymbol generateAttributeSymbol, INamedTypeSymbol typeSymbol, FrameworkType frameworkType)
         {
-            var ctors = typeSymbol.BaseType.GetMembers().OfType<IMethodSymbol>().Where(x => x.MethodKind == MethodKind.Constructor && !x.IsStatic && (x.DeclaredAccessibility == Accessibility.Public || x.DeclaredAccessibility == Accessibility.Protected));
-            var xCtors = typeSymbol.GetMembers().OfType<IMethodSymbol>().Where(x => !x.IsImplicitlyDeclared && x.MethodKind == MethodKind.Constructor && !x.IsStatic && (x.DeclaredAccessibility == Accessibility.Public || x.DeclaredAccessibility == Accessibility.Protected));
+            var ctors = GetConstructors(generateAttributeSymbol, typeSymbol, Array.Empty<IMethodSymbol>());
+            var xCtors = typeSymbol.GetMembers().OfType<IMethodSymbol>().Where(x => !x.IsImplicitlyDeclared && x.MethodKind == MethodKind.Constructor && !x.IsStatic && (x.DeclaredAccessibility == Microsoft.CodeAnalysis.Accessibility.Public || x.DeclaredAccessibility == Microsoft.CodeAnalysis.Accessibility.Protected));
 
             bool hasCtor = false;
             foreach (var ctor in ctors)
@@ -138,7 +156,7 @@ namespace Rocketcress.SourceGenerators
                     builder.AppendLine(doc);
                 */
 
-                var accessibility = ctor.DeclaredAccessibility == Accessibility.Public ? "public" : "protected";
+                var accessibility = ctor.DeclaredAccessibility == Microsoft.CodeAnalysis.Accessibility.Public ? "public" : "protected";
                 var paramDef = string.Join(", ", ctor.Parameters.Select(y => y.ToDisplayString(DefinitionFormat)));
                 var paramUsg = string.Join(", ", ctor.Parameters.Select(y => y.ToDisplayString(UsageFormat)));
                 builder.AppendLine($"{accessibility} {typeSymbol.Name}({paramDef}) : base({paramUsg}) {{ }}");
@@ -148,9 +166,29 @@ namespace Rocketcress.SourceGenerators
             return hasCtor;
         }
 
+        private static IEnumerable<IMethodSymbol> GetConstructors(INamedTypeSymbol generateAttributeSymbol, INamedTypeSymbol typeSymbol, IEnumerable<IMethodSymbol> additionalCtors)
+        {
+            var ctors = typeSymbol.BaseType.GetMembers().OfType<IMethodSymbol>().Where(x => !x.IsImplicitlyDeclared && x.MethodKind == MethodKind.Constructor && !x.IsStatic && (x.DeclaredAccessibility == Microsoft.CodeAnalysis.Accessibility.Public || x.DeclaredAccessibility == Microsoft.CodeAnalysis.Accessibility.Protected));
+            var generateAttr = typeSymbol.BaseType.GetAttributes().FirstOrDefault(x => SymbolEqualityComparer.Default.Equals(x.AttributeClass, generateAttributeSymbol));
+            var generateCtors = generateAttr != null && (generateAttr.NamedArguments.FirstOrDefault(x => x.Key == "GenerateDefaultConstructors").Value.Value is bool tmpCtor ? tmpCtor : GenerateUIMapPartsAttributeDefaults.GenerateDefaultConstructors);
+
+            var result = new List<IMethodSymbol>();
+            foreach (var ctor in ctors)
+            {
+                if (!additionalCtors.Any(x => x.Parameters.Select(x => x.Type).SequenceEqual(ctor.Parameters.Select(x => x.Type), SymbolEqualityComparer.Default)))
+                    result.Add(ctor);
+            }
+
+            result.AddRange(additionalCtors);
+
+            if (generateCtors)
+                return GetConstructors(generateAttributeSymbol, typeSymbol.BaseType, result);
+            return result;
+        }
+
         private static bool AddFieldsAndProperties(bool isFirst, SourceBuilder builder, INamedTypeSymbol typeSymbol, FrameworkType frameworkType, IList<ControlDefinition> controls)
         {
-            var existingFields = new HashSet<string>(typeSymbol.GetMembers().OfType<IFieldSymbol>().Select(x => x.Name));
+            var existingFields = new HashSet<string>(typeSymbol.GetMembers().Where(x => x.Kind == SymbolKind.Field || x.Kind == SymbolKind.Property).Select(x => x.Name));
             bool hasFields = false;
             foreach (var control in controls)
             {
@@ -195,7 +233,7 @@ namespace Rocketcress.SourceGenerators
             return hasFields || hasProperties;
         }
 
-        private static bool AddInitialize(bool isFirst, SourceBuilder builder, FrameworkType frameworkType, IList<ControlDefinition> controls)
+        private static bool AddInitialize(bool isFirst, SourceBuilder builder, INamedTypeSymbol typeSymbol, FrameworkType frameworkType, IList<ControlDefinition> controls)
         {
             if (!isFirst)
                 builder.AppendLine();
@@ -218,6 +256,9 @@ namespace Rocketcress.SourceGenerators
                         continue;
                     }
 
+                    if (typeSymbol.GetAllBaseTypes().Any(x => x.ToString() == "Rocketcress.Selenium.View") && parent == "this")
+                        parent = null;
+
                     builder.AppendLine($"{prop.Name} = new {prop.Type.ToDisplayString(DefinitionFormat)}(By{prop.Name}{(string.IsNullOrWhiteSpace(parent) ? string.Empty : $", {parent}")});")
                            .AppendLine($"On{prop.Name}Initialized();");
                     existingInits.Add(prop.Name);
@@ -236,6 +277,12 @@ namespace Rocketcress.SourceGenerators
             builder.AppendLine("partial void OnInitialized();");
 
             return true;
+        }
+
+        private class PropertySymbolNameEqualityComparer : IEqualityComparer<IPropertySymbol>
+        {
+            public bool Equals(IPropertySymbol x, IPropertySymbol y) => x?.Name == y?.Name;
+            public int GetHashCode(IPropertySymbol obj) => obj?.Name.GetHashCode() ?? 0;
         }
 
         private class DisposableStack : Stack<IDisposable>, IDisposable

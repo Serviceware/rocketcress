@@ -34,7 +34,7 @@ namespace Rocketcress.SourceGenerators.Common
 
         public static readonly SymbolDisplayFormat TypeDefinitionFormat = new(
             SymbolDisplayGlobalNamespaceStyle.Omitted,
-            SymbolDisplayTypeQualificationStyle.NameAndContainingTypes,
+            SymbolDisplayTypeQualificationStyle.NameOnly,
             SymbolDisplayGenericsOptions.IncludeTypeParameters | SymbolDisplayGenericsOptions.IncludeVariance,
             SymbolDisplayMemberOptions.IncludeType | SymbolDisplayMemberOptions.IncludeParameters | SymbolDisplayMemberOptions.IncludeRef,
             SymbolDisplayDelegateStyle.NameAndSignature,
