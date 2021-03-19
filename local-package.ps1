@@ -4,7 +4,7 @@ param(
     [Parameter(Mandatory=$true)]
     [string]$LocalRepoPath,
     [Parameter(Mandatory=$false)]
-    [string]$MajorVersion = "1.1.0"
+    [string]$MajorVersion = "1.100"
 )
 
 $ErrorActionPreference = 'Stop'
@@ -20,17 +20,17 @@ if ($Mode -eq "add") {
 
     Set-Location $PSScriptRoot
     $config.lastLocalVersion++
-    dotnet pack "-p:Version=$MajorVersion-local$($config.lastLocalVersion.ToString("000"))" -c Release --force --include-source
+    dotnet pack "-p:Version=$MajorVersion.$($config.lastLocalVersion)" -c Release --force --include-source
     ConvertTo-Json $config -Depth 99 | Set-Content $configPath
 
-    Get-ChildItem "bin\Release\Rocketcress.*.$MajorVersion-local$($config.lastLocalVersion.ToString("000")).symbols.nupkg" | ForEach-Object { nuget add $_ -source $LocalRepoPath }
+    Get-ChildItem "bin\Release\Serviceware.Rocketcress.*.$MajorVersion.$($config.lastLocalVersion).nupkg" | ForEach-Object { nuget add $_ -source $LocalRepoPath }
 
     Write-Host "Successfully add local packages" -ForegroundColor Green
     Write-Host "Run `"dotnet restore --force`" for the project that should use the local package"
 }
 elseif ($Mode -eq "cleanup") {
     Get-ChildItem "$LocalRepoPath\rocketcress*" | ForEach-Object { Remove-Item $_ -Force -Recurse }
-    Get-ChildItem "$env:USERPROFILE\.nuget\packages\rocketcress*\*-local*" | ForEach-Object { Remove-Item $_ -Force -Recurse }
+    Get-ChildItem "$env:USERPROFILE\.nuget\packages\serviceware.rocketcress*\*" | ForEach-Object { Remove-Item $_ -Force -Recurse }
     Write-Host "Local Rocketcress packages were removed" -ForegroundColor Green
 }
 else {
