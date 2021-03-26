@@ -1,7 +1,7 @@
 # Rocketcress
 [![Build Status](https://dev.azure.com/serviceware/Rocketcress/_apis/build/status/Serviceware.rocketcress?branchName=main)](https://dev.azure.com/serviceware/Rocketcress/_build/latest?definitionId=1&branchName=main)
 
-Rocketcress is a colection of libraries that help you to easily write Integration- and UI-Tests in C# and MSTest.
+Rocketcress is a collection of libraries that help you to easily write Integration- and UI-Tests in C# and MSTest.
 
 #### Contents
 - [📚 Library List](#library-list)
