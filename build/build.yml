@@ -11,19 +11,15 @@ pool:
   vmImage: 'windows-2019'
 
 variables:
-  packArguments: '--no-restore -o "$(Build.ArtifactStagingDirectory)" -p:TreatWarningsAsErrors=true -p:ContinuousIntegrationBuild=true'
+  packArguments: '-o "$(Build.ArtifactStagingDirectory)" -p:TreatWarningsAsErrors=true -p:ContinuousIntegrationBuild=true'
 
 steps:
+- checkout: self
+  clean: true
+  persistCredentials: true
+
 - script: dotnet nuget locals all --clear
   displayName: "\U0001F4A3 Cleanup NuGet"
-
-- task: DotNetCoreCLI@2
-  displayName: "\U0001F4E6 NuGet restore"
-  inputs:
-    command: 'custom'
-    projects: 'Rocketcress.sln'
-    custom: 'restore'
-    arguments: '-p:Configuration=Release'
 
 - task: DotNetCoreCLI@2
   displayName: "\U0001F6E0 Build and pack projects"
@@ -34,36 +30,12 @@ steps:
     arguments: '-c Release $(packArguments)'
 
 - task: DotNetCoreCLI@2
-  displayName: "\U0001F6E0 Build and pack projects (signed)"
-  inputs:
-    command: 'custom'
-    projects: 'Rocketcress.sln'
-    custom: 'pack'
-    arguments: '-c Release -p:ConfigureSign=true $(packArguments)'
-
-- task: DotNetCoreCLI@2
-  displayName: "\U0001F4E6 NuGet restore slim"
-  inputs:
-    command: 'custom'
-    projects: 'Rocketcress.sln'
-    custom: 'restore'
-    arguments: '-p:Configuration=Release-Slim'
-
-- task: DotNetCoreCLI@2
   displayName: "\U0001F6E0 Build and pack slim projects"
   inputs:
     command: 'custom'
     projects: 'Rocketcress.sln'
     custom: 'pack'
     arguments: '-c Release-Slim $(packArguments)'
-
-- task: DotNetCoreCLI@2
-  displayName: "\U0001F6E0 Build and pack slim projects (signed)"
-  inputs:
-    command: 'custom'
-    projects: 'Rocketcress.sln'
-    custom: 'pack'
-    arguments: '-c Release-Slim -p:ConfigureSign=true $(packArguments)'
 
 - task: PublishBuildArtifacts@1
   displayName: "\U0001F6EB Publish packages to Azure Pipeline"
@@ -90,3 +62,36 @@ steps:
   displayName: "\U0001F680 Publish packages to nuget.org"
   workingDirectory: $(Build.ArtifactStagingDirectory)
   condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+
+- powershell: |
+    $ErrorActionPreference = "Continue"
+    $hasError = $false
+    foreach ($file in Get-ChildItem -Path "$(Build.ArtifactStagingDirectory)" -Filter *.nupkg) {
+      Write-Output "Processing file $($file.name)..."
+
+      $match = [Text.RegularExpressions.Regex]::Match($file.name, "Serviceware\.Rocketcress\.(?<Name>.+?)\.(Slim\.)?(?<Version>[\.0-9]+).*\.nupkg")
+      if ($match.Success) {
+        $tagName = "$($match.Groups["Name"])/$($match.Groups["Version"])"
+        git rev-parse "$tagName" 2>&1>$null
+
+        if ($LASTEXITCODE -eq 0) {
+          Write-Host "The tag `"$tagName`" already exists."
+        } else {
+          Write-Host "The tag `"$tagName`" does not exist."
+          Write-Host "Creating and pushing tag `"$tagName`"..."
+          git tag "$tagName"
+          git push origin "$tagName"
+        }
+      } else {
+        Write-Output "##vso[task.logissue type=warning]Could not parse filename $($file.name) correctly."
+        $hasError = $true
+      }
+    }
+    if ($hasError) {
+      $LASTEXITCODE = -1
+    } else {
+      $LASTEXITCODE = 0
+    }
+  displayName: "\U0001F516 Create tags"
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+  continueOnError: true
