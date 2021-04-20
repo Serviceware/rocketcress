@@ -158,6 +158,14 @@ namespace Rocketcress.Core
                 _services.Remove(key);
         }
 
+        /// <summary>
+        /// Removes all service instances from this <see cref="ServiceContext"/>.
+        /// </summary>
+        public void Clear()
+        {
+            _services.Clear();
+        }
+
         object IServiceProvider.GetService(Type serviceType)
         {
             return GetInstance(serviceType);
