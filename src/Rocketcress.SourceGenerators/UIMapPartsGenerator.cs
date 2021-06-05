@@ -93,7 +93,8 @@ namespace Rocketcress.SourceGenerators
                                 let parent = parentArg.HasValue && parentArg.Value.Key == "ParentControl" ? parentArg.Value.Value.Value as string : UIMapControlOptionsAttributeDefault.ParentControl
                                 let accessibility = optionsAttr?.NamedArguments.FirstOrDefault(x => x.Key == "Accessibility").Value.Value is int tmpAccess ? (ControlPropertyAccessibility)tmpAccess : UIMapControlOptionsAttributeDefault.Accessibility
                                 let isVirtual = optionsAttr?.NamedArguments.FirstOrDefault(x => x.Key == "IsVirtual").Value.Value is bool tmpVirtual ? tmpVirtual : UIMapControlOptionsAttributeDefault.IsVirtual
-                                select new ControlDefinition(prop, initialize, parent, accessibility, isVirtual)).ToArray();
+                                let isHidden = optionsAttr?.NamedArguments.FirstOrDefault(x => x.Key == "IsHidden").Value.Value is bool tmpHidden ? tmpHidden : UIMapControlOptionsAttributeDefault.IsHidden
+                                select new ControlDefinition(prop, initialize, parent, accessibility, isVirtual, isHidden)).ToArray();
 
                 var builder = new SourceBuilder();
 
@@ -212,20 +213,24 @@ namespace Rocketcress.SourceGenerators
                     if ((hasFields && !hasProperties) || (!hasFields && !hasProperties && !isFirst))
                         builder.AppendLine();
 
-                    string accessibility = control.Accessibility switch
-                    {
-                        ControlPropertyAccessibility.Private => "private",
-                        ControlPropertyAccessibility.Protected => "protected",
-                        _ => "public",
-                    };
-                    if (control.IsVirtual && control.Accessibility != ControlPropertyAccessibility.Private)
+                    string accessibility = control.IsHidden
+                        ? (control.IsVirtual ? "protected" : "private")
+                        : control.Accessibility switch
+                        {
+                            ControlPropertyAccessibility.Private => "private",
+                            ControlPropertyAccessibility.Protected => "protected",
+                            _ => "public",
+                        };
+                    if (control.IsVirtual && accessibility != "private")
                         accessibility += " virtual";
 
                     bool hasSetter = control.Property.SetMethod != null;
-                    string setterAccessibility = hasSetter || control.Accessibility == ControlPropertyAccessibility.Private ? string.Empty : "private ";
+                    string setterAccessibility = hasSetter || accessibility == "private" ? string.Empty : "private ";
 
                     builder.AppendLine($"/// <inheritdoc/>")
                            .AppendLine($"{accessibility} {control.Property.Type.ToDisplayString(DefinitionFormat)} {control.Property.Name} {{ get; {setterAccessibility}set; }}");
+                    if (control.IsHidden)
+                        builder.AppendLine($"{control.Property.Type.ToDisplayString(DefinitionFormat)} {control.Property.ContainingSymbol.ToDisplayString(UsageFormat)}.{control.Property.Name} => this.{control.Property.Name};");
                     hasProperties = true;
                 }
             }
@@ -249,7 +254,7 @@ namespace Rocketcress.SourceGenerators
                 while (controlQueue.Count > 0)
                 {
                     var control = controlQueue.Dequeue();
-                    var (prop, _, parent, _, _) = control;
+                    var (prop, _, parent, _, _, _) = control;
                     if (propNames.Contains(parent) && !existingInits.Contains(parent))
                     {
                         controlQueue.Enqueue(control);
@@ -299,7 +304,8 @@ namespace Rocketcress.SourceGenerators
             bool Initialize,
             string Parent,
             ControlPropertyAccessibility Accessibility,
-            bool IsVirtual);
+            bool IsVirtual,
+            bool IsHidden);
 
         private enum FrameworkType
         {
