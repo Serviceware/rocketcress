@@ -20,7 +20,7 @@ namespace Rocketcress.SourceGenerators.Common
         /// Format that can be used to get the definition syntax of a Symbol.
         /// </summary>
         public static readonly SymbolDisplayFormat DefinitionFormat = new(
-            SymbolDisplayGlobalNamespaceStyle.Omitted,
+            SymbolDisplayGlobalNamespaceStyle.Included,
             SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces,
             SymbolDisplayGenericsOptions.IncludeTypeParameters | SymbolDisplayGenericsOptions.IncludeTypeConstraints | SymbolDisplayGenericsOptions.IncludeVariance,
             SymbolDisplayMemberOptions.IncludeType | SymbolDisplayMemberOptions.IncludeParameters | SymbolDisplayMemberOptions.IncludeRef,
@@ -49,7 +49,7 @@ namespace Rocketcress.SourceGenerators.Common
         /// Format that can be used to get the usage syntax of a Symbol.
         /// </summary>
         public static readonly SymbolDisplayFormat UsageFormat = new(
-            SymbolDisplayGlobalNamespaceStyle.Omitted,
+            SymbolDisplayGlobalNamespaceStyle.Included,
             SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces,
             SymbolDisplayGenericsOptions.IncludeTypeParameters,
             SymbolDisplayMemberOptions.IncludeParameters,

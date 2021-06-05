@@ -26,6 +26,7 @@ namespace Rocketcress.Core.Attributes
         public static readonly string ParentControl = "this";
         public static readonly ControlPropertyAccessibility Accessibility = ControlPropertyAccessibility.Public;
         public static readonly bool IsVirtual = false;
+        public static readonly bool IsHidden = false;
     }
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 

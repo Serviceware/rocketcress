@@ -52,5 +52,10 @@ namespace Rocketcress.Core.Attributes
         /// Gets or sets a value indicating whether the generated control should be marked as <c>virtual</c>.
         /// </summary>
         public bool IsVirtual { get; set; } = UIMapControlOptionsAttributeDefault.IsVirtual;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the generated should be a hidden interface implementation is hidden (A private property is generated additionally so access inside the class is easy).
+        /// </summary>
+        public bool IsHidden { get; set; } = UIMapControlOptionsAttributeDefault.IsHidden;
     }
 }
