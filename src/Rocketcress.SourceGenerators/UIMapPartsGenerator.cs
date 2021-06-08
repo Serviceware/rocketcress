@@ -1,4 +1,5 @@
 ﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Rocketcress.Core.Attributes;
 using Rocketcress.SourceGenerators.Common;
 using System;
@@ -18,13 +19,13 @@ namespace Rocketcress.SourceGenerators
 
         private static readonly Dictionary<FrameworkType, string> ByFullName = new()
         {
-            [FrameworkType.UIAutomation] = "Rocketcress.UIAutomation.By",
-            [FrameworkType.Selenium] = "OpenQA.Selenium.By",
+            [FrameworkType.UIAutomation] = "global::Rocketcress.UIAutomation.By",
+            [FrameworkType.Selenium] = "global::OpenQA.Selenium.By",
         };
-        private static readonly Dictionary<FrameworkType, string> ByEmpty = new()
+        private static readonly Dictionary<FrameworkType, string> DefaultBy = new()
         {
-            [FrameworkType.UIAutomation] = $"{ByFullName[FrameworkType.UIAutomation]}.Empty",
-            [FrameworkType.Selenium] = $"{ByFullName[FrameworkType.Selenium]}.XPath(\"//*\")",
+            [FrameworkType.UIAutomation] = $"{ByFullName[FrameworkType.UIAutomation]}.AutomationId(\"{{0}}\")",
+            [FrameworkType.Selenium] = $"{ByFullName[FrameworkType.Selenium]}.Id(\"{{0}}\")",
         };
         private static readonly Dictionary<FrameworkType, string> InitializeName = new()
         {
@@ -40,6 +41,11 @@ namespace Rocketcress.SourceGenerators
                 "Rocketcress.Selenium.View",
             },
         };
+        private static readonly Dictionary<FrameworkType, string> ControlTypeFullName = new()
+        {
+            [FrameworkType.UIAutomation] = "global::Rocketcress.UIAutomation.Controls.IUITestControl",
+            [FrameworkType.Selenium] = "global::Rocketcress.Selenium.Controls.WebElement",
+        };
 
         public void Initialize(GeneratorInitializationContext context)
         {
@@ -51,6 +57,7 @@ namespace Rocketcress.SourceGenerators
             var debugGeneratorSymbol = context.Compilation.GetTypeByMetadataName("Rocketcress.Core.Attributes.DebugGeneratorAttribute");
             var generateAttributeSymbol = context.Compilation.GetTypeByMetadataName("Rocketcress.Core.Attributes.GenerateUIMapPartsAttribute");
             var controlOptionsAttributeSymbol = context.Compilation.GetTypeByMetadataName("Rocketcress.Core.Attributes.UIMapControlOptionsAttribute");
+            var controlAttributeSymbol = context.Compilation.GetTypeByMetadataName("Rocketcress.Core.Attributes.UIMapControlAttribute");
 
             var controlSymbols = (from kv in BaseControlClassFullName
                                   from className in kv.Value
@@ -77,26 +84,34 @@ namespace Rocketcress.SourceGenerators
                 var generateCtors = generateAttr.NamedArguments.FirstOrDefault(x => x.Key == "GenerateDefaultConstructors").Value.Value is bool tmpCtor ? tmpCtor : GenerateUIMapPartsAttributeDefaults.GenerateDefaultConstructors;
                 var controlDefType = generateAttr.NamedArguments.FirstOrDefault(x => x.Key == "ControlsDefinition").Value.Value as INamedTypeSymbol;
 
-                var controls = (from prop in controlDefType?
+                var controls = (from prop in typeSymbol.GetMembers().OfType<IPropertySymbol>()
+                                let controlAttr = prop.GetAttributes().FirstOrDefault(x => SymbolEqualityComparer.Default.Equals(x.AttributeClass, controlAttributeSymbol))
+                                where controlAttr != null
+                                let def = GetControlDefinitionFromProperty(prop, controlAttr, frameworkType)
+                                where def != null
+                                select def).ToList();
+
+                controls.AddRange(from prop in controlDefType?
 #pragma warning disable RS1024 // Compare symbols correctly
-                                .GetAllBaseTypes()
-                                    .Prepend(controlDefType)
-                                    .SelectMany(x => x.Interfaces.Prepend(x))
-                                    .SelectMany(x => x.GetMembers().OfType<IPropertySymbol>().Where(y => y.IsVirtual || x.TypeKind == TypeKind.Interface))
-                                    .Distinct(new PropertySymbolNameEqualityComparer())
+                                  .GetAllBaseTypes()
+                                          .Prepend(controlDefType)
+                                          .SelectMany(x => x.Interfaces.Prepend(x))
+                                          .SelectMany(x => x.GetMembers().OfType<IPropertySymbol>().Where(y => y.IsVirtual || x.TypeKind == TypeKind.Interface))
+                                          .Distinct(new PropertySymbolNameEqualityComparer())
 #pragma warning restore RS1024 // Compare symbols correctly
-                                ?? Array.Empty<IPropertySymbol>()
-                                where prop.GetMethod != null
-                                let optionsAttr = controlOptionsAttributeSymbol == null ? null : prop.GetAttributes().FirstOrDefault(x => SymbolEqualityComparer.Default.Equals(x.AttributeClass, controlOptionsAttributeSymbol))
-                                let initialize = optionsAttr?.NamedArguments.FirstOrDefault(x => x.Key == "Initialize").Value.Value is bool tmpInit ? tmpInit : UIMapControlOptionsAttributeDefault.Initialize
-                                let parentArg = optionsAttr?.NamedArguments.FirstOrDefault(x => x.Key == "ParentControl")
-                                let parent = parentArg.HasValue && parentArg.Value.Key == "ParentControl" ? parentArg.Value.Value.Value as string : UIMapControlOptionsAttributeDefault.ParentControl
-                                let accessibility = optionsAttr?.NamedArguments.FirstOrDefault(x => x.Key == "Accessibility").Value.Value is int tmpAccess ? (ControlPropertyAccessibility)tmpAccess : UIMapControlOptionsAttributeDefault.Accessibility
-                                let isVirtual = optionsAttr?.NamedArguments.FirstOrDefault(x => x.Key == "IsVirtual").Value.Value is bool tmpVirtual ? tmpVirtual : UIMapControlOptionsAttributeDefault.IsVirtual
-                                let isHidden = optionsAttr?.NamedArguments.FirstOrDefault(x => x.Key == "IsHidden").Value.Value is bool tmpHidden ? tmpHidden : UIMapControlOptionsAttributeDefault.IsHidden
-                                select new ControlDefinition(prop, initialize, parent, accessibility, isVirtual, isHidden)).ToArray();
+                                  ?? Array.Empty<IPropertySymbol>()
+                                  where prop.GetMethod != null && controls.All(x => x.Property.Name != prop.Name)
+                                  let optionsAttr = controlOptionsAttributeSymbol == null ? null : prop.GetAttributes().FirstOrDefault(x => SymbolEqualityComparer.Default.Equals(x.AttributeClass, controlOptionsAttributeSymbol))
+                                  let initialize = optionsAttr?.NamedArguments.FirstOrDefault(x => x.Key == "Initialize").Value.Value is bool tmpInit ? tmpInit : UIMapControlOptionsAttributeDefault.Initialize
+                                  let parentArg = optionsAttr?.NamedArguments.FirstOrDefault(x => x.Key == "ParentControl")
+                                  let parent = parentArg.HasValue && parentArg.Value.Key == "ParentControl" ? parentArg.Value.Value.Value as string : UIMapControlOptionsAttributeDefault.ParentControl
+                                  let accessibility = optionsAttr?.NamedArguments.FirstOrDefault(x => x.Key == "Accessibility").Value.Value is int tmpAccess ? (ControlPropertyAccessibility)tmpAccess : UIMapControlOptionsAttributeDefault.Accessibility
+                                  let isVirtual = optionsAttr?.NamedArguments.FirstOrDefault(x => x.Key == "IsVirtual").Value.Value is bool tmpVirtual ? tmpVirtual : UIMapControlOptionsAttributeDefault.IsVirtual
+                                  let isHidden = optionsAttr?.NamedArguments.FirstOrDefault(x => x.Key == "IsHidden").Value.Value is bool tmpHidden ? tmpHidden : UIMapControlOptionsAttributeDefault.IsHidden
+                                  select new ControlDefinition(prop.Type.ToDisplayString(DefinitionFormat), prop, initialize, parent, accessibility, isVirtual, isHidden, null));
 
                 var builder = new SourceBuilder();
+                AddUsings(builder, typeSymbol);
 
                 using (builder.AddBlock($"namespace {typeSymbol.ContainingNamespace}"))
                 using (AddPartialClasses(builder, typeSymbol, controlDefType))
@@ -109,10 +124,75 @@ namespace Rocketcress.SourceGenerators
                         hasContent |= AddConstructors(!hasContent, builder, generateAttributeSymbol, typeSymbol, frameworkType);
 
                     hasContent |= AddInitialize(!hasContent, builder, typeSymbol, frameworkType, controls);
+
+                    AddFixedMembers(!hasContent, builder, frameworkType);
                 }
 
                 context.AddSource(typeSymbol, builder, nameof(UIMapPartsGenerator));
             }
+        }
+
+        private static void AddUsings(SourceBuilder builder, INamedTypeSymbol typeSymbol)
+        {
+            bool hasUsing = false;
+            SyntaxNode currentSyntax = typeSymbol.DeclaringSyntaxReferences[0].GetSyntax();
+            while (currentSyntax != null)
+            {
+                SyntaxList<UsingDirectiveSyntax>? u = null;
+                if (currentSyntax is CompilationUnitSyntax cus)
+                    u = cus.Usings;
+                else if (currentSyntax is NamespaceDeclarationSyntax nds)
+                    u = nds.Usings;
+
+                if (u.HasValue)
+                {
+                    if (u.Value.Count > 0)
+                        hasUsing = true;
+                    foreach (var @using in u.Value)
+                        builder.AppendLine(@using.GetText().ToString().Trim());
+                }
+
+                currentSyntax = currentSyntax.Parent;
+            }
+
+            if (hasUsing)
+                builder.AppendLine();
+        }
+
+        private static ControlDefinition GetControlDefinitionFromProperty(IPropertySymbol property, AttributeData attr, FrameworkType frameworkType)
+        {
+            if (property.DeclaringSyntaxReferences.FirstOrDefault()?.GetSyntax() is not PropertyDeclarationSyntax syntax)
+                return null;
+
+            string byExpr = null;
+            string controlType = null;
+            if (syntax.Initializer != null &&
+                syntax.Initializer.Value is InvocationExpressionSyntax initUsingExpr &&
+                initUsingExpr.Expression is GenericNameSyntax initUsingSyntax &&
+                initUsingSyntax.Identifier.Text == "InitUsing")
+            {
+                if (initUsingExpr.ArgumentList.Arguments.Count > 0 && initUsingExpr.ArgumentList.Arguments[0].Expression is ParenthesizedLambdaExpressionSyntax lambda)
+                {
+                    if (lambda.Body is BlockSyntax block)
+                        byExpr = $"new global::System.Func<{ByFullName[frameworkType]}>(() => {lambda.Body.GetText()}).Invoke()";
+                    else
+                        byExpr = lambda.Body.GetText().ToString();
+                }
+
+                if (initUsingSyntax.TypeArgumentList.Arguments.Count > 0)
+                    controlType = (initUsingSyntax.TypeArgumentList.Arguments[0] as IdentifierNameSyntax)?.Identifier.Text;
+            }
+
+            var parentArg = attr?.NamedArguments.FirstOrDefault(x => x.Key == "ParentControl");
+            return new ControlDefinition(
+                controlType ?? property.Type.ToDisplayString(DefinitionFormat),
+                property,
+                attr?.NamedArguments.FirstOrDefault(x => x.Key == "Initialize").Value.Value is bool tmpInit ? tmpInit : UIMapControlAttributeDefault.Initialize,
+                parentArg.HasValue && parentArg.Value.Key == "ParentControl" ? parentArg.Value.Value.Value as string : UIMapControlAttributeDefault.ParentControl,
+                ControlPropertyAccessibility.Public,
+                true,
+                false,
+                byExpr);
         }
 
         private static IDisposable AddPartialClasses(SourceBuilder builder, INamedTypeSymbol typeSymbol, INamedTypeSymbol controlDefType)
@@ -199,7 +279,8 @@ namespace Rocketcress.SourceGenerators
                     if (!hasFields && !isFirst)
                         builder.AppendLine();
 
-                    builder.AppendLine($"private static readonly {ByFullName[frameworkType]} {fieldName} = {ByEmpty[frameworkType]};");
+                    var byExpr = control.ByExpression ?? string.Format(DefaultBy[frameworkType], control.Property.Name);
+                    builder.AppendLine($"private static readonly {ByFullName[frameworkType]} {fieldName} = {byExpr};");
                     hasFields = true;
                 }
             }
@@ -254,7 +335,7 @@ namespace Rocketcress.SourceGenerators
                 while (controlQueue.Count > 0)
                 {
                     var control = controlQueue.Dequeue();
-                    var (prop, _, parent, _, _, _) = control;
+                    var (type, prop, _, parent, _, _, _, _) = control;
                     if (propNames.Contains(parent) && !existingInits.Contains(parent))
                     {
                         controlQueue.Enqueue(control);
@@ -264,7 +345,7 @@ namespace Rocketcress.SourceGenerators
                     if (typeSymbol.GetAllBaseTypes().Any(x => x.ToString() == "Rocketcress.Selenium.View") && parent == "this")
                         parent = null;
 
-                    builder.AppendLine($"{prop.Name} = new {prop.Type.ToDisplayString(DefinitionFormat)}(By{prop.Name}{(string.IsNullOrWhiteSpace(parent) ? string.Empty : $", {parent}")});")
+                    builder.AppendLine($"{prop.Name} = new {type}(By{prop.Name}{(string.IsNullOrWhiteSpace(parent) ? string.Empty : $", {parent}")});")
                            .AppendLine($"On{prop.Name}Initialized();");
                     existingInits.Add(prop.Name);
                 }
@@ -284,6 +365,13 @@ namespace Rocketcress.SourceGenerators
             return true;
         }
 
+        private static void AddFixedMembers(bool isFirst, SourceBuilder builder, FrameworkType frameworkType)
+        {
+            if (!isFirst)
+                builder.AppendLine();
+            builder.AppendLine($"private static TRocketcressControl InitUsing<TRocketcressControl>(global::System.Linq.Expressions.Expression<global::System.Func<{ByFullName[frameworkType]}>> locationKeyExpression = null) where TRocketcressControl : {ControlTypeFullName[frameworkType]} => default(TRocketcressControl);");
+        }
+
         private class PropertySymbolNameEqualityComparer : IEqualityComparer<IPropertySymbol>
         {
             public bool Equals(IPropertySymbol x, IPropertySymbol y) => x?.Name == y?.Name;
@@ -300,12 +388,14 @@ namespace Rocketcress.SourceGenerators
         }
 
         private record ControlDefinition(
+            string ControlType,
             IPropertySymbol Property,
             bool Initialize,
             string Parent,
             ControlPropertyAccessibility Accessibility,
             bool IsVirtual,
-            bool IsHidden);
+            bool IsHidden,
+            string ByExpression);
 
         private enum FrameworkType
         {

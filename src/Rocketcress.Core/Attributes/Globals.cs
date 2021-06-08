@@ -28,6 +28,16 @@ namespace Rocketcress.Core.Attributes
         public static readonly bool IsVirtual = false;
         public static readonly bool IsHidden = false;
     }
+
+#if DEBUG
+    public static class UIMapControlAttributeDefault
+#else
+    internal static class UIMapControlAttributeDefault
+#endif
+    {
+        public static readonly bool Initialize = true;
+        public static readonly string ParentControl = "this";
+    }
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 
     /// <summary>

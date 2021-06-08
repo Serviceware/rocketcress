@@ -58,4 +58,24 @@ namespace Rocketcress.Core.Attributes
         /// </summary>
         public bool IsHidden { get; set; } = UIMapControlOptionsAttributeDefault.IsHidden;
     }
+
+    /// <summary>
+    /// When applied to a property of a class that has the <see cref="GenerateUIMapPartsAttribute"/> code attribute,
+    /// the generation for the initialization of the property is enabled and altered by specifing some options.
+    /// </summary>
+    /// <seealso cref="System.Attribute" />
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = false)]
+    public class UIMapControlAttribute : Attribute
+    {
+        /// <summary>
+        /// Gets or sets a value indicating whether to generate initialization code for this control property.
+        /// If set to <c>false</c> the property needs to be initialized manually using the partial methods that are provided.
+        /// </summary>
+        public bool Initialize { get; set; } = UIMapControlAttributeDefault.Initialize;
+
+        /// <summary>
+        /// Gets or sets the parent control name. By default this is set to <c>this</c>.
+        /// </summary>
+        public string ParentControl { get; set; } = UIMapControlAttributeDefault.ParentControl;
+    }
 }
