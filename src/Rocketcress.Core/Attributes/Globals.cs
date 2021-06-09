@@ -14,6 +14,7 @@ namespace Rocketcress.Core.Attributes
     {
         public static readonly Type ControlsDefinition = null;
         public static readonly bool GenerateDefaultConstructors = true;
+        public static readonly IdStyle IdStyle = IdStyle.None;
     }
 
 #if DEBUG
@@ -27,6 +28,7 @@ namespace Rocketcress.Core.Attributes
         public static readonly ControlPropertyAccessibility Accessibility = ControlPropertyAccessibility.Public;
         public static readonly bool IsVirtual = false;
         public static readonly bool IsHidden = false;
+        public static readonly IdStyle IdStyle = IdStyle.Unset;
     }
 
 #if DEBUG
@@ -37,6 +39,7 @@ namespace Rocketcress.Core.Attributes
     {
         public static readonly bool Initialize = true;
         public static readonly string ParentControl = "this";
+        public static readonly IdStyle IdStyle = IdStyle.Unset;
     }
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 
@@ -59,5 +62,36 @@ namespace Rocketcress.Core.Attributes
         /// Uses the <c>private</c> accessibility.
         /// </summary>
         Private,
+    }
+
+    /// <summary>
+    /// Specifies the naming style for ids.
+    /// </summary>
+    public enum IdStyle
+    {
+        /// <summary>
+        /// The casing of the property is not set and the default is used.
+        /// </summary>
+        Unset,
+
+        /// <summary>
+        /// The casing of the property is not changed.
+        /// </summary>
+        None,
+
+        /// <summary>
+        /// The pascal case (ThisIsAnExample).
+        /// </summary>
+        PascalCase,
+
+        /// <summary>
+        /// The camel case (thisIsAndExample).
+        /// </summary>
+        CamelCase,
+
+        /// <summary>
+        /// The kebab case (this-is-an-example).
+        /// </summary>
+        KebabCase,
     }
 }

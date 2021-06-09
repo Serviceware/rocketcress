@@ -22,6 +22,11 @@ namespace Rocketcress.Core.Attributes
         /// Gets or sets a value indicating whether to generate the same constructors as the base class.
         /// </summary>
         public bool GenerateDefaultConstructors { get; set; } = GenerateUIMapPartsAttributeDefaults.GenerateDefaultConstructors;
+
+        /// <summary>
+        /// Gets or sets the naming style that should be used to generate default location keys for properties.
+        /// </summary>
+        public IdStyle IdStyle { get; set; } = GenerateUIMapPartsAttributeDefaults.IdStyle;
     }
 
     /// <summary>
@@ -57,6 +62,11 @@ namespace Rocketcress.Core.Attributes
         /// Gets or sets a value indicating whether the generated should be a hidden interface implementation is hidden (A private property is generated additionally so access inside the class is easy).
         /// </summary>
         public bool IsHidden { get; set; } = UIMapControlOptionsAttributeDefault.IsHidden;
+
+        /// <summary>
+        /// Gets or sets the naming style that should be used to generate default location keys for this property.
+        /// </summary>
+        public IdStyle IdStyle { get; set; } = GenerateUIMapPartsAttributeDefaults.IdStyle;
     }
 
     /// <summary>
@@ -77,5 +87,10 @@ namespace Rocketcress.Core.Attributes
         /// Gets or sets the parent control name. By default this is set to <c>this</c>.
         /// </summary>
         public string ParentControl { get; set; } = UIMapControlAttributeDefault.ParentControl;
+
+        /// <summary>
+        /// Gets or sets the naming style that should be used to generate default location keys for this property.
+        /// </summary>
+        public IdStyle IdStyle { get; set; } = GenerateUIMapPartsAttributeDefaults.IdStyle;
     }
 }
