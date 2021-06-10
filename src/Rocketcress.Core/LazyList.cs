@@ -88,7 +88,7 @@ namespace Rocketcress.Core
                 _lazyList = lazyList;
             }
 
-            public T Current => _currentIndex < 0 || _currentIndex > _lazyList._cachedItems.Count ? _lazyList._cachedItems[_currentIndex] : default;
+            public T Current => _currentIndex < 0 || _currentIndex > _lazyList._cachedItems.Count ? default : _lazyList._cachedItems[_currentIndex];
 
             object IEnumerator.Current => Current;
 
