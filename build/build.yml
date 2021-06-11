@@ -44,6 +44,13 @@ steps:
     custom: 'pack'
     arguments: '-c Release-Slim $(packArguments)'
 
+- task: DotNetCoreCLI@2
+  displayName: "\U0001F308 Run Unit Tests (Slim)"
+  inputs:
+    command: 'test'
+    projects: 'Rocketcress.sln'
+    arguments: '-c Release-Slim --no-restore --no-build --collect "Code coverage" -p:TreatWarningsAsErrors=true'
+
 - task: PublishBuildArtifacts@1
   displayName: "\U0001F6EB Publish packages to Azure Pipeline"
   inputs:
