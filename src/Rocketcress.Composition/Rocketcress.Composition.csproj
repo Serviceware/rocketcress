@@ -8,7 +8,7 @@
 
     <Description>Extends Rocketcress.Core with System.ComponentModel.Composition specific functionalities.</Description>
     <PackageTags>Rocketcress;Test;Tests;Composition</PackageTags>
-    <Version>1.0.18</Version>
+    <Version>1.0.19</Version>
   </PropertyGroup>
 
   <Import Project="../../build/Rocketcress.props" />

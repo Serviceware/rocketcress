@@ -92,6 +92,7 @@ namespace Rocketcress.Core
         {
             _cachedItems.Clear();
             _currentEnumerator = null;
+            _enumeratorAtEnd = false;
         }
 
         private class LazyListEnumerator : IEnumerator<T>

@@ -95,6 +95,22 @@ namespace Rocketcress.Core.Tests
         }
 
         [TestMethod]
+        public void Reset_AfterFullIteration()
+        {
+            var list = CreateMockedList(10, Times.Exactly(20), out var mock);
+
+            var i1 = list.Count;
+            list.Reset();
+            var i2 = list.Count;
+
+            Assert.AreEqual(10, i1);
+            Assert.AreEqual(10, i2);
+
+            for (int i = 0; i < 10; i++)
+                mock.Verify(x => x(0), Times.Exactly(2));
+        }
+
+        [TestMethod]
         public void Enumerator()
         {
             var list = CreateMockedList(10, Times.Exactly(10), out var mock);
