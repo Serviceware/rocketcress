@@ -34,7 +34,7 @@ steps:
   inputs:
     command: 'test'
     projects: 'Rocketcress.sln'
-    arguments: '-c Release --no-restore --no-build --collect "Code coverage" -p:TreatWarningsAsErrors=true'
+    arguments: '-c Release --collect "Code coverage" -p:TreatWarningsAsErrors=true'
 
 - task: DotNetCoreCLI@2
   displayName: "\U0001F6E0 Build and pack slim projects"
@@ -49,7 +49,7 @@ steps:
   inputs:
     command: 'test'
     projects: 'Rocketcress.sln'
-    arguments: '-c Release-Slim --no-restore --no-build --collect "Code coverage" -p:TreatWarningsAsErrors=true'
+    arguments: '-c Release-Slim --collect "Code coverage" -p:TreatWarningsAsErrors=true'
 
 - task: PublishBuildArtifacts@1
   displayName: "\U0001F6EB Publish packages to Azure Pipeline"
