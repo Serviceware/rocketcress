@@ -30,6 +30,13 @@ steps:
     arguments: '-c Release $(packArguments)'
 
 - task: DotNetCoreCLI@2
+  displayName: "\U0001F308 Run Unit Tests"
+  inputs:
+    command: 'test'
+    projects: 'Rocketcress.sln'
+    arguments: '-c Release --no-restore --no-build --collect "Code coverage" -p:TreatWarningsAsErrors=true'
+
+- task: DotNetCoreCLI@2
   displayName: "\U0001F6E0 Build and pack slim projects"
   inputs:
     command: 'custom'

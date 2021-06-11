@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RuleSet Name="New Rule Set" Description=" " ToolsVersion="16.0">
+  <Include Path="rocketcress.ruleset" Action="Default" />
+  <Rules AnalyzerId="IDisposableAnalyzers" RuleNamespace="IDisposableAnalyzers">
+    <Rule Id="IDISP001" Action="None" />
+    <Rule Id="IDISP004" Action="None" />
+  </Rules>
+  <Rules AnalyzerId="StyleCop.Analyzers" RuleNamespace="StyleCop.Analyzers">
+    <Rule Id="SA0001" Action="None" />
+    <Rule Id="SA1402" Action="None" />
+    <Rule Id="SA1600" Action="None" />
+    <Rule Id="SA1601" Action="None" />
+  </Rules>
+</RuleSet>

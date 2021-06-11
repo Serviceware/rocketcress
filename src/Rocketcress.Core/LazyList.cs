@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace Rocketcress.Core
@@ -10,8 +11,14 @@ namespace Rocketcress.Core
     public class LazyList<T> : IReadOnlyList<T>
     {
         private readonly List<T> _cachedItems;
-        private readonly IEnumerator<T> _enumerator;
+        private readonly IEnumerable<T> _enumerable;
+        private IEnumerator<T> _currentEnumerator;
         private bool _enumeratorAtEnd = false;
+
+        /// <summary>
+        /// Gets the current enumerator of the underlying <see cref="IEnumerable{T}"/>.
+        /// </summary>
+        protected IEnumerator<T> CurrentEnumerator => _currentEnumerator ??= _enumerable.GetEnumerator();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LazyList{T}"/> class.
@@ -20,7 +27,7 @@ namespace Rocketcress.Core
         public LazyList(IEnumerable<T> enumerable)
         {
             _cachedItems = new List<T>();
-            _enumerator = enumerable.GetEnumerator();
+            _enumerable = enumerable;
         }
 
         /// <summary>
@@ -36,8 +43,8 @@ namespace Rocketcress.Core
                     return _cachedItems[index];
                 while (!_enumeratorAtEnd && index >= _cachedItems.Count)
                 {
-                    if (_enumerator.MoveNext())
-                        _cachedItems.Add(_enumerator.Current);
+                    if (CurrentEnumerator.MoveNext())
+                        _cachedItems.Add(CurrentEnumerator.Current);
                     else
                         _enumeratorAtEnd = true;
                 }
@@ -56,10 +63,10 @@ namespace Rocketcress.Core
                 var count = _cachedItems.Count;
                 while (!_enumeratorAtEnd)
                 {
-                    if (_enumerator.MoveNext())
+                    if (CurrentEnumerator.MoveNext())
                     {
                         count++;
-                        _cachedItems.Add(_enumerator.Current);
+                        _cachedItems.Add(CurrentEnumerator.Current);
                     }
                     else
                     {
@@ -78,39 +85,52 @@ namespace Rocketcress.Core
         public IEnumerator<T> GetEnumerator() => new LazyListEnumerator(this);
         IEnumerator IEnumerable.GetEnumerator() => new LazyListEnumerator(this);
 
+        /// <summary>
+        /// Resets this <see cref="LazyList{T}"/>. The underlying <see cref="IEnumerable{T}"/> is iterated from the start again.
+        /// </summary>
+        public void Reset()
+        {
+            _cachedItems.Clear();
+            _currentEnumerator = null;
+        }
+
         private class LazyListEnumerator : IEnumerator<T>
         {
             private LazyList<T> _lazyList;
             private int _currentIndex = -1;
+
+            private LazyList<T> LazyList => _lazyList ?? throw new ObjectDisposedException(nameof(LazyListEnumerator));
 
             public LazyListEnumerator(LazyList<T> lazyList)
             {
                 _lazyList = lazyList;
             }
 
-            public T Current => _currentIndex < 0 || _currentIndex > _lazyList._cachedItems.Count ? default : _lazyList._cachedItems[_currentIndex];
+            public T Current => _currentIndex < 0 || _currentIndex > LazyList._cachedItems.Count ? default : LazyList._cachedItems[_currentIndex];
 
             object IEnumerator.Current => Current;
 
             public void Dispose()
             {
+                if (_lazyList == null)
+                    throw new ObjectDisposedException(nameof(LazyListEnumerator));
                 _lazyList = null;
             }
 
             public bool MoveNext()
             {
                 _currentIndex++;
-                if (_currentIndex < _lazyList._cachedItems.Count)
+                if (_currentIndex < LazyList._cachedItems.Count)
                     return true;
 
-                if (!_lazyList._enumeratorAtEnd && _lazyList._enumerator.MoveNext())
+                if (!LazyList._enumeratorAtEnd && LazyList.CurrentEnumerator.MoveNext())
                 {
-                    _lazyList._cachedItems.Add(_lazyList._enumerator.Current);
+                    LazyList._cachedItems.Add(LazyList.CurrentEnumerator.Current);
                     return true;
                 }
                 else
                 {
-                    _lazyList._enumeratorAtEnd = true;
+                    LazyList._enumeratorAtEnd = true;
                 }
 
                 return false;
@@ -118,6 +138,8 @@ namespace Rocketcress.Core
 
             public void Reset()
             {
+                if (_lazyList == null)
+                    throw new ObjectDisposedException(nameof(LazyListEnumerator));
                 _currentIndex = -1;
             }
         }
