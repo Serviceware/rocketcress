@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using static Rocketcress.SourceGenerators.Common.CodeGenerationHelpers;
 
 namespace Rocketcress.SourceGenerators
@@ -70,16 +71,17 @@ namespace Rocketcress.SourceGenerators
             if (generateAttributeSymbol == null)
                 return;
 
-            var query = from typeSymbol in context.Compilation.SourceModule.GlobalNamespace.GetNamespaceAndNestedTypes()
-                        let generateAttr = typeSymbol.GetAttributes().FirstOrDefault(x => SymbolEqualityComparer.Default.Equals(x.AttributeClass, generateAttributeSymbol))
-                        where generateAttr != null
-                        let baseTypes = typeSymbol.GetAllBaseTypes().ToArray()
-                        let frameworkType = controlSymbols.FirstOrDefault(x => baseTypes.Any(y => SymbolEqualityComparer.Default.Equals(y, x.TypeSymbol))).FrameworkType
-                        where frameworkType.HasValue
-                        select (typeSymbol, generateAttr, frameworkType.Value);
+            var query = (from typeSymbol in context.Compilation.SourceModule.GlobalNamespace.GetNamespaceAndNestedTypes()
+                         let generateAttr = typeSymbol.GetAttributes().FirstOrDefault(x => SymbolEqualityComparer.Default.Equals(x.AttributeClass, generateAttributeSymbol))
+                         where generateAttr != null
+                         let baseTypes = typeSymbol.GetAllBaseTypes().ToArray()
+                         let frameworkType = controlSymbols.FirstOrDefault(x => baseTypes.Any(y => SymbolEqualityComparer.Default.Equals(y, x.TypeSymbol))).FrameworkType
+                         where frameworkType.HasValue
+                         select (typeSymbol, generateAttr, frameworkType.Value)).ToArray();
 
-            foreach (var (typeSymbol, generateAttr, frameworkType) in query)
+            var tasks = query.Select(queryElement => Task.Run(() =>
             {
+                var (typeSymbol, generateAttr, frameworkType) = queryElement;
                 if (typeSymbol.GetAttributes().Any(x => SymbolEqualityComparer.Default.Equals(x.AttributeClass, debugGeneratorSymbol)))
                     LaunchDebuggerOnBuild();
 
@@ -133,7 +135,8 @@ namespace Rocketcress.SourceGenerators
                 }
 
                 context.AddSource(typeSymbol, builder, nameof(UIMapPartsGenerator));
-            }
+            })).ToArray();
+            Task.WaitAll(tasks);
         }
 
         private static IdStyle? GetDefaultIdStyle(INamedTypeSymbol generateAttributeSymbol, AttributeData generateAttr, ITypeSymbol symbol)
