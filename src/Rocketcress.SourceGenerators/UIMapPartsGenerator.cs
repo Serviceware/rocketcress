@@ -232,6 +232,8 @@ namespace Rocketcress.SourceGenerators
                 IdStyle.PascalCase => string.Concat(words.Select(x => MakeFirstCharacterUpperCase(x))),
                 IdStyle.CamelCase => string.Concat(words.Skip(1).Select(x => MakeFirstCharacterUpperCase(x)).Prepend(words[0])),
                 IdStyle.KebabCase => string.Join("-", words),
+                IdStyle.LowerCase => string.Concat(words),
+                IdStyle.UpperCase => string.Concat(words).ToUpperInvariant(),
                 _ => name,
             };
 

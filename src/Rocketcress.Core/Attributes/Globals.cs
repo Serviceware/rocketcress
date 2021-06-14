@@ -93,5 +93,15 @@ namespace Rocketcress.Core.Attributes
         /// The kebab case (this-is-an-example).
         /// </summary>
         KebabCase,
+
+        /// <summary>
+        /// The lower case (thisisanexample).
+        /// </summary>
+        LowerCase,
+
+        /// <summary>
+        /// The upper case (THISISANEXAMPLE).
+        /// </summary>
+        UpperCase,
     }
 }
