@@ -1,6 +1,8 @@
 ﻿using System.IO;
 using System.Xml.Serialization;
 
+#nullable disable
+
 namespace Rocketcress.Core.IO
 {
     /// <summary>

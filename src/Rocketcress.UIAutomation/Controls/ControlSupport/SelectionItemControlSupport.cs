@@ -26,7 +26,7 @@ namespace Rocketcress.UIAutomation.Controls.ControlSupport
             if (value != GetSelected(selectionItemPattern))
             {
                 _control.Click();
-                if (!Waiter.WaitUntil(() => value == GetSelected(selectionItemPattern), UITestControl.ShortControlActionTimeout, 0))
+                if (!Wait.Until(() => value == GetSelected(selectionItemPattern)).WithTimeout(UITestControl.ShortControlActionTimeout).WithTimeGap(0).Start().Value)
                 {
                     _control.LogWarning("Selected could not be set via control click. Setting property via pattern now.");
                     selectionItemPattern.Select();

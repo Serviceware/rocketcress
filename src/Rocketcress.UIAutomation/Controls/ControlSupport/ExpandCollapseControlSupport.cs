@@ -33,7 +33,7 @@ namespace Rocketcress.UIAutomation.Controls.ControlSupport
             if (GetExpanded(expandCollapsePattern) != value)
             {
                 _control.Click();
-                if (!Waiter.WaitUntil(() => value == GetExpanded(expandCollapsePattern), UITestControl.ShortControlActionTimeout, 0))
+                if (!Wait.Until(() => value == GetExpanded(expandCollapsePattern)).WithTimeout(UITestControl.ShortControlActionTimeout).WithTimeGap(0).Start().Value)
                 {
                     _control.LogWarning($"Expanded was not set from click on the control. State is now set with the automation pattern.");
                     (value ? (Action)expandCollapsePattern.Expand : expandCollapsePattern.Collapse).Invoke();

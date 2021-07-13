@@ -7,6 +7,8 @@ using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 #endif
 
+#nullable disable
+
 namespace Rocketcress.Core
 {
     /// <summary>

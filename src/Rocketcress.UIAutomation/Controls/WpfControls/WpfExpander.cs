@@ -56,7 +56,7 @@ namespace Rocketcress.UIAutomation.Controls.WpfControls
                 if (Expanded != value)
                 {
                     Click();
-                    if (!Waiter.WaitUntil(() => value == Expanded, 5000, 0))
+                    if (!Wait.Until(() => value == Expanded).WithTimeout(5000).WithTimeGap(0).Start().Value)
                     {
                         LogWarning("Expand state was not set correctly by clicking the control. The state is now set via the pattern.");
                         if (value)

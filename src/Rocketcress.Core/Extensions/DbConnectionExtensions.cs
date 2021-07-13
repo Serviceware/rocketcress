@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Data;
 
+#nullable disable
+
 namespace Rocketcress.Core.Extensions
 {
     /// <summary>

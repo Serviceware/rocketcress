@@ -7,6 +7,8 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 
+#nullable disable
+
 #pragma warning disable SA1402 // File may only contain a single type
 
 namespace Rocketcress.Core.Models

@@ -254,7 +254,7 @@ namespace Rocketcress.UIAutomation.Controls
         /// <summary>
         /// Gets the native window handle from this control.
         /// </summary>
-        public virtual IntPtr WindowHandle => new IntPtr(GetPropertyValue<int>(AutomationElement.NativeWindowHandleProperty));
+        public virtual IntPtr WindowHandle => new(GetPropertyValue<int>(AutomationElement.NativeWindowHandleProperty));
 
         /// <summary>
         /// Gets a point on screen that can be used to click on this control.
@@ -267,7 +267,7 @@ namespace Rocketcress.UIAutomation.Controls
                     point = GetPropertyValue<Point?>(AutomationElement.ClickablePointProperty) ?? new Point(int.MinValue, int.MinValue);
                 if (point.X == int.MinValue || point.Y == int.MinValue)
                 {
-                    if (!Waiter.WaitUntil(() => BoundingRectangle != new Rect(0, 0, 0, 0), 5000))
+                    if (!Wait.Until(() => BoundingRectangle != new Rect(0, 0, 0, 0)).WithTimeout(5000).Start().Value)
                         throw new UIAutomationControlException("A clickable point could not be obtained", this);
                     point = BoundingRectangle.GetAbsoluteCenter();
                 }
@@ -342,7 +342,7 @@ namespace Rocketcress.UIAutomation.Controls
             if (!IsLazy)
                 throw new UIActionNotSupportedException("The control cannot be search on a lazy control.", this);
             var parent = SearchContext?.AutomationElement ?? AutomationElement.RootElement;
-            if (Waiter.WaitUntil(() => _automationElement = SearchEngine.FindFirst(LocationKey, parent)) == null)
+            if (Wait.Until(() => _automationElement = SearchEngine.FindFirst(LocationKey, parent)).Start().Value == null)
                 throw new NoSuchElementException(this);
             AutomationElementChanged?.Invoke(this, new EventArgs());
         }
@@ -476,14 +476,14 @@ namespace Rocketcress.UIAutomation.Controls
         /// Moves the mouse to a clickable point on this control.
         /// </summary>
         /// <returns><c>true</c> when the mouse has been moved; otherwise <c>false</c>.</returns>
-        public virtual bool MoveMouseToClickablePoint() => MoveMouseSlowlyToClickablePoint(0, Waiter.DefaultTimeoutMs, true);
+        public virtual bool MoveMouseToClickablePoint() => MoveMouseSlowlyToClickablePoint(0, Wait.Options.DefaultTimeoutMs, true);
 
         /// <summary>
         /// Moves the mouse to a clickable point on this control.
         /// </summary>
         /// <param name="assert">Determined wether to throw an exception if the control is not displayed in time.</param>
         /// <returns><c>true</c> when the mouse has been moved; otherwise <c>false</c>.</returns>
-        public virtual bool MoveMouseToClickablePoint(bool assert) => MoveMouseSlowlyToClickablePoint(0, Waiter.DefaultTimeoutMs, assert);
+        public virtual bool MoveMouseToClickablePoint(bool assert) => MoveMouseSlowlyToClickablePoint(0, Wait.Options.DefaultTimeoutMs, assert);
 
         /// <summary>
         /// Moves the mouse to a clickable point on this control.
@@ -498,7 +498,7 @@ namespace Rocketcress.UIAutomation.Controls
         /// </summary>
         /// <param name="duration">The duration of the mouse travel.</param>
         /// <returns><c>true</c> when the mouse has been moved; otherwise <c>false</c>.</returns>
-        public virtual bool MoveMouseSlowlyToClickablePoint(int duration) => MoveMouseSlowlyToClickablePoint(duration, Waiter.DefaultTimeoutMs, true);
+        public virtual bool MoveMouseSlowlyToClickablePoint(int duration) => MoveMouseSlowlyToClickablePoint(duration, Wait.Options.DefaultTimeoutMs, true);
 
         /// <summary>
         /// Moves the mouse to a clickable point on this control.
@@ -506,7 +506,7 @@ namespace Rocketcress.UIAutomation.Controls
         /// <param name="duration">The duration of the mouse travel.</param>
         /// <param name="assert">Determined wether to throw an exception if the control is not displayed in time.</param>
         /// <returns><c>true</c> when the mouse has been moved; otherwise <c>false</c>.</returns>
-        public virtual bool MoveMouseSlowlyToClickablePoint(int duration, bool assert) => MoveMouseSlowlyToClickablePoint(duration, Waiter.DefaultTimeoutMs, assert);
+        public virtual bool MoveMouseSlowlyToClickablePoint(int duration, bool assert) => MoveMouseSlowlyToClickablePoint(duration, Wait.Options.DefaultTimeoutMs, assert);
 
         /// <summary>
         /// Moves the mouse to a clickable point on this control.
@@ -558,15 +558,14 @@ namespace Rocketcress.UIAutomation.Controls
         /// </summary>
         public virtual void SetFocus()
         {
-            Exception lastException = null;
-            var result = Waiter.WaitUntil(() =>
+            var result = Wait.Until(() =>
             {
                 AutomationElement.SetFocus();
                 return true;
-            }, ex => lastException = ex, Waiter.DefaultTimeoutMs, 1000);
+            }).WithTimeGap(1000).Start();
 
-            if (!result)
-                throw new UIAutomationControlException("Setting the focus on the control failed.", this, lastException);
+            if (!result.Value)
+                throw new UIAutomationControlException("Setting the focus on the control failed.", this, result.Exceptions.LastOrDefault());
         }
 
         /// <summary>
@@ -687,7 +686,7 @@ namespace Rocketcress.UIAutomation.Controls
         /// <returns>A description representing this control.</returns>
         public virtual string GetSearchDescription(bool multiline)
         {
-            StringBuilder result = new StringBuilder();
+            var result = new StringBuilder();
             if (!IsLazy)
             {
                 result.Append("Not Lazy: ")
@@ -721,7 +720,7 @@ namespace Rocketcress.UIAutomation.Controls
         /// Waits until the control exists.
         /// </summary>
         /// <returns>true if the control exists; otherwise false.</returns>
-        public virtual bool WaitUntilExists() => WaitUntilExists(Waiter.DefaultTimeoutMs, true);
+        public virtual bool WaitUntilExists() => WaitUntilExists(Wait.Options.DefaultTimeoutMs, true);
 
         /// <summary>
         /// Waits until the control exists.
@@ -735,7 +734,7 @@ namespace Rocketcress.UIAutomation.Controls
         /// </summary>
         /// <param name="assert">Determines if the test should be marked as failed if the control does not exists after the wait.</param>
         /// <returns>true if the control exists; otherwise false.</returns>
-        public virtual bool WaitUntilExists(bool assert) => WaitUntilExists(Waiter.DefaultTimeoutMs, assert);
+        public virtual bool WaitUntilExists(bool assert) => WaitUntilExists(Wait.Options.DefaultTimeoutMs, assert);
 
         /// <summary>
         /// Waits until the control exists.
@@ -745,14 +744,14 @@ namespace Rocketcress.UIAutomation.Controls
         /// <returns>true if the control exists; otherwise false.</returns>
         public virtual bool WaitUntilExists(int timeout, bool assert)
         {
-            return Waiter.WaitUntil(() => Exists, timeout, assert, "Element could not be found: " + GetSearchDescription());
+            return Wait.Until(() => Exists).WithTimeout(timeout).OnFailure(assert, "Element could not be found: " + GetSearchDescription()).Start().Value;
         }
 
         /// <summary>
         /// Waits until the control is displayed.
         /// </summary>
         /// <returns>true if the control is displayed; otherwise false.</returns>
-        public virtual bool WaitUntilDisplayed() => WaitUntilDisplayed(Waiter.DefaultTimeoutMs, true);
+        public virtual bool WaitUntilDisplayed() => WaitUntilDisplayed(Wait.Options.DefaultTimeoutMs, true);
 
         /// <summary>
         /// Waits until the control is displayed.
@@ -766,7 +765,7 @@ namespace Rocketcress.UIAutomation.Controls
         /// </summary>
         /// <param name="assert">Determines if the test should be marked as failed if the control is not displayed after the wait.</param>
         /// <returns>true if the control is displayed; otherwise false.</returns>
-        public virtual bool WaitUntilDisplayed(bool assert) => WaitUntilDisplayed(Waiter.DefaultTimeoutMs, assert);
+        public virtual bool WaitUntilDisplayed(bool assert) => WaitUntilDisplayed(Wait.Options.DefaultTimeoutMs, assert);
 
         /// <summary>
         /// Waits until the control is displayed.
@@ -776,14 +775,14 @@ namespace Rocketcress.UIAutomation.Controls
         /// <returns>true if the control is displayed; otherwise false.</returns>
         public virtual bool WaitUntilDisplayed(int timeout, bool assert)
         {
-            return Waiter.WaitUntil(() => Displayed, timeout, assert, "Element does not exist or is not displayed: " + GetSearchDescription());
+            return Wait.Until(() => Displayed).WithTimeout(timeout).OnFailure(assert, "Element does not exist or is not displayed: " + GetSearchDescription()).Start().Value;
         }
 
         /// <summary>
         /// Waits until the control does not exist.
         /// </summary>
         /// <returns>true if the control does not exist; otherwise false.</returns>
-        public virtual bool WaitUntilNotExists() => WaitUntilNotExists(Waiter.DefaultTimeoutMs, true);
+        public virtual bool WaitUntilNotExists() => WaitUntilNotExists(Wait.Options.DefaultTimeoutMs, true);
 
         /// <summary>
         /// Waits until the control does not exist.
@@ -797,7 +796,7 @@ namespace Rocketcress.UIAutomation.Controls
         /// </summary>
         /// <param name="assert">Determines if the test should be marked as failed if the control still exists after the wait.</param>
         /// <returns>true if the control does not exist; otherwise false.</returns>
-        public virtual bool WaitUntilNotExists(bool assert) => WaitUntilNotExists(Waiter.DefaultTimeoutMs, assert);
+        public virtual bool WaitUntilNotExists(bool assert) => WaitUntilNotExists(Wait.Options.DefaultTimeoutMs, assert);
 
         /// <summary>
         /// Waits until the control does not exist.
@@ -807,14 +806,14 @@ namespace Rocketcress.UIAutomation.Controls
         /// <returns>true if the control does not exist; otherwise false.</returns>
         public virtual bool WaitUntilNotExists(int timeout, bool assert)
         {
-            return Waiter.WaitUntil(() => !Exists, timeout, assert, "Element does still exist: " + GetSearchDescription());
+            return Wait.Until(() => !Exists).WithTimeout(timeout).OnFailure(assert, "Element does still exist: " + GetSearchDescription()).Start().Value;
         }
 
         /// <summary>
         /// Waits until the control is not displayed.
         /// </summary>
         /// <returns>true if the control is not displayed; otherwise false.</returns>
-        public virtual bool WaitUntilNotDisplayed() => WaitUntilNotDisplayed(Waiter.DefaultTimeoutMs, true);
+        public virtual bool WaitUntilNotDisplayed() => WaitUntilNotDisplayed(Wait.Options.DefaultTimeoutMs, true);
 
         /// <summary>
         /// Waits until the control is not displayed.
@@ -828,7 +827,7 @@ namespace Rocketcress.UIAutomation.Controls
         /// </summary>
         /// <param name="assert">Determines if the test should be marked as failed if the control is still displayed after the wait.</param>
         /// <returns>true if the control is not displayed; otherwise false.</returns>
-        public virtual bool WaitUntilNotDisplayed(bool assert) => WaitUntilNotDisplayed(Waiter.DefaultTimeoutMs, assert);
+        public virtual bool WaitUntilNotDisplayed(bool assert) => WaitUntilNotDisplayed(Wait.Options.DefaultTimeoutMs, assert);
 
         /// <summary>
         /// Waits until the control is not displayed.
@@ -838,14 +837,14 @@ namespace Rocketcress.UIAutomation.Controls
         /// <returns>true if the control is not displayed; otherwise false.</returns>
         public virtual bool WaitUntilNotDisplayed(int timeout, bool assert)
         {
-            return Waiter.WaitUntil(() => !Displayed, timeout, assert, "Element is still displayed: " + GetSearchDescription());
+            return Wait.Until(() => !Displayed).WithTimeout(timeout).OnFailure(assert, "Element is still displayed: " + GetSearchDescription()).Start().Value;
         }
 
         /// <summary>
         /// Blocks the current thread until this control is ready to receive mouse or keyboard input, or until the default time-out expires.
         /// </summary>
         /// <returns>true if this control is ready to receive mouse or keyboard input before the time-out; otherwise, false.</returns>
-        public virtual bool WaitForControlReady() => WaitForControlReady(Waiter.DefaultTimeoutMs, true);
+        public virtual bool WaitForControlReady() => WaitForControlReady(Wait.Options.DefaultTimeoutMs, true);
 
         /// <summary>
         /// Blocks the current thread until this control is ready to receive mouse or keyboard input, or until the default time-out expires.
@@ -859,7 +858,7 @@ namespace Rocketcress.UIAutomation.Controls
         /// </summary>
         /// <param name="assert">Determines if the test should be marked as failed if the control is not ready after the wait.</param>
         /// <returns>true if this control is ready to receive mouse or keyboard input before the time-out; otherwise, false.</returns>
-        public virtual bool WaitForControlReady(bool assert) => WaitForControlReady(Waiter.DefaultTimeoutMs, assert);
+        public virtual bool WaitForControlReady(bool assert) => WaitForControlReady(Wait.Options.DefaultTimeoutMs, assert);
 
         /// <summary>
         /// Blocks the current thread until this control is ready to receive mouse or keyboard input, or until the default time-out expires.
@@ -875,7 +874,7 @@ namespace Rocketcress.UIAutomation.Controls
             var process = Process.GetProcessById(pid);
             if (process == null)
                 return true;
-            return Waiter.WaitUntil(() =>
+            return Wait.Until(() =>
             {
                 try
                 {
@@ -886,7 +885,7 @@ namespace Rocketcress.UIAutomation.Controls
                     Logger.LogWarning("Error while waiting for input idle: {0}", ex);
                     return true;
                 }
-            }, assert, $"The control not not ready after {timeout / 1000:0.00} seconds of waiting.");
+            }).OnFailure(assert, $"The control not not ready after {timeout / 1000:0.00} seconds of waiting.").Start().Value;
         }
 
         /// <summary>
@@ -928,8 +927,6 @@ namespace Rocketcress.UIAutomation.Controls
         #endregion
 
         #region Private Methods
-        private Point ConcatPoints(Point a, Point b) => new Point(a.X + b.X, a.Y + b.Y);
-
         private IEnumerable<AutomationElement> GetAllParents()
         {
             var result = new LinkedList<AutomationElement>();

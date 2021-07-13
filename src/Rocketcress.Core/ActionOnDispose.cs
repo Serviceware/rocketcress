@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
 
+#nullable disable
+
 namespace Rocketcress.Core
 {
     /// <summary>

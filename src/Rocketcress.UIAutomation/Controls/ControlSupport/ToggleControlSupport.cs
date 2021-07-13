@@ -34,7 +34,7 @@ namespace Rocketcress.UIAutomation.Controls.ControlSupport
             if (GetChecked(togglePattern) != value)
             {
                 _control.Click();
-                if (!Waiter.WaitUntil(() => value == GetChecked(togglePattern), UITestControl.ShortControlActionTimeout, 0))
+                if (!Wait.Until(() => value == GetChecked(togglePattern)).WithTimeout(UITestControl.ShortControlActionTimeout).WithTimeGap(0).Start().Value)
                 {
                     _control.LogWarning($"Checked was not set from click on the control. State is now set with the automation pattern.");
                     togglePattern.Toggle();

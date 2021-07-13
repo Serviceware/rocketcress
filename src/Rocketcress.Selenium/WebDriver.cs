@@ -13,7 +13,7 @@ namespace Rocketcress.Selenium
     /// <summary>
     /// Represents a driver that controls a browser.
     /// </summary>
-    public class WebDriver : IWait<WebDriver>, IWebDriver, IJavaScriptExecutor, ITakesScreenshot
+    public class WebDriver : OpenQA.Selenium.Support.UI.IWait<WebDriver>, IWebDriver, IJavaScriptExecutor, ITakesScreenshot
     {
         /// <summary>
         /// Gets the underlying driver.
@@ -50,7 +50,6 @@ namespace Rocketcress.Selenium
             KnownWindowHandles = new List<string>();
             if (!string.IsNullOrEmpty(driver.CurrentWindowHandle))
                 KnownWindowHandles.Add(driver.CurrentWindowHandle);
-            Waiter.MaxAcceptedExceptions = null;
         }
 
         /// <summary>
@@ -74,7 +73,7 @@ namespace Rocketcress.Selenium
         /// </summary>
         /// <param name="assert">Determines wether to assert if the timeout has been reached.</param>
         /// <returns>Returns true if the page has loaded; otherwise false.</returns>
-        public bool UntilPageLoaded(bool assert = true) => UntilPageLoaded(Waiter.DefaultTimeout, assert);
+        public bool UntilPageLoaded(bool assert = true) => UntilPageLoaded(Wait.Options.DefaultTimeout, assert);
 
         /// <summary>
         /// Waits until the current page is loaded.
@@ -92,7 +91,7 @@ namespace Rocketcress.Selenium
         /// <returns>Returns true if the page has loaded; otherwise false.</returns>
         public bool UntilPageLoaded(TimeSpan timeout, bool assert = true)
         {
-            return Waiter.WaitUntil(() => IsPageLoadComplete(), timeout, assert, "Page has not been loaded.");
+            return Wait.Until(() => IsPageLoadComplete()).WithTimeout(timeout).OnFailure(assert, "Page has not been loaded.").Start().Value;
         }
 
         /// <summary>
@@ -100,7 +99,7 @@ namespace Rocketcress.Selenium
         /// </summary>
         /// <param name="count">The expected number of open windows.</param>
         /// <returns>Return true if the amount of windows did exist in time; otherwise false.</returns>
-        public bool UntilWindowsExists(int count) => UntilWindowsExists(count, Waiter.DefaultTimeoutMs);
+        public bool UntilWindowsExists(int count) => UntilWindowsExists(count, Wait.Options.DefaultTimeoutMs);
 
         /// <summary>
         /// Waits until a specific amount of windows are open in the current browser instance.
@@ -110,7 +109,7 @@ namespace Rocketcress.Selenium
         /// <returns>Return true if the amount of windows did exist in time; otherwise false.</returns>
         public bool UntilWindowsExists(int count, int timeout)
         {
-            return Waiter.WaitUntil(() => WindowHandles.Count == count, timeout, true);
+            return Wait.Until(() => WindowHandles.Count == count).WithTimeout(timeout).ThrowOnFailure().Start().Value;
         }
 
         /// <summary>
@@ -147,7 +146,7 @@ namespace Rocketcress.Selenium
             int activeTimeout = timeout ?? (int)Timeout.TotalMilliseconds;
             if (closeCurrent)
                 Close();
-            if (!Waiter.WaitUntil(() => WindowHandles.Except(KnownWindowHandles).Any(), activeTimeout, assert, "No new window was found."))
+            if (!Wait.Until(() => WindowHandles.Except(KnownWindowHandles).Any()).WithTimeout(activeTimeout).OnFailure(assert, "No new window was found.").Start().Value)
                 return false;
             var unknwonHandle = WindowHandles.Except(KnownWindowHandles).First();
             if (browserWindow != null)
@@ -173,7 +172,7 @@ namespace Rocketcress.Selenium
         {
             int activeTimeout = timeout ?? (int)Timeout.TotalMilliseconds;
 
-            var result = Waiter.WaitUntil(() =>
+            var result = Wait.Until(() =>
             {
                 try
                 {
@@ -183,9 +182,9 @@ namespace Rocketcress.Selenium
                 {
                     return true;
                 }
-            }, activeTimeout, assert, "Windows handle was not closed.");
+            }).WithTimeout(activeTimeout).OnFailure(assert, "Windows handle was not closed.").Start();
 
-            if (!result)
+            if (!result.Value)
                 return false;
 
             RemoveKnownHandle(view.WindowHandle);
@@ -285,7 +284,7 @@ namespace Rocketcress.Selenium
 
             IAlert alert;
             if (alertExpected)
-                alert = IsCurrentHandleOpen ? Waiter.WaitUntil(GetAlert) : null;
+                alert = IsCurrentHandleOpen ? Wait.Until(GetAlert).Start().Value : null;
             else
                 alert = IsCurrentHandleOpen ? GetAlert() : null;
 
@@ -389,7 +388,7 @@ namespace Rocketcress.Selenium
             get => WaitDriver.Timeout;
             set
             {
-                Waiter.DefaultTimeout = value;
+                Wait.Options.DefaultTimeout = value;
                 WaitDriver.Timeout = value;
             }
         }
@@ -402,7 +401,7 @@ namespace Rocketcress.Selenium
             get => WaitDriver.PollingInterval;
             set
             {
-                Waiter.DefaultWaitBetweenChecks = (int)value.TotalMilliseconds;
+                Wait.Options.DefaultTimeGap = value;
                 WaitDriver.PollingInterval = value;
             }
         }
@@ -431,9 +430,9 @@ namespace Rocketcress.Selenium
         /// <typeparam name="TResult">The type of result to expect from the condition.</typeparam>
         /// <param name="condition">A delegate taking a TSource as its parameter, and returning a TResult.</param>
         /// <returns>If TResult is a boolean, the method returns true when the condition is true, and false otherwise. If TResult is an object, the method returns the object when the condition evaluates to a value other than null.</returns>
-        TResult IWait<WebDriver>.Until<TResult>(Func<WebDriver, TResult> condition)
+        TResult OpenQA.Selenium.Support.UI.IWait<WebDriver>.Until<TResult>(Func<WebDriver, TResult> condition)
         {
-            return Waiter.WaitUntil(() => condition(this), Timeout, (int)PollingInterval.TotalMilliseconds, true);
+            return Wait.Until(() => condition(this)).WithTimeout(Timeout).WithTimeGap(PollingInterval).ThrowOnFailure().Start().Value;
         }
 
         #endregion

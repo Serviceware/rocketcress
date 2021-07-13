@@ -7,10 +7,11 @@
     <SignAssembly>true</SignAssembly>
     <TargetFilePath>Rocketcress.Core.targets</TargetFilePath>
     <AssemblyOriginatorKeyFile>Rocketcress.snk</AssemblyOriginatorKeyFile>
+    <Nullable>enable</Nullable>
 
     <Description>Contains core functionality for all Rocketcress libraries and tests.</Description>
     <PackageTags>Rocketcress;Test;Tests</PackageTags>
-    <Version>1.0.22</Version>
+    <Version>1.1.0</Version>
   </PropertyGroup>
   
   <Import Project="../../build/Rocketcress.props" />

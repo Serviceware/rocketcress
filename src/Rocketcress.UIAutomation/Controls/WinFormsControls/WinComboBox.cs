@@ -115,7 +115,7 @@ namespace Rocketcress.UIAutomation.Controls.WinFormsControls
                 if (_listControl.Displayed != value)
                 {
                     _expandButton.Click();
-                    Waiter.WaitUntil(() => _listControl.Displayed == value, 2000);
+                    Wait.Until(() => _listControl.Displayed == value).WithTimeout(2000).Start();
                 }
             }
         }

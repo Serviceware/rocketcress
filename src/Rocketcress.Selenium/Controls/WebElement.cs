@@ -47,7 +47,8 @@ namespace Rocketcress.Selenium.Controls
             {
                 if (IsLazy && IsStale(_wrappedElement))
                 {
-                    if (Waiter.WaitUntil(() => _wrappedElement = SearchContext.FindElement(LocationKey)) == null)
+                    _wrappedElement = Wait.Until(() => SearchContext.FindElement(LocationKey)).Start().Value;
+                    if (_wrappedElement == null)
                         throw new NotFoundException("The requested element was not found: " + Environment.NewLine + "    " + GetSearchDescription(true));
                     WrappedElementChanged?.Invoke(this, _wrappedElement);
                 }
@@ -520,14 +521,14 @@ namespace Rocketcress.Selenium.Controls
         /// Waits until this element exists.
         /// </summary>
         /// <returns>True if the element existed in time; otherwise false.</returns>
-        public bool WaitUntilExists() => WaitUntilExists(Waiter.DefaultTimeoutMs, true);
+        public bool WaitUntilExists() => WaitUntilExists(Wait.Options.DefaultTimeoutMs, true);
 
         /// <summary>
         /// Waits until this element exists.
         /// </summary>
         /// <param name="assert">Determines wether to throw an AssertFailedException if the timeout expires.</param>
         /// <returns>True if the element existed in time; otherwise false.</returns>
-        public bool WaitUntilExists(bool assert) => WaitUntilExists(Waiter.DefaultTimeoutMs, assert);
+        public bool WaitUntilExists(bool assert) => WaitUntilExists(Wait.Options.DefaultTimeoutMs, assert);
 
         /// <summary>
         /// Waits until this element exists.
@@ -543,20 +544,20 @@ namespace Rocketcress.Selenium.Controls
         /// <param name="assert">Determines wether to throw an AssertFailedException if the timeout expires.</param>
         /// <returns>True if the element existed in time; otherwise false.</returns>
         public virtual bool WaitUntilExists(int timeout, bool assert)
-            => Waiter.WaitUntil(() => Exists, timeout, assert, "Element could not be found: " + GetSearchDescription());
+            => Wait.Until(() => Exists).WithTimeout(timeout).OnFailure(assert, "Element could not be found: " + GetSearchDescription()).Start().Value;
 
         /// <summary>
         /// Waits until this element is displayed.
         /// </summary>
         /// <returns>True if the element is displayed in time; otherwise false.</returns>
-        public bool WaitUntilDisplayed() => WaitUntilDisplayed(Waiter.DefaultTimeoutMs, true);
+        public bool WaitUntilDisplayed() => WaitUntilDisplayed(Wait.Options.DefaultTimeoutMs, true);
 
         /// <summary>
         /// Waits until this element is displayed.
         /// </summary>
         /// <param name="assert">Determines wether to throw an AssertFailedException if the timeout expires.</param>
         /// <returns>True if the element is displayed in time; otherwise false.</returns>
-        public bool WaitUntilDisplayed(bool assert) => WaitUntilDisplayed(Waiter.DefaultTimeoutMs, assert);
+        public bool WaitUntilDisplayed(bool assert) => WaitUntilDisplayed(Wait.Options.DefaultTimeoutMs, assert);
 
         /// <summary>
         /// Waits until this element is displayed and Assert.
@@ -572,20 +573,20 @@ namespace Rocketcress.Selenium.Controls
         /// <param name="assert">Determines wether to throw an AssertFailedException if the timeout expires.</param>
         /// <returns>True if the element is displayed in time; otherwise false.</returns>
         public bool WaitUntilDisplayed(int timeout, bool assert)
-            => Waiter.WaitUntil(() => Displayed, timeout, assert, "Element does not exist or is not displayed: " + GetSearchDescription());
+            => Wait.Until(() => Displayed).WithTimeout(timeout).OnFailure(assert, "Element does not exist or is not displayed: " + GetSearchDescription()).Start().Value;
 
         /// <summary>
         /// Waits until this element does not exist.
         /// </summary>
         /// <returns>True if the element vanished in time; otherwise false.</returns>
-        public bool WaitUntilNotExists() => WaitUntilNotExists(Waiter.DefaultTimeoutMs, true);
+        public bool WaitUntilNotExists() => WaitUntilNotExists(Wait.Options.DefaultTimeoutMs, true);
 
         /// <summary>
         /// Waits until this element does not exist.
         /// </summary>
         /// <param name="assert">Determines wether to throw an AssertFailedException if the timeout expires.</param>
         /// <returns>True if the element vanished in time; otherwise false.</returns>
-        public bool WaitUntilNotExists(bool assert) => WaitUntilNotExists(Waiter.DefaultTimeoutMs, assert);
+        public bool WaitUntilNotExists(bool assert) => WaitUntilNotExists(Wait.Options.DefaultTimeoutMs, assert);
 
         /// <summary>
         /// Waits until this element does not exist.
@@ -601,20 +602,20 @@ namespace Rocketcress.Selenium.Controls
         /// <param name="assert">Determines wether to throw an AssertFailedException if the timeout expires.</param>
         /// <returns>True if the element vanished in time; otherwise false.</returns>
         public bool WaitUntilNotExists(int timeout, bool assert)
-            => Waiter.WaitUntil(() => !Exists, timeout, assert, "Element does still exist: " + GetSearchDescription());
+            => Wait.Until(() => !Exists).WithTimeout(timeout).OnFailure(assert, "Element does still exist: " + GetSearchDescription()).Start().Value;
 
         /// <summary>
         /// Waits until this element is not displayed.
         /// </summary>
         /// <returns>True if the element disappeared in time; otherwise false.</returns>
-        public bool WaitUntilNotDisplayed() => WaitUntilNotDisplayed(Waiter.DefaultTimeoutMs, true);
+        public bool WaitUntilNotDisplayed() => WaitUntilNotDisplayed(Wait.Options.DefaultTimeoutMs, true);
 
         /// <summary>
         /// Waits until this element is not displayed.
         /// </summary>
         /// <param name="assert">Determines wether to throw an AssertFailedException if the timeout expires.</param>
         /// <returns>True if the element disappeared in time; otherwise false.</returns>
-        public bool WaitUntilNotDisplayed(bool assert) => WaitUntilNotDisplayed(Waiter.DefaultTimeoutMs, assert);
+        public bool WaitUntilNotDisplayed(bool assert) => WaitUntilNotDisplayed(Wait.Options.DefaultTimeoutMs, assert);
 
         /// <summary>
         /// Waits until this element is not displayed.
@@ -630,20 +631,20 @@ namespace Rocketcress.Selenium.Controls
         /// <param name="assert">Determines wether to throw an AssertFailedException if the timeout expires.</param>
         /// <returns>True if the element disappeared in time; otherwise false.</returns>
         public bool WaitUntilNotDisplayed(int timeout, bool assert)
-            => Waiter.WaitUntil(() => !Displayed, timeout, assert, "Element is still displayed: " + GetSearchDescription());
+            => Wait.Until(() => !Displayed).WithTimeout(timeout).OnFailure(assert, "Element is still displayed: " + GetSearchDescription()).Start().Value;
 
         /// <summary>
         /// Waits until this element is clickable.
         /// </summary>
         /// <returns>True if the element is clickable in time; otherwise false.</returns>
-        public bool WaitUntilClickable() => WaitUntilClickable(Waiter.DefaultTimeoutMs, true);
+        public bool WaitUntilClickable() => WaitUntilClickable(Wait.Options.DefaultTimeoutMs, true);
 
         /// <summary>
         /// Waits until this element is clickable.
         /// </summary>
         /// <param name="assert">Determines wether to throw an AssertFailedException if the timeout expires.</param>
         /// <returns>True if the element is clickable in time; otherwise false.</returns>
-        public bool WaitUntilClickable(bool assert) => WaitUntilClickable(Waiter.DefaultTimeoutMs, assert);
+        public bool WaitUntilClickable(bool assert) => WaitUntilClickable(Wait.Options.DefaultTimeoutMs, assert);
 
         /// <summary>
         /// Waits until this element is clickable.
@@ -659,7 +660,7 @@ namespace Rocketcress.Selenium.Controls
         /// <param name="assert">Determines wether to throw an AssertFailedException if the timeout expires.</param>
         /// <returns>True if the element is clickable in time; otherwise false.</returns>
         public bool WaitUntilClickable(int timeout, bool assert)
-            => Waiter.WaitUntil(() => IsClickable, timeout, assert, "Element is not clickable: " + GetSearchDescription());
+            => Wait.Until(() => IsClickable).WithTimeout(timeout).OnFailure(assert, "Element is not clickable: " + GetSearchDescription()).Start().Value;
         #endregion
 
         #region IWebElement Members

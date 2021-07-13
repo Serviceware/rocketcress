@@ -11,6 +11,8 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
+#nullable disable
+
 namespace Rocketcress.Core.Base
 {
     /// <summary>
@@ -33,7 +35,7 @@ namespace Rocketcress.Core.Base
             set
             {
                 _timeout = value;
-                Waiter.DefaultTimeout = value;
+                Wait.Options.DefaultTimeout = value;
             }
         }
 

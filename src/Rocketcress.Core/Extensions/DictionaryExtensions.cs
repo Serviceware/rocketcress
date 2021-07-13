@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 
+#nullable disable
+
 namespace Rocketcress.Core.Extensions
 {
     /// <summary>

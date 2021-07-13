@@ -1,5 +1,7 @@
 ﻿using System;
 
+#nullable disable
+
 namespace Rocketcress.Core.Extensions
 {
     /// <summary>

@@ -24,7 +24,7 @@ namespace Rocketcress.Selenium
     {
         #region Fields
 
-        private static readonly Dictionary<Browser, int[]> IgnoredPidsOnClose = new Dictionary<Browser, int[]>();
+        private static readonly Dictionary<Browser, int[]> IgnoredPidsOnClose = new();
         private static readonly Dictionary<Browser, IDriverProvider> DriverProviders;
         internal static readonly string DriverCachePath = Path.Combine(Path.GetTempPath(), "SeleniumDriverCache");
 
@@ -136,7 +136,8 @@ namespace Rocketcress.Selenium
         {
             if (driver != null && !AllOpenedDrivers.Contains(driver))
                 AllOpenedDrivers.Add(driver);
-            Waiter.DefaultWaitBetweenChecks = driver?.GetBrowser() == Browser.InternetExplorer ? 1000 : 100;
+            if (driver?.GetBrowser() == Browser.InternetExplorer)
+                Wait.Options.DefaultTimeGap = TimeSpan.FromSeconds(1);
             Driver = driver;
             if (switchToLastWindow)
                 driver?.SwitchTo(driver.WindowHandles.Count - 1);
@@ -241,7 +242,8 @@ namespace Rocketcress.Selenium
             void Initialize(T ctx)
             {
                 ctx.AllOpenedDrivers = new List<WebDriver>();
-                Waiter.DefaultWaitBetweenChecks = settings.CurrentBrowser == Browser.InternetExplorer ? 1000 : 100;
+                if (settings.CurrentBrowser == Browser.InternetExplorer)
+                    Wait.Options.DefaultTimeGap = TimeSpan.FromSeconds(1);
                 initAction?.Invoke(ctx);
             }
         }

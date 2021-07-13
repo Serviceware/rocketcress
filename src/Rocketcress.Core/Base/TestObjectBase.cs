@@ -3,6 +3,8 @@ using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
+#nullable disable
+
 namespace Rocketcress.Core.Base
 {
     /// <summary>

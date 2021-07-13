@@ -1,5 +1,7 @@
 ﻿using System;
 
+#nullable disable
+
 #pragma warning disable SA1649 // File name should match first type name
 #pragma warning disable SA1402 // File may only contain a single type
 

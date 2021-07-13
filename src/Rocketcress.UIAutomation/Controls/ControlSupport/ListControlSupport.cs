@@ -162,7 +162,7 @@ namespace Rocketcress.UIAutomation.Controls.ControlSupport
             var prevExpandState = expand?.Current.ExpandCollapseState;
             expand?.Expand();
 
-            if (Waiter.WaitUntil(() => SearchEngine.FindFirst(_listItemDefinition, _control.AutomationElement) != null, UITestControl.LongControlActionTimeout, 0))
+            if (Wait.Until(() => SearchEngine.FindFirst(_listItemDefinition, _control.AutomationElement) != null).WithTimeout(UITestControl.LongControlActionTimeout).WithTimeGap(0).Start().Value)
             {
                 if (canScroll)
                 {

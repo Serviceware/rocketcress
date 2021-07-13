@@ -69,7 +69,7 @@ namespace Rocketcress.Selenium
         /// </summary>
         /// <param name="assert">Determines wether to assert when the timeout has been reached.</param>
         /// <returns>Returns true if the view existed in time; otherwise false.</returns>
-        public virtual bool WaitUntilExists(bool assert = true) => WaitUntilExists(Waiter.DefaultTimeout, assert);
+        public virtual bool WaitUntilExists(bool assert = true) => WaitUntilExists(Wait.Options.DefaultTimeout, assert);
 
         /// <summary>
         /// Waits until this view exists in the current window.
@@ -87,9 +87,9 @@ namespace Rocketcress.Selenium
         /// <returns>Returns true if the view existed in time; otherwise false.</returns>
         public virtual bool WaitUntilExists(TimeSpan timeout, bool assert = true)
         {
-            Waiter.WaitUntil(() => Driver.IsPageLoadComplete(), timeout, assert);
+            Wait.Until(() => Driver.IsPageLoadComplete()).WithTimeout(timeout).OnFailure(assert).Start();
             Driver.SkipCertificateWarning();
-            return Waiter.WaitUntil(() => Driver.IsPageLoadComplete() && Exists, timeout, assert);
+            return Wait.Until(() => Driver.IsPageLoadComplete() && Exists).WithTimeout(timeout).OnFailure(assert).Start().Value;
         }
 
         /// <summary>

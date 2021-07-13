@@ -2,6 +2,8 @@
 using System.Linq;
 using System.Reflection;
 
+#nullable disable
+
 namespace Rocketcress.Core.Attributes
 {
     /// <summary>

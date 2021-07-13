@@ -86,9 +86,9 @@ namespace Rocketcress.UIAutomation.Controls.Win32Controls
 
         public virtual void SetWindowTitle(string titleText) => _windowControlSupport.SetWindowTitle(titleText);
 
-        public virtual bool Close() => Close(Waiter.DefaultTimeoutMs, true);
+        public virtual bool Close() => Close(Wait.Options.DefaultTimeoutMs, true);
         public virtual bool Close(int timeout) => Close(timeout, true);
-        public virtual bool Close(bool assert) => Close(Waiter.DefaultTimeoutMs, assert);
+        public virtual bool Close(bool assert) => Close(Wait.Options.DefaultTimeoutMs, assert);
         public virtual bool Close(int timeout, bool assert) => _windowControlSupport.Close(timeout, assert);
 
         public override void SetFocus() => _windowControlSupport.SetFocus(base.SetFocus);

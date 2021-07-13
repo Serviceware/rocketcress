@@ -8,6 +8,8 @@ using System.Runtime.ExceptionServices;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 #endif
 
+#nullable disable
+
 namespace Rocketcress.Core.Base
 {
     /// <summary>
