@@ -476,14 +476,14 @@ namespace Rocketcress.UIAutomation.Controls
         /// Moves the mouse to a clickable point on this control.
         /// </summary>
         /// <returns><c>true</c> when the mouse has been moved; otherwise <c>false</c>.</returns>
-        public virtual bool MoveMouseToClickablePoint() => MoveMouseSlowlyToClickablePoint(0, Wait.Options.DefaultTimeoutMs, true);
+        public virtual bool MoveMouseToClickablePoint() => MoveMouseSlowlyToClickablePoint(0, Wait.DefaultOptions.TimeoutMs, true);
 
         /// <summary>
         /// Moves the mouse to a clickable point on this control.
         /// </summary>
         /// <param name="assert">Determined wether to throw an exception if the control is not displayed in time.</param>
         /// <returns><c>true</c> when the mouse has been moved; otherwise <c>false</c>.</returns>
-        public virtual bool MoveMouseToClickablePoint(bool assert) => MoveMouseSlowlyToClickablePoint(0, Wait.Options.DefaultTimeoutMs, assert);
+        public virtual bool MoveMouseToClickablePoint(bool assert) => MoveMouseSlowlyToClickablePoint(0, Wait.DefaultOptions.TimeoutMs, assert);
 
         /// <summary>
         /// Moves the mouse to a clickable point on this control.
@@ -498,7 +498,7 @@ namespace Rocketcress.UIAutomation.Controls
         /// </summary>
         /// <param name="duration">The duration of the mouse travel.</param>
         /// <returns><c>true</c> when the mouse has been moved; otherwise <c>false</c>.</returns>
-        public virtual bool MoveMouseSlowlyToClickablePoint(int duration) => MoveMouseSlowlyToClickablePoint(duration, Wait.Options.DefaultTimeoutMs, true);
+        public virtual bool MoveMouseSlowlyToClickablePoint(int duration) => MoveMouseSlowlyToClickablePoint(duration, Wait.DefaultOptions.TimeoutMs, true);
 
         /// <summary>
         /// Moves the mouse to a clickable point on this control.
@@ -506,7 +506,7 @@ namespace Rocketcress.UIAutomation.Controls
         /// <param name="duration">The duration of the mouse travel.</param>
         /// <param name="assert">Determined wether to throw an exception if the control is not displayed in time.</param>
         /// <returns><c>true</c> when the mouse has been moved; otherwise <c>false</c>.</returns>
-        public virtual bool MoveMouseSlowlyToClickablePoint(int duration, bool assert) => MoveMouseSlowlyToClickablePoint(duration, Wait.Options.DefaultTimeoutMs, assert);
+        public virtual bool MoveMouseSlowlyToClickablePoint(int duration, bool assert) => MoveMouseSlowlyToClickablePoint(duration, Wait.DefaultOptions.TimeoutMs, assert);
 
         /// <summary>
         /// Moves the mouse to a clickable point on this control.
@@ -720,7 +720,7 @@ namespace Rocketcress.UIAutomation.Controls
         /// Waits until the control exists.
         /// </summary>
         /// <returns>true if the control exists; otherwise false.</returns>
-        public virtual bool WaitUntilExists() => WaitUntilExists(Wait.Options.DefaultTimeoutMs, true);
+        public virtual bool WaitUntilExists() => WaitUntilExists(Wait.DefaultOptions.TimeoutMs, true);
 
         /// <summary>
         /// Waits until the control exists.
@@ -734,7 +734,7 @@ namespace Rocketcress.UIAutomation.Controls
         /// </summary>
         /// <param name="assert">Determines if the test should be marked as failed if the control does not exists after the wait.</param>
         /// <returns>true if the control exists; otherwise false.</returns>
-        public virtual bool WaitUntilExists(bool assert) => WaitUntilExists(Wait.Options.DefaultTimeoutMs, assert);
+        public virtual bool WaitUntilExists(bool assert) => WaitUntilExists(Wait.DefaultOptions.TimeoutMs, assert);
 
         /// <summary>
         /// Waits until the control exists.
@@ -751,7 +751,7 @@ namespace Rocketcress.UIAutomation.Controls
         /// Waits until the control is displayed.
         /// </summary>
         /// <returns>true if the control is displayed; otherwise false.</returns>
-        public virtual bool WaitUntilDisplayed() => WaitUntilDisplayed(Wait.Options.DefaultTimeoutMs, true);
+        public virtual bool WaitUntilDisplayed() => WaitUntilDisplayed(Wait.DefaultOptions.TimeoutMs, true);
 
         /// <summary>
         /// Waits until the control is displayed.
@@ -765,7 +765,7 @@ namespace Rocketcress.UIAutomation.Controls
         /// </summary>
         /// <param name="assert">Determines if the test should be marked as failed if the control is not displayed after the wait.</param>
         /// <returns>true if the control is displayed; otherwise false.</returns>
-        public virtual bool WaitUntilDisplayed(bool assert) => WaitUntilDisplayed(Wait.Options.DefaultTimeoutMs, assert);
+        public virtual bool WaitUntilDisplayed(bool assert) => WaitUntilDisplayed(Wait.DefaultOptions.TimeoutMs, assert);
 
         /// <summary>
         /// Waits until the control is displayed.
@@ -782,7 +782,7 @@ namespace Rocketcress.UIAutomation.Controls
         /// Waits until the control does not exist.
         /// </summary>
         /// <returns>true if the control does not exist; otherwise false.</returns>
-        public virtual bool WaitUntilNotExists() => WaitUntilNotExists(Wait.Options.DefaultTimeoutMs, true);
+        public virtual bool WaitUntilNotExists() => WaitUntilNotExists(Wait.DefaultOptions.TimeoutMs, true);
 
         /// <summary>
         /// Waits until the control does not exist.
@@ -796,7 +796,7 @@ namespace Rocketcress.UIAutomation.Controls
         /// </summary>
         /// <param name="assert">Determines if the test should be marked as failed if the control still exists after the wait.</param>
         /// <returns>true if the control does not exist; otherwise false.</returns>
-        public virtual bool WaitUntilNotExists(bool assert) => WaitUntilNotExists(Wait.Options.DefaultTimeoutMs, assert);
+        public virtual bool WaitUntilNotExists(bool assert) => WaitUntilNotExists(Wait.DefaultOptions.TimeoutMs, assert);
 
         /// <summary>
         /// Waits until the control does not exist.
@@ -813,7 +813,7 @@ namespace Rocketcress.UIAutomation.Controls
         /// Waits until the control is not displayed.
         /// </summary>
         /// <returns>true if the control is not displayed; otherwise false.</returns>
-        public virtual bool WaitUntilNotDisplayed() => WaitUntilNotDisplayed(Wait.Options.DefaultTimeoutMs, true);
+        public virtual bool WaitUntilNotDisplayed() => WaitUntilNotDisplayed(Wait.DefaultOptions.TimeoutMs, true);
 
         /// <summary>
         /// Waits until the control is not displayed.
@@ -827,7 +827,7 @@ namespace Rocketcress.UIAutomation.Controls
         /// </summary>
         /// <param name="assert">Determines if the test should be marked as failed if the control is still displayed after the wait.</param>
         /// <returns>true if the control is not displayed; otherwise false.</returns>
-        public virtual bool WaitUntilNotDisplayed(bool assert) => WaitUntilNotDisplayed(Wait.Options.DefaultTimeoutMs, assert);
+        public virtual bool WaitUntilNotDisplayed(bool assert) => WaitUntilNotDisplayed(Wait.DefaultOptions.TimeoutMs, assert);
 
         /// <summary>
         /// Waits until the control is not displayed.
@@ -844,7 +844,7 @@ namespace Rocketcress.UIAutomation.Controls
         /// Blocks the current thread until this control is ready to receive mouse or keyboard input, or until the default time-out expires.
         /// </summary>
         /// <returns>true if this control is ready to receive mouse or keyboard input before the time-out; otherwise, false.</returns>
-        public virtual bool WaitForControlReady() => WaitForControlReady(Wait.Options.DefaultTimeoutMs, true);
+        public virtual bool WaitForControlReady() => WaitForControlReady(Wait.DefaultOptions.TimeoutMs, true);
 
         /// <summary>
         /// Blocks the current thread until this control is ready to receive mouse or keyboard input, or until the default time-out expires.
@@ -858,7 +858,7 @@ namespace Rocketcress.UIAutomation.Controls
         /// </summary>
         /// <param name="assert">Determines if the test should be marked as failed if the control is not ready after the wait.</param>
         /// <returns>true if this control is ready to receive mouse or keyboard input before the time-out; otherwise, false.</returns>
-        public virtual bool WaitForControlReady(bool assert) => WaitForControlReady(Wait.Options.DefaultTimeoutMs, assert);
+        public virtual bool WaitForControlReady(bool assert) => WaitForControlReady(Wait.DefaultOptions.TimeoutMs, assert);
 
         /// <summary>
         /// Blocks the current thread until this control is ready to receive mouse or keyboard input, or until the default time-out expires.

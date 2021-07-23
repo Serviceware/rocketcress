@@ -9,6 +9,18 @@ namespace Rocketcress.Core
     /// </summary>
     public static class Wait
     {
+        private const string SyncWaitName = "wait operation";
+        private const string AsyncWaitName = "async wait operation";
+
+        private static readonly IObsoleteWaitOptions _options = new WaitOptions
+        {
+            TraceExceptions = true,
+            MaxAcceptedExceptions = null,
+            MaxRetryCount = null,
+            Timeout = TimeSpan.FromSeconds(10),
+            TimeGap = TimeSpan.FromMilliseconds(100),
+        };
+
         /// <summary>
         /// Raised when a wait operation is starting.
         /// </summary>
@@ -25,9 +37,15 @@ namespace Rocketcress.Core
         public static event ExceptionEventHandler? WhenExceptionOccurred;
 
         /// <summary>
+        /// Gets the default options for wait operations.
+        /// </summary>
+        public static IWaitOptions DefaultOptions => _options;
+
+        /// <summary>
         /// Gets the global options for wait operations.
         /// </summary>
-        public static WaitOptions Options { get; } = new WaitOptions();
+        [Obsolete("Use DefaultOptions property instead.")]
+        public static IObsoleteWaitOptions Options => _options;
 
         /// <summary>
         /// Creates a <see cref="IWait{T}"/> object with a specified condition.
@@ -37,7 +55,18 @@ namespace Rocketcress.Core
         /// <returns>An instance of <see cref="IWait{T}"/> that can be used to wait or configure additional options.</returns>
         public static IWait<T> Until<T>(Func<T?> condition)
         {
-            return new Wait<T>(condition);
+            return CreateWait(i => condition());
+        }
+
+        /// <summary>
+        /// Creates a <see cref="IWait{T}"/> object with a specified condition.
+        /// </summary>
+        /// <typeparam name="T">The type of the condition result.</typeparam>
+        /// <param name="condition">The condition function. The waiting operation ends when the returned value equals the default value of <typeparamref name="T"/>.</param>
+        /// <returns>An instance of <see cref="IWait{T}"/> that can be used to wait or configure additional options.</returns>
+        public static IWait<T> Until<T>(Func<int, T?> condition)
+        {
+            return CreateWait(condition);
         }
 
         /// <summary>
@@ -48,7 +77,18 @@ namespace Rocketcress.Core
         /// <returns>An instance of <see cref="IAsyncWait{T}"/> that can be used to wait or configure additional options.</returns>
         public static IAsyncWait<T> Until<T>(Func<Task<T?>> condition)
         {
-            return new AsyncWait<T>(condition);
+            return CreateAsyncWait(async i => await condition());
+        }
+
+        /// <summary>
+        /// Creates an <see cref="IAsyncWait{T}"/> object with a specified condition.
+        /// </summary>
+        /// <typeparam name="T">The type of the condition result.</typeparam>
+        /// <param name="condition">The condition function. The waiting operation ends when the returned value equals the default value of <typeparamref name="T"/>.</param>
+        /// <returns>An instance of <see cref="IAsyncWait{T}"/> that can be used to wait or configure additional options.</returns>
+        public static IAsyncWait<T> Until<T>(Func<int, Task<T?>> condition)
+        {
+            return CreateAsyncWait(condition);
         }
 
         internal static void OnStarting(object? sender, IDictionary<string, object> data)
@@ -64,6 +104,28 @@ namespace Rocketcress.Core
         internal static void OnExceptionOccurred(object? sender, Exception exception)
         {
             WhenExceptionOccurred?.Invoke(sender, new ExceptionEventArgs(exception));
+        }
+
+        private static IWait<T> CreateWait<T>(Func<int, T?> condition)
+        {
+            return new Wait<T>(
+                condition,
+                DefaultOptions,
+                SyncWaitName,
+                OnStarting,
+                OnFinished,
+                OnExceptionOccurred);
+        }
+
+        private static IAsyncWait<T> CreateAsyncWait<T>(Func<int, Task<T?>> condition)
+        {
+            return new AsyncWait<T>(
+                condition,
+                DefaultOptions,
+                AsyncWaitName,
+                OnStarting,
+                OnFinished,
+                OnExceptionOccurred);
         }
     }
 }

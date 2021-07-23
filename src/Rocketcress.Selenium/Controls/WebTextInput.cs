@@ -55,12 +55,16 @@ namespace Rocketcress.Selenium.Controls
             {
                 if (!string.IsNullOrEmpty(value))
                 {
-                    TestHelper.RetryAction(() =>
+                    Retry.Until(() =>
                     {
                         Clear();
                         SendKeys(value);
                         return string.Equals(Text?.Replace("\r", string.Empty), value.Replace("\r", string.Empty), StringComparison.Ordinal);
-                    }, 3, catchExceptions: false, delayBetweenRetries: 1000);
+                    }).WithMaxRetryCount(3)
+                      .WithTimeGap(1000)
+                      .OnError().Abort()
+                      .ThrowOnFailure()
+                      .Start();
                 }
                 else
                 {

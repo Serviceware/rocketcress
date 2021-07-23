@@ -137,7 +137,7 @@ namespace Rocketcress.Selenium
             if (driver != null && !AllOpenedDrivers.Contains(driver))
                 AllOpenedDrivers.Add(driver);
             if (driver?.GetBrowser() == Browser.InternetExplorer)
-                Wait.Options.DefaultTimeGap = TimeSpan.FromSeconds(1);
+                Wait.DefaultOptions.TimeGap = TimeSpan.FromSeconds(1);
             Driver = driver;
             if (switchToLastWindow)
                 driver?.SwitchTo(driver.WindowHandles.Count - 1);
@@ -243,7 +243,7 @@ namespace Rocketcress.Selenium
             {
                 ctx.AllOpenedDrivers = new List<WebDriver>();
                 if (settings.CurrentBrowser == Browser.InternetExplorer)
-                    Wait.Options.DefaultTimeGap = TimeSpan.FromSeconds(1);
+                    Wait.DefaultOptions.TimeGap = TimeSpan.FromSeconds(1);
                 initAction?.Invoke(ctx);
             }
         }

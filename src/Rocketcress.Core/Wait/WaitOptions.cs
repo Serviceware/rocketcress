@@ -5,54 +5,84 @@ namespace Rocketcress.Core
     /// <summary>
     /// Provides options for the <see cref="Wait"/> class.
     /// </summary>
-    public sealed class WaitOptions
+    public sealed class WaitOptions : IWaitOptions, IObsoleteWaitOptions, IReadOnlyWaitOptions
     {
-        /// <summary>
-        /// Gets or sets a value indicating whether exceptions during wait operations should be traced.
-        /// </summary>
+        /// <inheritdoc/>
         public bool TraceExceptions { get; set; }
 
-        /// <summary>
-        /// Gets or sets the maximum number of accepted exceptions during wait operations.
-        /// If more than the specified exceptions are thrown during a wait operation, it will fail.
-        /// If set to <c>null</c>, the accepted exceptions are infinite.
-        /// </summary>
+        /// <inheritdoc/>
         public int? MaxAcceptedExceptions { get; set; }
 
-        /// <summary>
-        /// Gets or sets the default timeout for wait operations.
-        /// </summary>
+        /// <inheritdoc/>
+        public int? MaxRetryCount { get; set; }
+
+        /// <inheritdoc/>
+        public TimeSpan Timeout { get; set; }
+
+        /// <inheritdoc/>
+        public int TimeoutMs
+        {
+            get => GetMilliseconds(Timeout);
+            set => Timeout = TimeSpan.FromMilliseconds(value);
+        }
+
+        /// <inheritdoc/>
+        public TimeSpan TimeGap { get; set; }
+
+        /// <inheritdoc/>
+        public int TimeGapMs
+        {
+            get => GetMilliseconds(TimeGap);
+            set => TimeGap = TimeSpan.FromMilliseconds(value);
+        }
+
+        #region Obsolete
+
+        /// <inheritdoc/>
         public TimeSpan DefaultTimeout { get; set; }
 
-        /// <summary>
-        /// Gets or sets the default timeout for wait operations in milliseconds.
-        /// </summary>
+        /// <inheritdoc/>
         public int DefaultTimeoutMs
         {
-            get => (int)DefaultTimeout.TotalMilliseconds;
-            set => DefaultTimeout = TimeSpan.FromMilliseconds(value);
+            get => TimeoutMs;
+            set => TimeoutMs = value;
         }
 
-        /// <summary>
-        /// Gets or sets the time to wait between checking the condition during a wait operation.
-        /// </summary>
+        /// <inheritdoc/>
         public TimeSpan DefaultTimeGap { get; set; }
 
-        /// <summary>
-        /// Gets or sets the time in milliseconds to wait between checking the condition during a wait operation.
-        /// </summary>
+        /// <inheritdoc/>
         public int DefaultTimeGapMs
         {
-            get => (int)DefaultTimeGap.TotalMilliseconds;
-            set => DefaultTimeGap = TimeSpan.FromMilliseconds(value);
+            get => TimeGapMs;
+            set => TimeGapMs = value;
         }
+
+        #endregion
 
         internal WaitOptions()
         {
-            TraceExceptions = true;
-            MaxAcceptedExceptions = null;
-            DefaultTimeout = TimeSpan.FromSeconds(10);
-            DefaultTimeGap = TimeSpan.FromMilliseconds(100);
+        }
+
+        /// <inheritdoc/>
+        public object Clone()
+        {
+            return new WaitOptions
+            {
+                TraceExceptions = TraceExceptions,
+                MaxAcceptedExceptions = MaxAcceptedExceptions,
+                MaxRetryCount = MaxRetryCount,
+                Timeout = Timeout,
+                TimeGap = TimeGap,
+            };
+        }
+
+        private static int GetMilliseconds(TimeSpan timeSpan)
+        {
+            unchecked
+            {
+                return Math.Max((int)timeSpan.TotalMilliseconds, int.MaxValue);
+            }
         }
     }
 }

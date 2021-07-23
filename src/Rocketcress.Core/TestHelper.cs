@@ -51,6 +51,11 @@ namespace Rocketcress.Core
         /// <param name="exceptionTrace">Determines whether to trace exceptions that occure during execution.</param>
         /// <param name="onException">An action that is executed when an exception occurres.</param>
         /// <returns>Returns true if the action has been successfully executed once; otherwise false.</returns>
+        [Obsolete("Use Retry.Until(action).WithMaxRetryCount(maxRetryCount) instead.\n" +
+            "    - catchExceptions = false <=> .OnError().Abort()" +
+            "    - delayBetweenRetries = n <=> .WithTimeGap(n)" +
+            "    - exceptionTrace = false <=> .Configure(x => x.TraceExceptions = false)" +
+            "    - onException = action <=> .OnError().Call(action)")]
         public static bool RetryAction(Func<bool> action, int maxRetryCount, bool catchExceptions = true, int delayBetweenRetries = 0, bool exceptionTrace = true, Action<Exception> onException = null)
             => RetryActionCancelable(action, maxRetryCount, catchExceptions, delayBetweenRetries, exceptionTrace, onException == null ? (Func<Exception, bool>)null : CreateOnExceptionFunction(onException));
 
@@ -64,6 +69,11 @@ namespace Rocketcress.Core
         /// <param name="exceptionTrace">Determines whether to trace exceptions that occure during execution.</param>
         /// <param name="onException">An action that is executed when an exception occurres. If the function returns true execution continues; otherwise the execution is stopped.</param>
         /// <returns>Returns true if the action has been successfully executed once; otherwise false.</returns>
+        [Obsolete("Use Retry.Until(action).WithMaxRetryCount(maxRetryCount) instead.\n" +
+            "    - catchExceptions = false <=> .OnError().Abort()" +
+            "    - delayBetweenRetries = n <=> .WithTimeGap(n)" +
+            "    - exceptionTrace = false <=> .Configure(x => x.TraceExceptions = false)" +
+            "    - onException = action <=> .OnError().Call(action) and throw an AbortWaitException if retry should be aborted")]
         public static bool RetryActionCancelable(Func<bool> action, int maxRetryCount, bool catchExceptions = true, int delayBetweenRetries = 0, bool exceptionTrace = true, Func<Exception, bool> onException = null)
         {
             for (int i = 0; i <= maxRetryCount; i++)
@@ -102,6 +112,10 @@ namespace Rocketcress.Core
         /// <param name="exceptionTrace">Determines whether to trace exceptions that occure during execution.</param>
         /// <param name="onException">An action that is executed when an exception occurres.</param>
         /// <returns>Returns true if the action has been successfully executed once; otherwise false.</returns>
+        [Obsolete("Use Retry.Action(action).WithMaxRetryCount(maxRetryCount) instead.\n" +
+            "    - delayBetweenRetries = n <=> .WithTimeGap(n)" +
+            "    - exceptionTrace = false <=> .Configure(x => x.TraceExceptions = false)" +
+            "    - onException = action <=> .OnError().Call(action)")]
         public static bool RetryAction(Action action, int maxRetryCount, int delayBetweenRetries = 0, bool exceptionTrace = true, Action<Exception> onException = null)
             => RetryActionCancelable(action, maxRetryCount, delayBetweenRetries, exceptionTrace, onException == null ? (Func<Exception, bool>)null : CreateOnExceptionFunction(onException));
 
@@ -114,6 +128,10 @@ namespace Rocketcress.Core
         /// <param name="exceptionTrace">Determines whether to trace exceptions that occure during execution.</param>
         /// <param name="onException">An action that is executed when an exception occurres. If the function returns true execution continues; otherwise the execution is stopped.</param>
         /// <returns>Returns true if the action has been successfully executed once; otherwise false.</returns>
+        [Obsolete("Use Retry.Action(action).WithMaxRetryCount(maxRetryCount) instead.\n" +
+            "    - delayBetweenRetries = n <=> .WithTimeGap(n)" +
+            "    - exceptionTrace = false <=> .Configure(x => x.TraceExceptions = false)" +
+            "    - onException = action <=> .OnError().Call(action) and throw an AbortWaitException if retry should be aborted")]
         public static bool RetryActionCancelable(Action action, int maxRetryCount, int delayBetweenRetries = 0, bool exceptionTrace = true, Func<Exception, bool> onException = null)
         {
             for (int i = 0; i <= maxRetryCount; i++)
@@ -148,6 +166,11 @@ namespace Rocketcress.Core
         /// <param name="exceptionTrace">Determines whether to trace exceptions that occure during execution.</param>
         /// <param name="onException">An action that is executed when an exception occurres.</param>
         /// <returns>Returns true if the action has been successfully executed once; otherwise false.</returns>
+        [Obsolete("Use Retry.Until(action).WithMaxRetryCount(maxRetryCount) instead.\n" +
+            "    - catchExceptions = false <=> .OnError().Abort()" +
+            "    - delayBetweenRetries = n <=> .WithTimeGap(n)" +
+            "    - exceptionTrace = false <=> .Configure(x => x.TraceExceptions = false)" +
+            "    - onException = action <=> .OnError().Call(action)")]
         public static bool RetryAction(Func<int, bool> action, int maxRetryCount, bool catchExceptions = true, int delayBetweenRetries = 0, bool exceptionTrace = true, Action<Exception> onException = null)
             => RetryActionCancelable(action, maxRetryCount, catchExceptions, delayBetweenRetries, exceptionTrace, onException == null ? (Func<Exception, bool>)null : CreateOnExceptionFunction(onException));
 
@@ -161,6 +184,11 @@ namespace Rocketcress.Core
         /// <param name="exceptionTrace">Determines whether to trace exceptions that occure during execution.</param>
         /// <param name="onException">An action that is executed when an exception occurres. If the function returns true execution continues; otherwise the execution is stopped.</param>
         /// <returns>Returns true if the action has been successfully executed once; otherwise false.</returns>
+        [Obsolete("Use Retry.Until(action).WithMaxRetryCount(maxRetryCount) instead.\n" +
+            "    - catchExceptions = false <=> .OnError().Abort()" +
+            "    - delayBetweenRetries = n <=> .WithTimeGap(n)" +
+            "    - exceptionTrace = false <=> .Configure(x => x.TraceExceptions = false)" +
+            "    - onException = action <=> .OnError().Call(action) and throw an AbortWaitException if retry should be aborted")]
         public static bool RetryActionCancelable(Func<int, bool> action, int maxRetryCount, bool catchExceptions = true, int delayBetweenRetries = 0, bool exceptionTrace = true, Func<Exception, bool> onException = null)
         {
             for (int i = 0; i <= maxRetryCount; i++)
@@ -197,6 +225,10 @@ namespace Rocketcress.Core
         /// <param name="exceptionTrace">Determines whether to trace exceptions that occure during execution.</param>
         /// <param name="onException">An action that is executed when an exception occurres.</param>
         /// <returns>Returns true if the action has been successfully executed once; otherwise false.</returns>
+        [Obsolete("Use Retry.Action(action).WithMaxRetryCount(maxRetryCount) instead.\n" +
+            "    - delayBetweenRetries = n <=> .WithTimeGap(n)" +
+            "    - exceptionTrace = false <=> .Configure(x => x.TraceExceptions = false)" +
+            "    - onException = action <=> .OnError().Call(action)")]
         public static bool RetryAction(Action<int> action, int maxRetryCount, int delayBetweenRetries = 0, bool exceptionTrace = true, Action<Exception> onException = null)
             => RetryActionCancelable(action, maxRetryCount, delayBetweenRetries, exceptionTrace, onException == null ? (Func<Exception, bool>)null : CreateOnExceptionFunction(onException));
 
@@ -209,6 +241,10 @@ namespace Rocketcress.Core
         /// <param name="exceptionTrace">Determines whether to trace exceptions that occure during execution.</param>
         /// <param name="onException">An action that is executed when an exception occurres. If the function returns true execution continues; otherwise the execution is stopped.</param>
         /// <returns>Returns true if the action has been successfully executed once; otherwise false.</returns>
+        [Obsolete("Use Retry.Action(action).WithMaxRetryCount(maxRetryCount) instead.\n" +
+            "    - delayBetweenRetries = n <=> .WithTimeGap(n)" +
+            "    - exceptionTrace = false <=> .Configure(x => x.TraceExceptions = false)" +
+            "    - onException = action <=> .OnError().Call(action) and throw an AbortWaitException if retry should be aborted")]
         public static bool RetryActionCancelable(Action<int> action, int maxRetryCount, int delayBetweenRetries = 0, bool exceptionTrace = true, Func<Exception, bool> onException = null)
         {
             for (int i = 0; i <= maxRetryCount; i++)

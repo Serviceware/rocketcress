@@ -56,7 +56,10 @@ namespace Rocketcress.Selenium.DriverProviders
         public static IWebDriver RetryCreateDriver(this IDriverProvider provider, Func<IWebDriver> createFunction)
         {
             IWebDriver result = default;
-            var success = TestHelper.RetryAction(() => result = createFunction(), 4, onException: ex => SeleniumTestContext.KillAllDrivers(false));
+            var success = Retry.Action(() => result = createFunction())
+                .WithMaxRetryCount(4)
+                .OnError().Call(ex => SeleniumTestContext.KillAllDrivers(false))
+                .Start().Value;
             if (!success)
                 throw new WebDriverException("Could not create driver. See earlier exceptions.");
             return result;

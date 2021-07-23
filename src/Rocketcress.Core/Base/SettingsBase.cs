@@ -35,7 +35,7 @@ namespace Rocketcress.Core.Base
             set
             {
                 _timeout = value;
-                Wait.Options.DefaultTimeout = value;
+                Wait.DefaultOptions.Timeout = value;
             }
         }
 

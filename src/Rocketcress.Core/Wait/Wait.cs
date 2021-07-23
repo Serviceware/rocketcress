@@ -1,16 +1,31 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Rocketcress.Core
 {
-    internal sealed class Wait<T> : IWait<T>, IWaitOnError<T>
+    internal sealed class Wait<T> : IWait<T>, IWaitOnError<T>, IWaitDefaultOptions
     {
         private readonly WaitRunner<T> _runner;
-        private readonly Func<T?> _condition;
+        private readonly Func<int, T?> _condition;
         private Func<Exception, (WaitRunnerErrorResult Result, T? Value)>? _exceptionHandler;
 
-        internal Wait(Func<T?> condition)
+        public IWaitOptions DefaultOptions { get; }
+
+        internal Wait(
+            Func<int, T?> condition,
+            IWaitOptions options,
+            string name,
+            Action<object?, IDictionary<string, object>> onStartingCallback,
+            Action<object?, IDictionary<string, object>> onFinishedCallback,
+            Action<object?, Exception> onExceptionCallback)
         {
-            _runner = new WaitRunner<T>();
+            DefaultOptions = options;
+            _runner = new WaitRunner<T>(
+                (IWaitOptions)options.Clone(),
+                name,
+                x => onStartingCallback(this, x),
+                x => onFinishedCallback(this, x),
+                x => onExceptionCallback(this, x));
             _condition = condition;
         }
 
@@ -21,21 +36,40 @@ namespace Rocketcress.Core
             return this;
         }
 
+        public IWait<T> NotThrowOnFailure()
+        {
+            _runner.ThrowOnFailure = false;
+            _runner.ErrorMessage = null;
+            return this;
+        }
+
         public IWait<T> WithMaxExceptionCount(int? count)
         {
-            _runner.MaxExceptionCount = count;
+            _runner.Options.MaxAcceptedExceptions = count;
             return this;
         }
 
         public IWait<T> WithTimeGap(TimeSpan timeGap)
         {
-            _runner.TimeGap = timeGap;
+            _runner.Options.TimeGap = timeGap;
             return this;
         }
 
         public IWait<T> WithTimeout(TimeSpan timeout)
         {
-            _runner.Timeout = timeout;
+            _runner.Options.Timeout = timeout;
+            return this;
+        }
+
+        public IWait<T> WithMaxRetryCount(int? count)
+        {
+            _runner.Options.MaxRetryCount = count;
+            return this;
+        }
+
+        public IWait<T> Configure(Action<IWaitOptions> configurationFunction)
+        {
+            configurationFunction(_runner.Options);
             return this;
         }
 
@@ -74,7 +108,7 @@ namespace Rocketcress.Core
 
         public WaitResult<T> Start()
         {
-            return _runner.Run(this, _condition, _exceptionHandler);
+            return _runner.Run(_condition, _exceptionHandler);
         }
     }
 }

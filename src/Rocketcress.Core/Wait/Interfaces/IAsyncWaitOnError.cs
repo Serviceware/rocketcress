@@ -11,6 +11,7 @@ namespace Rocketcress.Core
     {
         /// <summary>
         /// Configures the wait operation to call the specified action when an exception occurs.
+        /// If the action throws an <see cref="AbortWaitException"/> the operation is aborted.
         /// </summary>
         /// <param name="action">The action to execute.</param>
         /// <returns>The configured wait operation.</returns>
@@ -19,6 +20,7 @@ namespace Rocketcress.Core
         /// <summary>
         /// Configures the wait operation to call the specified result factory when an exception occurs.
         /// If the result factory returns the default value of <typeparamref name="T"/> the wait operation continues.
+        /// If the action throws an <see cref="AbortWaitException"/> the operation is aborted.
         /// </summary>
         /// <param name="resultFactory">The result factory to execute.</param>
         /// <returns>The configured wait operation.</returns>

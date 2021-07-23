@@ -73,7 +73,7 @@ namespace Rocketcress.Selenium
         /// </summary>
         /// <param name="assert">Determines wether to assert if the timeout has been reached.</param>
         /// <returns>Returns true if the page has loaded; otherwise false.</returns>
-        public bool UntilPageLoaded(bool assert = true) => UntilPageLoaded(Wait.Options.DefaultTimeout, assert);
+        public bool UntilPageLoaded(bool assert = true) => UntilPageLoaded(Wait.DefaultOptions.Timeout, assert);
 
         /// <summary>
         /// Waits until the current page is loaded.
@@ -99,7 +99,7 @@ namespace Rocketcress.Selenium
         /// </summary>
         /// <param name="count">The expected number of open windows.</param>
         /// <returns>Return true if the amount of windows did exist in time; otherwise false.</returns>
-        public bool UntilWindowsExists(int count) => UntilWindowsExists(count, Wait.Options.DefaultTimeoutMs);
+        public bool UntilWindowsExists(int count) => UntilWindowsExists(count, Wait.DefaultOptions.TimeoutMs);
 
         /// <summary>
         /// Waits until a specific amount of windows are open in the current browser instance.
@@ -388,7 +388,7 @@ namespace Rocketcress.Selenium
             get => WaitDriver.Timeout;
             set
             {
-                Wait.Options.DefaultTimeout = value;
+                Wait.DefaultOptions.Timeout = value;
                 WaitDriver.Timeout = value;
             }
         }
@@ -401,7 +401,7 @@ namespace Rocketcress.Selenium
             get => WaitDriver.PollingInterval;
             set
             {
-                Wait.Options.DefaultTimeGap = value;
+                Wait.DefaultOptions.TimeGap = value;
                 WaitDriver.PollingInterval = value;
             }
         }
@@ -648,13 +648,20 @@ namespace Rocketcress.Selenium
             T result = default;
             Exception lastException = null;
 
-            bool OnException(Exception ex)
+            void OnException(Exception ex)
             {
                 lastException = ex;
-                return _allowedExceptionsGetWebDriverProp.Contains(ex.GetType());
+                if (!_allowedExceptionsGetWebDriverProp.Contains(ex.GetType()))
+                    throw new AbortWaitException();
             }
 
-            if (!TestHelper.RetryActionCancelable(() => result = propertyFunction(Driver), 5, 1000, onException: OnException))
+            var retryResult = Retry
+                .Action(() => result = propertyFunction(Driver))
+                .WithMaxRetryCount(5)
+                .WithTimeGap(1000)
+                .OnError().Call(OnException)
+                .Start();
+            if (!retryResult.Value)
             {
                 if (throwEx && lastException != null)
                     throw lastException;
