@@ -55,7 +55,7 @@ namespace Rocketcress.Core
         /// <returns>An instance of <see cref="IWait{T}"/> that can be used to wait or configure additional options.</returns>
         public static IWait<T> Until<T>(Func<T?> condition)
         {
-            return CreateWait(i => condition());
+            return CreateWait((WaitContext<T> ctx) => condition());
         }
 
         /// <summary>
@@ -64,7 +64,7 @@ namespace Rocketcress.Core
         /// <typeparam name="T">The type of the condition result.</typeparam>
         /// <param name="condition">The condition function. The waiting operation ends when the returned value equals the default value of <typeparamref name="T"/>.</param>
         /// <returns>An instance of <see cref="IWait{T}"/> that can be used to wait or configure additional options.</returns>
-        public static IWait<T> Until<T>(Func<int, T?> condition)
+        public static IWait<T> Until<T>(Func<WaitContext<T>, T?> condition)
         {
             return CreateWait(condition);
         }
@@ -77,7 +77,7 @@ namespace Rocketcress.Core
         /// <returns>An instance of <see cref="IAsyncWait{T}"/> that can be used to wait or configure additional options.</returns>
         public static IAsyncWait<T> Until<T>(Func<Task<T?>> condition)
         {
-            return CreateAsyncWait(async i => await condition());
+            return CreateAsyncWait(async (WaitContext<T> ctx) => await condition());
         }
 
         /// <summary>
@@ -86,27 +86,27 @@ namespace Rocketcress.Core
         /// <typeparam name="T">The type of the condition result.</typeparam>
         /// <param name="condition">The condition function. The waiting operation ends when the returned value equals the default value of <typeparamref name="T"/>.</param>
         /// <returns>An instance of <see cref="IAsyncWait{T}"/> that can be used to wait or configure additional options.</returns>
-        public static IAsyncWait<T> Until<T>(Func<int, Task<T?>> condition)
+        public static IAsyncWait<T> Until<T>(Func<WaitContext<T>, Task<T?>> condition)
         {
             return CreateAsyncWait(condition);
         }
 
-        internal static void OnStarting(object? sender, IDictionary<string, object> data)
+        internal static void OnStarting(object? sender, WaitContext ctx)
         {
-            WhenStarting?.Invoke(sender, new WaitingEventArgs(data));
+            WhenStarting?.Invoke(sender, new WaitingEventArgs(ctx));
         }
 
-        internal static void OnFinished(object? sender, IDictionary<string, object> data)
+        internal static void OnFinished(object? sender, WaitContext ctx)
         {
-            WhenFinished?.Invoke(sender, new WaitingEventArgs(data));
+            WhenFinished?.Invoke(sender, new WaitingEventArgs(ctx));
         }
 
-        internal static void OnExceptionOccurred(object? sender, Exception exception)
+        internal static void OnExceptionOccurred(object? sender, WaitContext ctx, Exception exception)
         {
-            WhenExceptionOccurred?.Invoke(sender, new ExceptionEventArgs(exception));
+            WhenExceptionOccurred?.Invoke(sender, new ExceptionEventArgs(ctx, exception));
         }
 
-        private static IWait<T> CreateWait<T>(Func<int, T?> condition)
+        private static IWait<T> CreateWait<T>(Func<WaitContext<T>, T?> condition)
         {
             return new Wait<T>(
                 condition,
@@ -117,7 +117,7 @@ namespace Rocketcress.Core
                 OnExceptionOccurred);
         }
 
-        private static IAsyncWait<T> CreateAsyncWait<T>(Func<int, Task<T?>> condition)
+        private static IAsyncWait<T> CreateAsyncWait<T>(Func<WaitContext<T>, Task<T?>> condition)
         {
             return new AsyncWait<T>(
                 condition,

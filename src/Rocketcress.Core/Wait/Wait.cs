@@ -1,33 +1,53 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace Rocketcress.Core
 {
     internal sealed class Wait<T> : IWait<T>, IWaitOnError<T>, IWaitDefaultOptions
     {
         private readonly WaitRunner<T> _runner;
-        private readonly Func<int, T?> _condition;
-        private Func<Exception, (WaitRunnerErrorResult Result, T? Value)>? _exceptionHandler;
 
         public IWaitOptions DefaultOptions { get; }
 
         internal Wait(
-            Func<int, T?> condition,
+            Func<WaitContext<T>, T?> condition,
             IWaitOptions options,
             string name,
-            Action<object?, IDictionary<string, object>> onStartingCallback,
-            Action<object?, IDictionary<string, object>> onFinishedCallback,
-            Action<object?, Exception> onExceptionCallback)
+            Action<object?, WaitContext> onStartingCallback,
+            Action<object?, WaitContext> onFinishedCallback,
+            Action<object?, WaitContext, Exception> onExceptionCallback)
         {
             DefaultOptions = options;
             _runner = new WaitRunner<T>(
+                condition,
                 (IWaitOptions)options.Clone(),
                 name,
                 x => onStartingCallback(this, x),
                 x => onFinishedCallback(this, x),
-                x => onExceptionCallback(this, x));
-            _condition = condition;
+                (x, y) => onExceptionCallback(this, x, y));
         }
+
+        #region IWait<T> Members
+
+        public IWaitOnError<T> OnError()
+        {
+            return this;
+        }
+
+        public IWait<T> PrecedeWith(Action<WaitContext<T>> action)
+        {
+            _runner.PrecedeWith(action);
+            return this;
+        }
+
+        public IWait<T> ContinueWith(Action<WaitContext<T>> action)
+        {
+            _runner.ContinueWith(action);
+            return this;
+        }
+
+        #endregion
+
+        #region IConfigurableWait<T, IWait<T>> Members
 
         public IWait<T> ThrowOnFailure(string? message)
         {
@@ -73,42 +93,52 @@ namespace Rocketcress.Core
             return this;
         }
 
-        public IWaitOnError<T> OnError()
-        {
-            return this;
-        }
+        #endregion
+
+        #region IStartableWait<T> Members
 
         public IWait<T> Abort()
         {
-            _exceptionHandler = x => (WaitRunnerErrorResult.Abort, default);
+            _runner.ExceptionHandler = x => throw new WaitAbortedException();
             return this;
         }
 
         public IWait<T> Call(Action<Exception> action)
         {
-            _exceptionHandler = x =>
-            {
-                action(x);
-                return (WaitRunnerErrorResult.None, default);
-            };
+            _runner.ExceptionHandler = action;
             return this;
         }
 
         public IWait<T> Return(Func<Exception, T?> resultFactory)
         {
-            _exceptionHandler = x => (WaitRunnerErrorResult.Return, resultFactory(x));
+            _runner.ExceptionHandler = x =>
+            {
+                var value = resultFactory(x);
+                if (!Equals(value, default))
+                    throw new WaitAbortedException<T>(value);
+            };
             return this;
         }
 
         public IWait<T> Return(T? value)
         {
-            _exceptionHandler = x => (WaitRunnerErrorResult.Return, value);
+            _runner.ExceptionHandler = x =>
+            {
+                if (!Equals(value, default))
+                    throw new WaitAbortedException<T>(value);
+            };
             return this;
         }
 
+        #endregion
+
+        #region IStartableWait<T> Members
+
         public WaitResult<T> Start()
         {
-            return _runner.Run(_condition, _exceptionHandler);
+            return _runner.Run();
         }
+
+        #endregion
     }
 }

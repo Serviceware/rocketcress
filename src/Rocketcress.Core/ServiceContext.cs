@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 
-#nullable disable
-
 namespace Rocketcress.Core
 {
     /// <summary>
@@ -12,15 +10,15 @@ namespace Rocketcress.Core
     /// </summary>
     public class ServiceContext : IServiceProvider
     {
-        private static ServiceContext _instance;
+        private static ServiceContext? _instance;
 
         /// <summary>
         /// Gets the current singleton instance of the <see cref="ServiceContext"/> class.
         /// </summary>
         public static ServiceContext Instance => _instance ??= new ServiceContext();
 
-        private readonly Dictionary<string, object> _services = new Dictionary<string, object>();
-        private readonly Dictionary<Type, Func<ServiceContext, object>> _createFunctions = new Dictionary<Type, Func<ServiceContext, object>>();
+        private readonly Dictionary<string, object> _services = new();
+        private readonly Dictionary<Type, Func<ServiceContext, object>> _createFunctions = new();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ServiceContext"/> class.
@@ -48,6 +46,7 @@ namespace Rocketcress.Core
         /// <typeparam name="T">The type for which to check if a create function is registered to.</typeparam>
         /// <returns>Returns true if a create function had been registered for the type; otherwise false.</returns>
         public bool HasCreateFunction<T>()
+            where T : class
         {
             return _createFunctions.ContainsKey(typeof(T));
         }
@@ -60,7 +59,7 @@ namespace Rocketcress.Core
         /// <param name="serviceType">The type of the instance.</param>
         /// <param name="key">The key of the instance.</param>
         /// <returns>Returns the instance that is registered by the specified type and key.</returns>
-        public object GetInstance(Type serviceType, string key)
+        public object GetInstance(Type serviceType, string? key)
         {
             var dictKey = GetKey(serviceType, key);
             if (!_services.ContainsKey(dictKey))
@@ -85,7 +84,8 @@ namespace Rocketcress.Core
         /// <typeparam name="T">The type of the instance.</typeparam>
         /// <param name="key">The key of the instance.</param>
         /// <returns>Returns the instance that is registered by the specified type and key.</returns>
-        public T GetInstance<T>(string key)
+        public T GetInstance<T>(string? key)
+            where T : class
             => (T)GetInstance(typeof(T), key);
 
         /// <summary>
@@ -94,6 +94,7 @@ namespace Rocketcress.Core
         /// <typeparam name="TService">The type to register the instance to.</typeparam>
         /// <param name="instance">The instance to add.</param>
         public void AddInstance<TService>(TService instance)
+            where TService : class
             => AddInstance(null, instance);
 
         /// <summary>
@@ -102,7 +103,8 @@ namespace Rocketcress.Core
         /// <typeparam name="TService">The type to register the instance to.</typeparam>
         /// <param name="name">The key to register the instance to.</param>
         /// <param name="instance">The instance to add.</param>
-        public void AddInstance<TService>(string name, TService instance)
+        public void AddInstance<TService>(string? name, TService instance)
+            where TService : class
             => _services[GetKey(typeof(TService), name)] = instance;
 
         /// <summary>
@@ -119,7 +121,7 @@ namespace Rocketcress.Core
         /// <param name="type">The type to register the instance to.</param>
         /// <param name="name">The key to register the instance to.</param>
         /// <param name="instance">The instance to add.</param>
-        public void AddInstance(Type type, string name, object instance)
+        public void AddInstance(Type type, string? name, object instance)
         {
             if (!type.IsInstanceOfType(instance))
                 throw new ArgumentException($"The instance has to be an instance of {type.FullName}.", nameof(instance));
@@ -131,6 +133,7 @@ namespace Rocketcress.Core
         /// </summary>
         /// <typeparam name="TService">The type of the instance.</typeparam>
         public void RemoveInstance<TService>()
+            where TService : class
             => RemoveInstance(typeof(TService), null);
 
         /// <summary>
@@ -138,7 +141,8 @@ namespace Rocketcress.Core
         /// </summary>
         /// <typeparam name="TService">The type of the instance.</typeparam>
         /// <param name="name">The key of the instance.</param>
-        public void RemoveInstance<TService>(string name)
+        public void RemoveInstance<TService>(string? name)
+            where TService : class
             => RemoveInstance(typeof(TService), name);
 
         /// <summary>
@@ -153,7 +157,7 @@ namespace Rocketcress.Core
         /// </summary>
         /// <param name="type">The type of the instance.</param>
         /// <param name="name">The key of the instance.</param>
-        public void RemoveInstance(Type type, string name)
+        public void RemoveInstance(Type type, string? name)
         {
             var key = GetKey(type, name);
             if (_services.ContainsKey(key))
@@ -179,7 +183,7 @@ namespace Rocketcress.Core
         public static void ResetServiceContext() => ResetInstance();
         internal static void ResetInstance() => _instance = null;
 
-        private static string GetKey(Type t, string name) => $"{t.FullName};{name}";
+        private static string GetKey(Type t, string? name) => $"{t.FullName}{(name != null ? ";" : string.Empty)}{name}";
 
         #region IServiceLocator
 
@@ -220,6 +224,7 @@ namespace Rocketcress.Core
         /// <typeparam name="TService">Type of object requested.</typeparam>
         /// <returns>The requested service instance.</returns>
         public TService GetInstance<TService>()
+            where TService : class
             => GetInstance<TService>(null);
 
         /// <summary>
@@ -228,7 +233,9 @@ namespace Rocketcress.Core
         /// <typeparam name="TService">Type of object requested.</typeparam>
         /// <returns>A sequence of instances of the requested TService.</returns>
         public IEnumerable<TService> GetAllInstances<TService>()
+            where TService : class
             => GetAllInstances(typeof(TService)).Select(x => (TService)x);
+
         #endregion
     }
 }

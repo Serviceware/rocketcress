@@ -2,8 +2,6 @@
 using System.Linq;
 using System.Reflection;
 
-#nullable disable
-
 namespace Rocketcress.Core.Attributes
 {
     /// <summary>
@@ -12,7 +10,7 @@ namespace Rocketcress.Core.Attributes
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = true)]
     public class AddKeysClassAttribute : Attribute
     {
-        private readonly Type _keysClassType;
+        private readonly Type? _keysClassType;
         private readonly string _keysClassName;
 
         /// <summary>
@@ -40,10 +38,10 @@ namespace Rocketcress.Core.Attributes
         /// </summary>
         /// <param name="testNamespace">The namespace to search in.</param>
         /// <returns>Returns the found type. If no type was found null is returned.</returns>
-        public Type GetKeysClassType(string testNamespace)
+        public Type? GetKeysClassType(string? testNamespace)
         {
             var result = _keysClassType;
-            if (result == null)
+            if (result == null && !string.IsNullOrEmpty(testNamespace))
             {
                 var nsSplit = testNamespace.Split('.');
                 for (int i = nsSplit.Length; i > 0 && result == null; i--)
@@ -70,7 +68,7 @@ namespace Rocketcress.Core.Attributes
         /// <param name="testClass">The type to get the keys from.</param>
         /// <param name="testNamespace">The namespace which should be used for <see cref="AddKeysClassAttribute"/> instance which do not provide direct types.</param>
         /// <returns>Returns a list of keys defined in the specified type.</returns>
-        public static string[] GetKeys(Type testClass, string testNamespace)
+        public static string[] GetKeys(Type testClass, string? testNamespace)
         {
             var @namespace = string.IsNullOrEmpty(testNamespace) ? testClass.Namespace : testNamespace;
             var attributes = testClass.GetCustomAttributes<AddKeysClassAttribute>();
@@ -79,7 +77,7 @@ namespace Rocketcress.Core.Attributes
                     where type != null
                     from key in (from f in type.GetFields(BindingFlags.Public | BindingFlags.Static)
                                  where f.FieldType == typeof(string) && f.GetCustomAttribute<IgnoreKeyAttribute>() == null
-                                 select (string)f.GetValue(null)).Concat(GetKeys(type, @namespace))
+                                 select (string?)f.GetValue(null)).Concat(GetKeys(type, @namespace))
                     select key).ToArray();
         }
     }

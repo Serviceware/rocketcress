@@ -45,6 +45,12 @@ namespace Rocketcress.Core
         /// Gets or sets the time in milliseconds to wait between checking the condition during wait operations.
         /// </summary>
         public int TimeGapMs { get; set; }
+
+        /// <summary>
+        /// Creates readonly representation of this <see cref="IWaitOptions"/>.
+        /// </summary>
+        /// <returns>An instance that implements the <see cref="IReadOnlyWaitOptions"/> interface that returns values from this <see cref="IWaitOptions"/>.</returns>
+        IReadOnlyWaitOptions AsReadOnly();
     }
 
     /// <summary>

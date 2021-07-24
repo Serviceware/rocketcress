@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 
-#nullable disable
-
 namespace Rocketcress.Core
 {
     /// <summary>
@@ -10,14 +8,14 @@ namespace Rocketcress.Core
     /// </summary>
     public sealed class ActionOnDispose : IDisposable
     {
-        private readonly Stopwatch _stopwatch;
-        private readonly Action<int> _actionWithTime;
-        private readonly Action _actionWithoutTime;
+        private readonly Stopwatch? _stopwatch;
+        private readonly Action<int>? _actionWithTime;
+        private readonly Action? _actionWithoutTime;
 
         /// <summary>
         /// Gets an empty <see cref="ActionOnDispose"/> object.
         /// </summary>
-        public static ActionOnDispose Empty => new ActionOnDispose();
+        public static ActionOnDispose Empty => new();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ActionOnDispose"/> class.

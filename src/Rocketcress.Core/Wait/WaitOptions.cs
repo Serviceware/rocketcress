@@ -5,7 +5,7 @@ namespace Rocketcress.Core
     /// <summary>
     /// Provides options for the <see cref="Wait"/> class.
     /// </summary>
-    public sealed class WaitOptions : IWaitOptions, IObsoleteWaitOptions, IReadOnlyWaitOptions
+    internal sealed class WaitOptions : IWaitOptions, IObsoleteWaitOptions
     {
         /// <inheritdoc/>
         public bool TraceExceptions { get; set; }
@@ -77,11 +77,35 @@ namespace Rocketcress.Core
             };
         }
 
+        /// <inheritdoc/>
+        public IReadOnlyWaitOptions AsReadOnly()
+        {
+            return new ReadOnly(this);
+        }
+
         private static int GetMilliseconds(TimeSpan timeSpan)
         {
             unchecked
             {
                 return Math.Max((int)timeSpan.TotalMilliseconds, int.MaxValue);
+            }
+        }
+
+        private class ReadOnly : IReadOnlyWaitOptions
+        {
+            private readonly IWaitOptions _options;
+
+            public bool TraceExceptions => _options.TraceExceptions;
+            public int? MaxAcceptedExceptions => _options.MaxAcceptedExceptions;
+            public int? MaxRetryCount => _options.MaxRetryCount;
+            public TimeSpan Timeout => _options.Timeout;
+            public int TimeoutMs => _options.TimeoutMs;
+            public TimeSpan TimeGap => _options.TimeGap;
+            public int TimeGapMs => _options.TimeGapMs;
+
+            public ReadOnly(IWaitOptions options)
+            {
+                _options = options;
             }
         }
     }

@@ -16,7 +16,7 @@ namespace Rocketcress.Core.Attributes
         /// <summary>
         /// Gets or sets the type from which to take the control properties that should be generated.
         /// </summary>
-        public Type ControlsDefinition { get; set; } = GenerateUIMapPartsAttributeDefaults.ControlsDefinition;
+        public Type? ControlsDefinition { get; set; } = GenerateUIMapPartsAttributeDefaults.ControlsDefinition;
 
         /// <summary>
         /// Gets or sets a value indicating whether to generate the same constructors as the base class.

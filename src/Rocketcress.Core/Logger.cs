@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 
-#nullable disable
-
 namespace Rocketcress.Core
 {
     /// <summary>
@@ -27,16 +25,16 @@ namespace Rocketcress.Core
         /// <param name="level">The log-level of the message.</param>
         /// <param name="message">The message text.</param>
         /// <param name="params">The parameters that should be inserted into the message text (like string.Format).</param>
-        public static void Log(LogLevel level, string message, params object[] @params)
+        public static void Log(LogLevel level, string? message, params object?[]? @params)
         {
             try
             {
-                var shortName = _logLevelShortNames.TryGetValue(level, out string tmp) ? tmp : "___";
-                Trace.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: {shortName} - {(@params == null || @params.Length == 0 ? message : string.Format(CultureInfo.InvariantCulture, message, @params))}");
+                var shortName = _logLevelShortNames.TryGetValue(level, out string? tmp) ? tmp : "___";
+                Trace.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [{shortName}] {(@params == null || @params.Length == 0 ? message : string.Format(CultureInfo.InvariantCulture, message ?? string.Empty, @params))}");
             }
             catch (Exception ex)
             {
-                Trace.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: ERR - Error while writing trace with message \"{message}\" and parameters \"{string.Join("\", \"", @params)}\": {ex}");
+                Trace.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss}: [ERR] Error while writing trace with message \"{message}\" and parameters \"{string.Join("\", \"", @params ?? Array.Empty<object?>())}\": {ex}");
             }
         }
 
@@ -45,7 +43,7 @@ namespace Rocketcress.Core
         /// </summary>
         /// <param name="message">The message text.</param>
         /// <param name="params">The parameters that should be inserted into the message text (like string.Format).</param>
-        public static void LogDebug(string message, params object[] @params)
+        public static void LogDebug(string? message, params object?[]? @params)
             => Log(LogLevel.Debug, message, @params);
 
         /// <summary>
@@ -53,7 +51,7 @@ namespace Rocketcress.Core
         /// </summary>
         /// <param name="message">The message text.</param>
         /// <param name="params">The parameters that should be inserted into the message text (like string.Format).</param>
-        public static void LogInfo(string message, params object[] @params)
+        public static void LogInfo(string? message, params object?[]? @params)
             => Log(LogLevel.Info, message, @params);
 
         /// <summary>
@@ -61,7 +59,7 @@ namespace Rocketcress.Core
         /// </summary>
         /// <param name="message">The message text.</param>
         /// <param name="params">The parameters that should be inserted into the message text (like string.Format).</param>
-        public static void LogWarning(string message, params object[] @params)
+        public static void LogWarning(string? message, params object?[]? @params)
             => Log(LogLevel.Warning, message, @params);
 
         /// <summary>
@@ -69,7 +67,7 @@ namespace Rocketcress.Core
         /// </summary>
         /// <param name="message">The message text.</param>
         /// <param name="params">The parameters that should be inserted into the message text (like string.Format).</param>
-        public static void LogError(string message, params object[] @params)
+        public static void LogError(string? message, params object?[]? @params)
             => Log(LogLevel.Error, message, @params);
 
         /// <summary>
@@ -77,6 +75,7 @@ namespace Rocketcress.Core
         /// </summary>
         /// <param name="message">The message text.</param>
         /// <param name="params">The parameters that should be inserted into the message text (like string.Format).</param>
-        public static void LogCritical(string message, params object[] @params) => Log(LogLevel.Critical, message, @params);
+        public static void LogCritical(string? message, params object?[]? @params)
+            => Log(LogLevel.Critical, message, @params);
     }
 }

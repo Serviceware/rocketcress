@@ -455,7 +455,7 @@ namespace Rocketcress.Selenium.Controls
         /// </summary>
         public void MoveMouseToElement()
         {
-            OsHelper.SetCursorPosition(0, 0);
+            DesktopUtility.SetCursorPosition(0, 0);
             Driver.GetActions().MoveToElement(this).Perform();
         }
 
@@ -466,7 +466,7 @@ namespace Rocketcress.Selenium.Controls
         /// <param name="offsetY">The y offset.</param>
         public void MoveMouseToElement(int offsetX, int offsetY)
         {
-            OsHelper.SetCursorPosition(0, 0);
+            DesktopUtility.SetCursorPosition(0, 0);
             Driver.GetActions().MoveToElement(this, offsetX, offsetY).Perform();
         }
 

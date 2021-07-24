@@ -2,8 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 
-#nullable disable
-
 namespace Rocketcress.Core
 {
     /// <summary>
@@ -12,9 +10,9 @@ namespace Rocketcress.Core
     /// <typeparam name="T">The type of the elements in this list.</typeparam>
     public class LazyList<T> : IReadOnlyList<T>
     {
-        private readonly List<T> _cachedItems;
+        private readonly List<T> _cachedItems = new();
         private readonly IEnumerable<T> _enumerable;
-        private IEnumerator<T> _currentEnumerator;
+        private IEnumerator<T>? _currentEnumerator;
         private bool _enumeratorAtEnd = false;
 
         /// <summary>
@@ -28,7 +26,6 @@ namespace Rocketcress.Core
         /// <param name="enumerable">The items that should be loaded with this lazy list.</param>
         public LazyList(IEnumerable<T> enumerable)
         {
-            _cachedItems = new List<T>();
             _enumerable = enumerable;
         }
 
@@ -99,7 +96,7 @@ namespace Rocketcress.Core
 
         private class LazyListEnumerator : IEnumerator<T>
         {
-            private LazyList<T> _lazyList;
+            private LazyList<T>? _lazyList;
             private int _currentIndex = -1;
 
             private LazyList<T> LazyList => _lazyList ?? throw new ObjectDisposedException(nameof(LazyListEnumerator));
@@ -109,9 +106,20 @@ namespace Rocketcress.Core
                 _lazyList = lazyList;
             }
 
-            public T Current => _currentIndex < 0 || _currentIndex > LazyList._cachedItems.Count ? default : LazyList._cachedItems[_currentIndex];
+            public T Current
+            {
+                get
+                {
+                    if (_currentIndex < 0)
+                        throw new InvalidOperationException("Enumeration has not started. Call MoveNext.");
+                    if (_currentIndex > LazyList._cachedItems.Count)
+                        throw new InvalidOperationException("Enumeration already finished.");
 
-            object IEnumerator.Current => Current;
+                    return LazyList._cachedItems[_currentIndex];
+                }
+            }
+
+            object IEnumerator.Current => Current!;
 
             public void Dispose()
             {

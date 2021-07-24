@@ -3,6 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 namespace Rocketcress.Core.Base
 {
@@ -16,24 +17,24 @@ namespace Rocketcress.Core.Base
         public abstract void OnExecutionStart(TTestMetadata metadata, int testIndex);
         public abstract void OnExecutionEnded(TTestMetadata metadata, int testIndex, UnitTestOutcome outcome);
         public abstract void OnExecutionError(TTestMetadata metadata, int testIndex, Exception exception, string locationDescription);
-        public abstract void ResetView(TView view);
+        public abstract void ResetView(TView view, CancellationToken token);
 
-        public List<Exception> Execute(TView view, TTestMetadata metadata, Action testAction, int timeout, bool continueOnError = true, bool failOnError = true)
+        public List<Exception> Execute(TView view, TTestMetadata metadata, Action<CancellationToken> testAction, int timeout, bool continueOnError = true, bool failOnError = true)
         {
             return Execute(DefaultExecutionCount, view, metadata, testAction, timeout, continueOnError, failOnError);
         }
 
-        public List<Exception> Execute(ICollection<TView> views, TTestMetadata metadata, Action testAction, int timeout, bool continueOnError = true, bool failOnError = true)
+        public List<Exception> Execute(ICollection<TView> views, TTestMetadata metadata, Action<CancellationToken> testAction, int timeout, bool continueOnError = true, bool failOnError = true)
         {
             return Execute(DefaultExecutionCount, views, metadata, testAction, timeout, continueOnError, failOnError);
         }
 
-        public List<Exception> Execute(int executionCount, TView view, TTestMetadata metadata, Action testAction, int timeout, bool continueOnError = true, bool failOnError = true)
+        public List<Exception> Execute(int executionCount, TView view, TTestMetadata metadata, Action<CancellationToken> testAction, int timeout, bool continueOnError = true, bool failOnError = true)
         {
             return Execute(executionCount, new[] { view }, metadata, testAction, timeout, continueOnError, failOnError);
         }
 
-        public List<Exception> Execute(int executionCount, ICollection<TView> views, TTestMetadata metadata, Action testAction, int timeout, bool continueOnError = true, bool failOnError = true)
+        public List<Exception> Execute(int executionCount, ICollection<TView> views, TTestMetadata metadata, Action<CancellationToken> testAction, int timeout, bool continueOnError = true, bool failOnError = true)
         {
             var exceptions = new List<Exception>();
             if (executionCount <= 0)
@@ -47,10 +48,18 @@ namespace Rocketcress.Core.Base
                 {
                     OnExecutionStart(metadata, i);
 
-                    if (!TestHelper.RunWithTimeout(testAction, timeout))
-                        Assert.Fail($"Test timed out after {timeout / 1000:0} seconds.");
-                    else
+                    var cts = new CancellationTokenSource();
+                    cts.CancelAfter(timeout);
+
+                    try
+                    {
+                        testAction(cts.Token);
                         success[i] = true;
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        Assert.Fail($"Test timed out after {timeout / 1000:0} seconds.");
+                    }
 
                     OnExecutionEnded(metadata, i, UnitTestOutcome.Passed);
                 }
@@ -69,11 +78,14 @@ namespace Rocketcress.Core.Base
                     {
                         try
                         {
-                            if (!TestHelper.RunWithTimeout(() => ResetView(view), TimeSpan.FromMinutes(5)))
-                            {
-                                isCanceled = true;
-                                break;
-                            }
+                            var cts = new CancellationTokenSource();
+                            cts.CancelAfter(TimeSpan.FromMinutes(5));
+                            ResetView(view, cts.Token);
+                        }
+                        catch (OperationCanceledException)
+                        {
+                            isCanceled = true;
+                            break;
                         }
                         catch (Exception ex)
                         {

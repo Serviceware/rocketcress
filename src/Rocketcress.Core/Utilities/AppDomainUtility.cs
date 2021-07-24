@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Reflection;
 
-#nullable disable
-
-namespace Rocketcress.Core
+namespace Rocketcress.Core.Utilities
 {
     /// <summary>
-    /// Provides methods that helps using seperate AppDomains.
+    /// Utility for handling AppDomains.
     /// </summary>
-    public static class AppDomainHelper
+    public static class AppDomainUtility
     {
         /// <summary>
         /// Creates a new AppDomain with a given name.

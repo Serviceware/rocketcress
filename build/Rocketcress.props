@@ -21,6 +21,10 @@
     </IsPackable>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <MaSchTestVersion>0.5.2</MaSchTestVersion>
+  </PropertyGroup>
+
   <PropertyGroup Condition=" $(IsSlim) == 'true' ">
     <Description>Contains code from $(AssemblyName) without the need to use MSTest v2.</Description>
     <AssemblyName>$(AssemblyName).Slim</AssemblyName>

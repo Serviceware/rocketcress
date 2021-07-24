@@ -652,7 +652,7 @@ namespace Rocketcress.Selenium
             {
                 lastException = ex;
                 if (!_allowedExceptionsGetWebDriverProp.Contains(ex.GetType()))
-                    throw new AbortWaitException();
+                    throw new WaitAbortedException();
             }
 
             var retryResult = Retry

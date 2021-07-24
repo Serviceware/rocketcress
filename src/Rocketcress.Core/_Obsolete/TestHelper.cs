@@ -437,6 +437,7 @@ namespace Rocketcress.Core
         /// <typeparam name="T">The type of the result.</typeparam>
         /// <param name="functions">A list of functions to execute.</param>
         /// <returns>Returns all of the function results as an array. The results are ordered the same way as the functions.</returns>
+        [Obsolete("Should not be used.")]
         public static T[] LoopUntilAllFinished<T>(IReadOnlyList<Func<T>> functions) => LoopUntilAllFinished(functions, null);
 
         /// <summary>
@@ -446,6 +447,7 @@ namespace Rocketcress.Core
         /// <param name="functions">A list of functions to execute.</param>
         /// <param name="loopCancellationExpression">A function that is executed continuously. If this function returns false the wait is cancelled.</param>
         /// <returns>Returns all of the function results as an array. The results are ordered the same way as the functions.</returns>
+        [Obsolete("Should not be used.")]
         public static T[] LoopUntilAllFinished<T>(IReadOnlyList<Func<T>> functions, Func<IReadOnlyList<T>, bool> loopCancellationExpression)
         {
             var result = new T[functions.Count];
@@ -478,6 +480,7 @@ namespace Rocketcress.Core
         /// <param name="action">The action to execute.</param>
         /// <param name="timeout">The maximum execution time.</param>
         /// <returns>Returns true if the action executed without running in a timeout; otherwise false.</returns>
+        [Obsolete("Should not be used.")]
         public static bool RunWithTimeout(Action action, TimeSpan timeout) => RunWithTimeout(action, (int)timeout.TotalMilliseconds);
 
         /// <summary>
@@ -486,6 +489,7 @@ namespace Rocketcress.Core
         /// <param name="action">The action to execute.</param>
         /// <param name="timeout">The maximum execution time in miliseconds.</param>
         /// <returns>Returns true if the action executed without running in a timeout; otherwise false.</returns>
+        [Obsolete("Should not be used.")]
         public static bool RunWithTimeout(Action action, int timeout)
         {
             Exception exception = null;

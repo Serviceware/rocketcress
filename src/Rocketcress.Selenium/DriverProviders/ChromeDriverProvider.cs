@@ -75,7 +75,7 @@ namespace Rocketcress.Selenium.DriverProviders
             {
                 urlFormat = "https://chromedriver.storage.googleapis.com/{0}/chromedriver_linux64.zip";
                 driverFileName = "chromedriver";
-                chromeVersion = OsHelper.RunBashCommand("google-chrome --version | grep -iE \"[0-9.]{10,20}\"");
+                chromeVersion = DesktopUtility.RunBashCommand("google-chrome --version | grep -iE \"[0-9.]{10,20}\"");
             }
             else
             {

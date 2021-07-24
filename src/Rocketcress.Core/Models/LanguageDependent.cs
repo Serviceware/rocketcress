@@ -1,13 +1,13 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Rocketcress.Core.Base;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
-
-#nullable disable
 
 #pragma warning disable SA1402 // File may only contain a single type
 
@@ -21,11 +21,12 @@ namespace Rocketcress.Core.Models
         /// <summary>
         /// Gets or sets the default language when resolving the value of a <see cref="LanguageDependent"/>-instance.
         /// </summary>
-        public static int DefaultLanguage { get; set; }
+        public static CultureInfo DefaultLanguage { get; set; }
 
         static LanguageDependent()
         {
-            DefaultLanguage = (int)KnownLanguages.English;
+            DefaultLanguage = TestContextBase.CurrentContext?.Settings?.Language
+                ?? CultureInfo.GetCultureInfo("en-US");
         }
 
         /// <summary>
@@ -51,7 +52,7 @@ namespace Rocketcress.Core.Models
         /// <summary>
         /// Gets the value of the invariant language.
         /// </summary>
-        public T Invariant => this[CultureInfo.InvariantCulture.LCID];
+        public T? Invariant => this[CultureInfo.InvariantCulture.LCID];
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LanguageDependent{T}"/> class.
@@ -81,43 +82,11 @@ namespace Rocketcress.Core.Models
         /// <param name="language">The language.</param>
         /// <param name="value">The new value.</param>
         /// <returns>Returns the current instance of the LanguageDependent class to chain multiple method calls.</returns>
-        public LanguageDependent<T> SetLanguage(KnownLanguages language, T value)
+        public LanguageDependent<T> SetLanguage(CultureInfo language, T value)
         {
-            Objects[(int)language] = value;
+            Objects[language.LCID] = value;
             return this;
         }
-
-        /// <summary>
-        /// Sets the value for the english language.
-        /// </summary>
-        /// <param name="value">The new value.</param>
-        /// <returns>Returns the current instance of the LanguageDependent class to chain multiple method calls.</returns>
-        public LanguageDependent<T> SetEnglish(T value)
-            => SetLanguage(KnownLanguages.English, value);
-
-        /// <summary>
-        /// Sets the value for the german language.
-        /// </summary>
-        /// <param name="value">The new value.</param>
-        /// <returns>Returns the current instance of the LanguageDependent class to chain multiple method calls.</returns>
-        public LanguageDependent<T> SetGerman(T value)
-            => SetLanguage(KnownLanguages.German, value);
-
-        /// <summary>
-        /// Sets the value for the french language.
-        /// </summary>
-        /// <param name="value">The new value.</param>
-        /// <returns>Returns the current instance of the LanguageDependent class to chain multiple method calls.</returns>
-        public LanguageDependent<T> SetFrench(T value)
-            => SetLanguage(KnownLanguages.French, value);
-
-        /// <summary>
-        /// Sets the value for the italian language.
-        /// </summary>
-        /// <param name="value">The new value.</param>
-        /// <returns>Returns the current instance of the LanguageDependent class to chain multiple method calls.</returns>
-        public LanguageDependent<T> SetItalian(T value)
-            => SetLanguage(KnownLanguages.Italian, value);
 
         /// <summary>
         /// Check if a value for a language exists.
@@ -132,8 +101,8 @@ namespace Rocketcress.Core.Models
         /// </summary>
         /// <param name="language">The language.</param>
         /// <returns>Returns true if a value for the specified language exists; otherwise false.</returns>
-        public bool Contains(KnownLanguages language)
-            => Objects.ContainsKey((int)language);
+        public bool Contains(CultureInfo language)
+            => Objects.ContainsKey(language.LCID);
 
         #endregion
 
@@ -144,7 +113,8 @@ namespace Rocketcress.Core.Models
         /// </summary>
         /// <param name="language">The id of the language for which the value should be retrieved.</param>
         /// <returns>Returns the value for the specified language.</returns>
-        public T this[int language]
+        [DisallowNull]
+        public T? this[int language]
         {
             get
             {
@@ -154,7 +124,7 @@ namespace Rocketcress.Core.Models
                     l = l.Parent;
                 }
 
-                return Objects.TryGetValue(l.LCID, out T t) ? t : Objects.Values.FirstOrDefault();
+                return Objects.TryGetValue(l.LCID, out T? t) ? t : Objects.Values.FirstOrDefault();
             }
             set => Objects[language] = value;
         }
@@ -164,11 +134,13 @@ namespace Rocketcress.Core.Models
         /// </summary>
         /// <param name="language">The language for which the value should be retrieved.</param>
         /// <returns>Returns the value for the specified language.</returns>
-        public T this[KnownLanguages language]
+        [DisallowNull]
+        public T? this[CultureInfo language]
         {
-            get => this[(int)language];
-            set => this[(int)language] = value;
+            get => this[language.LCID];
+            set => this[language.LCID] = value;
         }
+
         #endregion
 
         /// <summary>
@@ -184,7 +156,7 @@ namespace Rocketcress.Core.Models
         /// Gets the value for the current language of a <see cref="LanguageDependent{T}"/> object.
         /// </summary>
         /// <param name="s">The <see cref="LanguageDependent{T}"/> object to get the value from.</param>
-        public static implicit operator T(LanguageDependent<T> s)
+        public static implicit operator T?(LanguageDependent<T> s)
         {
             return s[LanguageDependent.DefaultLanguage];
         }
@@ -196,6 +168,46 @@ namespace Rocketcress.Core.Models
     public static class LanguageDependentExtensions
     {
         /// <summary>
+        /// Sets the value for the english language.
+        /// </summary>
+        /// <typeparam name="T">The type of element of the LanguageDependent.</typeparam>
+        /// <param name="obj">LanguageDependent instance.</param>
+        /// <param name="value">The new value.</param>
+        /// <returns>Returns the current instance of the LanguageDependent class to chain multiple method calls.</returns>
+        public static LanguageDependent<T> SetEnglish<T>(this LanguageDependent<T> obj, T value)
+            => obj.SetLanguage(CultureInfo.GetCultureInfo("en"), value);
+
+        /// <summary>
+        /// Sets the value for the german language.
+        /// </summary>
+        /// <typeparam name="T">The type of element of the LanguageDependent.</typeparam>
+        /// <param name="obj">LanguageDependent instance.</param>
+        /// <param name="value">The new value.</param>
+        /// <returns>Returns the current instance of the LanguageDependent class to chain multiple method calls.</returns>
+        public static LanguageDependent<T> SetGerman<T>(this LanguageDependent<T> obj, T value)
+            => obj.SetLanguage(CultureInfo.GetCultureInfo("de"), value);
+
+        /// <summary>
+        /// Sets the value for the french language.
+        /// </summary>
+        /// <typeparam name="T">The type of element of the LanguageDependent.</typeparam>
+        /// <param name="obj">LanguageDependent instance.</param>
+        /// <param name="value">The new value.</param>
+        /// <returns>Returns the current instance of the LanguageDependent class to chain multiple method calls.</returns>
+        public static LanguageDependent<T> SetFrench<T>(this LanguageDependent<T> obj, T value)
+            => obj.SetLanguage(CultureInfo.GetCultureInfo("fr"), value);
+
+        /// <summary>
+        /// Sets the value for the italian language.
+        /// </summary>
+        /// <typeparam name="T">The type of element of the LanguageDependent.</typeparam>
+        /// <param name="obj">LanguageDependent instance.</param>
+        /// <param name="value">The new value.</param>
+        /// <returns>Returns the current instance of the LanguageDependent class to chain multiple method calls.</returns>
+        public static LanguageDependent<T> SetItalian<T>(this LanguageDependent<T> obj, T value)
+            => obj.SetLanguage(CultureInfo.GetCultureInfo("it"), value);
+
+        /// <summary>
         /// Sets the value for a given language.
         /// </summary>
         /// <param name="obj">LanguageDependent instance of type Point.</param>
@@ -203,7 +215,7 @@ namespace Rocketcress.Core.Models
         /// <param name="x">The x-coordinate.</param>
         /// <param name="y">The y-coordinate.</param>
         /// <returns>Returns the current instance of the LanguageDependent class to chain multiple method calls.</returns>
-        public static LanguageDependent<System.Drawing.Point> SetLanguage(this LanguageDependent<System.Drawing.Point> obj, KnownLanguages language, int x, int y)
+        public static LanguageDependent<System.Drawing.Point> SetLanguage(this LanguageDependent<System.Drawing.Point> obj, CultureInfo language, int x, int y)
         {
             return obj.SetLanguage(language, new System.Drawing.Point(x, y));
         }
@@ -217,7 +229,7 @@ namespace Rocketcress.Core.Models
         /// <returns>Returns the current instance of the LanguageDependent class to chain multiple method calls.</returns>
         public static LanguageDependent<System.Drawing.Point> SetGerman(this LanguageDependent<System.Drawing.Point> obj, int x, int y)
         {
-            return obj.SetLanguage(KnownLanguages.German, new System.Drawing.Point(x, y));
+            return obj.SetLanguage(CultureInfo.GetCultureInfo("de"), new System.Drawing.Point(x, y));
         }
 
         /// <summary>
@@ -229,7 +241,7 @@ namespace Rocketcress.Core.Models
         /// <returns>Returns the current instance of the LanguageDependent class to chain multiple method calls.</returns>
         public static LanguageDependent<System.Drawing.Point> SetEnglish(this LanguageDependent<System.Drawing.Point> obj, int x, int y)
         {
-            return obj.SetLanguage(KnownLanguages.English, new System.Drawing.Point(x, y));
+            return obj.SetLanguage(CultureInfo.GetCultureInfo("en"), new System.Drawing.Point(x, y));
         }
 
         /// <summary>
@@ -241,7 +253,7 @@ namespace Rocketcress.Core.Models
         /// <returns>Returns the current instance of the LanguageDependent class to chain multiple method calls.</returns>
         public static LanguageDependent<System.Drawing.Point> SetFrench(this LanguageDependent<System.Drawing.Point> obj, int x, int y)
         {
-            return obj.SetLanguage(KnownLanguages.French, new System.Drawing.Point(x, y));
+            return obj.SetLanguage(CultureInfo.GetCultureInfo("fr"), new System.Drawing.Point(x, y));
         }
 
         /// <summary>
@@ -253,7 +265,7 @@ namespace Rocketcress.Core.Models
         /// <returns>Returns the current instance of the LanguageDependent class to chain multiple method calls.</returns>
         public static LanguageDependent<System.Drawing.Point> SetItalian(this LanguageDependent<System.Drawing.Point> obj, int x, int y)
         {
-            return obj.SetLanguage(KnownLanguages.Italian, new System.Drawing.Point(x, y));
+            return obj.SetLanguage(CultureInfo.GetCultureInfo("it"), new System.Drawing.Point(x, y));
         }
     }
 
@@ -280,7 +292,7 @@ namespace Rocketcress.Core.Models
         /// <param name="existingValue">The existing value of object being read.</param>
         /// <param name="serializer">The calling serializer.</param>
         /// <returns>The object value.</returns>
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
         {
             var token = JToken.ReadFrom(reader);
             if (token.Type != JTokenType.Object)
@@ -288,7 +300,7 @@ namespace Rocketcress.Core.Models
 
             var o = (JObject)token;
             var subType = GetSubType(objectType);
-            var dict = Activator.CreateInstance(typeof(Dictionary<,>).MakeGenericType(typeof(int), subType));
+            var dict = Activator.CreateInstance(typeof(Dictionary<,>).MakeGenericType(typeof(int), subType ?? throw new InvalidOperationException()))!;
 
             foreach (var prop in o.Properties())
             {
@@ -296,7 +308,7 @@ namespace Rocketcress.Core.Models
             }
 
             var result = Activator.CreateInstance(objectType);
-            objectType.GetProperty("Objects", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(result, dict);
+            objectType.GetProperty("Objects", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(result, dict);
             return result;
         }
 
@@ -306,89 +318,34 @@ namespace Rocketcress.Core.Models
         /// <param name="writer">The Newtonsoft.Json.JsonWriter to write to.</param>
         /// <param name="value">The value.</param>
         /// <param name="serializer">The calling serializer.</param>
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
         {
-            JToken t;
             if (value == null)
             {
-                t = JToken.FromObject(null, serializer);
+                writer.WriteNull();
+                return;
             }
-            else
+
+            var o = new JObject();
+            var dict = (IDictionary)value.GetType().GetProperty("Objects", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(value)!;
+
+            var enumerator = dict.GetEnumerator();
+            while (enumerator.MoveNext())
             {
-                var o = new JObject();
-                var dict = (IDictionary)value.GetType().GetProperty("Objects", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(value);
-
-                var enumerator = dict.GetEnumerator();
-                while (enumerator.MoveNext())
-                {
-                    o.Add(((int)enumerator.Key).ToString(CultureInfo.InvariantCulture), JToken.FromObject(enumerator.Value));
-                }
-
-                t = o;
+                o.Add(((int)enumerator.Key).ToString(CultureInfo.InvariantCulture), JToken.FromObject(enumerator.Value!));
             }
 
-            t.WriteTo(writer);
+            o.WriteTo(writer);
         }
 
-        private static Type GetSubType(Type type)
+        private static Type? GetSubType(Type type)
         {
             var t = type;
-            while (t.BaseType != typeof(object))
+            while (t.BaseType != typeof(object) && t.BaseType != null)
                 t = t.BaseType;
             if (t.GetGenericTypeDefinition() == typeof(LanguageDependent<>))
                 return t.GetGenericArguments()[0];
             return null;
         }
-    }
-
-    /// <summary>
-    /// Represents a string that can be translated to other languages.
-    /// </summary>
-    [JsonConverter(typeof(LanguageDependentJsonConverter))]
-    public class MultiLanguageString : LanguageDependent<string>
-    {
-        /// <summary>
-        /// Sets the value for a given language.
-        /// </summary>
-        /// <param name="language">The id of the language.</param>
-        /// <param name="value">The new value.</param>
-        /// <returns>Returns the current instance of the MultiLanguageString class to chain multiple method calls.</returns>
-        public new MultiLanguageString SetLanguage(int language, string value) => (MultiLanguageString)base.SetLanguage(language, value);
-
-        /// <summary>
-        /// Sets the value for a given language.
-        /// </summary>
-        /// <param name="language">The language.</param>
-        /// <param name="value">The new value.</param>
-        /// <returns>Returns the current instance of the MultiLanguageString class to chain multiple method calls.</returns>
-        public new MultiLanguageString SetLanguage(KnownLanguages language, string value) => (MultiLanguageString)base.SetLanguage(language, value);
-
-        /// <summary>
-        /// Sets the value for the english language.
-        /// </summary>
-        /// <param name="value">The new value.</param>
-        /// <returns>Returns the current instance of the MultiLanguageString class to chain multiple method calls.</returns>
-        public new MultiLanguageString SetEnglish(string value) => SetLanguage(KnownLanguages.English, value);
-
-        /// <summary>
-        /// Sets the value for the german language.
-        /// </summary>
-        /// <param name="value">The new value.</param>
-        /// <returns>Returns the current instance of the MultiLanguageString class to chain multiple method calls.</returns>
-        public new MultiLanguageString SetGerman(string value) => SetLanguage(KnownLanguages.German, value);
-
-        /// <summary>
-        /// Sets the value for the french language.
-        /// </summary>
-        /// <param name="value">The new value.</param>
-        /// <returns>Returns the current instance of the MultiLanguageString class to chain multiple method calls.</returns>
-        public new MultiLanguageString SetFrench(string value) => SetLanguage(KnownLanguages.French, value);
-
-        /// <summary>
-        /// Sets the value for the italian language.
-        /// </summary>
-        /// <param name="value">The new value.</param>
-        /// <returns>Returns the current instance of the MultiLanguageString class to chain multiple method calls.</returns>
-        public new MultiLanguageString SetItalian(string value) => SetLanguage(KnownLanguages.Italian, value);
     }
 }

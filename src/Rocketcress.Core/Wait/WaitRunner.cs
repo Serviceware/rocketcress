@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -12,13 +10,11 @@ namespace Rocketcress.Core
 {
     internal class WaitRunnerBase<T>
     {
-        private readonly Stopwatch _stopwatch;
         private readonly string _operationName;
-        private readonly Action<IDictionary<string, object>> _onStartingCallback;
-        private readonly Action<IDictionary<string, object>> _onFinishedCallback;
-        private readonly Action<Exception> _onExceptionCallback;
+        private readonly Action<WaitContext> _onStartingCallback;
+        private readonly Action<WaitContext> _onFinishedCallback;
+        private readonly Action<WaitContext, Exception> _onExceptionCallback;
 
-        protected Stopwatch Stopwatch => _stopwatch;
         protected string OperationName => _operationName;
 
         public IWaitOptions Options { get; }
@@ -28,13 +24,10 @@ namespace Rocketcress.Core
         public WaitRunnerBase(
             IWaitOptions options,
             string operationName,
-            Action<IDictionary<string, object>> onStartingCallback,
-            Action<IDictionary<string, object>> onFinishedCallback,
-            Action<Exception> onExceptionCallback)
+            Action<WaitContext> onStartingCallback,
+            Action<WaitContext> onFinishedCallback,
+            Action<WaitContext, Exception> onExceptionCallback)
         {
-            _stopwatch = new Stopwatch();
-            _data = new Dictionary<string, object>();
-            _exceptions = new List<Exception>();
             _operationName = operationName;
 
             _onStartingCallback = onStartingCallback;
@@ -48,66 +41,78 @@ namespace Rocketcress.Core
 
         protected WaitContext<T> Start()
         {
-            var ctx = new WaitContext<T>(Options, )
-            _onStartingCallback(_data);
-            _exceptions.Clear();
-            _stopwatch.Start();
-            return new WaitContext<T>
+            return new WaitContext<T>(Options.AsReadOnly(), ThrowOnFailure, ErrorMessage);
         }
 
-        protected void End()
+        protected void StartWait(WaitContext<T> ctx)
         {
-            _stopwatch.Stop();
-            _onFinishedCallback(_data);
+            ctx.Start();
+            _onStartingCallback(ctx);
         }
 
-        protected bool TryCreateResult(WaitResult resultStatus, T? resultValue, [NotNullWhen(true)] out WaitResult<T>? result)
+        protected void EndWait(WaitContext<T> ctx)
+        {
+            ctx.Stop();
+            _onFinishedCallback(ctx);
+        }
+
+        protected WaitResult<T> End(WaitContext<T> ctx)
+        {
+            var result = ctx.GetResult();
+            if (!result.Status.IsValueAvailable())
+            {
+                Logger.LogWarning(GetErrorMessage(result, true));
+                if (ThrowOnFailure)
+                    throw new WaitFailedException(result, GetErrorMessage(result, false));
+            }
+
+            return result;
+        }
+
+        protected bool CheckCondition(WaitContext<T> ctx, T? resultValue)
         {
             if (!Equals(resultValue, default(T)))
             {
-                result = new WaitResult<T>(resultStatus, resultValue, _stopwatch.Elapsed, _exceptions.ToArray());
+                ctx.Result.WithStatus(WaitResultStatus.ValueAvailable).WithValue(resultValue);
                 return true;
             }
 
-            result = null;
             return false;
         }
 
-        protected WaitResult<T> OnError(WaitResult status)
-        {
-            Logger.LogWarning(GetErrorMessage(status, true));
-            if (ThrowOnFailure)
-                AssertEx.Instance.Fail(GetErrorMessage(status, false));
-            return new WaitResult<T>(status, default, _stopwatch.Elapsed, _exceptions.ToArray());
-        }
-
-        protected string GetErrorMessage(WaitResult status, bool ignoreCustomMessage)
+        protected string GetErrorMessage(WaitResult<T> result, bool ignoreCustomMessage)
         {
             if (!ignoreCustomMessage && ErrorMessage is not null)
                 return ErrorMessage;
-            return status switch
+            return result.Status switch
             {
-                WaitResult.CallerAborted => $"The caller aborted this {_operationName} due to an exception.",
-                WaitResult.TooManyExceptions => $"{_exceptions.Count} exceptions occurred during the {_operationName}, which exceeds the maximum allowed number of exceptions of {Options.MaxAcceptedExceptions}.",
-                WaitResult.TooManyRetries => $"The {_operationName} did not succeed after {Options.MaxRetryCount} retries.",
-                _ => $"The {_operationName} timed out after {Options.Timeout.TotalSeconds:0.###} seconds.",
+                WaitResultStatus.CallerAbortedWithoutValue => $"The caller aborted this {_operationName}.",
+                WaitResultStatus.Timeout => $"The {_operationName} timed out after {Options.Timeout.TotalSeconds:0.###} seconds.",
+                WaitResultStatus.TooManyRetries => $"The {_operationName} did not succeed after {Options.MaxRetryCount} retries.",
+                WaitResultStatus.TooManyExceptions => $"{result.Exceptions.Length} exceptions occurred during the {_operationName}, which exceeds the maximum allowed number of exceptions of {Options.MaxAcceptedExceptions}.",
+                _ => $"The {_operationName} failed due to an unknown event (Status = {result.Status})",
             };
         }
 
-        protected bool HandleException((WaitRunnerErrorResult Result, T? Value)? handlerResult, Exception exception, [NotNullWhen(true)] out WaitResult<T>? result)
+        protected bool HandleException(WaitContext<T> ctx, Exception exception)
         {
-            _exceptions.Add(exception);
+            ctx.Result.WithException(exception);
+            if (exception is WaitAbortedException wae)
+            {
+                HandleWaitAbortedException(ctx, wae);
+                return true;
+            }
+
             if (Options.TraceExceptions)
                 Logger.LogDebug("Exception while waiting: " + exception.ToString());
 
             try
             {
-                _onExceptionCallback(exception);
+                _onExceptionCallback(ctx, exception);
             }
-            catch (AbortWaitException ex)
+            catch (WaitAbortedException ex)
             {
-                Logger.LogInfo($"The {_operationName} was aborted while calling event 'ExcpetionOccured': {ex}");
-                result = OnError(WaitResult.CallerAborted);
+                HandleWaitAbortedException(ctx, ex);
                 return true;
             }
             catch (Exception ex)
@@ -115,153 +120,202 @@ namespace Rocketcress.Core
                 Logger.LogWarning("Exception while calling event 'ExcpetionOccured': " + ex);
             }
 
-            if (handlerResult.HasValue)
+            if (Options.MaxAcceptedExceptions.HasValue && ctx.Result.Exceptions.Count > Options.MaxAcceptedExceptions)
             {
-                if (handlerResult.Value.Result == WaitRunnerErrorResult.Return)
-                {
-                    return TryCreateResult(WaitResult.CallerResult, handlerResult.Value.Value, out result);
-                }
-                else if (handlerResult.Value.Result == WaitRunnerErrorResult.Abort)
-                {
-                    result = OnError(WaitResult.CallerAborted);
-                    return true;
-                }
-            }
-
-            if (Options.MaxAcceptedExceptions.HasValue && _exceptions.Count > Options.MaxAcceptedExceptions)
-            {
-                result = OnError(WaitResult.TooManyExceptions);
+                ctx.Result.WithStatus(WaitResultStatus.TooManyExceptions);
                 return true;
             }
 
-            result = null;
             return false;
         }
 
-        protected bool HandleLoopRun(int currentRetryCount, [NotNullWhen(true)] out WaitResult<T>? result)
+        private void HandleWaitAbortedException(WaitContext<T> ctx, WaitAbortedException exception)
         {
-            if (Options.MaxRetryCount.HasValue && currentRetryCount + 1 > Options.MaxRetryCount)
-            {
-                result = OnError(WaitResult.TooManyRetries);
-                return true;
-            }
+            Logger.LogInfo($"The {OperationName} was aborted{(string.IsNullOrWhiteSpace(exception.Message) ? "." : $": {exception.Message}")}");
 
-            result = null;
-            return false;
+            if (exception is WaitAbortedException<T> wae)
+                ctx.Result.WithStatus(WaitResultStatus.CallerAbortedWithValue).WithValue(wae.Value);
+            else
+                ctx.Result.WithStatus(WaitResultStatus.CallerAbortedWithoutValue);
         }
     }
 
     internal sealed class WaitRunner<T> : WaitRunnerBase<T>
     {
-        private readonly List<Func<T?, T?>> _precedeWithActions = new();
-        private readonly List<Func<WaitResult<T>, T?>> _continueWithActions = new();
+        private readonly List<Action<WaitContext<T>>> _precedeWithActions = new();
+        private readonly List<Action<WaitContext<T>>> _continueWithActions = new();
+        private readonly Func<WaitContext<T>, T?> _condition;
 
-        public WaitRunner(IWaitOptions options, string operationName, Action<IDictionary<string, object>> onStartingCallback, Action<IDictionary<string, object>> onFinishedCallback, Action<Exception> onExceptionCallback)
+        public Action<Exception>? ExceptionHandler { get; set; }
+
+        public WaitRunner(
+            Func<WaitContext<T>, T?> condition,
+            IWaitOptions options,
+            string operationName,
+            Action<WaitContext> onStartingCallback,
+            Action<WaitContext> onFinishedCallback,
+            Action<WaitContext, Exception> onExceptionCallback)
             : base(options, operationName, onStartingCallback, onFinishedCallback, onExceptionCallback)
         {
+            _condition = condition;
         }
 
-        public void PrecedeWith(Func<T?, T?> action) => _precedeWithActions.Add(action);
+        public void PrecedeWith(Action<WaitContext<T>> action) => _precedeWithActions.Add(action);
 
-        public void ContinueWith(Func<WaitResult<T>, T?> action) => _continueWithActions.Add(action);
+        public void ContinueWith(Action<WaitContext<T>> action) => _continueWithActions.Add(action);
 
-        public WaitResult<T> Run(Func<int, T?> condition, Func<Exception, (WaitRunnerErrorResult Result, T? Value)>? exceptionHandler)
+        public WaitResult<T> Run()
         {
-            Start();
+            var ctx = Start();
+
+            // Execute precede actions
             try
             {
-                int count = 0;
-                while (Stopwatch.Elapsed < Options.Timeout)
+                foreach (var action in _precedeWithActions)
+                    action(ctx);
+            }
+            catch (WaitAbortedException ex)
+            {
+                HandleException(ctx, ex);
+            }
+
+            // Wait/Retry loop
+            if (!ctx.Result.Status.IsAbort())
+            {
+                StartWait(ctx);
+                while (ctx.Next())
                 {
                     try
                     {
                         try
                         {
-                            if (TryCreateResult(WaitResult.ValueAvailable, condition(count), out var result))
-                                return result;
+                            if (CheckCondition(ctx, _condition(ctx)))
+                                break;
                         }
                         catch (Exception ex)
                         {
-                            var hr = exceptionHandler?.Invoke(ex);
-                            if (HandleException(hr, ex, out var result))
-                                return result;
+                            ExceptionHandler?.Invoke(ex);
+                            if (HandleException(ctx, ex))
+                                break;
                         }
                     }
-                    catch (AbortWaitException ex)
+                    catch (WaitAbortedException ex)
                     {
-                        Logger.LogInfo($"The {OperationName} was aborted: {ex}");
-                        return OnError(WaitResult.CallerAborted);
+                        if (HandleException(ctx, ex))
+                            break;
                     }
 
-                    if (HandleLoopRun(count, out var result2))
-                        return result2;
+                    Thread.Sleep(ctx.Options.TimeGap);
+                }
 
-                    Thread.Sleep(Options.TimeGap);
+                EndWait(ctx);
+            }
+
+            // Execute precede actions
+            if (!ctx.Result.Status.IsAbort())
+            {
+                try
+                {
+                    foreach (var action in _continueWithActions)
+                        action(ctx);
+                }
+                catch (WaitAbortedException ex)
+                {
+                    HandleException(ctx, ex);
                 }
             }
-            finally
-            {
-                End();
-            }
 
-            return OnError(WaitResult.Timeout);
+            return End(ctx);
         }
     }
 
     internal sealed class AsyncWaitRunner<T> : WaitRunnerBase<T>
     {
-        public AsyncWaitRunner(IWaitOptions options, string operationName, Action<IDictionary<string, object>> onStartingCallback, Action<IDictionary<string, object>> onFinishedCallback, Action<Exception> onExceptionCallback)
+        private readonly List<Func<WaitContext<T>, Task>> _precedeWithActions = new();
+        private readonly List<Func<WaitContext<T>, Task>> _continueWithActions = new();
+        private readonly Func<WaitContext<T>, Task<T?>> _condition;
+
+        public Func<Exception, Task>? ExceptionHandler { get; set; }
+
+        public AsyncWaitRunner(
+            Func<WaitContext<T>, Task<T?>> condition,
+            IWaitOptions options,
+            string operationName,
+            Action<WaitContext> onStartingCallback,
+            Action<WaitContext> onFinishedCallback,
+            Action<WaitContext, Exception> onExceptionCallback)
             : base(options, operationName, onStartingCallback, onFinishedCallback, onExceptionCallback)
         {
+            _condition = condition;
         }
 
-        public async Task<WaitResult<T>> RunAsync(Func<int, Task<T?>> condition, Func<Exception, Task<(WaitRunnerErrorResult Result, T? Value)>>? exceptionHandler)
+        public void PrecedeWith(Func<WaitContext<T>, Task> action) => _precedeWithActions.Add(action);
+
+        public void ContinueWith(Func<WaitContext<T>, Task> action) => _continueWithActions.Add(action);
+
+        public async Task<WaitResult<T>> RunAsync()
         {
-            Start();
+            var ctx = Start();
+
+            // Execute precede actions
             try
             {
-                int count = 0;
-                while (Stopwatch.Elapsed < Options.Timeout)
+                foreach (var action in _precedeWithActions)
+                    await action(ctx);
+            }
+            catch (WaitAbortedException ex)
+            {
+                HandleException(ctx, ex);
+            }
+
+            // Wait/Retry loop
+            if (!ctx.Result.Status.IsAbort())
+            {
+                StartWait(ctx);
+                while (ctx.Next())
                 {
                     try
                     {
                         try
                         {
-                            if (TryCreateResult(WaitResult.ValueAvailable, await condition(count), out var result))
-                                return result;
+                            if (CheckCondition(ctx, await _condition(ctx)))
+                                break;
                         }
                         catch (Exception ex)
                         {
-                            var hr = exceptionHandler == null ? ((WaitRunnerErrorResult, T?)?)null : await exceptionHandler(ex);
-                            if (HandleException(hr, ex, out var result))
-                                return result;
+                            if (ExceptionHandler != null)
+                                await ExceptionHandler.Invoke(ex);
+                            if (HandleException(ctx, ex))
+                                break;
                         }
                     }
-                    catch (AbortWaitException ex)
+                    catch (WaitAbortedException ex)
                     {
-                        Logger.LogInfo($"The {OperationName} was aborted: {ex}");
-                        return OnError(WaitResult.CallerAborted);
+                        if (HandleException(ctx, ex))
+                            break;
                     }
 
-                    if (HandleLoopRun(count, out var result2))
-                        return result2;
+                    await Task.Delay(ctx.Options.TimeGap);
+                }
 
-                    await Task.Delay(Options.TimeGap);
+                EndWait(ctx);
+            }
+
+            // Execute precede actions
+            if (!ctx.Result.Status.IsAbort())
+            {
+                try
+                {
+                    foreach (var action in _continueWithActions)
+                        await action(ctx);
+                }
+                catch (WaitAbortedException ex)
+                {
+                    HandleException(ctx, ex);
                 }
             }
-            finally
-            {
-                End();
-            }
 
-            return OnError(WaitResult.Timeout);
+            return End(ctx);
         }
-    }
-
-    internal enum WaitRunnerErrorResult
-    {
-        None,
-        Return,
-        Abort,
     }
 }

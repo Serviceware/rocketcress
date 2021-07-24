@@ -1,0 +1,11 @@
+﻿- settings.json:
+    - Language has been replaced with CultureInfo, so change the following values:
+        - German => de-DE
+        - English => en-US
+        - French => fr-FR
+        - Italian => it-IT
+        - GermanSwitzerland => de-CH
+- Browser enum has been moved to Rocketcress.Selenium
+- MultipleTestExecutionControllerBase:
+    - Actions now needs to use a Cancellation token, to make use of the test timeout.
+    - ResetView now needs to use a Cancellation token

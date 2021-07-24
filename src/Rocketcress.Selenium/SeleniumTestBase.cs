@@ -89,7 +89,7 @@ namespace Rocketcress.Selenium
             context.Driver.Manage().Timeouts().AsynchronousJavaScript = settings.Timeout;
 
             if (settings.CurrentBrowser == Browser.InternetExplorer)
-                OsHelper.SetCursorPosition(0, 0);
+                DesktopUtility.SetCursorPosition(0, 0);
         }
 
         /// <summary>

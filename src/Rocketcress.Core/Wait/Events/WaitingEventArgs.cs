@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 
+#pragma warning disable SA1402 // File may only contain a single type
+
 namespace Rocketcress.Core
 {
     /// <summary>
@@ -18,15 +20,43 @@ namespace Rocketcress.Core
         /// <summary>
         /// Gets a data store you can use on another event on this waiting operation.
         /// </summary>
-        public IDictionary<string, object> DataStore { get; }
+        [Obsolete("Use WaitContext.Data instead.")]
+        public IDictionary<string, object> DataStore => WaitContext.Data;
+
+        /// <summary>
+        /// Gets the wait context.
+        /// </summary>
+        public WaitContext WaitContext { get; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="WaitingEventArgs"/> class.
         /// </summary>
-        /// <param name="dataStore">A data store you can use on another event on this waiting operation.</param>
-        public WaitingEventArgs(IDictionary<string, object> dataStore)
+        /// <param name="waitContext">The context of the wait operation.</param>
+        public WaitingEventArgs(WaitContext waitContext)
         {
-            DataStore = dataStore;
+            WaitContext = waitContext;
+        }
+    }
+
+    /// <summary>
+    /// Represents event arguments for the WaitingStarting and WaitingEnded events of the Waiter.
+    /// </summary>
+    /// <typeparam name="T">The type of value the wait operation returns.</typeparam>
+    public class WaitingEventArgs<T> : WaitingEventArgs
+    {
+        /// <summary>
+        /// Gets the wait context.
+        /// </summary>
+        public new WaitContext<T> WaitContext { get; }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="WaitingEventArgs{T}"/> class.
+        /// </summary>
+        /// <param name="waitContext">The context of the wait operation.</param>
+        public WaitingEventArgs(WaitContext<T> waitContext)
+            : base(waitContext)
+        {
+            WaitContext = waitContext;
         }
     }
 }
