@@ -1,5 +1,5 @@
-﻿using OpenQA.Selenium;
-using Rocketcress.Core;
+﻿using Rocketcress.Core;
+using Rocketcress.Core.Attributes;
 using System;
 
 namespace Rocketcress.Selenium.Controls
@@ -7,44 +7,9 @@ namespace Rocketcress.Selenium.Controls
     /// <summary>
     /// Represents a text-box element on a web page controlled by selenium.
     /// </summary>
-    public class WebTextInput : WebElement
+    [GenerateUIMapParts]
+    public partial class WebTextInput : WebElement
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="WebTextInput"/> class as lazy element.
-        /// </summary>
-        /// <param name="locationKey">The location key.</param>
-        public WebTextInput(By locationKey)
-            : base(locationKey)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="WebTextInput"/> class as lazy element.
-        /// </summary>
-        /// <param name="locationKey">The location key.</param>
-        /// <param name="searchContext">The search context.</param>
-        public WebTextInput(By locationKey, ISearchContext searchContext)
-            : base(locationKey, searchContext)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="WebTextInput"/> class as non-lazy element.
-        /// </summary>
-        /// <param name="element">The wrapped element.</param>
-        public WebTextInput(IWebElement element)
-            : base(element)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="WebTextInput"/> class.
-        /// </summary>
-        protected WebTextInput()
-            : base()
-        {
-        }
-
         /// <summary>
         /// Gets or sets the text of the TextBox.
         /// </summary>

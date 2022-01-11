@@ -48,7 +48,7 @@ namespace Rocketcress.Core.Base
         /// <summary>
         /// Initializes this test context.
         /// </summary>
-        public void Initialize()
+        public virtual void Initialize()
         {
             OnInitialize();
         }

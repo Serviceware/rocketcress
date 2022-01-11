@@ -13,11 +13,12 @@ namespace Rocketcress.Selenium.Extensions
         /// If the current <see cref="IWebElement"/> is a <see cref="WebElement"/> this will be returned.
         /// </summary>
         /// <param name="element">The element to extend.</param>
+        /// <param name="driver">The driver that was used to search the element.</param>
         /// <returns>A <see cref="WebElement"/> that is a wrapper for the <see cref="IWebElement"/>.</returns>
-        public static WebElement Extend(this IWebElement element)
+        public static WebElement Extend(this IWebElement element, WebDriver driver)
         {
             if (element is not WebElement result)
-                result = new WebElement(element);
+                result = new WebElement(driver, element);
             return result;
         }
 

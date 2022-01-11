@@ -21,8 +21,7 @@ namespace Rocketcress.Selenium.Controls
         /// </summary>
         public event EventHandler<IWebElement> WrappedElementChanged;
 
-        #region Fields
-        private static readonly Dictionary<Browser, Dictionary<char, Action<WebElement>>> _specialCharacters = new Dictionary<Browser, Dictionary<char, Action<WebElement>>>
+        private static readonly Dictionary<Browser, Dictionary<char, Action<WebElement>>> _specialCharacters = new()
         {
             [Browser.InternetExplorer] = new Dictionary<char, Action<WebElement>>
             {
@@ -31,12 +30,55 @@ namespace Rocketcress.Selenium.Controls
                 [']'] = element => element.Driver.GetActions().SendKeys(element, Keys.End).WhileKeysPressed(element, x => x.SendKeys("9"), Keys.Control, Keys.Alt).Perform(),
             },
         };
-        private By _locationKey;
         private IWebElement _wrappedElement;
-        private ISearchContext _searchContext;
-        #endregion
 
-        #region Properties
+        /// <summary>
+        /// Initializes a new instance of the <see cref="WebElement"/> class.
+        /// </summary>
+        /// <param name="driver">The driver to which this element is attached.</param>
+        protected WebElement(WebDriver driver)
+        {
+            Driver = driver ?? throw new ArgumentNullException(nameof(driver));
+            SearchContext = Driver;
+            ComputedStyle = new Style(this);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="WebElement"/> class as lazy element.
+        /// </summary>
+        /// <param name="driver">The driver to which this element is attached.</param>
+        /// <param name="locationKey">The location key.</param>
+        public WebElement(WebDriver driver, By locationKey)
+            : this(driver, locationKey, null)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="WebElement"/> class as lazy element.
+        /// </summary>
+        /// <param name="driver">The driver to which this element is attached.</param>
+        /// <param name="locationKey">The location key.</param>
+        /// <param name="searchContext">The search context.</param>
+        public WebElement(WebDriver driver, By locationKey, ISearchContext searchContext)
+            : this(driver)
+        {
+            if (searchContext is not null)
+                SearchContext = searchContext;
+            LocationKey = locationKey;
+            InitializeControls();
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="WebElement"/> class as non-lazy element.
+        /// </summary>
+        /// <param name="driver">The driver to which this element is attached.</param>
+        /// <param name="element">The wrapped element.</param>
+        public WebElement(WebDriver driver, IWebElement element)
+            : this(driver)
+        {
+            WrappedElement = element;
+            InitializeControls();
+        }
 
         /// <summary>
         /// Gets or sets the <see cref="T:OpenQA.Selenium.IWebElement" /> wrapped by this object.
@@ -58,29 +100,21 @@ namespace Rocketcress.Selenium.Controls
             protected set
             {
                 _wrappedElement = value;
-                _locationKey = null;
+                LocationKey = null;
+                SearchContext = null;
                 WrappedElementChanged?.Invoke(this, _wrappedElement);
             }
         }
 
         /// <summary>
-        /// Gets or sets the <see cref="ISearchContext"/> for this element. Set null to use the current driver.
+        /// Gets the <see cref="ISearchContext"/> for this element. Set null to use the current driver.
         /// </summary>
-        public ISearchContext SearchContext
-        {
-            get
-            {
-                if (_searchContext == null)
-                    return Driver;
-                return _searchContext;
-            }
-            set => _searchContext = value;
-        }
+        public ISearchContext SearchContext { get; private set; }
 
         /// <summary>
         /// Gets the driver that is used to find this <see cref="WebElement"/>.
         /// </summary>
-        public virtual WebDriver Driver => SeleniumTestContext.CurrentContext.Driver;
+        public WebDriver Driver { get; }
 
         /// <summary>
         /// Gets a value indicating whether this instance is lazy.
@@ -144,7 +178,7 @@ namespace Rocketcress.Selenium.Controls
         /// <summary>
         /// Gets the style of the wrapped element.
         /// </summary>
-        public virtual Style Style => new Style(GetAttribute("style"));
+        public virtual Style Style => new(GetAttribute("style"));
 
         /// <summary>
         /// Gets the computed style object of the wrapped element.
@@ -170,72 +204,9 @@ namespace Rocketcress.Selenium.Controls
         }
 
         /// <summary>
-        /// Gets or sets the location key that is used to search for the control on the UI.
+        /// Gets the location key that is used to search for the control on the UI.
         /// </summary>
-        public virtual By LocationKey
-        {
-            get => _locationKey;
-            set => UpdateLocationKey(value, _searchContext);
-        }
-        #endregion
-
-        #region Ctor
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="WebElement"/> class.
-        /// </summary>
-        protected WebElement()
-        {
-            ComputedStyle = new Style(this);
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="WebElement"/> class as lazy element.
-        /// </summary>
-        /// <param name="locationKey">The location key.</param>
-        public WebElement(By locationKey)
-            : this()
-        {
-            _locationKey = locationKey;
-            InitializeControls();
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="WebElement"/> class as lazy element.
-        /// </summary>
-        /// <param name="locationKey">The location key.</param>
-        /// <param name="searchContext">The search context.</param>
-        public WebElement(By locationKey, ISearchContext searchContext)
-            : this()
-        {
-            SearchContext = searchContext;
-            _locationKey = locationKey;
-            InitializeControls();
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="WebElement"/> class as non-lazy element.
-        /// </summary>
-        /// <param name="element">The wrapped element.</param>
-        public WebElement(IWebElement element)
-            : this()
-        {
-            WrappedElement = element;
-            InitializeControls();
-        }
-        #endregion
-
-        #region Protected Methods
-
-        /// <summary>
-        /// Initializes all child controls of this element.
-        /// </summary>
-        protected virtual void InitializeControls()
-        {
-        }
-        #endregion
-
-        #region Public Methods
+        public virtual By LocationKey { get; private set; }
 
         /// <summary>
         /// Reloads the wrapped element.
@@ -389,7 +360,7 @@ namespace Rocketcress.Selenium.Controls
             if (levels < 1)
                 throw new ArgumentOutOfRangeException(nameof(levels), "The argument 'levels' has to be greater than 0!");
             var xPath = string.Join("/", Enumerable.Range(0, levels).Select(x => ".."));
-            return new WebElement(By.XPath(xPath), this);
+            return new WebElement(Driver, By.XPath(xPath), this);
         }
 
         /// <summary>
@@ -404,7 +375,7 @@ namespace Rocketcress.Selenium.Controls
             if (levels < 1)
                 throw new ArgumentOutOfRangeException(nameof(levels), "The Argument 'levels' has to be greater than 0!");
             var xPath = string.Join("/", Enumerable.Range(0, levels).Select(x => ".."));
-            return WebElement.GetElement<T>(By.XPath(xPath), this);
+            return GetElement<T>(By.XPath(xPath), this);
         }
 
         /// <summary>
@@ -440,11 +411,9 @@ namespace Rocketcress.Selenium.Controls
             if (SearchContext is WebDriver driver)
             {
                 var knownHandles = driver.KnownWindowHandles ?? new List<string>();
-                var openedD = new List<WebDriver>();
-                if (SeleniumTestContext.CurrentContext != null && SeleniumTestContext.CurrentContext.AllOpenedDrivers != null)
-                    openedD = SeleniumTestContext.CurrentContext.AllOpenedDrivers;
+                var openedDrivers = driver.Context.AllOpenedDrivers;
                 var handle = driver.CurrentWindowHandle;
-                result += string.Format("Driver {0} (wdw:{1} - {2})", openedD.IndexOf(driver), handle, knownHandles.IndexOf(handle));
+                result += string.Format("Driver {0} (wdw:{1} - {2})", openedDrivers.IndexOf(driver), handle, knownHandles.IndexOf(handle));
             }
             else if (SearchContext is IWebDriver idriver)
             {
@@ -508,14 +477,11 @@ namespace Rocketcress.Selenium.Controls
         /// <param name="searchContext">The search context in which the element should be searched in.</param>
         public void UpdateLocationKey(By newLocationKey, ISearchContext searchContext)
         {
-            _locationKey = newLocationKey;
-            _searchContext = searchContext;
+            LocationKey = newLocationKey;
+            SearchContext = searchContext;
             _wrappedElement = null;
             InitializeControls();
         }
-        #endregion
-
-        #region Waiting Methods
 
         /// <summary>
         /// Waits until this element exists.
@@ -572,7 +538,7 @@ namespace Rocketcress.Selenium.Controls
         /// <param name="timeout">The timeout in miliseconds.</param>
         /// <param name="assert">Determines wether to throw an AssertFailedException if the timeout expires.</param>
         /// <returns>True if the element is displayed in time; otherwise false.</returns>
-        public bool WaitUntilDisplayed(int timeout, bool assert)
+        public virtual bool WaitUntilDisplayed(int timeout, bool assert)
             => Wait.Until(() => Displayed).WithTimeout(timeout).OnFailure(assert, "Element does not exist or is not displayed: " + GetSearchDescription()).Start().Value;
 
         /// <summary>
@@ -601,7 +567,7 @@ namespace Rocketcress.Selenium.Controls
         /// <param name="timeout">The timeout in miliseconds.</param>
         /// <param name="assert">Determines wether to throw an AssertFailedException if the timeout expires.</param>
         /// <returns>True if the element vanished in time; otherwise false.</returns>
-        public bool WaitUntilNotExists(int timeout, bool assert)
+        public virtual bool WaitUntilNotExists(int timeout, bool assert)
             => Wait.Until(() => !Exists).WithTimeout(timeout).OnFailure(assert, "Element does still exist: " + GetSearchDescription()).Start().Value;
 
         /// <summary>
@@ -630,7 +596,7 @@ namespace Rocketcress.Selenium.Controls
         /// <param name="timeout">The timeout in miliseconds.</param>
         /// <param name="assert">Determines wether to throw an AssertFailedException if the timeout expires.</param>
         /// <returns>True if the element disappeared in time; otherwise false.</returns>
-        public bool WaitUntilNotDisplayed(int timeout, bool assert)
+        public virtual bool WaitUntilNotDisplayed(int timeout, bool assert)
             => Wait.Until(() => !Displayed).WithTimeout(timeout).OnFailure(assert, "Element is still displayed: " + GetSearchDescription()).Start().Value;
 
         /// <summary>
@@ -659,9 +625,8 @@ namespace Rocketcress.Selenium.Controls
         /// <param name="timeout">The timeout in miliseconds.</param>
         /// <param name="assert">Determines wether to throw an AssertFailedException if the timeout expires.</param>
         /// <returns>True if the element is clickable in time; otherwise false.</returns>
-        public bool WaitUntilClickable(int timeout, bool assert)
+        public virtual bool WaitUntilClickable(int timeout, bool assert)
             => Wait.Until(() => IsClickable).WithTimeout(timeout).OnFailure(assert, "Element is not clickable: " + GetSearchDescription()).Start().Value;
-        #endregion
 
         #region IWebElement Members
 
@@ -920,6 +885,13 @@ namespace Rocketcress.Selenium.Controls
             WrappedElement.Submit();
         }
         #endregion
+
+        /// <summary>
+        /// Initializes all child controls of this element.
+        /// </summary>
+        protected virtual void InitializeControls()
+        {
+        }
 
         private static string GetStringForElement(IWebElement element, IJavaScriptExecutor javaScript)
         {

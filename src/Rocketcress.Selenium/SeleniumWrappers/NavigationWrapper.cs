@@ -25,7 +25,7 @@ namespace Rocketcress.Selenium.SeleniumWrappers
         /// <param name="wrappedNavigation">The <see cref="INavigation"/> that is wrapped.</param>
         public NavigationWrapper(WebDriver driver, INavigation wrappedNavigation)
         {
-            Driver = driver;
+            Driver = driver ?? throw new ArgumentNullException(nameof(driver));
             WrappedNavigation = wrappedNavigation;
         }
 
@@ -109,7 +109,7 @@ namespace Rocketcress.Selenium.SeleniumWrappers
             finally
             {
                 if (timeout.HasValue)
-                    Driver.Manage().Timeouts().PageLoad = SeleniumTestContext.CurrentContext.Settings.Timeout;
+                    Driver.Manage().Timeouts().PageLoad = Driver.Context.Settings.Timeout;
             }
 
             Driver.SkipCertificateWarning();

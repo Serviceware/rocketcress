@@ -11,12 +11,10 @@ namespace Rocketcress.Selenium
     /// </summary>
     public abstract class View : TestObjectBase
     {
-        #region Properties
-
         /// <summary>
         /// Gets the driver to which the view is assigned to.
         /// </summary>
-        public WebDriver Driver { get; private set; }
+        public WebDriver Driver { get; }
 
         /// <summary>
         /// Gets the Location key that is used to uniquely identify the view.
@@ -33,25 +31,13 @@ namespace Rocketcress.Selenium
         /// </summary>
         public virtual string WindowHandle { get; set; }
 
-        #endregion
-
-        #region Initialization
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="View"/> class.
-        /// </summary>
-        public View()
-            : this(SeleniumTestContext.CurrentContext.Driver)
-        {
-        }
-
         /// <summary>
         /// Initializes a new instance of the <see cref="View"/> class.
         /// </summary>
         /// <param name="driver">The driver to which this view is attached.</param>
         public View(WebDriver driver)
         {
-            Driver = driver;
+            Driver = driver ?? throw new ArgumentNullException(nameof(driver));
             InitializeControls();
         }
 
@@ -61,8 +47,6 @@ namespace Rocketcress.Selenium
         protected virtual void InitializeControls()
         {
         }
-
-        #endregion
 
         /// <summary>
         /// Waits until this view exists in the current window.
@@ -130,9 +114,8 @@ namespace Rocketcress.Selenium
         /// </summary>
         public void SetFocus()
         {
-            var context = SeleniumTestContext.CurrentContext;
-            if (context.Driver != Driver)
-                context.SwitchCurrentDriver(Driver);
+            if (Driver.Context.Driver != Driver)
+                Driver.Context.SwitchCurrentDriver(Driver);
             Driver.SwitchTo(this);
             SetWindowToForeground();
         }

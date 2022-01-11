@@ -22,35 +22,16 @@ namespace Rocketcress.Selenium
     /// </summary>
     public class SeleniumTestContext : TestContextBase
     {
-        #region Fields
-
         private static readonly Dictionary<Browser, int[]> IgnoredPidsOnClose = new();
         private static readonly Dictionary<Browser, IDriverProvider> DriverProviders;
         internal static readonly string DriverCachePath = Path.Combine(Path.GetTempPath(), "SeleniumDriverCache");
 
-        #endregion
-
-        #region Properties
-
-        /// <summary>
-        /// Gets the current instance of the <see cref="SeleniumTestContext"/>.
-        /// </summary>
-        public static new SeleniumTestContext CurrentContext { get; private set; }
-
-        /// <summary>
-        /// Gets or sets the browser for which this test has been executed.
-        /// </summary>
-        public static Browser CurrentBrowser { get; set; }
-
-        /// <summary>
-        /// Gets or sets the browser language with which this test has been executed.
-        /// </summary>
-        public static CultureInfo CurrentBrowserLanguage { get; set; }
+        private IDriverConfiguration _driverConfiguration;
 
         /// <summary>
         /// Gets a list of all <see cref="WebDriver"/>s that are currently running.
         /// </summary>
-        public List<WebDriver> AllOpenedDrivers { get; private set; }
+        public List<WebDriver> AllOpenedDrivers { get; } = new();
 
         /// <summary>
         /// Gets the currently selected <see cref="WebDriver"/>.
@@ -58,17 +39,12 @@ namespace Rocketcress.Selenium
         public WebDriver Driver { get; private set; }
 
         /// <summary>
-        /// Gets or sets the test settings.
+        /// Gets the test settings.
         /// </summary>
         public new Settings Settings
         {
             get => (Settings)base.Settings;
-            set => base.Settings = value;
         }
-
-        #endregion
-
-        #region Constructors
 
         static SeleniumTestContext()
         {
@@ -87,16 +63,99 @@ namespace Rocketcress.Selenium
 #endif
         }
 
+#pragma warning disable CS1572 // XML comment has a param tag, but there is no parameter by that name
+#pragma warning disable SA1612 // Element parameter documentation should match element parameters
         /// <summary>
         /// Initializes a new instance of the <see cref="SeleniumTestContext"/> class.
         /// </summary>
-        protected SeleniumTestContext()
+        /// <param name="testContext">The current MSTest test context.</param>
+        /// <param name="settings">The test settings.</param>
+        /// <param name="driverConfiguration">The driver configuration to use when creating web drivers.</param>
+        protected SeleniumTestContext(
+#if !SLIM
+            TestContext testContext,
+#endif
+            Settings settings,
+            IDriverConfiguration driverConfiguration)
+            : base(testContext, settings)
         {
+            _driverConfiguration = driverConfiguration;
+        }
+#pragma warning restore CS1572 // XML comment has a param tag, but there is no parameter by that name
+#pragma warning restore SA1612 // Element parameter documentation should match element parameters
+
+        /// <inheritdoc/>
+        public override sealed void Initialize()
+        {
+            Initialize(Browser.Unknown, null);
         }
 
-        #endregion
+        /// <summary>
+        /// Initializes this test context.
+        /// </summary>
+        /// <param name="browser">The browser to launch.</param>
+        public void Initialize(Browser browser)
+        {
+            Initialize(browser, null);
+        }
 
-        #region Public Methods
+        /// <summary>
+        /// Initializes this test context.
+        /// </summary>
+        /// <param name="browser">The browser to launch.</param>
+        /// <param name="browserLanguage">The language of the browser to launch.</param>
+        public virtual void Initialize(Browser browser, CultureInfo browserLanguage)
+        {
+            base.Initialize();
+
+            Logger.LogDebug("Initializing test with browser {0}", browser);
+            Logger.LogDebug("Running selenium test with selenium version {0}", typeof(IWebElement)?.Assembly?.GetName()?.Version?.ToString() ?? "(null)");
+
+            if (browser != Browser.Unknown)
+            {
+                Settings.CurrentBrowser = browser;
+            }
+            else
+            {
+                string sBrowser = null;
+#if !SLIM
+                sBrowser = Convert.ToString(TestContext.Properties["TestConfiguration"])?.ToLower();
+                if (string.IsNullOrEmpty(sBrowser))
+                    sBrowser = Convert.ToString(TestContext.Properties["__Tfs_TestConfigurationName__"])?.ToLower();
+#endif
+
+                Logger.LogDebug("TestConfiguration = '{0}'", sBrowser ?? "(null)");
+                browser = Settings.DefaultBrowser;
+                if (sBrowser != null)
+                {
+                    if (sBrowser.Contains("chrome"))
+                        browser = Browser.Chrome;
+                    else if (sBrowser.Contains("firefox"))
+                        browser = Browser.Firefox;
+                    else if (sBrowser.Contains("ie") || sBrowser.Contains("internet explorer") || sBrowser.Contains("internetexplorer"))
+                        browser = Browser.InternetExplorer;
+                    else if (sBrowser.Contains("edge"))
+                        browser = Browser.Edge;
+                }
+
+                Settings.CurrentBrowser = browser;
+            }
+
+            if (browserLanguage is not null)
+                Settings.CurrentBrowserLanguage = browserLanguage;
+            else
+                Settings.CurrentBrowserLanguage = Settings.DefaultBrowserLanguage;
+
+            try
+            {
+                OnInitialize(browser, browserLanguage);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogCritical("Error while initializing test: {0}", ex);
+                throw;
+            }
+        }
 
         /// <summary>
         /// Switches the current driver to the index of AllOpenedDrivers.
@@ -115,7 +174,7 @@ namespace Rocketcress.Selenium
         /// <param name="timeout">The timeout.</param>
         public void SwitchCurrentDriver(IWebDriver driver, TimeSpan timeout)
         {
-            SwitchCurrentDriver(new WebDriver(driver, timeout));
+            SwitchCurrentDriver(new WebDriver(this, driver, timeout));
         }
 
         /// <summary>
@@ -188,7 +247,9 @@ namespace Rocketcress.Selenium
         /// <inheritdoc/>
         public override string TakeAndAppendScreenshot(string name)
         {
-            string browserTag = CurrentBrowser switch
+            var browser = Driver.GetBrowser();
+            var browserLang = Settings.CurrentBrowserLanguage;
+            string browserTag = browser switch
             {
                 Browser.Firefox => "FF",
                 Browser.Chrome => "CH",
@@ -196,113 +257,10 @@ namespace Rocketcress.Selenium
                 Browser.Edge => "ED",
                 _ => "__",
             };
-            browserTag += $"-{CurrentBrowserLanguage.Name}";
+            browserTag += $"-{browserLang.Name}";
 
             return base.TakeAndAppendScreenshot($"{browserTag}_{name}");
         }
-
-        /// <inheritdoc/>
-        protected override void OnContextCreated(TestContextBase lastContext)
-        {
-            base.OnContextCreated(lastContext);
-            CurrentContext = this;
-        }
-        #endregion
-
-        #region Public Functions
-
-#pragma warning disable CS1572 // XML comment has a param tag, but there is no parameter by that name
-#pragma warning disable SA1612 // Element parameter documentation should match element parameters
-        /// <summary>
-        /// Creates a new <see cref="SeleniumTestContext"/> as uses it as the current test context. Please make sure to dispose any preexisting <see cref="TestContextBase"/> instances beforehand.
-        /// </summary>
-        /// <typeparam name="T">The type of the context.</typeparam>
-        /// <param name="activationFunc">A function that creates an instance of the wanted test context class.</param>
-        /// <param name="settings">The settings to use during the test.</param>
-        /// <param name="testContext">The MSTest Test Context.</param>
-        /// <param name="initAction">An action that is executed before the new context is set as current context. Add additional information to the object here if needed.</param>
-        /// <returns>The created context.</returns>
-        protected static T CreateContext<T>(
-            Func<T> activationFunc,
-            Settings settings,
-#if !SLIM
-            TestContext testContext,
-#endif
-            Action<T> initAction)
-            where T : SeleniumTestContext
-        {
-            return TestContextBase.CreateContext<T>(
-                activationFunc,
-                settings,
-#if !SLIM
-                testContext,
-#endif
-                Initialize);
-
-            void Initialize(T ctx)
-            {
-                ctx.AllOpenedDrivers = new List<WebDriver>();
-                if (settings.CurrentBrowser == Browser.InternetExplorer)
-                    Wait.Options.DefaultTimeGap = TimeSpan.FromSeconds(1);
-                initAction?.Invoke(ctx);
-            }
-        }
-
-        /// <summary>
-        /// Creates a new <see cref="SeleniumTestContext"/> for the given arguments.
-        /// </summary>
-        /// <param name="settings">The settings for the test run.</param>
-        /// <param name="context">The test context of the test run.</param>
-        /// <returns>The created context.</returns>
-        [SuppressMessage("StyleCop.CSharp.SpacingRules", "SA1009:Closing parenthesis should be spaced correctly", Justification = "SLIM check")]
-        [SuppressMessage("StyleCop.CSharp.ReadabilityRules", "SA1111:Closing parenthesis should be on line of last parameter", Justification = "SLIM check")]
-        [SuppressMessage("StyleCop.CSharp.ReadabilityRules", "SA1115:Parameter should follow comma", Justification = "SLIM check")]
-        [SuppressMessage("StyleCop.CSharp.SpacingRules", "SA1001:Commas should be spaced correctly", Justification = "SLIM check")]
-        [SuppressMessage("StyleCop.CSharp.ReadabilityRules", "SA1113:Comma should be on the same line as previous parameter", Justification = "SLIM check")]
-        public static SeleniumTestContext CreateContext(
-            Settings settings
-#if !SLIM
-          , TestContext context
-#endif
-            )
-        {
-            return CreateContext(
-                () => new SeleniumTestContext(),
-                settings,
-#if !SLIM
-                context,
-#endif
-                null);
-        }
-#pragma warning restore SA1612 // Element parameter documentation should match element parameters
-#pragma warning restore CS1572 // XML comment has a param tag, but there is no parameter by that name
-
-        /// <summary>
-        /// Creates a new <see cref="IWebDriver"/>-Object for the given browser.
-        /// </summary>
-        /// <param name="browser">The browser for the <see cref="IWebDriver"/>.</param>
-        /// <param name="language">The language for the browser.</param>
-        /// <param name="settings">The settings for the test run.</param>
-        /// <param name="driverConfiguration">An object that is used to confiure the selenium driver that is created.</param>
-        /// <returns>The created driver.</returns>
-        public static IWebDriver GetDriver(Browser browser, CultureInfo language, Settings settings, IDriverConfiguration driverConfiguration = null)
-        {
-            string host = new Uri(settings.LoginUrl).Host;
-            var browserTimeout = settings.Timeout.TotalSeconds < 60 ? TimeSpan.FromSeconds(60) : settings.Timeout;
-
-            if (DriverProviders.TryGetValue(browser, out var provider))
-            {
-                if (!IgnoredPidsOnClose.ContainsKey(browser))
-                    IgnoredPidsOnClose.Add(browser, provider.GetProcessIds().ToArray());
-                return provider.CreateDriver(host, browserTimeout, language, settings, driverConfiguration);
-            }
-            else
-            {
-                throw new WebDriverException("Unknown browser: " + browser);
-            }
-        }
-
-        #endregion
 
         /// <inheritdoc />
         protected override void SaveScreenshot(string path)
@@ -321,41 +279,55 @@ namespace Rocketcress.Selenium
             screenshot.SaveAsFile(path);
         }
 
-        #region Private Functions
-
-        /// <summary>
-        /// Kills all driver processes that are still open after disposing the drivers.
-        /// Browser Processes that where open before the test are not killed.
-        /// </summary>
-        /// <param name="killAll">Determines whether all browser processes should be killed.</param>
-        internal static void KillAllDrivers(bool killAll)
+        /// <inheritdoc/>
+        protected override void OnContextCreated()
         {
-            foreach (var kv in IgnoredPidsOnClose)
-            {
-                var pids = DriverProviders.TryGetValue(kv.Key, out var provider) ? provider.GetProcessIds() : Array.Empty<int>();
-                foreach (var pid in killAll ? pids : pids.Except(kv.Value))
-                {
-                    try
-                    {
-                        Process.GetProcessById(pid).Kill();
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.LogWarning("Could not kill process with id " + pid + ": " + ex);
-                    }
-                }
-            }
+            base.OnContextCreated();
         }
 
-        #endregion
+        /// <inheritdoc/>
+        protected override sealed void OnInitialize()
+        {
+            base.OnInitialize();
+        }
 
-        #region Cleanup
+        /// <summary>
+        /// This method is called when the context is initializing.
+        /// </summary>
+        /// <param name="browser">The browser to launch.</param>
+        /// <param name="browserLanguage">The language of the browser to launch.</param>
+        protected virtual void OnInitialize(Browser browser, CultureInfo browserLanguage)
+        {
+#if !SLIM
+            Logger.LogDebug("Running test \"{0}\" with browser \"{1}\" (lang: {2})...", TestContext.TestName, Settings.CurrentBrowser, Settings.CurrentBrowserLanguage);
+#else
+            Logger.LogDebug("Running with browser \"{0}\" (lang: {1})...", Settings.CurrentBrowser, Settings.CurrentBrowserLanguage);
+#endif
+
+            CreateAndSwitchToNewDriver(Settings.CurrentBrowser, null, _driverConfiguration);
+            Driver.Manage().Timeouts().PageLoad = Settings.Timeout;
+            Driver.Manage().Timeouts().AsynchronousJavaScript = Settings.Timeout;
+
+            if (browser == Browser.InternetExplorer)
+                OsHelper.SetCursorPosition(0, 0);
+        }
 
         /// <inheritdoc />
         [SuppressMessage("StyleCop.CSharp.SpacingRules", "SA1009:Closing parenthesis should be spaced correctly", Justification = "SLIM check")]
         [SuppressMessage("StyleCop.CSharp.ReadabilityRules", "SA1111:Closing parenthesis should be on line of last parameter", Justification = "SLIM check")]
         protected override void Dispose(bool disposing)
         {
+#if !SLIM
+            if (disposing)
+            {
+                bool isFailed = TestContext.CurrentTestOutcome != UnitTestOutcome.Passed;
+                if (isFailed)
+                {
+                    TakeAndAppendScreenshot();
+                }
+            }
+#endif
+
             var disposeTasks = AllOpenedDrivers.Select(
                 x => Task.Run(
                     () => DisposeDriver(
@@ -368,15 +340,12 @@ namespace Rocketcress.Selenium
 #endif
                         ))).ToArray();
             Task.WaitAll(disposeTasks, 120000);
-            AllOpenedDrivers.Clear();
-            Driver = null;
             KillAllDrivers(Settings.KillAllBrowserProcessesOnCleanup);
-            IgnoredPidsOnClose.Clear();
-
-            if (CurrentContext == this)
+            if (disposing)
             {
-                CurrentContext = null;
-                RaiseContextChangedEvent(this, null);
+                AllOpenedDrivers.Clear();
+                Driver = null;
+                IgnoredPidsOnClose.Clear();
             }
 
             base.Dispose(disposing);
@@ -388,7 +357,7 @@ namespace Rocketcress.Selenium
         /// <param name="driver">The driver to dispose.</param>
         /// <param name="settings">The current settings.</param>
         /// <param name="writeLog">Determines wether to write the browser log to the test log.</param>
-        public void DisposeDriver(WebDriver driver, Settings settings, bool writeLog)
+        private void DisposeDriver(WebDriver driver, Settings settings, bool writeLog)
         {
             try
             {
@@ -421,6 +390,53 @@ namespace Rocketcress.Selenium
             }
         }
 
-        #endregion
+        /// <summary>
+        /// Creates a new <see cref="IWebDriver"/>-Object for the given browser.
+        /// </summary>
+        /// <param name="browser">The browser for the <see cref="IWebDriver"/>.</param>
+        /// <param name="language">The language for the browser.</param>
+        /// <param name="settings">The settings for the test run.</param>
+        /// <param name="driverConfiguration">An object that is used to confiure the selenium driver that is created.</param>
+        /// <returns>The created driver.</returns>
+        public static IWebDriver GetDriver(Browser browser, CultureInfo language, Settings settings, IDriverConfiguration driverConfiguration = null)
+        {
+            string host = new Uri(settings.LoginUrl).Host;
+            var browserTimeout = settings.Timeout.TotalSeconds < 60 ? TimeSpan.FromSeconds(60) : settings.Timeout;
+
+            if (DriverProviders.TryGetValue(browser, out var provider))
+            {
+                if (!IgnoredPidsOnClose.ContainsKey(browser))
+                    IgnoredPidsOnClose.Add(browser, provider.GetProcessIds().ToArray());
+                return provider.CreateDriver(host, browserTimeout, language, settings, driverConfiguration);
+            }
+            else
+            {
+                throw new WebDriverException("Unknown browser: " + browser);
+            }
+        }
+
+        /// <summary>
+        /// Kills all driver processes that are still open after disposing the drivers.
+        /// Browser Processes that where open before the test are not killed.
+        /// </summary>
+        /// <param name="killAll">Determines whether all browser processes should be killed.</param>
+        internal static void KillAllDrivers(bool killAll)
+        {
+            foreach (var kv in IgnoredPidsOnClose)
+            {
+                var pids = DriverProviders.TryGetValue(kv.Key, out var provider) ? provider.GetProcessIds() : Array.Empty<int>();
+                foreach (var pid in killAll ? pids : pids.Except(kv.Value))
+                {
+                    try
+                    {
+                        Process.GetProcessById(pid).Kill();
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogWarning("Could not kill process with id " + pid + ": " + ex);
+                    }
+                }
+            }
+        }
     }
 }

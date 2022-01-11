@@ -58,9 +58,11 @@ namespace Rocketcress.Selenium
         {
             foreach (var (browser, language) in _browsers)
             {
-                SeleniumTestContext.CurrentBrowser = browser;
-                SeleniumTestContext.CurrentBrowserLanguage = language;
-                yield return Array.Empty<object>();
+                yield return new object[]
+                {
+                    browser,
+                    language,
+                };
             }
         }
 
@@ -68,7 +70,7 @@ namespace Rocketcress.Selenium
         public string GetDisplayName(MethodInfo methodInfo, object[] data)
         {
             if (data != null)
-                return $"{SeleniumTestContext.CurrentBrowser} - {SeleniumTestContext.CurrentBrowserLanguage.Name}";
+                return $"{data[0]} - {data[1]}";
             return null;
         }
     }

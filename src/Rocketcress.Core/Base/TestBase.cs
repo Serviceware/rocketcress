@@ -53,6 +53,14 @@ namespace Rocketcress.Core.Base
             TestHelper.IsDebugConfiguration = GetIsDebugConfiguration();
             Logger.LogDebug($"IsDebugConfiguration (could be overridden by derives classes): " + TestHelper.IsDebugConfiguration);
 
+#if !SLIM
+            Logger.LogDebug("TestContext.Properties:");
+            foreach (var p in TestContext.Properties.Keys)
+            {
+                Logger.LogDebug($"    {p} = {TestContext.Properties[p]}");
+            }
+#endif
+
             AppDomain.CurrentDomain.FirstChanceException += AppDomain_FirstChanceException;
             OnInitializeTest();
         }
