@@ -1,9 +1,6 @@
 ﻿using Rocketcress.Core;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.Composition.Hosting;
 using System.ComponentModel.Composition.Primitives;
-using System.Linq;
 
 namespace Rocketcress.Composition
 {

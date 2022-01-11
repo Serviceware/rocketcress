@@ -1,5 +1,4 @@
 ﻿using Rocketcress.UIAutomation.Controls;
-using System.Windows.Automation;
 
 namespace Rocketcress.UIAutomation.Models
 {

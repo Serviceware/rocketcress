@@ -5,10 +5,6 @@ using Rocketcress.UIAutomation.ControlSearch;
 using Rocketcress.UIAutomation.ControlSearch.Conditions;
 using Rocketcress.UIAutomation.ControlSearch.DescriptionParsing;
 using Rocketcress.UIAutomation.ControlSearch.SearchParts;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Windows.Automation;
 using PropertyCondition = Rocketcress.UIAutomation.ControlSearch.Conditions.PropertyCondition;
 
 namespace Rocketcress.UIAutomation

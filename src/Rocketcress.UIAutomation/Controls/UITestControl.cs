@@ -5,16 +5,10 @@ using Rocketcress.UIAutomation.Common;
 using Rocketcress.UIAutomation.ControlSearch;
 using Rocketcress.UIAutomation.Exceptions;
 using Rocketcress.UIAutomation.Extensions;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Windows;
-using System.Windows.Automation;
 using System.Windows.Forms;
 using System.Windows.Input;
 using Mouse = Rocketcress.UIAutomation.Interaction.Mouse;
@@ -30,13 +24,88 @@ namespace Rocketcress.UIAutomation.Controls
         internal const int ShortControlActionTimeout = 1000;
         internal const int LongControlActionTimeout = 5000;
 
-        #region Fields
         private AutomationElement _automationElement;
         private UITestControl _parent;
         private UITestControl _window;
-        #endregion
 
-        #region Properties
+        /// <summary>
+        /// Initializes a new instance of the <see cref="UITestControl"/> class as lazy element.
+        /// </summary>
+        /// <param name="application">The application which hosts this control.</param>
+        protected UITestControl(Application application)
+        {
+            Application = application ?? throw new ArgumentNullException(nameof(application));
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="UITestControl"/> class as lazy element.
+        /// </summary>
+        /// <param name="application">The application which hosts this control.</param>
+        /// <param name="locationKey">The location key.</param>
+        public UITestControl(Application application, By locationKey)
+            : this(application, locationKey, (UITestControl)null)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="UITestControl"/> class as lazy element.
+        /// </summary>
+        /// <param name="application">The application which hosts this control.</param>
+        /// <param name="parent">The parent control.</param>
+        public UITestControl(Application application, IUITestControl parent)
+            : this(application, By.Empty, parent)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="UITestControl"/> class as lazy element.
+        /// </summary>
+        /// <param name="application">The application which hosts this control.</param>
+        /// <param name="locationKey">The location key.</param>
+        /// <param name="parent">The parent control.</param>
+        public UITestControl(Application application, By locationKey, AutomationElement parent)
+            : this(application, locationKey, new UITestControl(application, parent))
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="UITestControl"/> class as lazy element.
+        /// </summary>
+        /// <param name="application">The application which hosts this control.</param>
+        /// <param name="locationKey">The location key.</param>
+        /// <param name="parent">The parent control.</param>
+        public UITestControl(Application application, By locationKey, IUITestControl parent)
+            : this(application)
+        {
+            if (parent is not null)
+            {
+                if (parent.Application != application)
+                    throw new ArgumentException("The parent needs to be part of the same application.", nameof(parent));
+                parent.AutomationElementChanged += (s, e) => ClearAutomationElementCache();
+            }
+
+            LocationKey = (BaseLocationKey ?? By.Empty).Append(locationKey, true, true);
+            SearchContext = parent;
+            Initialize();
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="UITestControl"/> class as non-lazy element.
+        /// </summary>
+        /// <param name="application">The application which hosts this control.</param>
+        /// <param name="element">The underlying <see cref="System.Windows.Automation.AutomationElement"/>.</param>
+        public UITestControl(Application application, AutomationElement element)
+            : this(application)
+        {
+            LocationKey = null;
+            SearchContext = null;
+            _automationElement = element ?? throw new ArgumentNullException(nameof(element), "The automation element cannot be null.");
+            Initialize();
+        }
+
+        /// <summary>
+        /// Event that is triggered whenever the underlying <see cref="System.Windows.Automation.AutomationElement"/> changed.
+        /// </summary>
         public event EventHandler AutomationElementChanged;
 
         /// <summary>
@@ -57,7 +126,7 @@ namespace Rocketcress.UIAutomation.Controls
         /// <summary>
         /// Gets the application to which the current control is associated with.
         /// </summary>
-        public virtual Application Application => SearchContext?.Application ?? UIAutomationTestContext.CurrentContext.ActiveApplication;
+        public Application Application { get; }
 
         /// <summary>
         /// Gets a value indicating whether the underlying <see cref="System.Windows.Automation.AutomationElement"/> is loaded dynamically.
@@ -101,69 +170,6 @@ namespace Rocketcress.UIAutomation.Controls
         /// Gets a value indicating whether the control exists and is displayed (not offscreen).
         /// </summary>
         public virtual bool Displayed => Exists && !IsOffscreen;
-        #endregion
-
-        #region Constructors
-        protected UITestControl()
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="UITestControl"/> class as lazy element.
-        /// </summary>
-        /// <param name="locationKey">The location key.</param>
-        public UITestControl(By locationKey)
-            : this(locationKey, (UITestControl)null)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="UITestControl"/> class as lazy element.
-        /// </summary>
-        /// <param name="parent">The parent control.</param>
-        public UITestControl(IUITestControl parent)
-            : this(By.Empty, parent)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="UITestControl"/> class as lazy element.
-        /// </summary>
-        /// <param name="locationKey">The location key.</param>
-        /// <param name="parent">The parent control.</param>
-        public UITestControl(By locationKey, AutomationElement parent)
-            : this(locationKey, new UITestControl(parent))
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="UITestControl"/> class as lazy element.
-        /// </summary>
-        /// <param name="locationKey">The location key.</param>
-        /// <param name="parent">The parent control.</param>
-        public UITestControl(By locationKey, IUITestControl parent)
-        {
-            if (parent != null)
-                parent.AutomationElementChanged += (s, e) => ClearAutomationElementCache();
-            LocationKey = (BaseLocationKey ?? By.Empty).Append(locationKey, true, true);
-            SearchContext = parent;
-            Initialize();
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="UITestControl"/> class as non-lazy element.
-        /// </summary>
-        /// <param name="element">The underlying <see cref="System.Windows.Automation.AutomationElement"/>.</param>
-        public UITestControl(AutomationElement element)
-        {
-            LocationKey = null;
-            SearchContext = null;
-            _automationElement = element ?? throw new ArgumentNullException(nameof(element), "The automation element cannot be null.");
-            Initialize();
-        }
-        #endregion
-
-        #region AutomationElement Properties
 
         /// <summary>
         /// Gets a lazy <see cref="IUITestControl"/> object representing the parent of this control.
@@ -173,7 +179,7 @@ namespace Rocketcress.UIAutomation.Controls
             get
             {
                 if (_parent == null)
-                    _parent = new UITestControl(By.Scope(TreeScope.Parent), this);
+                    _parent = new UITestControl(Application, By.Scope(TreeScope.Parent), this);
                 return _parent;
             }
         }
@@ -186,7 +192,7 @@ namespace Rocketcress.UIAutomation.Controls
             get
             {
                 if (_window == null)
-                    _window = new UITestControl(By.ControlType(ControlType.Window).AndScope(TreeScope.Ancestors | TreeScope.Element), this);
+                    _window = new UITestControl(Application, By.ControlType(ControlType.Window).AndScope(TreeScope.Ancestors | TreeScope.Element), this);
                 return _window;
             }
         }
@@ -285,25 +291,6 @@ namespace Rocketcress.UIAutomation.Controls
         /// Gets the help text of this control.
         /// </summary>
         public virtual string HelpText => GetPropertyValue<string>(AutomationElement.HelpTextProperty);
-        #endregion
-
-        #region Protected Methods
-
-        /// <summary>
-        /// Initializes the control and potentially child control for this control. This method is executed in the constructors.
-        /// </summary>
-        protected virtual void Initialize()
-        {
-        }
-
-        protected internal virtual void LogDebug(string message, params object[] @params) => Logger.LogDebug(message + $" ({GetSearchDescription()})", @params);
-        protected internal virtual void LogInfo(string message, params object[] @params) => Logger.LogInfo(message + $" ({GetSearchDescription()})", @params);
-        protected internal virtual void LogWarning(string message, params object[] @params) => Logger.LogWarning(message + $" ({GetSearchDescription()})", @params);
-        protected internal virtual void LogError(string message, params object[] @params) => Logger.LogError(message + $" ({GetSearchDescription()})", @params);
-        protected internal virtual void LogCritical(string message, params object[] @params) => Logger.LogCritical(message + $" ({GetSearchDescription()})", @params);
-        #endregion
-
-        #region Public Methods
 
         /// <summary>
         /// Clears the underlying AutomationElement, so that on the next acces to the <see cref="AutomationElement"/> property, this control is searched again.
@@ -574,14 +561,14 @@ namespace Rocketcress.UIAutomation.Controls
         /// <param name="locationKey">The location key that is used for the search.</param>
         /// <exception cref="NoSuchElementException">A control with the given location key was not found.</exception>
         /// <returns>A <see cref="UITestControl"/> that represents the first found control.</returns>
-        public virtual IUITestControl FindElement(By locationKey) => ControlUtility.GetControl(SearchEngine.FindFirst(locationKey, AutomationElement) ?? throw new NoSuchElementException(this, locationKey));
+        public virtual IUITestControl FindElement(By locationKey) => ControlUtility.GetControl(Application, SearchEngine.FindFirst(locationKey, AutomationElement) ?? throw new NoSuchElementException(this, locationKey));
 
         /// <summary>
         /// Searches for all descemdamt controls that matches the given location key.
         /// </summary>
         /// <param name="locationKey">The location key that is used for the search.</param>
         /// <returns>An enumerable of UITestControls, which contains all found controls.</returns>
-        public virtual IEnumerable<IUITestControl> FindElements(By locationKey) => SearchEngine.FindAll(locationKey, AutomationElement).Select(x => ControlUtility.GetControl(x));
+        public virtual IEnumerable<IUITestControl> FindElements(By locationKey) => SearchEngine.FindAll(locationKey, AutomationElement).Select(x => ControlUtility.GetControl(Application, x));
 
         /// <summary>
         /// Returns the parent of the current control.
@@ -924,26 +911,7 @@ namespace Rocketcress.UIAutomation.Controls
             var loc = BoundingRectangle.Location;
             return WindowsApiHelper.GetScreenPixel((int)loc.X + x, (int)loc.Y + y);
         }
-        #endregion
 
-        #region Private Methods
-        private IEnumerable<AutomationElement> GetAllParents()
-        {
-            var result = new LinkedList<AutomationElement>();
-            var walker = TreeWalker.RawViewWalker;
-            var current = AutomationElement;
-            while (current != null && current != AutomationElement.RootElement)
-            {
-                if (current != AutomationElement)
-                    result.AddFirst(current);
-                current = walker.GetParent(current);
-            }
-
-            return result;
-        }
-        #endregion
-
-        #region Internal Functions
         internal static By GetBaseLocationKey(Type controlType)
         {
             if (!typeof(UITestControl).IsAssignableFrom(controlType))
@@ -959,11 +927,38 @@ namespace Rocketcress.UIAutomation.Controls
         {
             return _automationElement;
         }
-        #endregion
+
+        /// <summary>
+        /// Initializes the control and potentially child control for this control. This method is executed in the constructors.
+        /// </summary>
+        protected virtual void Initialize()
+        {
+        }
+
+        protected internal virtual void LogDebug(string message, params object[] @params) => Logger.LogDebug(message + $" ({GetSearchDescription()})", @params);
+        protected internal virtual void LogInfo(string message, params object[] @params) => Logger.LogInfo(message + $" ({GetSearchDescription()})", @params);
+        protected internal virtual void LogWarning(string message, params object[] @params) => Logger.LogWarning(message + $" ({GetSearchDescription()})", @params);
+        protected internal virtual void LogError(string message, params object[] @params) => Logger.LogError(message + $" ({GetSearchDescription()})", @params);
+        protected internal virtual void LogCritical(string message, params object[] @params) => Logger.LogCritical(message + $" ({GetSearchDescription()})", @params);
+
+        private IEnumerable<AutomationElement> GetAllParents()
+        {
+            var result = new LinkedList<AutomationElement>();
+            var walker = TreeWalker.RawViewWalker;
+            var current = AutomationElement;
+            while (current != null && current != AutomationElement.RootElement)
+            {
+                if (current != AutomationElement)
+                    result.AddFirst(current);
+                current = walker.GetParent(current);
+            }
+
+            return result;
+        }
     }
 
     [SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1402:File may only contain a single type", Justification = "Extension methods")]
-    public static class UITestControlExtsnions
+    public static class UITestControlExtensions
     {
         /// <summary>
         /// Returns an enumerable of all UITestControls that match the specified control definition.

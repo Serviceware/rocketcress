@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Windows.Automation;
-
-namespace Rocketcress.UIAutomation.ControlSearch
+﻿namespace Rocketcress.UIAutomation.ControlSearch
 {
     public interface ISearchCondition : ICloneable
     {

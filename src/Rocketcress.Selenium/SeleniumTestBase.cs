@@ -1,9 +1,5 @@
-﻿using Rocketcress.Core.Attributes;
-using Rocketcress.Core.Base;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
+﻿using Rocketcress.Core.Base;
 #if !SLIM
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 #endif
 
 namespace Rocketcress.Selenium
@@ -12,7 +8,6 @@ namespace Rocketcress.Selenium
     /// Base class for a test class containing Selenium tests.
     /// </summary>
 #if !SLIM
-    [TestClass]
     [DeploymentItem("geckodriver.exe")]
     [DeploymentItem("IEDriverServer.exe")]
     [DeploymentItem("webdriver_prefs.json")]
@@ -28,7 +23,6 @@ namespace Rocketcress.Selenium
     /// <typeparam name="TSettings">The type of the settings.</typeparam>
     /// <typeparam name="TContext">The type of the test context.</typeparam>
 #if !SLIM
-    [TestClass]
     [DeploymentItem("geckodriver.exe")]
     [DeploymentItem("IEDriverServer.exe")]
     [DeploymentItem("webdriver_prefs.json")]

@@ -1,9 +1,5 @@
 ﻿using Rocketcress.UIAutomation.Controls;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Windows.Automation;
 
 namespace Rocketcress.UIAutomation.Common
 {
@@ -11,7 +7,7 @@ namespace Rocketcress.UIAutomation.Common
     {
         private static List<(By LocationKey, Type ControlType)> _controlRegistry;
 
-        public static IUITestControl GetControl(AutomationElement element)
+        public static IUITestControl GetControl(Application application, AutomationElement element)
         {
             if (element == null)
                 return null;
@@ -28,7 +24,7 @@ namespace Rocketcress.UIAutomation.Common
             }
 
             if (targetType == null)
-                return new UITestControl(element);
+                return new UITestControl(application, element);
             return (IUITestControl)Activator.CreateInstance(targetType, element);
         }
 

@@ -2,9 +2,6 @@
 using Rocketcress.UIAutomation.Controls.WpfControls;
 using Rocketcress.UIAutomation.ControlSearch;
 using Rocketcress.UIAutomation.Exceptions;
-using System.Collections.Generic;
-using System.Linq;
-using System.Windows.Automation;
 
 namespace Rocketcress.UIAutomation.Controls.ControlSupport
 {
@@ -49,7 +46,7 @@ namespace Rocketcress.UIAutomation.Controls.ControlSupport
             expand?.Expand();
 
             var element = EnumerateItems().ElementAt(value);
-            new WpfListItem(element).Select();
+            new WpfListItem(_control.Application, element).Select();
 
             expand?.Collapse();
         }
@@ -109,7 +106,7 @@ namespace Rocketcress.UIAutomation.Controls.ControlSupport
             var item = itemContainerPattern.FindItemByProperty(null, AutomationElement.NameProperty, value);
             if (item == null)
                 throw new NoSuchElementException($"An element with name \"{value}\" was not found in the combo box items.");
-            var listItem = new WpfListItem(item);
+            var listItem = new WpfListItem(_control.Application, item);
             listItem.Select();
 
             expand?.Collapse();

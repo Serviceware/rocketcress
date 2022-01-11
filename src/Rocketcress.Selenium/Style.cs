@@ -1,9 +1,5 @@
-﻿using OpenQA.Selenium;
-using Rocketcress.Core.Extensions;
-using System;
-using System.Collections.Generic;
+﻿using Rocketcress.Core.Extensions;
 using System.Drawing;
-using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace Rocketcress.Selenium

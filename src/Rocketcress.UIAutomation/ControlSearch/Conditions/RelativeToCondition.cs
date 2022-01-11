@@ -1,7 +1,4 @@
 ﻿using Rocketcress.UIAutomation.ControlSearch.SearchParts;
-using System;
-using System.Linq;
-using System.Windows.Automation;
 
 namespace Rocketcress.UIAutomation.ControlSearch.Conditions
 {

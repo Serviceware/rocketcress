@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Rocketcress.Core.Attributes
+﻿namespace Rocketcress.Core.Attributes
 {
     /// <summary>
     /// Used to ignore a specific key in the key check.

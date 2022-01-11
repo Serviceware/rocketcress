@@ -1,12 +1,8 @@
-﻿using OpenQA.Selenium;
-using Rocketcress.Core;
+﻿using Rocketcress.Core;
 using Rocketcress.Core.Base;
 using Rocketcress.Selenium.Extensions;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
-using System.Linq;
 using Keys = OpenQA.Selenium.Keys;
 
 namespace Rocketcress.Selenium.Controls

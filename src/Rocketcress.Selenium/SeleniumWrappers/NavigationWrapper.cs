@@ -1,7 +1,4 @@
-﻿using OpenQA.Selenium;
-using System;
-
-namespace Rocketcress.Selenium.SeleniumWrappers
+﻿namespace Rocketcress.Selenium.SeleniumWrappers
 {
     /// <summary>
     /// Wrapper for an <see cref="INavigation"/> object.

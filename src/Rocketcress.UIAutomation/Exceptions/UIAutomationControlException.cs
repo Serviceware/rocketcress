@@ -1,7 +1,5 @@
 ﻿using Rocketcress.UIAutomation.Controls;
 using Rocketcress.UIAutomation.Models;
-using System;
-using System.Windows.Automation;
 
 namespace Rocketcress.UIAutomation.Exceptions
 {
@@ -25,17 +23,17 @@ namespace Rocketcress.UIAutomation.Exceptions
         }
 
         public UIAutomationControlException(string message, IUITestControl parent, By locationKey, Exception innerException)
-            : this(message, new UITestControl(locationKey, parent), innerException)
+            : this(message, new UITestControl(parent.Application, locationKey, parent), innerException)
         {
         }
 
-        public UIAutomationControlException(string message, AutomationElement parent, By locationKey)
-            : this(message, parent, locationKey, null)
+        public UIAutomationControlException(string message, Application app, AutomationElement parent, By locationKey)
+            : this(message, app, parent, locationKey, null)
         {
         }
 
-        public UIAutomationControlException(string message, AutomationElement parent, By locationKey, Exception innerException)
-            : this(message, new UITestControl(locationKey, parent), innerException)
+        public UIAutomationControlException(string message, Application app, AutomationElement parent, By locationKey, Exception innerException)
+            : this(message, new UITestControl(app, locationKey, parent), innerException)
         {
         }
 

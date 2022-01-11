@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Rocketcress.Core
+﻿namespace Rocketcress.Core
 {
     /// <summary>
     /// Configuration for what should happen when an exception occurs during a wait operation.

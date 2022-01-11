@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Rocketcress.UIAutomation.Exceptions
+﻿namespace Rocketcress.UIAutomation.Exceptions
 {
     public class UIAutomationException : Exception
     {

@@ -1,7 +1,5 @@
 ﻿using Rocketcress.Core.Extensions;
 using Rocketcress.UIAutomation.Extensions;
-using System.Linq;
-using System.Windows.Automation;
 
 namespace Rocketcress.UIAutomation.ControlSearch.Conditions
 {

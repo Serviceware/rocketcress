@@ -1,18 +1,10 @@
-﻿using OpenQA.Selenium;
-using Rocketcress.Core;
+﻿using Rocketcress.Core;
 using Rocketcress.Core.Base;
 using Rocketcress.Core.Extensions;
 using Rocketcress.Selenium.DriverProviders;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
-using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 #if !SLIM
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 #endif
 
 namespace Rocketcress.Selenium
@@ -41,10 +33,7 @@ namespace Rocketcress.Selenium
         /// <summary>
         /// Gets the test settings.
         /// </summary>
-        public new Settings Settings
-        {
-            get => (Settings)base.Settings;
-        }
+        public new Settings Settings => (Settings)base.Settings;
 
         static SeleniumTestContext()
         {

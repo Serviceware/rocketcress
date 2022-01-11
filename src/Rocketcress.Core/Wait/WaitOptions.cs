@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Rocketcress.Core
+﻿namespace Rocketcress.Core
 {
     /// <summary>
     /// Provides options for the <see cref="Wait"/> class.

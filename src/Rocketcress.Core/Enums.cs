@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Rocketcress.Core
+﻿namespace Rocketcress.Core
 {
     /// <summary>
     /// Specifies constants for known languages.

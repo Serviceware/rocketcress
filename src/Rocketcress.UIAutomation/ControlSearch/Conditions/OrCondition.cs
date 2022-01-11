@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Windows.Automation;
-
-namespace Rocketcress.UIAutomation.ControlSearch.Conditions
+﻿namespace Rocketcress.UIAutomation.ControlSearch.Conditions
 {
     public class OrCondition : CompositionSearchConditionBase
     {

@@ -1,7 +1,4 @@
 ﻿using Rocketcress.Core.Extensions;
-using System.Collections.Generic;
-using System.Linq;
-using System.Windows.Automation;
 using PropertyCondition = Rocketcress.UIAutomation.ControlSearch.Conditions.PropertyCondition;
 
 namespace Rocketcress.UIAutomation.ControlSearch.SearchParts

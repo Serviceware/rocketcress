@@ -1,6 +1,4 @@
 ﻿using Rocketcress.Core;
-using Rocketcress.Core.Attributes;
-using System;
 
 namespace Rocketcress.Selenium.Controls
 {

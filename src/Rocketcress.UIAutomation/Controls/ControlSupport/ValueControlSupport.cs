@@ -1,7 +1,6 @@
 ﻿using Rocketcress.Core;
 using Rocketcress.UIAutomation.Exceptions;
 using System.Text.RegularExpressions;
-using System.Windows.Automation;
 
 namespace Rocketcress.UIAutomation.Controls.ControlSupport
 {

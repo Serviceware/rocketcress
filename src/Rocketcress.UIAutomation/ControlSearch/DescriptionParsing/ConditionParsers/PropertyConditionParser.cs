@@ -1,4 +1,4 @@
-﻿using Rocketcress.UIAutomation.ControlSearch.Conditions;
+﻿using PropertyCondition = Rocketcress.UIAutomation.ControlSearch.Conditions.PropertyCondition;
 
 namespace Rocketcress.UIAutomation.ControlSearch.DescriptionParsing.ConditionParsers
 {

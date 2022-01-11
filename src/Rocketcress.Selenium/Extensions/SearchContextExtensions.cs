@@ -1,7 +1,4 @@
-﻿using OpenQA.Selenium;
-using System.Linq;
-
-namespace Rocketcress.Selenium.Extensions
+﻿namespace Rocketcress.Selenium.Extensions
 {
     /// <summary>
     /// Provides extension methods for the <see cref="ISearchContext"/> interface.

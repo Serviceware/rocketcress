@@ -1,5 +1,4 @@
 ﻿using OpenQA.Selenium.Interactions;
-using System;
 
 namespace Rocketcress.Selenium.Interactions
 {

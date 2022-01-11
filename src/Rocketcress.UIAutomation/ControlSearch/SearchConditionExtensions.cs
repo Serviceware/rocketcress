@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Rocketcress.UIAutomation.ControlSearch
+﻿namespace Rocketcress.UIAutomation.ControlSearch
 {
     public static class SearchConditionExtensions
     {

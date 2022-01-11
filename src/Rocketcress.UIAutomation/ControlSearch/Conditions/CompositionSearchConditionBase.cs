@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-
-namespace Rocketcress.UIAutomation.ControlSearch.Conditions
+﻿namespace Rocketcress.UIAutomation.ControlSearch.Conditions
 {
     public abstract class CompositionSearchConditionBase : SearchConditionBase, ICompositeSearchCondition
     {

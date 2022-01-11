@@ -1,7 +1,6 @@
 ﻿using Rocketcress.Core;
 using Rocketcress.Core.WindowsApiTypes;
 using Rocketcress.UIAutomation.Controls;
-using System;
 using System.Threading;
 using System.Windows;
 using System.Windows.Forms;

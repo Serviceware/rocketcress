@@ -1,7 +1,4 @@
-﻿using System;
-using System.Linq;
-
-namespace Rocketcress.UIAutomation.Extensions
+﻿namespace Rocketcress.UIAutomation.Extensions
 {
     public static class ByOptionsExtensions
     {

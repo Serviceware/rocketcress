@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Rocketcress.Core
+﻿namespace Rocketcress.Core
 {
     /// <summary>
     /// Represents a method that handles the WaitingStarting and WaitingEnded events of the Waiter.

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Rocketcress.Core
+﻿namespace Rocketcress.Core
 {
     /// <summary>
     /// Provdes extension methods for the <see cref="IConfigurableWait{TResult, TWait}"/> interface.

@@ -1,9 +1,7 @@
-﻿using System;
-using System.Globalization;
-using System.IO;
+﻿using System.Globalization;
+using Rocketcress.Core.Models;
 #if !SLIM
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Rocketcress.Core.Models;
 #endif
 
 namespace Rocketcress.Core.Base

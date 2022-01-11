@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Windows.Automation;
-
-namespace Rocketcress.UIAutomation.ControlSearch.SearchParts
+﻿namespace Rocketcress.UIAutomation.ControlSearch.SearchParts
 {
     public class AncestorsSearchPart : SearchPartBase, INestedSearchPart, IDepthSearchPart
     {

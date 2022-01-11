@@ -1,7 +1,4 @@
-﻿using System;
-using System.Windows.Automation;
-
-namespace Rocketcress.UIAutomation.ControlSearch.Conditions
+﻿namespace Rocketcress.UIAutomation.ControlSearch.Conditions
 {
     public class NotCondition : SearchConditionBase
     {

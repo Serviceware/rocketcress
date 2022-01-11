@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Rocketcress.Core
+﻿namespace Rocketcress.Core
 {
     internal sealed class Wait<T> : IWait<T>, IWaitOnError<T>
     {

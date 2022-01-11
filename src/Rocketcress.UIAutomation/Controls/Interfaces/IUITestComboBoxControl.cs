@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Rocketcress.UIAutomation.Controls
+﻿namespace Rocketcress.UIAutomation.Controls
 {
     public interface IUITestComboBoxControl : IUITestControl
     {

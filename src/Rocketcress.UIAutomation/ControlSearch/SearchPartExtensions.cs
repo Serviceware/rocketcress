@@ -1,8 +1,6 @@
 ﻿using Rocketcress.Core.Extensions;
-using Rocketcress.UIAutomation.ControlSearch.Conditions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using AndCondition = Rocketcress.UIAutomation.ControlSearch.Conditions.AndCondition;
+using OrCondition = Rocketcress.UIAutomation.ControlSearch.Conditions.OrCondition;
 
 namespace Rocketcress.UIAutomation.ControlSearch
 {

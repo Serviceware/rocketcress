@@ -1,7 +1,6 @@
 ﻿using Rocketcress.Core;
 using Rocketcress.Core.WindowsApiTypes;
 using Rocketcress.UIAutomation.Controls;
-using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using System.Windows.Input;

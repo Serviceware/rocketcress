@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Windows.Automation;
+﻿using System.Reflection;
 
 namespace Rocketcress.UIAutomation.ControlSearch.DescriptionParsing
 {

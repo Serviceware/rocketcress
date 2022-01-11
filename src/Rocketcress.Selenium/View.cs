@@ -1,8 +1,6 @@
-﻿using OpenQA.Selenium;
-using Rocketcress.Core;
+﻿using Rocketcress.Core;
 using Rocketcress.Core.Base;
 using Rocketcress.Selenium.Extensions;
-using System;
 
 namespace Rocketcress.Selenium
 {

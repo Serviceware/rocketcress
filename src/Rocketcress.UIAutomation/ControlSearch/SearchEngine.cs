@@ -1,8 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Windows.Automation;
-
-namespace Rocketcress.UIAutomation.ControlSearch
+﻿namespace Rocketcress.UIAutomation.ControlSearch
 {
     public static class SearchEngine
     {

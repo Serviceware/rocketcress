@@ -1,7 +1,5 @@
-﻿using OpenQA.Selenium;
-using OpenQA.Selenium.Interactions;
+﻿using OpenQA.Selenium.Interactions;
 using Rocketcress.Core.Extensions;
-using System;
 
 namespace Rocketcress.Selenium.Interactions
 {

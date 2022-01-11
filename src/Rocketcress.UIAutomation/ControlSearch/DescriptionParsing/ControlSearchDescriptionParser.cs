@@ -1,10 +1,6 @@
 ﻿using Rocketcress.UIAutomation.ControlSearch.DescriptionParsing.ConditionParsers;
 using Rocketcress.UIAutomation.ControlSearch.SearchParts;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text.RegularExpressions;
-using System.Windows.Automation;
 using AndCondition = Rocketcress.UIAutomation.ControlSearch.Conditions.AndCondition;
 using OrCondition = Rocketcress.UIAutomation.ControlSearch.Conditions.OrCondition;
 using PropertyCondition = Rocketcress.UIAutomation.ControlSearch.Conditions.PropertyCondition;

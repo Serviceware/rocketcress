@@ -1,7 +1,5 @@
 ﻿using Rocketcress.Core;
 using Rocketcress.UIAutomation.Exceptions;
-using System;
-using System.Windows.Automation;
 
 namespace Rocketcress.UIAutomation.Controls.ControlSupport
 {

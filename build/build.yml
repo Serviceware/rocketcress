@@ -8,7 +8,7 @@ trigger:
     - build
 
 pool:
-  vmImage: 'windows-2019'
+  vmImage: 'windows-2022'
 
 variables:
   packArguments: '-o "$(Build.ArtifactStagingDirectory)" -p:TreatWarningsAsErrors=true -p:ContinuousIntegrationBuild=true'

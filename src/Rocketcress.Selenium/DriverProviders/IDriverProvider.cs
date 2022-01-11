@@ -1,7 +1,4 @@
-﻿using OpenQA.Selenium;
-using Rocketcress.Core;
-using System;
-using System.Collections.Generic;
+﻿using Rocketcress.Core;
 using System.Globalization;
 
 namespace Rocketcress.Selenium.DriverProviders

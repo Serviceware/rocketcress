@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace Rocketcress.UIAutomation.Controls
 {
     public interface IUITestTableControl : IUITestControl

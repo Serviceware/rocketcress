@@ -1,10 +1,7 @@
 ﻿using Rocketcress.Core;
 using Rocketcress.UIAutomation.ControlSearch;
-using System;
-using System.Linq;
 using System.Threading;
 using System.Windows;
-using System.Windows.Automation;
 using System.Windows.Forms;
 
 namespace Rocketcress.UIAutomation.Controls.ControlSupport
@@ -57,8 +54,8 @@ namespace Rocketcress.UIAutomation.Controls.ControlSupport
         {
             baseSetFocus();
             Thread.Sleep(100);
-            if (_control.Application != null)
-                UIAutomationTestContext.CurrentContext.ActiveApplication = _control.Application;
+            if (_control.Application != _control.Application.Context.ActiveApplication)
+                _control.Application.Context.ActiveApplication = _control.Application;
         }
 
         public virtual bool Close(int timeout, bool assert)

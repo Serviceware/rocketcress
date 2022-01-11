@@ -1,8 +1,5 @@
 ﻿using Rocketcress.UIAutomation.Exceptions;
-using System;
-using System.Collections.Generic;
 using System.Windows;
-using System.Windows.Automation;
 
 namespace Rocketcress.UIAutomation.Controls
 {

@@ -1,5 +1,3 @@
-using System.Windows.Automation;
-
 namespace Rocketcress.UIAutomation.Controls
 {
     public interface IUITestScrollBarControl : IUITestControl

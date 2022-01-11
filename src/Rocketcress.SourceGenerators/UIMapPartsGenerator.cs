@@ -2,9 +2,6 @@
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Rocketcress.Core.Attributes;
 using Rocketcress.SourceGenerators.Common;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text.RegularExpressions;
 using static Rocketcress.SourceGenerators.Common.CodeGenerationHelpers;
 
@@ -28,6 +25,11 @@ namespace Rocketcress.SourceGenerators
             [FrameworkType.UIAutomation] = $"{ByFullName[FrameworkType.UIAutomation]}.AutomationId(\"{{0}}\")",
             [FrameworkType.Selenium] = $"{ByFullName[FrameworkType.Selenium]}.Id(\"{{0}}\")",
         };
+        private static readonly Dictionary<FrameworkType, string> EmptyBy = new()
+        {
+            [FrameworkType.UIAutomation] = $"{ByFullName[FrameworkType.UIAutomation]}.Empty",
+            [FrameworkType.Selenium] = $"{ByFullName[FrameworkType.Selenium]}.XPath(\".//*\")",
+        };
         private static readonly Dictionary<FrameworkType, string> InitializeName = new()
         {
             [FrameworkType.UIAutomation] = "Initialize",
@@ -46,6 +48,11 @@ namespace Rocketcress.SourceGenerators
         {
             [FrameworkType.UIAutomation] = "global::Rocketcress.UIAutomation.Controls.IUITestControl",
             [FrameworkType.Selenium] = "global::Rocketcress.Selenium.Controls.WebElement",
+        };
+        private static readonly Dictionary<FrameworkType, string> ControlInitFirstParamName = new()
+        {
+            [FrameworkType.UIAutomation] = "this.Application",
+            [FrameworkType.Selenium] = "this.Driver",
         };
         private static readonly Regex PropertyNameSplitRegex = new(@"([A-Z]?[a-z0-9]+|[A-Z]+(?![a-z]))");
 
@@ -222,6 +229,8 @@ namespace Rocketcress.SourceGenerators
         {
             if (style == IdStyle.Unset)
                 style = defaultStyle;
+            if (style == IdStyle.Disabled)
+                return null;
             if (style == IdStyle.None || style == IdStyle.Unset)
                 return name;
 
@@ -324,7 +333,7 @@ namespace Rocketcress.SourceGenerators
                     if (!hasFields && !isFirst)
                         builder.AppendLine();
 
-                    var byExpr = control.ByExpression ?? string.Format(DefaultBy[frameworkType], control.PropertyName);
+                    var byExpr = control.ByExpression ?? (control.PropertyName is null ? EmptyBy[frameworkType] : string.Format(DefaultBy[frameworkType], control.PropertyName));
                     builder.AppendLine($"private static readonly {ByFullName[frameworkType]} {fieldName} = {byExpr};");
                     hasFields = true;
                 }
@@ -390,7 +399,7 @@ namespace Rocketcress.SourceGenerators
                     if (typeSymbol.GetAllBaseTypes().Any(x => x.ToString() == "Rocketcress.Selenium.View") && parent == "this")
                         parent = null;
 
-                    builder.AppendLine($"{prop.Name} = new {type}(By{prop.Name}{(string.IsNullOrWhiteSpace(parent) ? string.Empty : $", {parent}")});")
+                    builder.AppendLine($"{prop.Name} = new {type}({ControlInitFirstParamName[frameworkType]}, By{prop.Name}{(string.IsNullOrWhiteSpace(parent) ? string.Empty : $", {parent}")});")
                            .AppendLine($"On{prop.Name}Initialized();");
                     existingInits.Add(prop.Name);
                 }

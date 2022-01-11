@@ -1,8 +1,4 @@
 ﻿using Rocketcress.Core.Extensions;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 #if !SLIM
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 #endif

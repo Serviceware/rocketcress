@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Rocketcress.Core.Extensions
+﻿namespace Rocketcress.Core.Extensions
 {
     /// <summary>
     /// Provides extension methods for the ICollection interface.

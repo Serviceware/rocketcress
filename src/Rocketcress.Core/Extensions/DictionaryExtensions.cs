@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-#nullable disable
+﻿#nullable disable
 
 namespace Rocketcress.Core.Extensions
 {

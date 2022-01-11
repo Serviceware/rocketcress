@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Rocketcress.UIAutomation
+﻿namespace Rocketcress.UIAutomation
 {
     /// <summary>
     /// This attribute tells the framework to automatically detect controls of the applied class.

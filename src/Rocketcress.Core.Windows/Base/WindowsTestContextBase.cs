@@ -1,6 +1,9 @@
 ﻿using System.Drawing;
 using System.Drawing.Imaging;
 using System.Windows.Forms;
+#if !SLIM
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+#endif
 
 namespace Rocketcress.Core.Base
 {
@@ -9,17 +12,23 @@ namespace Rocketcress.Core.Base
     /// </summary>
     public abstract class WindowsTestContextBase : TestContextBase
     {
-        /// <summary>
-        /// Gets the current instance of the <see cref="WindowsTestContextBase"/>.
-        /// </summary>
-        public static new WindowsTestContextBase CurrentContext { get; private set; }
-
+#pragma warning disable CS1572 // XML comment has a param tag, but there is no parameter by that name
+#pragma warning disable SA1612 // Element parameter documentation should match element parameters
         /// <summary>
         /// Initializes a new instance of the <see cref="WindowsTestContextBase"/> class.
         /// </summary>
-        protected WindowsTestContextBase()
+        /// <param name="testContext">The current MSTest test context.</param>
+        /// <param name="settings">The test settings.</param>
+        protected WindowsTestContextBase(
+#if !SLIM
+            TestContext testContext,
+#endif
+            SettingsBase settings)
+            : base(testContext, settings)
         {
         }
+#pragma warning restore CS1572 // XML comment has a param tag, but there is no parameter by that name
+#pragma warning restore SA1612 // Element parameter documentation should match element parameters
 
         /// <inheritdoc />
         protected override void SaveScreenshot(string path)
@@ -33,20 +42,6 @@ namespace Rocketcress.Core.Base
             using (Graphics g = Graphics.FromImage(bmp))
                 g.CopyFromScreen(screenLeft, screenTop, 0, 0, bmp.Size);
             bmp.Save(path, ImageFormat.Jpeg);
-        }
-
-        /// <inheritdoc />
-        protected override void OnContextCreated(TestContextBase lastContext)
-        {
-            base.OnContextCreated(lastContext);
-            CurrentContext = this;
-        }
-
-        /// <inheritdoc />
-        protected override void Dispose(bool disposing)
-        {
-            CurrentContext = null;
-            base.Dispose(disposing);
         }
     }
 }

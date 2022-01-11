@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Rocketcress.Core.WindowsApiTypes
+﻿namespace Rocketcress.Core.WindowsApiTypes
 {
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
     [Flags]

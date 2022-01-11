@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Rocketcress.Core.Extensions
+﻿namespace Rocketcress.Core.Extensions
 {
     /// <summary>
     /// Provides extensions for <see cref="Array"/>s.

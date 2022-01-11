@@ -1,6 +1,4 @@
-﻿using System;
-using System.Windows.Automation;
-using Rocketcress.UIAutomation.Controls;
+﻿using Rocketcress.UIAutomation.Controls;
 
 namespace Rocketcress.UIAutomation.Exceptions
 {
@@ -25,8 +23,8 @@ namespace Rocketcress.UIAutomation.Exceptions
         {
         }
 
-        public UIActionNotSupportedException(string message, AutomationElement parent, By locationKey)
-            : base(message, parent, locationKey)
+        public UIActionNotSupportedException(string message, Application app, AutomationElement parent, By locationKey)
+            : base(message, app, parent, locationKey)
         {
         }
 
@@ -40,8 +38,8 @@ namespace Rocketcress.UIAutomation.Exceptions
         {
         }
 
-        public UIActionNotSupportedException(string message, AutomationElement parent, By locationKey, Exception innerException)
-            : base(message, parent, locationKey, innerException)
+        public UIActionNotSupportedException(string message, Application app, AutomationElement parent, By locationKey, Exception innerException)
+            : base(message, app, parent, locationKey, innerException)
         {
         }
     }

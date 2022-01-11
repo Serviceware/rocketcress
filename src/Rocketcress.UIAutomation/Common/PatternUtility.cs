@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Windows.Automation;
+﻿using System.Reflection;
 
 namespace Rocketcress.UIAutomation.Common
 {

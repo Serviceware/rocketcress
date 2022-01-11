@@ -1,5 +1,4 @@
-﻿using OpenQA.Selenium;
-using Rocketcress.Selenium.Controls;
+﻿using Rocketcress.Selenium.Controls;
 
 namespace Rocketcress.Selenium.Extensions
 {

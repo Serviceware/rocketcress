@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Rocketcress.Core.Attributes
+﻿namespace Rocketcress.Core.Attributes
 {
     /// <summary>
     /// If this attribute is set to a member that is used by any of the Rocketcress.SourceGenerators source generators, the debugger for that generator is launched.

@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Windows.Automation;
-
-namespace Rocketcress.UIAutomation.Controls.ControlSupport
+﻿namespace Rocketcress.UIAutomation.Controls.ControlSupport
 {
     public class MenuControlSupport
     {
@@ -25,11 +22,11 @@ namespace Rocketcress.UIAutomation.Controls.ControlSupport
             var byContainer = By.Scope(TreeScope.Subtree)
                             .AndCondition(ItemContainerCondition, "MenuItemContainer")
                             .AndHasChild(itemLocationKey);
-            _itemContainer = new UITestControl(byContainer, control);
+            _itemContainer = new UITestControl(control.Application, byContainer, control);
             _listControlSupport = new ListControlSupport(_itemContainer, itemLocationKey);
         }
 
-        public IEnumerable<AutomationElement> EnumerateItems() => _itemContainer.Exists ? _listControlSupport.EnumerateItems() : System.Array.Empty<AutomationElement>();
+        public IEnumerable<AutomationElement> EnumerateItems() => _itemContainer.Exists ? _listControlSupport.EnumerateItems() : Array.Empty<AutomationElement>();
 
         private bool ItemContainerCondition(AutomationElement element, TreeWalker walker)
         {

@@ -1,5 +1,4 @@
 ﻿using Rocketcress.UIAutomation.Controls;
-using System.Windows.Automation;
 
 namespace Rocketcress.UIAutomation.Exceptions
 {
@@ -22,8 +21,8 @@ namespace Rocketcress.UIAutomation.Exceptions
         {
         }
 
-        public NoSuchElementException(string message, AutomationElement parent, By locationKey)
-            : base(message, parent, locationKey)
+        public NoSuchElementException(string message, Application app, AutomationElement parent, By locationKey)
+            : base(message, app, parent, locationKey)
         {
         }
 
@@ -37,8 +36,8 @@ namespace Rocketcress.UIAutomation.Exceptions
         {
         }
 
-        public NoSuchElementException(AutomationElement parent, By locationKey)
-            : base(DefaultMessage, parent, locationKey)
+        public NoSuchElementException(Application app, AutomationElement parent, By locationKey)
+            : base(DefaultMessage, app, parent, locationKey)
         {
         }
     }

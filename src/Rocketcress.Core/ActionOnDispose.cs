@@ -1,7 +1,4 @@
-﻿using System;
-using System.Diagnostics;
-
-#nullable disable
+﻿#nullable disable
 
 namespace Rocketcress.Core
 {
