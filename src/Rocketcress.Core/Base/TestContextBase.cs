@@ -1,8 +1,5 @@
 ﻿using System.Globalization;
 using Rocketcress.Core.Models;
-#if !SLIM
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-#endif
 
 namespace Rocketcress.Core.Base
 {
@@ -30,13 +27,14 @@ namespace Rocketcress.Core.Base
         /// </summary>
         /// <param name="testContext">The current MSTest test context.</param>
         /// <param name="settings">The test settings.</param>
-        protected TestContextBase(
 #if !SLIM
-            TestContext testContext,
-#endif
-            SettingsBase settings)
+        protected TestContextBase(TestContext testContext, SettingsBase settings)
         {
             TestContext = testContext;
+#else
+        protected TestContextBase(SettingsBase settings)
+        {
+#endif
             Settings = settings;
             OnContextCreated();
         }

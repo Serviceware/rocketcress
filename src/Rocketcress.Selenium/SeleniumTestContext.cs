@@ -4,8 +4,6 @@ using Rocketcress.Core.Extensions;
 using Rocketcress.Selenium.DriverProviders;
 using System.Globalization;
 using System.Threading.Tasks;
-#if !SLIM
-#endif
 
 namespace Rocketcress.Selenium
 {
@@ -60,13 +58,13 @@ namespace Rocketcress.Selenium
         /// <param name="testContext">The current MSTest test context.</param>
         /// <param name="settings">The test settings.</param>
         /// <param name="driverConfiguration">The driver configuration to use when creating web drivers.</param>
-        protected SeleniumTestContext(
 #if !SLIM
-            TestContext testContext,
-#endif
-            Settings settings,
-            IDriverConfiguration driverConfiguration)
+        protected SeleniumTestContext(TestContext testContext, Settings settings, IDriverConfiguration driverConfiguration)
             : base(testContext, settings)
+#else
+        protected SeleniumTestContext(Settings settings, IDriverConfiguration driverConfiguration)
+            : base(settings)
+#endif
         {
             _driverConfiguration = driverConfiguration;
         }

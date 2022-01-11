@@ -1,6 +1,4 @@
-﻿#nullable disable
-
-namespace Rocketcress.Core.Extensions
+﻿namespace Rocketcress.Core.Extensions
 {
     /// <summary>
     /// Provides extension methods for the AppDomain class.
@@ -16,7 +14,7 @@ namespace Rocketcress.Core.Extensions
         public static T CreateInstance<T>(this AppDomain domain)
             where T : class
         {
-            var result = (T)domain.CreateInstanceAndUnwrap(typeof(T).Assembly.GetName().Name, typeof(T).FullName);
+            var result = (T)domain.CreateInstanceAndUnwrap(typeof(T).Assembly.GetName().Name!, typeof(T).FullName!)!;
             return result;
         }
     }

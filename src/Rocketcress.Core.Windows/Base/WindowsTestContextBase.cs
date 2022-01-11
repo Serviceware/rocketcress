@@ -19,12 +19,13 @@ namespace Rocketcress.Core.Base
         /// </summary>
         /// <param name="testContext">The current MSTest test context.</param>
         /// <param name="settings">The test settings.</param>
-        protected WindowsTestContextBase(
 #if !SLIM
-            TestContext testContext,
-#endif
-            SettingsBase settings)
+        protected WindowsTestContextBase(TestContext testContext, SettingsBase settings)
             : base(testContext, settings)
+#else
+        protected WindowsTestContextBase(SettingsBase settings)
+            : base(settings)
+#endif
         {
         }
 #pragma warning restore CS1572 // XML comment has a param tag, but there is no parameter by that name

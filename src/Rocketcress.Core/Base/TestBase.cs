@@ -1,9 +1,6 @@
 ﻿using System.Reflection;
 using System.Runtime.ExceptionServices;
 using Rocketcress.Core.Attributes;
-#if !SLIM
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-#endif
 
 namespace Rocketcress.Core.Base
 {

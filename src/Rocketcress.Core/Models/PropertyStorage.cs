@@ -1,7 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
 
-#nullable disable
-
 namespace Rocketcress.Core.Models
 {
     /// <summary>
@@ -9,9 +7,9 @@ namespace Rocketcress.Core.Models
     /// </summary>
     public class PropertyStorage
     {
-        private readonly object _lock = new object();
+        private readonly object _lock = new();
 
-        private readonly IDictionary<string, object> _propertyValues = new Dictionary<string, object>();
+        private readonly IDictionary<string, object?> _propertyValues = new Dictionary<string, object?>();
 
         /// <summary>
         /// Retrieves the value of a property.
@@ -19,7 +17,7 @@ namespace Rocketcress.Core.Models
         /// <typeparam name="T">The type of the property value.</typeparam>
         /// <param name="propertyName">The name of the property.</param>
         /// <returns>Returns the value of the property.</returns>
-        public virtual T GetProperty<T>([CallerMemberName] string propertyName = null)
+        public virtual T? GetProperty<T>([CallerMemberName] string propertyName = "")
             => GetProperty<T>(null, propertyName);
 
         /// <summary>
@@ -29,7 +27,7 @@ namespace Rocketcress.Core.Models
         /// <param name="initializer">The function that is executed when a value for the property does not exist.</param>
         /// <param name="propertyName">The name of the property.</param>
         /// <returns>Returns the value of the property.</returns>
-        public virtual T GetProperty<T>(Func<T> initializer, [CallerMemberName] string propertyName = null)
+        public virtual T? GetProperty<T>(Func<T>? initializer, [CallerMemberName] string propertyName = "")
         {
             if (propertyName == null)
                 return default;
@@ -37,7 +35,7 @@ namespace Rocketcress.Core.Models
             {
                 if (!_propertyValues.ContainsKey(propertyName))
                     _propertyValues[propertyName] = initializer == null ? default : initializer();
-                return (T)_propertyValues[propertyName];
+                return (T?)_propertyValues[propertyName];
             }
         }
 
@@ -47,7 +45,7 @@ namespace Rocketcress.Core.Models
         /// <typeparam name="T">The type of the property value.</typeparam>
         /// <param name="value">The new property value.</param>
         /// <param name="propertyName">The name of the property.</param>
-        public virtual void SetProperty<T>(T value, [CallerMemberName] string propertyName = null)
+        public virtual void SetProperty<T>(T value, [CallerMemberName] string propertyName = "")
         {
             if (propertyName == null)
                 return;
@@ -59,7 +57,7 @@ namespace Rocketcress.Core.Models
         /// Resets the value of a property.
         /// </summary>
         /// <param name="propertyName">The name of the property.</param>
-        public virtual void ResetProperty([CallerMemberName] string propertyName = null)
+        public virtual void ResetProperty([CallerMemberName] string propertyName = "")
         {
             if (propertyName == null)
                 return;
@@ -75,7 +73,7 @@ namespace Rocketcress.Core.Models
         /// </summary>
         /// <param name="propertyName">The name of the property.</param>
         /// <returns>Returns wether a value for the given property exists.</returns>
-        public virtual bool HasProperty([CallerMemberName] string propertyName = null)
+        public virtual bool HasProperty([CallerMemberName] string propertyName = "")
         {
             lock (_lock)
                 return _propertyValues.ContainsKey(propertyName);

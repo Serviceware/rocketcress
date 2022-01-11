@@ -2,8 +2,6 @@
 using Rocketcress.Core.Base;
 using Rocketcress.UIAutomation.Common;
 using Rocketcress.UIAutomation.Interaction;
-#if !SLIM
-#endif
 
 namespace Rocketcress.UIAutomation
 {
@@ -34,12 +32,13 @@ namespace Rocketcress.UIAutomation
         /// </summary>
         /// <param name="testContext">The current MSTest test context.</param>
         /// <param name="settings">The test settings.</param>
-        protected UIAutomationTestContext(
 #if !SLIM
-            TestContext testContext,
-#endif
-            Settings settings)
+        protected UIAutomationTestContext(TestContext testContext, Settings settings)
             : base(testContext, settings)
+#else
+        protected UIAutomationTestContext(Settings settings)
+            : base(settings)
+#endif
         {
             Applications = new List<Application>();
         }

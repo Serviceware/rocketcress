@@ -16,6 +16,10 @@
   
   <Import Project="../../build/Rocketcress.props" />
 
+  <ItemGroup>
+    <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" Condition="$(IsSlim) == 'false'"/>
+  </ItemGroup>
+  
   <ItemGroup Condition=" $(IsSlim) == 'false' ">
     <PackageReference Include="MSTest.TestFramework" Version="2.1.2" />
   </ItemGroup>
