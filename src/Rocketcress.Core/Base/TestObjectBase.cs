@@ -12,8 +12,8 @@ namespace Rocketcress.Core.Base
     /// </summary>
     public class TestObjectBase
     {
-        private static readonly PropertyStorage _staticPropertyStorage = new PropertyStorage();
-        private readonly PropertyStorage _instancePropertyStorage = new PropertyStorage();
+        private static readonly PropertyStorage _staticPropertyStorage = new();
+        private readonly PropertyStorage _instancePropertyStorage = new();
 
         /// <summary>
         /// Gets the current instance of the <see cref="AssertEx"/> class.
@@ -80,6 +80,12 @@ namespace Rocketcress.Core.Base
             => _instancePropertyStorage.HasProperty(propertyName);
 
         /// <summary>
+        /// Clears all property values of the property cache.
+        /// </summary>
+        protected virtual void ClearProperties()
+            => _instancePropertyStorage.Clear();
+
+        /// <summary>
         /// Gets the value of a property in the static property cache.
         /// </summary>
         /// <typeparam name="T">The type of value to retrieve.</typeparam>
@@ -121,5 +127,11 @@ namespace Rocketcress.Core.Base
         /// <returns>Returns true if the property has a value; otherwise false.</returns>
         protected static bool HasStaticProperty([CallerMemberName] string propertyName = null)
             => _staticPropertyStorage.HasProperty(propertyName);
+
+        /// <summary>
+        /// Clears all property values of the static property cache.
+        /// </summary>
+        protected virtual void ClearStaticProperties()
+            => _staticPropertyStorage.Clear();
     }
 }
