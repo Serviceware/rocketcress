@@ -21,18 +21,18 @@ namespace Rocketcress.SourceGenerators
             var settingsFile = context.AdditionalFiles.FirstOrDefault(x => Path.GetFileName(x.Path) == "settings.json");
             if (settingsFile != null)
             {
-                context.AnalyzerConfigOptions.GetOptions(settingsFile).TryGetValue("build_metadata.AdditionalFiles.TestContextClassName", out var contextClassName);
+                context.AnalyzerConfigOptions.GetOptions(settingsFile).TryGetValue("build_metadata.AdditionalFiles.SettingsType", out var settingsType);
 
-                var source = GenerateFromFile(settingsFile.Path, globalNamespaceName, contextClassName);
+                var source = GenerateFromFile(settingsFile.Path, globalNamespaceName, settingsType);
 
                 context.AddSource(CreateHintName("Settings", nameof(SettingsGenerator)), SourceText.From(source, Encoding.UTF8));
             }
         }
 
-        public static string GenerateFromFile(string filePath, string namespaceName, string contextClassName)
+        public static string GenerateFromFile(string filePath, string namespaceName, string settingsType)
         {
-            if (string.IsNullOrWhiteSpace(contextClassName))
-                contextClassName = "Rocketcress.Core.Base.TestContextBase";
+            if (string.IsNullOrWhiteSpace(settingsType))
+                settingsType = "SettingsBase";
 
             var metadata = GetMetadata(filePath);
             var sb = new SourceBuilder();
@@ -50,7 +50,11 @@ namespace Rocketcress.SourceGenerators
                 sb.AppendLine();
 
                 using (sb.AddRegion("Setting Classes"))
-                    GenerateSettingClasses(sb, metadata, contextClassName);
+                    GenerateSettingClasses(sb, metadata);
+
+                sb.AppendLine();
+
+                GenerateSettingsLoader(sb, settingsType);
             }
 
             return sb.ToString();
@@ -134,7 +138,7 @@ namespace Rocketcress.SourceGenerators
             }
         }
 
-        private static void GenerateSettingClasses(SourceBuilder sb, SettingsMetadata metadata, string testContextClassName)
+        private static void GenerateSettingClasses(SourceBuilder sb, SettingsMetadata metadata)
         {
             GenerateSettingClass("Setting", metadata.DefaultKeys);
             foreach (var @class in metadata.KeyClasses.Where(x => x.Keys.Count > 0))
@@ -147,28 +151,37 @@ namespace Rocketcress.SourceGenerators
             {
                 using (sb.AddBlock($"public static class {className}Values"))
                 {
-                    sb.AppendLine("private static readonly PropertyStorage _properties;")
-                      .AppendLine($"private static SettingsBase _settings => {testContextClassName}.CurrentContext.Settings;")
+                    sb.AppendLine("private static readonly PropertyStorage _properties = new PropertyStorage();")
                       .AppendLine();
-
-                    using (sb.AddBlock($"static {className}Values()"))
-                    {
-                        sb.AppendLine("_properties = new PropertyStorage();")
-                          .AppendLine($"{testContextClassName}.ContextChanged += (s,e) => _properties.Clear();");
-                    }
-
-                    sb.AppendLine();
 
                     var hasKey = false;
                     foreach (var key in keys)
                     {
                         hasKey = true;
                         var type = metadata.SettingsTypes.FirstOrDefault(x => x.TagName == key.Tag)?.TypeName ?? "object";
-                        sb.AppendLine($"public static {type} {key.Key} => _properties.GetProperty(() => _settings.Get<{type}>({className}Keys.{key.Key}));");
+                        sb.AppendLine($"public static {type} {key.Key} => _properties.GetProperty(() => SettingsLoader.Settings.Get<{type}>({className}Keys.{key.Key}));");
                     }
 
                     if (!hasKey)
                         sb.AppendLine("// Currently no keys are available in settings file.");
+                }
+            }
+        }
+
+        private static void GenerateSettingsLoader(SourceBuilder sb, string settingsType)
+        {
+            using (sb.AddBlock("public static class SettingsLoader"))
+            {
+                sb.AppendLine($"private static {settingsType} _settings;")
+                  .AppendLine()
+                  .AppendLine($"public static {settingsType} Settings => _settings ??= LoadSettings();")
+                  .AppendLine();
+                using (sb.AddBlock($"private static {settingsType} LoadSettings()"))
+                {
+                    sb.AppendLine("var assembly = typeof(SettingsLoader).Assembly;")
+                      .AppendLine("var specificSettingsFile = SettingsBase.GetSettingFile(assembly, null, false);")
+                      .AppendLine("var defaultSettingsFile = SettingsBase.GetSettingFile(assembly, null, true);")
+                      .AppendLine($"return SettingsBase.GetFromFiles<{settingsType}>(specificSettingsFile, defaultSettingsFile);");
                 }
             }
         }

@@ -1,6 +1,4 @@
 ﻿#if !SLIM
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 namespace Rocketcress.Core.Base
 {
     // TODO: Add XML Comments
