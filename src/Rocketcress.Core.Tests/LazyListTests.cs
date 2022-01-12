@@ -132,7 +132,7 @@ namespace Rocketcress.Core.Tests
 
             var enumerator = ((IEnumerable)list).GetEnumerator();
 
-            Assert.AreEqual(0, enumerator.Current);
+            Assert.ThrowsException<IndexOutOfRangeException>(() => enumerator.Current);
         }
 
         [TestMethod]
@@ -196,7 +196,7 @@ namespace Rocketcress.Core.Tests
 
             var enumerator = list.GetEnumerator();
 
-            Assert.AreEqual(0, enumerator.Current);
+            Assert.ThrowsException<IndexOutOfRangeException>(() => enumerator.Current);
         }
 
         [TestMethod]

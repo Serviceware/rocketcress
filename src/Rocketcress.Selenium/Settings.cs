@@ -54,15 +54,6 @@ public class Settings : SettingsBase
     public virtual string RemoteDriverUrl { get; set; }
 
     /// <summary>
-    /// Gets or sets a value indicating whether all processes of the current Browser should be killed.
-    /// </summary>
-    public virtual bool KillAllBrowserProcessesOnCleanup
-    {
-        get => _killAllBrowserProcessesOnCleanup ?? !TestHelper.IsDebugConfiguration;
-        set => _killAllBrowserProcessesOnCleanup = value;
-    }
-
-    /// <summary>
     /// Initializes a new instance of the <see cref="Settings"/> class.
     /// </summary>
     public Settings()
