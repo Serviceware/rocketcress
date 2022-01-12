@@ -1,89 +1,88 @@
 ﻿using Rocketcress.Core;
 
-namespace Rocketcress.UIAutomation.ControlSearch.SearchParts
+namespace Rocketcress.UIAutomation.ControlSearch.SearchParts;
+
+public class DescendantsSearchPart : SearchPartBase, INestedSearchPart, IDepthSearchPart
 {
-    public class DescendantsSearchPart : SearchPartBase, INestedSearchPart, IDepthSearchPart
+    public int MaxDepth { get; set; }
+    public ISearchPart ChildPart { get; set; }
+
+    public DescendantsSearchPart(int maxDepth)
+        : this(maxDepth, null, null)
     {
-        public int MaxDepth { get; set; }
-        public ISearchPart ChildPart { get; set; }
+    }
 
-        public DescendantsSearchPart(int maxDepth)
-            : this(maxDepth, null, null)
+    public DescendantsSearchPart(int maxDepth, ISearchCondition condition)
+        : this(maxDepth, condition, null)
+    {
+    }
+
+    public DescendantsSearchPart(int maxDepth, ISearchCondition condition, ISearchPart childPart)
+    {
+        MaxDepth = maxDepth;
+        ChildPart = childPart;
+        Condition = condition;
+    }
+
+    protected override IEnumerable<AutomationElement> FindElementsInternal(AutomationElement element, TreeWalker treeWalker)
+    {
+        IEnumerable<AutomationElement> currentLevel = new[] { element };
+        List<AutomationElement> nextLevel;
+        var depth = 0;
+
+        if (element == AutomationElement.RootElement && (MaxDepth < 0 || MaxDepth > 2))
         {
+            Logger.LogWarning("Searching for a control with the Scope Descendants on the root can lead to long search times. " +
+                "You can reduce this time by either setting a parent, use Scope Children or set MaxDepth.");
         }
 
-        public DescendantsSearchPart(int maxDepth, ISearchCondition condition)
-            : this(maxDepth, condition, null)
+        while (currentLevel.Any() && (depth < MaxDepth || MaxDepth < 0))
         {
-        }
+            nextLevel = new List<AutomationElement>();
 
-        public DescendantsSearchPart(int maxDepth, ISearchCondition condition, ISearchPart childPart)
-        {
-            MaxDepth = maxDepth;
-            ChildPart = childPart;
-            Condition = condition;
-        }
-
-        protected override IEnumerable<AutomationElement> FindElementsInternal(AutomationElement element, TreeWalker treeWalker)
-        {
-            IEnumerable<AutomationElement> currentLevel = new[] { element };
-            List<AutomationElement> nextLevel;
-            var depth = 0;
-
-            if (element == AutomationElement.RootElement && (MaxDepth < 0 || MaxDepth > 2))
+            foreach (var child in currentLevel.SelectMany(x => GetChildren(x, treeWalker)))
             {
-                Logger.LogWarning("Searching for a control with the Scope Descendants on the root can lead to long search times. " +
-                    "You can reduce this time by either setting a parent, use Scope Children or set MaxDepth.");
-            }
-
-            while (currentLevel.Any() && (depth < MaxDepth || MaxDepth < 0))
-            {
-                nextLevel = new List<AutomationElement>();
-
-                foreach (var child in currentLevel.SelectMany(x => GetChildren(x, treeWalker)))
+                nextLevel.Add(child);
+                if (Condition?.Check(child, treeWalker) != false)
                 {
-                    nextLevel.Add(child);
-                    if (Condition?.Check(child, treeWalker) != false)
+                    if (ChildPart == null)
                     {
-                        if (ChildPart == null)
-                        {
-                            yield return child;
-                        }
-                        else
-                        {
-                            foreach (var res in ChildPart.FindElements(child, treeWalker))
-                                yield return child;
-                        }
+                        yield return child;
                     }
-
-                    nextLevel.Add(child);
+                    else
+                    {
+                        foreach (var res in ChildPart.FindElements(child, treeWalker))
+                            yield return child;
+                    }
                 }
 
-                currentLevel = nextLevel;
-                depth++;
+                nextLevel.Add(child);
             }
-        }
 
-        protected override SearchPartBase CloneInternal()
-        {
-            var childPart = (ISearchPart)ChildPart?.Clone();
-            return new DescendantsSearchPart(MaxDepth, null, childPart);
+            currentLevel = nextLevel;
+            depth++;
         }
+    }
 
-        private static IEnumerable<AutomationElement> GetChildren(AutomationElement element, TreeWalker treeWalker)
-        {
-            var current = treeWalker.GetFirstChild(element);
-            while (current != null)
-            {
-                yield return current;
-                current = treeWalker.GetNextSibling(current);
-            }
-        }
+    protected override SearchPartBase CloneInternal()
+    {
+        var childPart = (ISearchPart)ChildPart?.Clone();
+        return new DescendantsSearchPart(MaxDepth, null, childPart);
+    }
 
-        public override string GetDescription()
+    private static IEnumerable<AutomationElement> GetChildren(AutomationElement element, TreeWalker treeWalker)
+    {
+        var current = treeWalker.GetFirstChild(element);
+        while (current != null)
         {
-            var prefix = MaxDepth == 1 ? "/" : MaxDepth < 0 ? "//" : $"//{{{MaxDepth}}}";
-            return prefix + GetConditionDescription() + GetSkipTakeDescription();
+            yield return current;
+            current = treeWalker.GetNextSibling(current);
         }
+    }
+
+    public override string GetDescription()
+    {
+        var prefix = MaxDepth == 1 ? "/" : MaxDepth < 0 ? "//" : $"//{{{MaxDepth}}}";
+        return prefix + GetConditionDescription() + GetSkipTakeDescription();
     }
 }

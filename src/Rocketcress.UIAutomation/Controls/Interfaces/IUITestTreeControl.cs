@@ -1,7 +1,6 @@
-namespace Rocketcress.UIAutomation.Controls
+namespace Rocketcress.UIAutomation.Controls;
+
+public interface IUITestTreeControl : IUITestControl
 {
-    public interface IUITestTreeControl : IUITestControl
-    {
-        IEnumerable<IUITestControl> Nodes { get; }
-    }
+    IEnumerable<IUITestControl> Nodes { get; }
 }

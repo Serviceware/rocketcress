@@ -1,14 +1,13 @@
-﻿namespace Rocketcress.UIAutomation.Controls.WpfControls
+﻿namespace Rocketcress.UIAutomation.Controls.WpfControls;
+
+[AutoDetectControl]
+[GenerateUIMapParts]
+public partial class WpfTabPage : WpfControl, IUITestTabPageControl
 {
-    [AutoDetectControl]
-    [GenerateUIMapParts]
-    public partial class WpfTabPage : WpfControl, IUITestTabPageControl
-    {
-        protected override By BaseLocationKey => base.BaseLocationKey.AndControlType(ControlType.TabItem);
+    protected override By BaseLocationKey => base.BaseLocationKey.AndControlType(ControlType.TabItem);
 
-        public SelectionItemPattern SelectionItemPattern => GetPattern<SelectionItemPattern>();
+    public SelectionItemPattern SelectionItemPattern => GetPattern<SelectionItemPattern>();
 
-        [UIMapControl]
-        public virtual IUITestControl Header { get; protected set; } = InitUsing<UITestControl>(() => By.Empty);
-    }
+    [UIMapControl]
+    public virtual IUITestControl Header { get; protected set; } = InitUsing<UITestControl>(() => By.Empty);
 }

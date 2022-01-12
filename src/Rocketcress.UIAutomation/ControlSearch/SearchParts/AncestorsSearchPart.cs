@@ -1,71 +1,70 @@
-﻿namespace Rocketcress.UIAutomation.ControlSearch.SearchParts
+﻿namespace Rocketcress.UIAutomation.ControlSearch.SearchParts;
+
+public class AncestorsSearchPart : SearchPartBase, INestedSearchPart, IDepthSearchPart
 {
-    public class AncestorsSearchPart : SearchPartBase, INestedSearchPart, IDepthSearchPart
+    public int MaxDepth { get; set; }
+    public ISearchPart ChildPart { get; set; }
+
+    public AncestorsSearchPart(int maxDepth)
+        : this(maxDepth, null, null)
     {
-        public int MaxDepth { get; set; }
-        public ISearchPart ChildPart { get; set; }
+    }
 
-        public AncestorsSearchPart(int maxDepth)
-            : this(maxDepth, null, null)
+    public AncestorsSearchPart(int maxDepth, ISearchCondition condition)
+        : this(maxDepth, condition, null)
+    {
+    }
+
+    public AncestorsSearchPart(int maxDepth, ISearchCondition condition, ISearchPart childPart)
+    {
+        MaxDepth = maxDepth;
+        ChildPart = childPart;
+        Condition = condition;
+    }
+
+    protected override IEnumerable<AutomationElement> FindElementsInternal(AutomationElement element, TreeWalker treeWalker)
+    {
+        IEnumerable<AutomationElement> currentLevel = new[] { element };
+        List<AutomationElement> nextLevel;
+        var depth = 0;
+
+        while (currentLevel.Any() && (depth < MaxDepth || MaxDepth < 0))
         {
-        }
+            nextLevel = new List<AutomationElement>();
 
-        public AncestorsSearchPart(int maxDepth, ISearchCondition condition)
-            : this(maxDepth, condition, null)
-        {
-        }
-
-        public AncestorsSearchPart(int maxDepth, ISearchCondition condition, ISearchPart childPart)
-        {
-            MaxDepth = maxDepth;
-            ChildPart = childPart;
-            Condition = condition;
-        }
-
-        protected override IEnumerable<AutomationElement> FindElementsInternal(AutomationElement element, TreeWalker treeWalker)
-        {
-            IEnumerable<AutomationElement> currentLevel = new[] { element };
-            List<AutomationElement> nextLevel;
-            var depth = 0;
-
-            while (currentLevel.Any() && (depth < MaxDepth || MaxDepth < 0))
+            foreach (var item in currentLevel)
             {
-                nextLevel = new List<AutomationElement>();
-
-                foreach (var item in currentLevel)
+                var current = treeWalker.GetParent(item);
+                if (Condition?.Check(current, treeWalker) != false)
                 {
-                    var current = treeWalker.GetParent(item);
-                    if (Condition?.Check(current, treeWalker) != false)
+                    if (ChildPart == null)
                     {
-                        if (ChildPart == null)
-                        {
-                            yield return current;
-                        }
-                        else
-                        {
-                            foreach (var res in ChildPart.FindElements(current, treeWalker))
-                                yield return res;
-                        }
+                        yield return current;
                     }
-
-                    nextLevel.Add(current);
+                    else
+                    {
+                        foreach (var res in ChildPart.FindElements(current, treeWalker))
+                            yield return res;
+                    }
                 }
 
-                currentLevel = nextLevel;
-                depth++;
+                nextLevel.Add(current);
             }
-        }
 
-        protected override SearchPartBase CloneInternal()
-        {
-            var childPart = (ISearchPart)ChildPart?.Clone();
-            return new AncestorsSearchPart(MaxDepth, null, childPart);
+            currentLevel = nextLevel;
+            depth++;
         }
+    }
 
-        public override string GetDescription()
-        {
-            var prefix = "/" + (MaxDepth == 1 ? ".." : MaxDepth < 0 ? "..." : $"...{{{MaxDepth}}}");
-            return prefix + GetConditionDescription() + GetSkipTakeDescription();
-        }
+    protected override SearchPartBase CloneInternal()
+    {
+        var childPart = (ISearchPart)ChildPart?.Clone();
+        return new AncestorsSearchPart(MaxDepth, null, childPart);
+    }
+
+    public override string GetDescription()
+    {
+        var prefix = "/" + (MaxDepth == 1 ? ".." : MaxDepth < 0 ? "..." : $"...{{{MaxDepth}}}");
+        return prefix + GetConditionDescription() + GetSkipTakeDescription();
     }
 }

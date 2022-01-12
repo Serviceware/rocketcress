@@ -1,22 +1,21 @@
 using System.Windows;
 
-namespace Rocketcress.UIAutomation.Controls
+namespace Rocketcress.UIAutomation.Controls;
+
+public interface IUITestWindowControl : IUITestControl
 {
-    public interface IUITestWindowControl : IUITestControl
-    {
-        bool Maximized { get; set; }
+    bool Maximized { get; set; }
 
-        bool SetWindowSize(Size windowSize);
-        bool SetWindowSize(Size windowSize, bool moveCenter);
-        bool SetWindowSize(Size windowSize, bool moveCenter, bool assert);
+    bool SetWindowSize(Size windowSize);
+    bool SetWindowSize(Size windowSize, bool moveCenter);
+    bool SetWindowSize(Size windowSize, bool moveCenter, bool assert);
 
-        void MoveToCenter();
+    void MoveToCenter();
 
-        void SetWindowTitle(string titleText);
+    void SetWindowTitle(string titleText);
 
-        bool Close();
-        bool Close(int timeout);
-        bool Close(bool assert);
-        bool Close(int timeout, bool assert);
-    }
+    bool Close();
+    bool Close(int timeout);
+    bool Close(bool assert);
+    bool Close(int timeout, bool assert);
 }

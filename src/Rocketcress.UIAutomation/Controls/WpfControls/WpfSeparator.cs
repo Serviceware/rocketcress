@@ -1,9 +1,8 @@
-﻿namespace Rocketcress.UIAutomation.Controls.WpfControls
+﻿namespace Rocketcress.UIAutomation.Controls.WpfControls;
+
+[AutoDetectControl]
+[GenerateUIMapParts]
+public partial class WpfSeparator : WpfControl, IUITestSeparatorControl
 {
-    [AutoDetectControl]
-    [GenerateUIMapParts]
-    public partial class WpfSeparator : WpfControl, IUITestSeparatorControl
-    {
-        protected override By BaseLocationKey => base.BaseLocationKey.AndControlType(ControlType.Separator);
-    }
+    protected override By BaseLocationKey => base.BaseLocationKey.AndControlType(ControlType.Separator);
 }

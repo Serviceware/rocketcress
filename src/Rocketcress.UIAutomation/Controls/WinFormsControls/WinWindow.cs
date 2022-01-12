@@ -2,56 +2,55 @@
 using Rocketcress.UIAutomation.Controls.ControlSupport;
 using System.Windows;
 
-namespace Rocketcress.UIAutomation.Controls.WinFormsControls
+namespace Rocketcress.UIAutomation.Controls.WinFormsControls;
+
+[AutoDetectControl]
+[GenerateUIMapParts]
+public partial class WinWindow : WinControl, IUITestWindowControl
 {
-    [AutoDetectControl]
-    [GenerateUIMapParts]
-    public partial class WinWindow : WinControl, IUITestWindowControl
+    protected override By BaseLocationKey => base.BaseLocationKey.AndControlType(ControlType.Window);
+
+    private WindowControlSupport _windowControlSupport;
+
+    public WindowPattern WindowPattern => GetPattern<WindowPattern>();
+
+    public WinWindow(Application app)
+        : this(app, By.Empty)
     {
-        protected override By BaseLocationKey => base.BaseLocationKey.AndControlType(ControlType.Window);
+    }
 
-        private WindowControlSupport _windowControlSupport;
+    public WinWindow(Application app, By locationKey)
+        : base(app, locationKey)
+    {
+        LocationKey.Append(By.ProcessId(app.Process.Id), false, false);
+    }
 
-        public WindowPattern WindowPattern => GetPattern<WindowPattern>();
+    public virtual bool Maximized
+    {
+        get => WindowPattern.Current.WindowVisualState == WindowVisualState.Maximized;
+        set => WindowPattern.SetWindowVisualState(value ? WindowVisualState.Maximized : WindowVisualState.Normal);
+    }
 
-        public WinWindow(Application app)
-            : this(app, By.Empty)
-        {
-        }
+    public override bool Exists => base.Exists && _windowControlSupport.IsWindow();
+    public override bool Displayed => Exists && _windowControlSupport.IsWindowVisible();
 
-        public WinWindow(Application app, By locationKey)
-            : base(app, locationKey)
-        {
-            LocationKey.Append(By.ProcessId(app.Process.Id), false, false);
-        }
+    public virtual bool SetWindowSize(Size windowSize) => SetWindowSize(windowSize, true, true);
+    public virtual bool SetWindowSize(Size windowSize, bool moveCenter) => SetWindowSize(windowSize, moveCenter, true);
+    public virtual bool SetWindowSize(Size windowSize, bool moveCenter, bool assert) => _windowControlSupport.SetWindowSize(windowSize, moveCenter, assert);
 
-        public virtual bool Maximized
-        {
-            get => WindowPattern.Current.WindowVisualState == WindowVisualState.Maximized;
-            set => WindowPattern.SetWindowVisualState(value ? WindowVisualState.Maximized : WindowVisualState.Normal);
-        }
+    public virtual void MoveToCenter() => _windowControlSupport.MoveToCenter();
 
-        public override bool Exists => base.Exists && _windowControlSupport.IsWindow();
-        public override bool Displayed => Exists && _windowControlSupport.IsWindowVisible();
+    public virtual void SetWindowTitle(string titleText) => _windowControlSupport.SetWindowTitle(titleText);
 
-        public virtual bool SetWindowSize(Size windowSize) => SetWindowSize(windowSize, true, true);
-        public virtual bool SetWindowSize(Size windowSize, bool moveCenter) => SetWindowSize(windowSize, moveCenter, true);
-        public virtual bool SetWindowSize(Size windowSize, bool moveCenter, bool assert) => _windowControlSupport.SetWindowSize(windowSize, moveCenter, assert);
+    public virtual bool Close() => Close(Wait.Options.DefaultTimeoutMs, true);
+    public virtual bool Close(int timeout) => Close(timeout, true);
+    public virtual bool Close(bool assert) => Close(Wait.Options.DefaultTimeoutMs, assert);
+    public virtual bool Close(int timeout, bool assert) => _windowControlSupport.Close(timeout, assert);
 
-        public virtual void MoveToCenter() => _windowControlSupport.MoveToCenter();
+    public override void SetFocus() => _windowControlSupport.SetFocus(base.SetFocus);
 
-        public virtual void SetWindowTitle(string titleText) => _windowControlSupport.SetWindowTitle(titleText);
-
-        public virtual bool Close() => Close(Wait.Options.DefaultTimeoutMs, true);
-        public virtual bool Close(int timeout) => Close(timeout, true);
-        public virtual bool Close(bool assert) => Close(Wait.Options.DefaultTimeoutMs, assert);
-        public virtual bool Close(int timeout, bool assert) => _windowControlSupport.Close(timeout, assert);
-
-        public override void SetFocus() => _windowControlSupport.SetFocus(base.SetFocus);
-
-        partial void OnInitialized()
-        {
-            _windowControlSupport = new WindowControlSupport(this);
-        }
+    partial void OnInitialized()
+    {
+        _windowControlSupport = new WindowControlSupport(this);
     }
 }

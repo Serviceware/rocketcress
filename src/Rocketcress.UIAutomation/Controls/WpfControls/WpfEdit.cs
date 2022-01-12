@@ -1,39 +1,38 @@
 ﻿using Rocketcress.UIAutomation.Controls.ControlSupport;
 
-namespace Rocketcress.UIAutomation.Controls.WpfControls
+namespace Rocketcress.UIAutomation.Controls.WpfControls;
+
+[AutoDetectControl]
+[GenerateUIMapParts]
+public partial class WpfEdit : WpfControl, IUITestEditControl
 {
-    [AutoDetectControl]
-    [GenerateUIMapParts]
-    public partial class WpfEdit : WpfControl, IUITestEditControl
+    protected override By BaseLocationKey => base.BaseLocationKey.AndControlType(ControlType.Edit);
+
+    private ValueControlSupport _valueControlSupport;
+
+    public TextPattern TextPattern => GetPattern<TextPattern>();
+    public ValuePattern ValuePattern => GetPattern<ValuePattern>();
+
+    public virtual string Text
     {
-        protected override By BaseLocationKey => base.BaseLocationKey.AndControlType(ControlType.Edit);
+        get => ValuePattern.Current.Value;
+        set => _valueControlSupport.SetValue(value);
+    }
 
-        private ValueControlSupport _valueControlSupport;
+    public virtual bool ReadOnly => ValuePattern.Current.IsReadOnly;
 
-        public TextPattern TextPattern => GetPattern<TextPattern>();
-        public ValuePattern ValuePattern => GetPattern<ValuePattern>();
+    partial void OnInitialized()
+    {
+        _valueControlSupport = new ValueControlSupport(this);
+    }
 
-        public virtual string Text
-        {
-            get => ValuePattern.Current.Value;
-            set => _valueControlSupport.SetValue(value);
-        }
+    public void SetValue(object value)
+    {
+        Text = (string)value;
+    }
 
-        public virtual bool ReadOnly => ValuePattern.Current.IsReadOnly;
-
-        partial void OnInitialized()
-        {
-            _valueControlSupport = new ValueControlSupport(this);
-        }
-
-        public void SetValue(object value)
-        {
-            Text = (string)value;
-        }
-
-        public object GetValue()
-        {
-            return Text;
-        }
+    public object GetValue()
+    {
+        return Text;
     }
 }

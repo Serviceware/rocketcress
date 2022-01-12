@@ -2,32 +2,31 @@
 using Rocketcress.UIAutomation.ControlSearch.SearchParts;
 using System.Text.RegularExpressions;
 
-namespace Rocketcress.UIAutomation.ControlSearch.DescriptionParsing.ConditionParsers
+namespace Rocketcress.UIAutomation.ControlSearch.DescriptionParsing.ConditionParsers;
+
+internal class HasElementConditionParser : IConditionParser
 {
-    internal class HasElementConditionParser : IConditionParser
+    public bool IsMatch(string condition) => RegularExpressions.SplitPartsRegex.IsMatch(condition);
+
+    public ISearchCondition ParseCondition(string condition)
     {
-        public bool IsMatch(string condition) => RegularExpressions.SplitPartsRegex.IsMatch(condition);
+        var part = new NestedSearchPart();
 
-        public ISearchCondition ParseCondition(string condition)
+        bool isFirst = true;
+        foreach (Match childMatch in RegularExpressions.SplitPartsRegex.Matches(condition))
         {
-            var part = new NestedSearchPart();
+            if (string.IsNullOrWhiteSpace(childMatch.Value))
+                continue;
 
-            bool isFirst = true;
-            foreach (Match childMatch in RegularExpressions.SplitPartsRegex.Matches(condition))
-            {
-                if (string.IsNullOrWhiteSpace(childMatch.Value))
-                    continue;
+            var path = childMatch.Groups["Path"].Value;
+            if (isFirst && string.IsNullOrEmpty(path))
+                path = "/" + path;
 
-                var path = childMatch.Groups["Path"].Value;
-                if (isFirst && string.IsNullOrEmpty(path))
-                    path = "/" + path;
-
-                var p = ControlSearchDescriptionParser.ParsePart(path, childMatch.Groups["ControlType"].Value, childMatch.Groups["Condition"].Value, childMatch.Groups["Skip"].Value);
-                part.Parts.Add(p);
-                isFirst = false;
-            }
-
-            return new HasElementCondition(part.Parts.Count == 1 ? part.Parts[0] : part);
+            var p = ControlSearchDescriptionParser.ParsePart(path, childMatch.Groups["ControlType"].Value, childMatch.Groups["Condition"].Value, childMatch.Groups["Skip"].Value);
+            part.Parts.Add(p);
+            isFirst = false;
         }
+
+        return new HasElementCondition(part.Parts.Count == 1 ? part.Parts[0] : part);
     }
 }

@@ -1,7 +1,6 @@
-﻿namespace Rocketcress.UIAutomation.Controls
+﻿namespace Rocketcress.UIAutomation.Controls;
+
+public interface IUITestCheckBoxControl : IUITestControl
 {
-    public interface IUITestCheckBoxControl : IUITestControl
-    {
-        bool Checked { get; set; }
-    }
+    bool Checked { get; set; }
 }

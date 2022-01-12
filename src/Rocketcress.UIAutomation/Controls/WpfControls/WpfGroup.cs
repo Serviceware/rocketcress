@@ -1,9 +1,8 @@
-﻿namespace Rocketcress.UIAutomation.Controls.WpfControls
+﻿namespace Rocketcress.UIAutomation.Controls.WpfControls;
+
+[AutoDetectControl]
+[GenerateUIMapParts]
+public partial class WpfGroup : WpfControl, IUITestGroupControl
 {
-    [AutoDetectControl]
-    [GenerateUIMapParts]
-    public partial class WpfGroup : WpfControl, IUITestGroupControl
-    {
-        protected override By BaseLocationKey => base.BaseLocationKey.AndControlType(ControlType.Group);
-    }
+    protected override By BaseLocationKey => base.BaseLocationKey.AndControlType(ControlType.Group);
 }

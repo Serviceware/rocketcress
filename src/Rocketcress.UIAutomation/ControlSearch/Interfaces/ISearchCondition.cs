@@ -1,20 +1,19 @@
-﻿namespace Rocketcress.UIAutomation.ControlSearch
+﻿namespace Rocketcress.UIAutomation.ControlSearch;
+
+public interface ISearchCondition : ICloneable
 {
-    public interface ISearchCondition : ICloneable
-    {
-        bool Check(AutomationElement element, TreeWalker treeWalker);
-        string GetDescription();
-    }
+    bool Check(AutomationElement element, TreeWalker treeWalker);
+    string GetDescription();
+}
 
-    public interface ICompositeSearchCondition : ISearchCondition
-    {
-        SearchConditionOperator OperatorType { get; }
-        IList<ISearchCondition> Conditions { get; set; }
-    }
+public interface ICompositeSearchCondition : ISearchCondition
+{
+    SearchConditionOperator OperatorType { get; }
+    IList<ISearchCondition> Conditions { get; set; }
+}
 
-    public enum SearchConditionOperator
-    {
-        And,
-        Or,
-    }
+public enum SearchConditionOperator
+{
+    And,
+    Or,
 }

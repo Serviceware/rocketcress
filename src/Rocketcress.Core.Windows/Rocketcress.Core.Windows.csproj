@@ -15,6 +15,10 @@
   
   <Import Project="../../build/Rocketcress.props" />
 
+  <ItemGroup>
+    <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" Condition="$(IsSlim) == 'false'"/>
+  </ItemGroup>
+
   <PropertyGroup Condition=" '$(TargetFramework)' != 'net48' ">
     <UseWindowsForms>true</UseWindowsForms>
     <UseWpf>true</UseWpf>

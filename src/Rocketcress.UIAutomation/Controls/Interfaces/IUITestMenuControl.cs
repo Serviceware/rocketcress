@@ -1,7 +1,6 @@
-﻿namespace Rocketcress.UIAutomation.Controls
+﻿namespace Rocketcress.UIAutomation.Controls;
+
+public interface IUITestMenuControl : IUITestControl
 {
-    public interface IUITestMenuControl : IUITestControl
-    {
-        IEnumerable<IUITestControl> Items { get; }
-    }
+    IEnumerable<IUITestControl> Items { get; }
 }

@@ -1,31 +1,30 @@
-﻿namespace Rocketcress.UIAutomation.ControlSearch.Conditions
+﻿namespace Rocketcress.UIAutomation.ControlSearch.Conditions;
+
+public delegate bool FunctionConditionDelegate(AutomationElement element, TreeWalker treeWalker);
+
+public class FunctionCondition : SearchConditionBase
 {
-    public delegate bool FunctionConditionDelegate(AutomationElement element, TreeWalker treeWalker);
+    public string ConditionName { get; internal set; }
+    public FunctionConditionDelegate Condition { get; internal set; }
 
-    public class FunctionCondition : SearchConditionBase
+    public FunctionCondition(string conditionName, FunctionConditionDelegate condition)
     {
-        public string ConditionName { get; internal set; }
-        public FunctionConditionDelegate Condition { get; internal set; }
+        ConditionName = conditionName ?? throw new ArgumentNullException(nameof(conditionName));
+        Condition = condition ?? throw new ArgumentNullException(nameof(condition));
+    }
 
-        public FunctionCondition(string conditionName, FunctionConditionDelegate condition)
-        {
-            ConditionName = conditionName ?? throw new ArgumentNullException(nameof(conditionName));
-            Condition = condition ?? throw new ArgumentNullException(nameof(condition));
-        }
+    public override bool Check(AutomationElement element, TreeWalker treeWalker)
+    {
+        return Condition(element, treeWalker);
+    }
 
-        public override bool Check(AutomationElement element, TreeWalker treeWalker)
-        {
-            return Condition(element, treeWalker);
-        }
+    protected override SearchConditionBase CloneInternal()
+    {
+        return new FunctionCondition(ConditionName, Condition);
+    }
 
-        protected override SearchConditionBase CloneInternal()
-        {
-            return new FunctionCondition(ConditionName, Condition);
-        }
-
-        public override string GetDescription()
-        {
-            return $"func('{ConditionName}')";
-        }
+    public override string GetDescription()
+    {
+        return $"func('{ConditionName}')";
     }
 }

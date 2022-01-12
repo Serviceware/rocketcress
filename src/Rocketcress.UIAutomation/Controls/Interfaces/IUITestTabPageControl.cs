@@ -1,7 +1,6 @@
-namespace Rocketcress.UIAutomation.Controls
+namespace Rocketcress.UIAutomation.Controls;
+
+public interface IUITestTabPageControl : IUITestControl
 {
-    public interface IUITestTabPageControl : IUITestControl
-    {
-        IUITestControl Header { get; }
-    }
+    IUITestControl Header { get; }
 }
