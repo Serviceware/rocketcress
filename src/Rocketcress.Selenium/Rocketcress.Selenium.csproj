@@ -21,9 +21,9 @@
   <Import Project="../../build/Rocketcress.props" />
 
   <ItemGroup>
-    <Using Include="Rocketcress.Core.Attributes"/>
-    <Using Include="OpenQA.Selenium"/>
-    <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" Condition="$(IsSlim) == 'false'"/>
+    <Using Include="Rocketcress.Core.Attributes" />
+    <Using Include="OpenQA.Selenium" />
+    <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" Condition="$(IsSlim) == 'false'" />
   </ItemGroup>
 
   <ItemGroup Condition=" $(IsSlim) == 'false' ">
@@ -33,8 +33,8 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="Selenium.Support" Version="4.0.0-beta1" />
-    <PackageReference Include="Selenium.WebDriver" Version="4.0.0-beta1" />
+    <PackageReference Include="Selenium.Support" Version="4.1.0" />
+    <PackageReference Include="Selenium.WebDriver" Version="4.1.0" />
   </ItemGroup>
 
   <ItemGroup>

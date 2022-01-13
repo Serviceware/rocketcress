@@ -2,10 +2,9 @@
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
 using Rocketcress.Core.Attributes;
-using Rocketcress.Core.Extensions;
+using Rocketcress.Core.Common;
 using System.Globalization;
 using System.Reflection;
-using System.Text.RegularExpressions;
 
 namespace Rocketcress.Core.Base;
 
@@ -15,8 +14,6 @@ namespace Rocketcress.Core.Base;
 [Serializable]
 public class SettingsBase
 {
-    private static readonly Regex _settingKeyRegex = new(@"(\[(?<Tag>[^\]]*)\])?\s*(?<Key>.*)", RegexOptions.Compiled);
-
     /// <summary>
     /// Gets or sets the default timeout for the wait operations.
     /// </summary>
@@ -42,21 +39,21 @@ public class SettingsBase
     /// Gets the container in which all other settings are saved.
     /// </summary>
     [field: NonSerialized]
-    public IDictionary<string, object?> OtherSettings { get; private set; }
+    public IDictionary<string, object?> OtherSettings { get; }
 
     /// <summary>
     /// Gets a list of all defined Settings-Type prefixes.
     /// </summary>
-    public IList<SettingsType> SettingsTypes { get; private set; }
+    public IList<SettingsType> SettingsTypes { get; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="SettingsBase"/> class.
     /// </summary>
-    protected SettingsBase()
+    public SettingsBase()
     {
         Timeout = TimeSpan.FromMinutes(1);
         Language = LanguageOptions.English;
-        OtherSettings = new Dictionary<string, object?>();
+        OtherSettings = new Dictionary<string, object?>(new SettingKeyEqualityComparer());
         SettingsTypes = new List<SettingsType>();
     }
 
@@ -68,13 +65,35 @@ public class SettingsBase
     {
         var requiredKeys = AddKeysClassAttribute.GetKeys(type);
         var missingSettings = (from x in requiredKeys
-                               where !OtherSettings.ContainsKey(GetKey(x))
+                               where !OtherSettings.ContainsKey(x)
                                select x).ToArray();
         if (missingSettings.Length > 0)
         {
             Logger.LogWarning("The following required setting keys were not provided in the settings file:" +
                 Environment.NewLine + "\t- " + string.Join(Environment.NewLine + "\t- ", missingSettings));
         }
+    }
+
+    /// <summary>
+    /// Gets a specific setting.
+    /// </summary>
+    /// <typeparam name="T">The type of the setting value.</typeparam>
+    /// <param name="settingKey">The setting key to get the value of.</param>
+    /// <returns>The value of the setting.</returns>
+    public virtual T? Get<T>(string settingKey) => Get<T>(settingKey, default);
+
+    /// <summary>
+    /// Gets a specific setting.
+    /// </summary>
+    /// <typeparam name="T">The type of the setting value.</typeparam>
+    /// <param name="settingKey">The setting key to get the value of.</param>
+    /// <param name="defaultValue">The value to return if the setting key is not defined.</param>
+    /// <returns>The value of the setting.</returns>
+    public virtual T? Get<T>(string settingKey, T? defaultValue)
+    {
+        if (!OtherSettings.ContainsKey(settingKey))
+            return defaultValue;
+        return TryGet(settingKey, out T? value) ? value : defaultValue;
     }
 
 #pragma warning disable SA1414 // Tuple types in signatures should have element names
@@ -176,27 +195,44 @@ public class SettingsBase
 #pragma warning restore SA1414 // Tuple types in signatures should have element names
 
     /// <summary>
-    /// Gets a specific setting.
+    /// Tries to get a specific setting.
     /// </summary>
     /// <typeparam name="T">The type of the setting value.</typeparam>
     /// <param name="settingKey">The setting key to get the value of.</param>
-    /// <returns>The value of the setting.</returns>
-    public virtual T? Get<T>(string settingKey) => Get<T>(settingKey, default);
-
-    /// <summary>
-    /// Gets a specific setting.
-    /// </summary>
-    /// <typeparam name="T">The type of the setting value.</typeparam>
-    /// <param name="settingKey">The setting key to get the value of.</param>
-    /// <param name="defaultValue">The value to return if the setting key is not defined.</param>
-    /// <returns>The value of the setting.</returns>
-    public virtual T? Get<T>(string settingKey, T? defaultValue)
+    /// <param name="value">The value of the setting.</param>
+    /// <returns>True if the setting could be retrieved; otherwise false.</returns>
+    public virtual bool TryGet<T>(string settingKey, out T? value)
     {
-        if (this[settingKey] == null)
-            return defaultValue;
-        if (_getterFunctions.TryGetValue(typeof(T), out var func))
-            return (T?)func(this, settingKey);
-        return this[settingKey] is JToken value ? value.ToObject<T>() : defaultValue;
+        if (OtherSettings.ContainsKey(settingKey))
+        {
+            var objValue = this[settingKey];
+            if (typeof(T).IsClass && objValue == null)
+            {
+                value = default;
+                return true;
+            }
+
+            if (typeof(T).IsInstanceOfType(objValue))
+            {
+                value = (T?)objValue;
+                return true;
+            }
+
+            if (_getterFunctions.TryGetValue(typeof(T), out var func))
+            {
+                value = (T?)func(objValue);
+                return true;
+            }
+
+            if (typeof(T).IsClass && objValue is JToken token)
+            {
+                value = token.ToObject<T>();
+                return true;
+            }
+        }
+
+        value = default;
+        return false;
     }
 
 #pragma warning disable SA1414 // Tuple types in signatures should have element names
@@ -327,60 +363,20 @@ public class SettingsBase
     }
 #pragma warning restore SA1414 // Tuple types in signatures should have element names
 
-    private T? TryGet<T>(string settingKey, ref bool success)
-    {
-        success &= TryGet(settingKey, out T? value);
-        return value;
-    }
-
-    /// <summary>
-    /// Tries to get a specific setting.
-    /// </summary>
-    /// <typeparam name="T">The type of the setting value.</typeparam>
-    /// <param name="settingKey">The setting key to get the value of.</param>
-    /// <param name="value">The value of the setting.</param>
-    /// <returns>True if the setting could be retrieved; otherwise false.</returns>
-    public virtual bool TryGet<T>(string settingKey, out T? value)
-    {
-        if (OtherSettings.ContainsKey(settingKey))
-        {
-            if (_getterFunctions.TryGetValue(typeof(T), out var func))
-            {
-                value = (T?)func(this, settingKey);
-                return true;
-            }
-
-            if (typeof(T).IsClass && this[settingKey] is JToken token && token != null)
-            {
-                value = token.ToObject<T>();
-                return true;
-            }
-        }
-
-        value = default;
-        return false;
-    }
-
     /// <summary>
     /// Gets a specific setting.
     /// </summary>
-    /// <param name="setting">The setting key to get the value of.</param>
+    /// <param name="settingKey">The setting key to get the value of.</param>
     /// <returns>The value of the setting.</returns>
-    public virtual object? this[string setting]
+    public virtual object? this[string settingKey]
     {
         get
         {
-            if (OtherSettings.TryGetValue(setting, out var r1))
+            if (OtherSettings.TryGetValue(settingKey, out var r1))
                 return r1;
-
-            var keyWithoutTag = _settingKeyRegex.Match(setting).Groups["Key"].Value;
-            if (OtherSettings.TryFirst(x => _settingKeyRegex.Match(x.Key).Groups["Key"].Value == keyWithoutTag, out var r2))
-                return r2.Value;
-
-            Logger.LogWarning("The settings key \"{0}\" is not available in provided settings.", setting);
-            return null;
+            throw new KeyNotFoundException($"A setting with the key \"{settingKey}\" was not found in the provided settings.");
         }
-        set => OtherSettings[setting] = value;
+        set => OtherSettings[settingKey] = value;
     }
 
     /// <summary>
@@ -454,19 +450,17 @@ public class SettingsBase
     public static T GetFromFile<T>(string? filePath)
         where T : SettingsBase
     {
-        if (string.IsNullOrWhiteSpace(filePath) || !File.Exists(filePath))
-        {
-            Logger.LogError("Settings file \"{0}\" not found", filePath);
-            throw new Exception("The settings were not found. Either override the property 'Settings' or create a file 'settings.json' " +
-                "(and optional 'settings_debug.json') in the project and add the script CopySettingsFiles.ps1 to your projects post build events.\n");
-        }
+        if (string.IsNullOrWhiteSpace(filePath))
+            throw new ArgumentException("filePath needs to be a valid file location.", nameof(filePath));
+
+        if (!File.Exists(filePath))
+            throw new FileNotFoundException($"Settings file \"{0}\" was not found.");
 
         var jsonSettings = new JsonSerializerSettings
         {
             TypeNameHandling = TypeNameHandling.Auto,
         };
         var result = JsonConvert.DeserializeObject<T>(File.ReadAllText(filePath), jsonSettings) ?? throw new NullReferenceException("The loaded settings are null.");
-        result.OtherSettings = result.OtherSettings.ToDictionary(x => GetKey(x.Key), x => x.Value);
         return result;
     }
 
@@ -480,12 +474,15 @@ public class SettingsBase
     public static T GetFromFiles<T>(string? filePath, string? defaultFilePath)
         where T : SettingsBase
     {
-        if (string.IsNullOrWhiteSpace(filePath) || !File.Exists(filePath) || string.IsNullOrWhiteSpace(defaultFilePath) || !File.Exists(defaultFilePath))
-        {
-            Logger.LogError("Settings files \"{0}\" and/or \"{1}\" not found", filePath, defaultFilePath);
-            throw new Exception("The settings were not found. Either override the property 'Settings' or create a file 'settings.json' " +
-                "(and optional 'settings_debug.json') in the project and add the script CopySettingsFiles.ps1 to your projects post build events.\n");
-        }
+        if (string.IsNullOrWhiteSpace(filePath))
+            throw new ArgumentException("filePath needs to be a valid file location.", nameof(filePath));
+        if (string.IsNullOrWhiteSpace(defaultFilePath))
+            throw new ArgumentException("defaultFilePath needs to be a valid file location.", nameof(defaultFilePath));
+
+        if (!File.Exists(filePath))
+            throw new FileNotFoundException($"Settings file \"{filePath}\" was not found.");
+        if (!File.Exists(defaultFilePath))
+            throw new FileNotFoundException($"Settings file \"{defaultFilePath}\" was not found.");
 
         var result = JObject.Parse(File.ReadAllText(defaultFilePath));
         RemoveTags(result);
@@ -509,7 +506,7 @@ public class SettingsBase
             {
                 foreach (var property in osToken.Children<JProperty>().ToList())
                 {
-                    var newName = GetKey(property.Name);
+                    var newName = SettingKeyEqualityComparer.GetKey(property.Name);
                     if (newName != property.Name)
                     {
                         property.AddAfterSelf(new JProperty(newName, property.Value));
@@ -520,35 +517,29 @@ public class SettingsBase
         }
     }
 
-    /// <summary>
-    /// Retrieves the key without a tag from a key string.
-    /// </summary>
-    /// <param name="keyWithTag">The key string to extract from.</param>
-    /// <returns>Returns a settings key without the tag. E.g. "[str] Test" -> "Test".</returns>
-    public static string GetKey(string keyWithTag)
+    private T? TryGet<T>(string settingKey, ref bool success)
     {
-        var g = _settingKeyRegex.Match(keyWithTag).Groups["Key"];
-        return g.Success ? g.Value : keyWithTag;
+        success &= TryGet(settingKey, out T? value);
+        return value;
     }
 
     #region Getter functions
-    private static readonly IDictionary<Type, Func<SettingsBase, string, object?>> _getterFunctions = new Dictionary<Type, Func<SettingsBase, string, object?>>
+    private static readonly Dictionary<Type, Func<object?, object?>> _getterFunctions = new()
     {
-        [typeof(object)] = (s, key) => s[key],
-        [typeof(string)] = (s, key) => GetString(s, key),
-        [typeof(short)] = (s, key) => (short)GetInteger(s, key),
-        [typeof(int)] = (s, key) => (int)GetInteger(s, key),
-        [typeof(long)] = (s, key) => GetInteger(s, key),
-        [typeof(float)] = (s, key) => (float)GetDouble(s, key),
-        [typeof(double)] = (s, key) => GetDouble(s, key),
-        [typeof(bool)] = (s, key) => GetBool(s, key),
-        [typeof(DateTime)] = (s, key) => GetDateTime(s, key),
-        [typeof(Uri)] = (s, key) => GetUri(s, key),
+        [typeof(object)] = (value) => value,
+        [typeof(string)] = (value) => GetString(value),
+        [typeof(short)] = (value) => checked((short)GetInteger(value)),
+        [typeof(int)] = (value) => checked((int)GetInteger(value)),
+        [typeof(long)] = (value) => GetInteger(value),
+        [typeof(float)] = (value) => checked((float)GetDouble(value)),
+        [typeof(double)] = (value) => GetDouble(value),
+        [typeof(bool)] = (value) => GetBool(value),
+        [typeof(DateTime)] = (value) => GetDateTime(value),
+        [typeof(Uri)] = (value) => GetUri(value),
     };
 
-    private static double GetDouble(SettingsBase settings, string settingKey)
+    private static double GetDouble(object? value)
     {
-        var value = settings[settingKey];
         double result = 0D;
         if (value is long lValue)
             result = lValue;
@@ -557,58 +548,63 @@ public class SettingsBase
         else if (value == null)
             result = default;
         else if (value is not null)
-            result = double.Parse(value.ToString()!, CultureInfo.InvariantCulture);
+            result = double.Parse(GetString(value)!, CultureInfo.InvariantCulture);
         return result;
     }
 
-    private static DateTime GetDateTime(SettingsBase settings, string settingKey)
+    private static DateTime GetDateTime(object? value)
     {
-        var value = settings[settingKey];
         DateTime result = DateTime.MinValue;
         if (value is DateTime dtValue)
             result = dtValue;
         else if (value == null)
             result = default;
         else if (value is not null)
-            result = DateTime.Parse(value.ToString()!, CultureInfo.InvariantCulture);
+            result = DateTime.Parse(GetString(value)!, CultureInfo.InvariantCulture);
         return result;
     }
 
-    private static string? GetString(SettingsBase settings, string settingKey)
+    private static string? GetString(object? value)
     {
-        var value = settings[settingKey];
-        return value is string || value == null ? (string?)value : value.ToString();
+        if (value is string || value == null)
+            return (string?)value;
+        else if (value is IFormattable formattable)
+            return formattable.ToString(null, CultureInfo.InvariantCulture);
+        else
+            return value.ToString();
     }
 
-    private static long GetInteger(SettingsBase settings, string settingKey)
+    private static long GetInteger(object? value)
     {
-        var value = settings[settingKey];
         long result = 0L;
         if (value is long lValue)
             result = lValue;
         else if (value == null)
             result = default;
         else if (value is not null)
-            result = long.Parse(value.ToString()!, CultureInfo.InvariantCulture);
+            result = long.Parse(GetString(value)!, CultureInfo.InvariantCulture);
         return result;
     }
 
-    private static bool GetBool(SettingsBase settings, string settingKey)
+    private static bool GetBool(object? value)
     {
-        var value = settings[settingKey];
         bool result = false;
         if (value is bool bValue)
             result = bValue;
         else if (value == null)
             result = default;
+        else if (value is long lValue)
+            result = lValue != 0;
+        else if (value is not null && long.TryParse(GetString(value), out lValue))
+            result = lValue != 0;
         else if (value is not null)
-            result = bool.Parse(value.ToString()!);
+            result = bool.Parse(GetString(value)!);
         return result;
     }
 
-    private static Uri? GetUri(SettingsBase settings, string settingKey)
+    private static Uri? GetUri(object? value)
     {
-        var urlString = GetString(settings, settingKey);
+        var urlString = GetString(value);
         return urlString is null ? null : new Uri(urlString);
     }
     #endregion

@@ -25,9 +25,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Using Include="Rocketcress.Core.Attributes"/>
-    <Using Include="System.Windows.Automation"/>
-    <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" Condition="$(IsSlim) == 'false'"/>
+    <Using Include="Rocketcress.Core.Attributes" />
+    <Using Include="System.Windows.Automation" />
+    <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" Condition="$(IsSlim) == 'false'" />
   </ItemGroup>
 
   <ItemGroup Condition=" $(IsSlim) == 'false' ">

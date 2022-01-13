@@ -12,8 +12,6 @@ namespace Rocketcress.Selenium;
 /// </summary>
 public class Settings : SettingsBase
 {
-    private bool? _killAllBrowserProcessesOnCleanup;
-
     /// <summary>
     /// Gets or sets the URL to the login page of the tested application.
     /// </summary>
