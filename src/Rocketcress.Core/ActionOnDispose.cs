@@ -12,7 +12,7 @@ public sealed class ActionOnDispose : IDisposable
     /// <summary>
     /// Gets an empty <see cref="ActionOnDispose"/> object.
     /// </summary>
-    public static ActionOnDispose Empty => new();
+    public static ActionOnDispose Empty { get; } = new();
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ActionOnDispose"/> class.
