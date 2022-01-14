@@ -29,14 +29,13 @@ public class EdgeDriverProvider : IDriverProvider
         eOptions.AddArguments(eArgs);
         eOptions.UnhandledPromptBehavior = UnhandledPromptBehavior.Ignore;
         eOptions.AcceptInsecureCertificates = true;
-        eOptions.UseChromium = true;
         eOptions.SetLoggingPreference(LogType.Browser, OpenQA.Selenium.LogLevel.All);
         driverConfiguration?.ConfigureEdgeDriverOptions(eOptions);
 
         if (string.IsNullOrEmpty(settings.RemoteDriverUrl))
         {
             var (driverPath, driverExecutableName) = GetEdgeDriverPath();
-            var eService = OpenQA.Selenium.Edge.EdgeDriverService.CreateDefaultServiceFromOptions(driverPath, driverExecutableName, eOptions);
+            var eService = OpenQA.Selenium.Edge.EdgeDriverService.CreateDefaultService(driverPath, driverExecutableName);
             return this.RetryCreateDriver(() => new OpenQA.Selenium.Edge.EdgeDriver(eService, eOptions, browserTimeout));
         }
         else

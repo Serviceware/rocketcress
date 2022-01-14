@@ -467,6 +467,17 @@ public class WebDriver : OpenQA.Selenium.Support.UI.IWait<WebDriver>, IWebDriver
     }
 
     /// <summary>
+    /// Executes JavaScript asynchronously in the context of the currently selected frame or window.
+    /// </summary>
+    /// <param name="script">The JavaScript code to execute.</param>
+    /// <param name="args">The arguments to the script.</param>
+    /// <returns>The value returned by the script.</returns>
+    public object ExecuteScript(PinnedScript script, params object[] args)
+    {
+        return JavaScriptExecutor.ExecuteScript(script, args);
+    }
+
+    /// <summary>
     /// Executes JavaScript in the context of the currently selected frame or window.
     /// </summary>
     /// <param name="script">The JavaScript code to execute.</param>
