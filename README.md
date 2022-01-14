@@ -12,7 +12,7 @@ Rocketcress is a collection of libraries that help you to easily write Integrati
 - [🌈 Explanation of Functions](#explanation-of-functions)
   - [🔧 Settings](#settings)
   - [👆 Interacting with the UI](#interact-with-ui)
-  - [⏳ Waiter](#waiter)
+  - [⏳ Wait](#waiter)
   - [🔑 TestHelper](#testhelper)
 - [🔨 Create UIMaps](#create-uimaps)
   - [🔎 Define location keys](#location-keys)
@@ -75,19 +75,23 @@ Creating a project that uses Rocketcress is fairly simple and can be done in the
 
 ## 📌 Write a first test <a id="write-first-test"></a>
 
-Most of the things that needs to be done to initialize a test is already done in base classes that can be used in test classes. The following base classes exist:
+Some useful things are already done in base classes that can be used in test classes (e.g. some logging). The following base classes exist and shopuld be used depending on the test:
 | Class Name                                                   | Description |
 |--------------------------------------------------------------|-------------|
 | Rocketcress.Selenium.SeleniumTestBase                        | Base class for all Selenium tests. |
 | Rocketcress.UIAutomation.UIAutomationTestBase                | Base class for all UIAutomation tests. |
+| Rocketcress.Core.Base.TestBase<TSettings, TContext>          | Base class for all other tests. |
 
 The general procedure to add a new test class is the following:
 1. Create a new file with the template `Class` to the test project
 2. Add the `TestClass` code attribute to the class
 3. Inherit from one of the base classes above
 4. Add a test method by using the `testm` snippet or adding the `TestMethod` code attribute to a public method
+5. Use the `CreateAndInitializeContext()` to create a Rocketcress test context
+   - For Selenium tests this will automatically create and start a new Web Driver which is then available in the Context via the `Driver` property.
+   - For UIAutomation use the `Launch` or `Attach` static methods on the `Application` class to start or attach to an application. This will automatically set the property `Application` on the test context.
 
-At the start of each test method, the browser/application is already started. The UI can be interacted with by using one of the UIMaps directly.
+At the start of each test method, a Rocketcress test context should be created. Mind that the Rocketcress test context is disposable, so it is recommended to use the `using var` keywords.
 
 These are two examples for tests in test classes for Selenium and UIAutomation:
 - Selenium:
@@ -100,7 +104,8 @@ These are two examples for tests in test classes for Selenium and UIAutomation:
       [TestMethod]
       public void Selenium_Login_Success()
       {
-         var mainView = MainView.Login();
+         using var ctx = CreateAndInitializeContext();
+         var mainView = MainView.Login(ctx.Driver);
          mainView.Logoff(true);
       }
   }
@@ -115,7 +120,9 @@ These are two examples for tests in test classes for Selenium and UIAutomation:
       [TestMethod]
       public void UIA_Login_Success()
       {
-          var mainView = MainView.Login();
+          using var ctx = CreateAndInitializeContext();
+          var app = Application.Launch(ctx, /* FilePath */);
+          var mainView = MainView.Login(app);
           mainView.Logoff();
       }
   }
@@ -182,22 +189,24 @@ public static class SettingValues
 {
    // [...]
    public static int MyId 
-       => _properties.GetProperty(() => _settings.Get<int>(SettingKeys.MyId));
+       => _properties.GetProperty(() => SettingsLoader.Settings.Get<int>(SettingKeys.MyId));
    public static string MyString 
-       => _properties.GetProperty(() => _settings.Get<string>(SettingKeys.MyString));
+       => _properties.GetProperty(() => SettingsLoader.Settings.Get<string>(SettingKeys.MyString));
 }
 
 public static class TranslationValues
 {
    // [...]
    public static string MyTranslation 
-       => _properties.GetProperty(() => _settings.Get<string>(TranslationKeys.MyTranslation));
+       => _properties.GetProperty(() => SettingsLoader.Settings.Get<string>(TranslationKeys.MyTranslation));
 }
 #endregion
+
+// [...]
 ```
 
 ### Create settings files for different environments
-It is possible to add more settings files for different environment. For once the "settings_debug.json" is used when the test is executed with the `DEBUG` configuration. It is also possible to create a settings file for a specific environment by naming the settings file "settings_[MachineName].json" (replacing `[MachineName]` by the Name of the Computer; e.g. "settings_LAP-MASC1.json").
+It is possible to add more settings files for different environment. For once the "settings_debug.json" is used when the test is executed with the `DEBUG` configuration. The test base classes detect it automatically when initializing a test. If you want to manually set this value you can do so by setting the static property `TestHelper.IsDebugConfiguration`. It is also possible to create a settings file for a specific environment by naming the settings file "settings_[MachineName].json" (replacing `[MachineName]` by the Name of the Computer; e.g. "settings_LAP-MASC1.json").
 
 The settings files can be placed anywhere in the project (even in subfolders).
 
@@ -205,8 +214,10 @@ Please remember that you need a `settings.json` with the Build Action "C# analyz
 
 Also the property `<CopySettings>true</CopySettings>` needs to be added to the project, so that the settings files are all copied to the output directory while building the project.
 
+By default the source generator will detect the settings class that is used to deserialize the json files. If you want to specify your own class, you can set the `SettingsType` property on the `AdditionalFiles` Tag for the settings.json file in your csproj.
+
 ### Overwriting settings in different setting files
-It is not needed to copy the whole "settings.json" file for the environment specific settings files (or the debug file). It is possible to just create an empty JSON file and specify only the properties that should be overwritten. Also the tag of custom settings can be emitted.
+It is not needed to copy the whole "settings.json" file for the environment specific settings files (or the debug file). It is possible to just create an empty JSON file and specify only the properties that should be overwritten. Also the tag of custom settings can be omitted.
 
 For example this file will use all settings from the settings file above but overwrites the timeout and `AdminUserId`:
 ```JSON
@@ -217,7 +228,7 @@ For example this file will use all settings from the settings file above but ove
    }
 }
 ```
-As you can see, also the `KeyClasses` and `SettingsTypes` can be emitted. These properties are only used from the main settings.json.
+As you can see, also the `KeyClasses` and `SettingsTypes` can be omitted. These properties are only used from the main settings.json.
 
 ## 👆 Interacting with the UI <a id="interact-with-ui"></a>
 The interaction with the UI is mostly done by the control classes provided in the libraries (Selenium: `WebElement`, UIAutomation: `UITestControl`). For these classes there are different derived classes for specific controls (e.g. WpfTextBox for a TextBox control in WPF) which contains more specialized actions.
@@ -232,18 +243,24 @@ In Selenium there is another class that can be used to create UIMaps - the `View
 Also an important note is, that with the help of the `SetFocus` method, the driver focus can be switched to a specific view. In Selenium this is normally done by calling the driver with a specific window handle. This is done automatically by the `View` base class.
 
 
-## ⏳ Waiter <a id="waiter"></a>
+## ⏳ Wait <a id="waiter"></a>
 
-The `Waiter` is one of the most impotant classes in the libraries. It handles wait actions which are exceptionally important for UI Tests.
+The `Wait` class is one of the most impotant classes in the libraries. It handles wait actions which are exceptionally important for UI Tests.
 
-The `Waiter` class has one method `WaitUntil` which as a lot of overloads. In general it accepts a `Func<T>` which is the wait condition. The `WaitUntil` method will wait until that function returns a value that does not equal to the `default` value of the given type `T`. That means if `T` is `bool` the method will wait until the function returns `true`. The result of that function is returned by the `WaitUntil` method. If a timeout occurres the method will return the `default` value of type `T` by default.
+The `Wait` class has one method `Until` which is the start of a fluent API. In this you need to provide a `Func<T>` which is the wait condition. The `Wait` class will wait until that function returns a value that does not equal to the `default` value of the given type `T`. That means if `T` is `bool` the method will wait until the function returns `true`.
 
-There are overloads to specific the timeout (default is the one from the provided settings) and the wait between checks (default: 100ms). Also there are overloads that return the duration of the waiting action in an `out` parameter. But one of the most important parameters are the `assert` and `assertMsg` parameters which determine wether a `Assert.Fail` should be executed if the method runs into a timeout. If so, the `assertMsg` is used as the message. If `assertMsg` is not provided a default message is displayed.
+There are methods to specific the timeout (default is the one from `Wait.Options.DefaultTimeout` which is set in the test context initialize to the provided settings) and the wait between checks (`TimeGap`) (default: 100ms). But one of the most important methods is the `ThrowOnFailure` method which tells the wait to execute `Assert.Fail` if the wait runs into a timeout. If so, the `message` is used as the fail message.
+
+After configuring the wait action, the actual wait needs to be started using the `Start()` method. That method will return a result object with a couple of information about the wait action (e.g. the time it waited). One property of that result is also the `Value` which returns the last return value of the wait condition.
 
 For example this call will wait until the element `myElement` does have the text `success` in it. It checks every second and throws an `AssertException` with the message "Text is wrong." if the timeout of 5 minutes is exceeded:
 ```C#
 var myElement = new WebElement(/* [...] */);
-Waiter.WaitUntil(() => myElement.Text == "success", TimeSpan.FromMinutes(5), 1000, true, "Text is wrong.");
+Wait.Until(() => myElement.Text == "success")
+    .WithTimeout(TimeSpan.FromMinutes(5))
+    .WithTimeGap(1000)
+    .ThrowOnFailure("Text is wrong.")
+    .Start();
 ```
 
 ## 🔑 TestHelper <a id="testhelper"></a>
@@ -264,46 +281,97 @@ Before a UIMap for a control/element is created, the base class which to be use 
 - UIAutomation: Determine the properties "FrameworkId" and "ControlType" from the control for which to create the UIMap (use [Inspect](https://docs.microsoft.com/en-us/windows/win32/winauto/inspect-objects) for this) - that will lead to the name of the base class
   - Example: A control with FrameworkId = "Wpf" and ControlType = "Button" should use the class `WpfButton`
 
-### Specify a control on a view
+## Create view or control UIMap class
+
+It is recommended to use the `Rocketcress.SourceGenerators` NuGet package. This package includes a source generator that will already generate a lot of boilerplate code.
+
+It generates:
+- All constructors from the base class, calling the respective constructors on the base class
+- Initialize methods (override for the `InitializeControls`/`Initialize` methods)
+- Partial methods for each initialization step
+- Initialization code for UIMap controls
+
+Using the source generator you just need to create a class drived from `WebElement`, `View` or `UITestControl` or a class that already derives from one of these classes or derivatives. After that add the `GenerateUIMapParts` attribute to the class and add the `partial` keyword.
+
+Example:
+``` C#
+// [...]
+[GenerateUIMapParts]
+public partial class MyControl : WebElement
+{
+    // [...]
+}
+```
+
+## Specify a control
+
+When using the source generators adding controls to a UIMap is quite simple. You just need to add a new Property with the `UIMapControl` attribute. By default the source generator will generate a location key for you depending on the property name. You can control this behavior using the `IdStyle` property on the `UIMapControl` attribute. You can also provide a custom location key by setting the property using the generated `InitUsing<T>` method.
+
+Example:
+```C#
+// [...]
+
+[GenerateUIMapParts]
+public partial class MyControl : WebElement
+{
+    [UIMapControl]
+    public WebElement MyControl { get; private set; } // location key will be: By.Id("MyControl")
+
+    [UIMapControl]
+    public WebElement MyOtherControl { get; private set; } = InitUsing<WebElement>(() => By.XPath("./input[@type='button']"));
+}
+```
+
+### On a view (not using Source Generator)
 Let's say you have a view and want to add a control to the views UIMap. Start by overriding the method `Initialize` (UIAutomation) or `InitializeControls` (Selenium) from the base class.
 
 After that create a field and a property for the control under the `Initialize`/`InitializeControls` method and initialize the property in that method.
 
 Example (Selenium):
 ```C#
-public MyView() : base() { }
-public MyView(WebDriver driver) : base(driver) { }
+// [...]
 
-protected override void InitializeControls()
+public class MyView : View
 {
-   base.InitializeControls();
-   MyControl = new WebElement(ByMyControl);
-}
+    public MyView() : base() { }
+    public MyView(WebDriver driver) : base(driver) { }
 
-private static readonly By ByMyControl = By.Id("my-fancy-control");
-public WebElement MyControl { get; private set; }
+    protected override void InitializeControls()
+    {
+        base.InitializeControls();
+        MyControl = new WebElement(ByMyControl);
+    }
+
+    private static readonly By ByMyControl = By.Id("my-fancy-control");
+    public WebElement MyControl { get; private set; }
+}
 ```
 
-### Specify a child control on a control
+### On a control (not using Source Generator)
 In this case there is a control that has other controls as child controls. In this case the procedure is mostly the same as for views, but `this` should be passed into the child control, to only search for sub controls.
 
 **Important**: If a XPath is specified for child controls, the XPath needs to start with a dot (e.g. `./div`), so the search only happens in the context of the parent control.
 
 Example (Selenium):
 ```C#
-public MyControl(By locationKey) : base(locationKey) { }
-public MyControl(IWebElement element) : base(element) { }
-public MyControl(By locationKey, ISearchContext searchContext) : base(locationKey, searchContext) { }
-protected MyControl() : base() { }
+// [...]
 
-protected override void InitializeControls()
+public class MyControl : WebElement
 {
-   base.InitializeControls();
-   MyChildControl = new WebElement(ByMyControl, this);
-}
+    public MyControl(By locationKey) : base(locationKey) { }
+    public MyControl(IWebElement element) : base(element) { }
+    public MyControl(By locationKey, ISearchContext searchContext) : base(locationKey, searchContext) { }
+    protected MyControl() : base() { }
 
-private static readonly By ByMyChildControl = By.XPath("./input[@type='button']");
-public WebElement MyChildControl { get; private set; }
+    protected override void InitializeControls()
+    {
+        base.InitializeControls();
+        MyChildControl = new WebElement(ByMyControl, this);
+    }
+
+    private static readonly By ByMyChildControl = By.XPath("./input[@type='button']");
+    public WebElement MyChildControl { get; private set; }
+}
 ```
 
 ## 🔎 Define location keys <a id="location-keys"></a>
@@ -411,7 +479,7 @@ All control types from the class [System.Windows.Automation.ControlType](https:/
 + Use the settings as often as possible, instead of hardcoding information into the test.
 + When creating UIMaps always add the same constructors as their base class.
 + When initializing a control in a UIMap of another control, pass in `this` as the "searchContext" (Selenium) or "parent" (UIAutomation) parameters to the constructor of the child control.
-- Try to avoid the usage of `Thread.Sleep` or `Task.Delay`; use the [`Waiter`](#waiter) class instead.
+- Try to avoid the usage of `Thread.Sleep` or `Task.Delay`; use the [`Wait`](#waiter) class instead.
 - Never use custom settings in a UIMap project.
 - Try to avoid using translated strings in a location key.
 - Try to avoid searching for elements in a Test directly; add a UIMap to one of the UIMap libraries instead.
@@ -456,7 +524,7 @@ Selenium tests can be executed in multiple browsers with the following options:
 A new web driver can be created by executing the `CreateAndSwitchToNewDriver` method from the `SeleniumTestContext`. The current driver can be switched by using the `SwitchCurrentDriver` method or by executing the `SetFocus` of an existing instance of a `View`.
 
 ### My tests are failing a lot in Internet Explorer, why?
-The IEDriver for Selenium is not the best, so it is really slow. If you run into issues with expiring timeouts in Internet Explorer, try adjusting the timeout. You can also increase the timeout in the tests by either settings the `Timeout` property on the `Settings` or passing in a different timeout value in the `Waiter.WaitUntil`.
+The IEDriver for Selenium is not the best, so it is really slow. If you run into issues with expiring timeouts in Internet Explorer, try adjusting the timeout. You can also increase the timeout in the tests by either settings the `Timeout` property on the `Settings` or passing in a different timeout value in the `.WithTimeout()` method on a wait action.
 
 You can also check with the `GetBrowser()` method of the driver if the IE is currently used and just increase the timeout then.
 
