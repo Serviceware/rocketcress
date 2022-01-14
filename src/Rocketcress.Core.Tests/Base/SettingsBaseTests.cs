@@ -542,7 +542,7 @@ public class SettingsBaseTests : TestClassBase
 
     private Assembly CreateFakeAssembly(string name, string location)
     {
-        var assembly = Mocks.Create<Assembly>();
+        var assembly = Mocks.Create<TestAssembly>();
         assembly.Setup(x => x.GetName()).Returns(new AssemblyName(name));
         assembly.Setup(x => x.Location).Returns(location);
         return assembly.Object;
@@ -551,5 +551,12 @@ public class SettingsBaseTests : TestClassBase
     public class TestObject1
     {
         public string StringValue { get; set; }
+    }
+
+    public class TestAssembly : Assembly
+    {
+        public TestAssembly()
+        {
+        }
     }
 }
