@@ -1,93 +1,54 @@
 ﻿using Rocketcress.UIAutomation.Common;
 using Rocketcress.UIAutomation.Controls.ControlSupport;
 using Rocketcress.UIAutomation.Exceptions;
-using System.Windows.Automation;
 
-namespace Rocketcress.UIAutomation.Controls.WpfControls
+namespace Rocketcress.UIAutomation.Controls.WpfControls;
+
+[AutoDetectControl]
+[GenerateUIMapParts]
+public partial class WpfRadioButton : WpfControl, IUITestRadioButtonControl
 {
-    [AutoDetectControl]
-    public class WpfRadioButton : WpfControl, IUITestRadioButtonControl
+    protected override By BaseLocationKey => base.BaseLocationKey.AndControlType(ControlType.RadioButton);
+
+    private SelectionItemControlSupport _selectionItemControlSupport;
+
+    public SelectionItemPattern SelectionItemPattern => GetPattern<SelectionItemPattern>();
+
+    public virtual IUITestControl Group
     {
-        protected override By BaseLocationKey => base.BaseLocationKey.AndControlType(ControlType.RadioButton);
-
-        #region Private Fields
-        private SelectionItemControlSupport _selectionItemControlSupport;
-        #endregion
-
-        #region Patterns
-        public SelectionItemPattern SelectionItemPattern => GetPattern<SelectionItemPattern>();
-        #endregion
-
-        #region Constructors
-        public WpfRadioButton(By locationKey)
-            : base(locationKey)
+        get
         {
+            var element = _selectionItemControlSupport.GetSelectionContainer();
+            return element == null ? null : ControlUtility.GetControl(Application, element);
         }
+    }
 
-        public WpfRadioButton(IUITestControl parent)
-            : base(parent)
+    public virtual bool Selected
+    {
+        get => _selectionItemControlSupport.GetSelected();
+        set
         {
+            if (!value && Selected)
+                throw new UIActionNotSupportedException("RadioButtons cannot be unchecked.", this);
+            _selectionItemControlSupport.SetSelected(value);
         }
+    }
 
-        public WpfRadioButton(AutomationElement element)
-            : base(element)
-        {
-        }
+    partial void OnInitialized()
+    {
+        _selectionItemControlSupport = new SelectionItemControlSupport(this);
+    }
 
-        public WpfRadioButton(By locationKey, AutomationElement parent)
-            : base(locationKey, parent)
-        {
-        }
+    public void SetValue(object value)
+    {
+        if (!(bool)value)
+            throw new System.NotImplementedException();
+        if (!Selected)
+            Selected = true;
+    }
 
-        public WpfRadioButton(By locationKey, IUITestControl parent)
-            : base(locationKey, parent)
-        {
-        }
-
-        protected WpfRadioButton()
-        {
-        }
-
-        protected override void Initialize()
-        {
-            base.Initialize();
-            _selectionItemControlSupport = new SelectionItemControlSupport(this);
-        }
-
-        public void SetValue(object value)
-        {
-            if (!(bool)value)
-                throw new System.NotImplementedException();
-            if (!Selected)
-                Selected = true;
-        }
-
-        public object GetValue()
-        {
-            return Selected;
-        }
-        #endregion
-
-        #region Public Properties
-        public virtual IUITestControl Group
-        {
-            get
-            {
-                var element = _selectionItemControlSupport.GetSelectionContainer();
-                return element == null ? null : ControlUtility.GetControl(element);
-            }
-        }
-
-        public virtual bool Selected
-        {
-            get => _selectionItemControlSupport.GetSelected();
-            set
-            {
-                if (!value && Selected)
-                    throw new UIActionNotSupportedException("RadioButtons cannot be unchecked.", this);
-                _selectionItemControlSupport.SetSelected(value);
-            }
-        }
-        #endregion
+    public object GetValue()
+    {
+        return Selected;
     }
 }

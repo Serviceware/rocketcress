@@ -1,77 +1,38 @@
 ﻿using Rocketcress.UIAutomation.Controls.ControlSupport;
-using System.Windows.Automation;
 
-namespace Rocketcress.UIAutomation.Controls.WpfControls
+namespace Rocketcress.UIAutomation.Controls.WpfControls;
+
+[AutoDetectControl]
+[GenerateUIMapParts]
+public partial class WpfEdit : WpfControl, IUITestEditControl
 {
-    [AutoDetectControl]
-    public class WpfEdit : WpfControl, IUITestEditControl
+    protected override By BaseLocationKey => base.BaseLocationKey.AndControlType(ControlType.Edit);
+
+    private ValueControlSupport _valueControlSupport;
+
+    public TextPattern TextPattern => GetPattern<TextPattern>();
+    public ValuePattern ValuePattern => GetPattern<ValuePattern>();
+
+    public virtual string Text
     {
-        protected override By BaseLocationKey => base.BaseLocationKey.AndControlType(ControlType.Edit);
+        get => ValuePattern.Current.Value;
+        set => _valueControlSupport.SetValue(value);
+    }
 
-        #region Private Fields
-        private ValueControlSupport _valueControlSupport;
-        #endregion
+    public virtual bool ReadOnly => ValuePattern.Current.IsReadOnly;
 
-        #region Patterns
-        public TextPattern TextPattern => GetPattern<TextPattern>();
-        public ValuePattern ValuePattern => GetPattern<ValuePattern>();
-        #endregion
+    partial void OnInitialized()
+    {
+        _valueControlSupport = new ValueControlSupport(this);
+    }
 
-        #region Constructors
-        public WpfEdit(By locationKey)
-            : base(locationKey)
-        {
-        }
+    public void SetValue(object value)
+    {
+        Text = (string)value;
+    }
 
-        public WpfEdit(IUITestControl parent)
-            : base(parent)
-        {
-        }
-
-        public WpfEdit(AutomationElement element)
-            : base(element)
-        {
-        }
-
-        public WpfEdit(By locationKey, AutomationElement parent)
-            : base(locationKey, parent)
-        {
-        }
-
-        public WpfEdit(By locationKey, IUITestControl parent)
-            : base(locationKey, parent)
-        {
-        }
-
-        protected WpfEdit()
-        {
-        }
-
-        protected override void Initialize()
-        {
-            base.Initialize();
-            _valueControlSupport = new ValueControlSupport(this);
-        }
-
-        public void SetValue(object value)
-        {
-            Text = (string)value;
-        }
-
-        public object GetValue()
-        {
-            return Text;
-        }
-        #endregion
-
-        #region Public Properties
-        public virtual string Text
-        {
-            get => ValuePattern.Current.Value;
-            set => _valueControlSupport.SetValue(value);
-        }
-
-        public virtual bool ReadOnly => ValuePattern.Current.IsReadOnly;
-        #endregion
+    public object GetValue()
+    {
+        return Text;
     }
 }

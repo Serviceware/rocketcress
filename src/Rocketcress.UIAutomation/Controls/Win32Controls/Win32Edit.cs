@@ -1,67 +1,28 @@
 ﻿using Rocketcress.UIAutomation.Controls.ControlSupport;
-using System.Windows.Automation;
 
-namespace Rocketcress.UIAutomation.Controls.Win32Controls
+namespace Rocketcress.UIAutomation.Controls.Win32Controls;
+
+[AutoDetectControl]
+[GenerateUIMapParts]
+public partial class Win32Edit : Win32Control, IUITestEditControl
 {
-    [AutoDetectControl]
-    public class Win32Edit : Win32Control, IUITestEditControl
+    protected override By BaseLocationKey => base.BaseLocationKey.AndControlType(ControlType.Edit);
+
+    private ValueControlSupport _valueControlSupport;
+
+    public TextPattern TextPattern => GetPattern<TextPattern>();
+    public ValuePattern ValuePattern => GetPattern<ValuePattern>();
+
+    public virtual string Text
     {
-        protected override By BaseLocationKey => base.BaseLocationKey.AndControlType(ControlType.Edit);
+        get => ValuePattern.Current.Value;
+        set => _valueControlSupport.SetValue(value);
+    }
 
-        #region Private Fields
-        private ValueControlSupport _valueControlSupport;
-        #endregion
+    public virtual bool ReadOnly => ValuePattern.Current.IsReadOnly;
 
-        #region Patterns
-        public TextPattern TextPattern => GetPattern<TextPattern>();
-        public ValuePattern ValuePattern => GetPattern<ValuePattern>();
-        #endregion
-
-        #region Constructors
-        public Win32Edit(By locationKey)
-            : base(locationKey)
-        {
-        }
-
-        public Win32Edit(IUITestControl parent)
-            : base(parent)
-        {
-        }
-
-        public Win32Edit(AutomationElement element)
-            : base(element)
-        {
-        }
-
-        public Win32Edit(By locationKey, AutomationElement parent)
-            : base(locationKey, parent)
-        {
-        }
-
-        public Win32Edit(By locationKey, IUITestControl parent)
-            : base(locationKey, parent)
-        {
-        }
-
-        protected Win32Edit()
-        {
-        }
-
-        protected override void Initialize()
-        {
-            base.Initialize();
-            _valueControlSupport = new ValueControlSupport(this);
-        }
-        #endregion
-
-        #region Public Properties
-        public virtual string Text
-        {
-            get => ValuePattern.Current.Value;
-            set => _valueControlSupport.SetValue(value);
-        }
-
-        public virtual bool ReadOnly => ValuePattern.Current.IsReadOnly;
-        #endregion
+    partial void OnInitialized()
+    {
+        _valueControlSupport = new ValueControlSupport(this);
     }
 }

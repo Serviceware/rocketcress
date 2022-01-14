@@ -1,8 +1,7 @@
-﻿namespace Rocketcress.UIAutomation.Controls
+﻿namespace Rocketcress.UIAutomation.Controls;
+
+public interface IUITestHyperlinkControl : IUITestControl
 {
-    public interface IUITestHyperlinkControl : IUITestControl
-    {
-        string Alt { get; }
-        void Invoke();
-    }
+    string Alt { get; }
+    void Invoke();
 }

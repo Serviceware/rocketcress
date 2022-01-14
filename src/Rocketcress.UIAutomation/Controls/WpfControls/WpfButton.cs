@@ -1,53 +1,14 @@
-﻿using System.Windows.Automation;
+﻿namespace Rocketcress.UIAutomation.Controls.WpfControls;
 
-namespace Rocketcress.UIAutomation.Controls.WpfControls
+[AutoDetectControl]
+[GenerateUIMapParts]
+public partial class WpfButton : WpfControl, IUITestButtonControl
 {
-    [AutoDetectControl]
-    public class WpfButton : WpfControl, IUITestButtonControl
-    {
-        protected override By BaseLocationKey => base.BaseLocationKey.AndControlType(ControlType.Button);
+    protected override By BaseLocationKey => base.BaseLocationKey.AndControlType(ControlType.Button);
 
-        #region Patterns
-        public InvokePattern InvokePattern => GetPattern<InvokePattern>();
-        #endregion
+    public InvokePattern InvokePattern => GetPattern<InvokePattern>();
 
-        #region Constructors
-        public WpfButton(By locationKey)
-            : base(locationKey)
-        {
-        }
+    public virtual string DisplayText => Name;
 
-        public WpfButton(IUITestControl parent)
-            : base(parent)
-        {
-        }
-
-        public WpfButton(AutomationElement element)
-            : base(element)
-        {
-        }
-
-        public WpfButton(By locationKey, AutomationElement parent)
-            : base(locationKey, parent)
-        {
-        }
-
-        public WpfButton(By locationKey, IUITestControl parent)
-            : base(locationKey, parent)
-        {
-        }
-
-        protected WpfButton()
-        {
-        }
-        #endregion
-
-        #region Public Properties
-        public virtual string DisplayText => Name;
-        #endregion
-
-        #region Public Methods
-        public virtual void Invoke() => InvokePattern.Invoke();
-        #endregion
-    }
+    public virtual void Invoke() => InvokePattern.Invoke();
 }

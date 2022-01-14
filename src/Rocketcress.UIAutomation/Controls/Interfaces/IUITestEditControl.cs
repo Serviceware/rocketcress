@@ -1,8 +1,7 @@
-﻿namespace Rocketcress.UIAutomation.Controls
+﻿namespace Rocketcress.UIAutomation.Controls;
+
+public interface IUITestEditControl : IUITestControl
 {
-    public interface IUITestEditControl : IUITestControl
-    {
-        string Text { get; set; }
-        bool ReadOnly { get; }
-    }
+    string Text { get; set; }
+    bool ReadOnly { get; }
 }

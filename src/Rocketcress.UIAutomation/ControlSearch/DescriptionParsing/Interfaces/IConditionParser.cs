@@ -1,8 +1,7 @@
-﻿namespace Rocketcress.UIAutomation.ControlSearch.DescriptionParsing
+﻿namespace Rocketcress.UIAutomation.ControlSearch.DescriptionParsing;
+
+internal interface IConditionParser
 {
-    internal interface IConditionParser
-    {
-        bool IsMatch(string condition);
-        ISearchCondition ParseCondition(string condition);
-    }
+    bool IsMatch(string condition);
+    ISearchCondition ParseCondition(string condition);
 }

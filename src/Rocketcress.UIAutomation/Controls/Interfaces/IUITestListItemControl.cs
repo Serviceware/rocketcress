@@ -1,10 +1,9 @@
-﻿namespace Rocketcress.UIAutomation.Controls
-{
-    public interface IUITestListItemControl : IUITestControl
-    {
-        bool Selected { get; set; }
-        string DisplayText { get; }
+﻿namespace Rocketcress.UIAutomation.Controls;
 
-        void Select();
-    }
+public interface IUITestListItemControl : IUITestControl
+{
+    bool Selected { get; set; }
+    string DisplayText { get; }
+
+    void Select();
 }

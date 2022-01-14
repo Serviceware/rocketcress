@@ -1,112 +1,56 @@
 ﻿using Rocketcress.Core;
 using Rocketcress.UIAutomation.Controls.ControlSupport;
 using System.Windows;
-using System.Windows.Automation;
 
-namespace Rocketcress.UIAutomation.Controls.CommonControls
+namespace Rocketcress.UIAutomation.Controls.CommonControls;
+
+[AutoDetectControl(Priority = -50)]
+[GenerateUIMapParts]
+public partial class CommonWindow : UITestControl, IUITestWindowControl
 {
-    [AutoDetectControl(Priority = -50)]
-    public class CommonWindow : UITestControl, IUITestWindowControl
+    protected override By BaseLocationKey => base.BaseLocationKey.AndControlType(ControlType.Window);
+
+    private WindowControlSupport _windowControlSupport;
+
+    public WindowPattern WindowPattern => GetPattern<WindowPattern>();
+
+    public CommonWindow(Application app)
+        : this(app, By.Empty)
     {
-        private Application _application;
+    }
 
-        protected override By BaseLocationKey => base.BaseLocationKey.AndControlType(ControlType.Window);
-        public override Application Application => _application ?? UIAutomationTestContext.CurrentContext.ActiveApplication;
+    public CommonWindow(Application app, By locationKey)
+        : base(app, locationKey)
+    {
+        LocationKey.Append(By.ProcessId(app.Process.Id), false, false);
+    }
 
-        #region Private Fields
+    public virtual bool Maximized
+    {
+        get => WindowPattern.Current.WindowVisualState == WindowVisualState.Maximized;
+        set => WindowPattern.SetWindowVisualState(value ? WindowVisualState.Maximized : WindowVisualState.Normal);
+    }
 
-        private WindowControlSupport _windowControlSupport;
+    public override bool Exists => base.Exists && _windowControlSupport.IsWindow();
+    public override bool Displayed => Exists && _windowControlSupport.IsWindowVisible();
 
-        #endregion
+    public virtual bool SetWindowSize(Size windowSize) => SetWindowSize(windowSize, true, true);
+    public virtual bool SetWindowSize(Size windowSize, bool moveCenter) => SetWindowSize(windowSize, moveCenter, true);
+    public virtual bool SetWindowSize(Size windowSize, bool moveCenter, bool assert) => _windowControlSupport.SetWindowSize(windowSize, moveCenter, assert);
 
-        #region Patterns
+    public virtual void MoveToCenter() => _windowControlSupport.MoveToCenter();
 
-        public WindowPattern WindowPattern => GetPattern<WindowPattern>();
+    public virtual void SetWindowTitle(string titleText) => _windowControlSupport.SetWindowTitle(titleText);
 
-        #endregion
+    public virtual bool Close() => Close(Wait.Options.DefaultTimeoutMs, true);
+    public virtual bool Close(int timeout) => Close(timeout, true);
+    public virtual bool Close(bool assert) => Close(Wait.Options.DefaultTimeoutMs, assert);
+    public virtual bool Close(int timeout, bool assert) => _windowControlSupport.Close(timeout, assert);
 
-        #region Constructors
+    public override void SetFocus() => _windowControlSupport.SetFocus(base.SetFocus);
 
-        public CommonWindow(AutomationElement element)
-            : base(element)
-        {
-        }
-
-        public CommonWindow(Application app)
-            : this(By.Empty, app)
-        {
-        }
-
-        public CommonWindow(By locationKey)
-            : base(locationKey)
-        {
-        }
-
-        public CommonWindow(IUITestControl parent)
-            : base(parent)
-        {
-        }
-
-        public CommonWindow(By locationKey, AutomationElement parent)
-            : base(locationKey, parent)
-        {
-        }
-
-        public CommonWindow(By locationKey, IUITestControl parent)
-            : base(locationKey, parent)
-        {
-        }
-
-        public CommonWindow(By locationKey, Application app)
-            : base(locationKey)
-        {
-            _application = app;
-            if (app != null)
-                LocationKey.Append(By.ProcessId(app.Process.Id), false, false);
-        }
-
-        protected CommonWindow()
-        {
-        }
-
-        protected override void Initialize()
-        {
-            base.Initialize();
-            _windowControlSupport = new WindowControlSupport(this);
-        }
-
-        #endregion
-
-        #region Public Properties
-
-        public virtual bool Maximized
-        {
-            get => WindowPattern.Current.WindowVisualState == WindowVisualState.Maximized;
-            set => WindowPattern.SetWindowVisualState(value ? WindowVisualState.Maximized : WindowVisualState.Normal);
-        }
-
-        public override bool Exists => base.Exists && _windowControlSupport.IsWindow();
-        public override bool Displayed => Exists && _windowControlSupport.IsWindowVisible();
-
-        #endregion
-
-        #region Public Methods
-
-        public virtual bool SetWindowSize(Size windowSize) => SetWindowSize(windowSize, true, true);
-        public virtual bool SetWindowSize(Size windowSize, bool moveCenter) => SetWindowSize(windowSize, moveCenter, true);
-        public virtual bool SetWindowSize(Size windowSize, bool moveCenter, bool assert) => _windowControlSupport.SetWindowSize(windowSize, moveCenter, assert);
-
-        public virtual void MoveToCenter() => _windowControlSupport.MoveToCenter();
-
-        public virtual void SetWindowTitle(string titleText) => _windowControlSupport.SetWindowTitle(titleText);
-
-        public virtual bool Close() => Close(Wait.Options.DefaultTimeoutMs, true);
-        public virtual bool Close(int timeout) => Close(timeout, true);
-        public virtual bool Close(bool assert) => Close(Wait.Options.DefaultTimeoutMs, assert);
-        public virtual bool Close(int timeout, bool assert) => _windowControlSupport.Close(timeout, assert);
-
-        public override void SetFocus() => _windowControlSupport.SetFocus(base.SetFocus);
-
-        #endregion
+    partial void OnInitialized()
+    {
+        _windowControlSupport = new WindowControlSupport(this);
     }
 }

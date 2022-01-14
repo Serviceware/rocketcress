@@ -1,7 +1,6 @@
-﻿namespace Rocketcress.UIAutomation.Controls
+﻿namespace Rocketcress.UIAutomation.Controls;
+
+public interface IUITestExpanderControl : IUITestControl
 {
-    public interface IUITestExpanderControl : IUITestControl
-    {
-        bool Expanded { get; set; }
-    }
+    bool Expanded { get; set; }
 }

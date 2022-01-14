@@ -1,127 +1,78 @@
-﻿using Rocketcress.Core.Attributes;
-using System;
-using System.Diagnostics;
-using System.Linq;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Runtime.ExceptionServices;
+using Rocketcress.Core.Attributes;
+
+namespace Rocketcress.Core.Base;
+
+/// <summary>
+/// Base class for test classes.
+/// </summary>
+/// <typeparam name="TSettings">The type of the settings to use.</typeparam>
+/// <typeparam name="TContext">The type of the test context to use.</typeparam>
 #if !SLIM
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+[DeploymentItem("TestSettings/", "TestSettings/")]
+[DeploymentItem("TestSettings\\", "TestSettings\\")]
 #endif
-
-#nullable disable
-
-namespace Rocketcress.Core.Base
+[AddKeysClass("SettingKeys")]
+public abstract class TestBase<TSettings, TContext> : TestObjectBase
+    where TSettings : SettingsBase
+    where TContext : TestContextBase
 {
+#if !SLIM
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     /// <summary>
-    /// Base class for test classes.
+    /// Gets or sets the current MSTest <see cref="TestContext"/>.
     /// </summary>
-    /// <typeparam name="TSettings">The type of the settings to use.</typeparam>
-    /// <typeparam name="TContext">The type of the test context to use.</typeparam>
-#if !SLIM
-    [DeploymentItem("TestSettings/", "TestSettings/")]
-    [DeploymentItem("TestSettings\\", "TestSettings\\")]
+    public TestContext TestContext { get; set; }
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 #endif
-    public abstract class TestBase<TSettings, TContext> : TestObjectBase
-        where TSettings : SettingsBase
-        where TContext : TestContextBase
+
+    /// <summary>
+    /// Gets the last exception that occurred in the current AppDomain.
+    /// </summary>
+    protected Exception? LastException { get; private set; }
+
+    /// <summary>
+    /// Initializes a Test.
+    /// </summary>
+#if !SLIM
+    [TestInitialize]
+#endif
+    public void InitializeTest()
     {
-        #region Properties
-
 #if !SLIM
-        /// <summary>
-        /// Gets or sets the current MSTest <see cref="TestContext"/>.
-        /// </summary>
-        public TestContext TestContext { get; set; }
+        Logger.LogInfo($"Test '{TestContext.TestName}' initializing...");
+        Logger.LogDebug($"Deployment directory: {TestContext.DeploymentDirectory}");
 #endif
 
-        /// <summary>
-        /// Gets the current Rocketcress test context.
-        /// </summary>
-        public TContext CurrentContext { get; private set; }
+        TestHelper.IsDebugConfiguration = GetIsDebugConfiguration();
+        Logger.LogDebug($"IsDebugConfiguration (could be overridden by derives classes): " + TestHelper.IsDebugConfiguration);
 
-        /// <summary>
-        /// Gets or sets the current Test Settings.
-        /// </summary>
-        public virtual TSettings Settings
+#if !SLIM
+        Logger.LogDebug("TestContext.Properties:");
+        foreach (var p in TestContext.Properties.Keys)
         {
-            get => GetProperty(() => LoadSettings());
-            set => SetProperty(value);
+            Logger.LogDebug($"    {p} = {TestContext.Properties[p]}");
         }
-
-        /// <summary>
-        /// Gets the last exception that occurred in the current AppDomain.
-        /// </summary>
-        protected Exception LastException { get; private set; }
-
-        #endregion
-
-        #region Members for settings
-
-        /// <summary>
-        /// Determines the settings file to use.
-        /// </summary>
-        /// <param name="default">Determines wether the default settings.json should be loaded.</param>
-        /// <returns>Returns the path to the correct settings file.</returns>
-        protected virtual string GetSettingFile(bool @default) => SettingsBase.GetSettingFile(GetType().Assembly, null, @default);
-
-        /// <summary>
-        /// Loads the settings from the given settings files.
-        /// </summary>
-        /// <param name="settingsFile">The specialized settings file.</param>
-        /// <param name="defaultSettingsFile">The default settings file.</param>
-        /// <returns>Returns the settings from <paramref name="defaultSettingsFile"/> which values are overwritten by <paramref name="settingsFile"/>.</returns>
-        protected virtual TSettings LoadSettings(string settingsFile, string defaultSettingsFile) => SettingsBase.GetFromFiles<TSettings>(settingsFile, defaultSettingsFile);
-
-        #endregion
-
-        #region Test Initialize/Cleanup
-
-        /// <summary>
-        /// Initializes a Test.
-        /// </summary>
-#if !SLIM
-        [TestInitialize]
 #endif
-        public virtual void InitializeTest()
+
+        AppDomain.CurrentDomain.FirstChanceException += AppDomain_FirstChanceException;
+        OnInitializeTest();
+    }
+
+    /// <summary>
+    /// Cleans up the current Test.
+    /// </summary>
+#if !SLIM
+    [TestCleanup]
+#endif
+    public void CleanupTest()
+    {
+        try
         {
-#if !SLIM
-            Logger.LogInfo($"Test '{TestContext.TestName}' initializing...");
-            Logger.LogDebug($"Deployment directory: {TestContext.DeploymentDirectory}");
-#endif
-
-            TestHelper.IsDebugConfiguration = GetIsDebugConfiguration();
-            Logger.LogDebug($"IsDebugConfiguration (could be overridden by derives classes): " + TestHelper.IsDebugConfiguration);
-
-            AppDomain.CurrentDomain.FirstChanceException += AppDomain_FirstChanceException;
-
-            if (!HasProperty(nameof(Settings)))
-                SetProperty(LoadSettings(), nameof(Settings));
-            ServiceContext.ResetInstance();
-            CurrentContext = OnCreateContext();
+            OnCleanupTest();
         }
-
-        /// <summary>
-        /// Loads settings from the correct settings files.
-        /// </summary>
-        /// <returns>Returns the loaded settings.</returns>
-        public TSettings LoadSettings()
-        {
-            var settingsFile = GetSettingFile(false);
-            var defaultSettingsFile = GetSettingFile(true);
-            var result = LoadSettings(settingsFile, defaultSettingsFile);
-
-            CheckRequiredKeys(result, GetType());
-
-            return result;
-        }
-
-        /// <summary>
-        /// Cleans up the current Test.
-        /// </summary>
-#if !SLIM
-        [TestCleanup]
-#endif
-        public virtual void CleanupTest()
+        finally
         {
 #if !SLIM
             if (TestContext.CurrentTestOutcome != UnitTestOutcome.Passed && LastException != null)
@@ -132,50 +83,97 @@ namespace Rocketcress.Core.Base
 
             AppDomain.CurrentDomain.FirstChanceException -= AppDomain_FirstChanceException;
         }
+    }
 
-        #endregion
+    /// <summary>
+    /// This method is called when a test is initializing.
+    /// </summary>
+    protected virtual void OnInitializeTest()
+    {
+    }
 
-        /// <summary>
-        /// Is used to create the test context.
-        /// </summary>
-        /// <returns>The created context.</returns>
-        protected abstract TContext OnCreateContext();
+    /// <summary>
+    /// This method is called when a test is cleaning up.
+    /// </summary>
+    protected virtual void OnCleanupTest()
+    {
+    }
 
-        #region Public Functions
+    /// <summary>
+    /// Creates a new Rocketcress Test Context.
+    /// </summary>
+    /// <returns>The created context.</returns>
+    protected virtual TContext CreateContext()
+    {
+#if !SLIM
+        return CreateContext(
+            new[] { typeof(TestContext), typeof(TSettings) },
+            new object?[] { TestContext, LoadSettings() });
+#else
+        return CreateContext(
+            new[] { typeof(TSettings) },
+            new object?[] { LoadSettings() });
+#endif
+    }
 
-        /// <summary>
-        /// Checks if the settings contain all the settings keys defined by the given type.
-        /// </summary>
-        /// <param name="settings">The settings to check.</param>
-        /// <param name="type">The type of the main SettingsKeys class.</param>
-        public static void CheckRequiredKeys(SettingsBase settings, Type type)
+    /// <summary>
+    /// Creates a new Rocketcress Test Context.
+    /// </summary>
+    /// <param name="constructorParameterTypes">The parameter types needed for the constructor that should be called.</param>
+    /// <param name="constructorParameterValues">The parameter values to use when constructing the context.</param>
+    /// <returns>The created context.</returns>
+    protected TContext CreateContext(Type[] constructorParameterTypes, object?[] constructorParameterValues)
+    {
+        var constructor = typeof(TContext).GetConstructor(constructorParameterTypes);
+        if (constructor is null)
         {
-            var requiredKeys = AddKeysClassAttribute.GetKeys(type);
-            var missingSettings = (from x in requiredKeys
-                                   where !settings.OtherSettings.ContainsKey(SettingsBase.GetKey(x))
-                                   select x).ToArray();
-            if (missingSettings.Length > 0)
-            {
-                Logger.LogWarning("The following required setting keys were not provided in the settings file:" +
-                    Environment.NewLine + "\t- " + string.Join(Environment.NewLine + "\t- ", missingSettings));
-            }
+            throw new MissingMethodException($"A public constructor with the following parameter could not be found on type \"{typeof(TContext).FullName}\": " +
+                string.Join(", ", constructorParameterTypes.Select(x => x.FullName)));
         }
 
-        #endregion
+        var context = constructor.Invoke(constructorParameterValues) ?? throw new NullReferenceException($"An instance of class {typeof(TContext).FullName} could not be created.");
+        return (TContext)context;
+    }
 
-        #region Private Methods
+    /// <summary>
+    /// Creates a new Rocketcress Test Context and initializes it.
+    /// </summary>
+    /// <returns>The created and initialized context.</returns>
+    protected TContext CreateAndInitializeContext()
+    {
+        var context = CreateContext();
+        context.Initialize();
+        return context;
+    }
 
-        private void AppDomain_FirstChanceException(object sender, FirstChanceExceptionEventArgs e)
-        {
-            LastException = e.Exception;
-        }
+    /// <summary>
+    /// Loads the settings for this test class.
+    /// </summary>
+    /// <returns>The loaded settings.</returns>
+    protected TSettings LoadSettings()
+    {
+        var assembly = GetType().Assembly;
+        var specificSettingsFile = SettingsBase.GetSettingFile(assembly, null, false);
+        var defaultSettingsFile = SettingsBase.GetSettingFile(assembly, null, true);
+        return SettingsBase.GetFromFiles<TSettings>(specificSettingsFile, defaultSettingsFile);
+    }
 
-        private bool GetIsDebugConfiguration()
-        {
-            var debuggableAttribute = GetType().Assembly.GetCustomAttribute<DebuggableAttribute>();
-            return debuggableAttribute?.IsJITOptimizerDisabled == true;
-        }
+#region Public Functions
 
-        #endregion
+#endregion
+
+    /// <summary>
+    /// Dtermines wether the test is run in debug configuration.
+    /// </summary>
+    /// <returns>A value indicating wether the test is run in debug configuration.</returns>
+    protected virtual bool GetIsDebugConfiguration()
+    {
+        var debuggableAttribute = GetType().Assembly.GetCustomAttribute<DebuggableAttribute>();
+        return debuggableAttribute?.IsJITOptimizerDisabled == true;
+    }
+
+    private void AppDomain_FirstChanceException(object? sender, FirstChanceExceptionEventArgs e)
+    {
+        LastException = e.Exception;
     }
 }

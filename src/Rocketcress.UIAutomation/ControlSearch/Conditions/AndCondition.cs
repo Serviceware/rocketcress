@@ -1,48 +1,43 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Windows.Automation;
+﻿namespace Rocketcress.UIAutomation.ControlSearch.Conditions;
 
-namespace Rocketcress.UIAutomation.ControlSearch.Conditions
+public class AndCondition : CompositionSearchConditionBase
 {
-    public class AndCondition : CompositionSearchConditionBase
+    public override SearchConditionOperator OperatorType => SearchConditionOperator.And;
+
+    public AndCondition(params ISearchCondition[] conditions)
+        : base(conditions)
     {
-        public override SearchConditionOperator OperatorType => SearchConditionOperator.And;
+    }
 
-        public AndCondition(params ISearchCondition[] conditions)
-            : base(conditions)
+    public AndCondition(IEnumerable<ISearchCondition> conditions)
+        : base(conditions)
+    {
+    }
+
+    public override bool Check(AutomationElement element, TreeWalker treeWalker)
+    {
+        var result = true;
+        foreach (var condition in Conditions)
         {
+            result = condition.Check(element, treeWalker);
+            if (!result)
+                break;
         }
 
-        public AndCondition(IEnumerable<ISearchCondition> conditions)
-            : base(conditions)
-        {
-        }
+        return result;
+    }
 
-        public override bool Check(AutomationElement element, TreeWalker treeWalker)
-        {
-            var result = true;
-            foreach (var condition in Conditions)
-            {
-                result = condition.Check(element, treeWalker);
-                if (!result)
-                    break;
-            }
+    protected override SearchConditionBase CloneInternal()
+    {
+        return new AndCondition();
+    }
 
-            return result;
-        }
-
-        protected override SearchConditionBase CloneInternal()
-        {
-            return new AndCondition();
-        }
-
-        public override string GetDescription()
-        {
-            if (Conditions.Count == 0)
-                return null;
-            if (Conditions.Count == 1)
-                return Conditions[0].GetDescription();
-            return $"({string.Join(" and ", Conditions.Select(x => x.GetDescription()))})";
-        }
+    public override string GetDescription()
+    {
+        if (Conditions.Count == 0)
+            return null;
+        if (Conditions.Count == 1)
+            return Conditions[0].GetDescription();
+        return $"({string.Join(" and ", Conditions.Select(x => x.GetDescription()))})";
     }
 }

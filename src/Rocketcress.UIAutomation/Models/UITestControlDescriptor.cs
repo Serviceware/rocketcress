@@ -1,19 +1,17 @@
 ﻿using Rocketcress.UIAutomation.Controls;
-using System.Windows.Automation;
 
-namespace Rocketcress.UIAutomation.Models
+namespace Rocketcress.UIAutomation.Models;
+
+public class UITestControlDescriptor
 {
-    public class UITestControlDescriptor
-    {
-        public UITestControlDescriptor Parent { get; set; }
-        public By LocationKey { get; set; }
-        public AutomationElement AutomationElement { get; set; }
+    public UITestControlDescriptor Parent { get; set; }
+    public By LocationKey { get; set; }
+    public AutomationElement AutomationElement { get; set; }
 
-        public UITestControlDescriptor(IUITestControl control)
-        {
-            Parent = control.SearchContext == null ? null : new UITestControlDescriptor(control.SearchContext);
-            LocationKey = control.LocationKey;
-            AutomationElement = (control as UITestControl)?.GetCachedAutomationElement();
-        }
+    public UITestControlDescriptor(IUITestControl control)
+    {
+        Parent = control.SearchContext == null ? null : new UITestControlDescriptor(control.SearchContext);
+        LocationKey = control.LocationKey;
+        AutomationElement = (control as UITestControl)?.GetCachedAutomationElement();
     }
 }

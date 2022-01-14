@@ -1,21 +1,18 @@
-﻿using System;
+﻿namespace Rocketcress.UIAutomation.Exceptions;
 
-namespace Rocketcress.UIAutomation.Exceptions
+public class UIAutomationException : Exception
 {
-    public class UIAutomationException : Exception
+    public UIAutomationException()
     {
-        public UIAutomationException()
-        {
-        }
+    }
 
-        public UIAutomationException(string message)
-            : base(message)
-        {
-        }
+    public UIAutomationException(string message)
+        : base(message)
+    {
+    }
 
-        public UIAutomationException(string message, Exception innerException)
-            : base(message, innerException)
-        {
-        }
+    public UIAutomationException(string message, Exception innerException)
+        : base(message, innerException)
+    {
     }
 }
