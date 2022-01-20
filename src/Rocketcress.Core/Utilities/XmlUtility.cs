@@ -1,25 +1,23 @@
-﻿using System.IO;
-using System.Xml.Serialization;
+﻿using System.Xml.Serialization;
 
-namespace Rocketcress.Core.Utilities
+namespace Rocketcress.Core.Utilities;
+
+/// <summary>
+/// Provides methods that help with XML files.
+/// </summary>
+public static class XmlUtility
 {
     /// <summary>
-    /// Provides methods that help with XML files.
+    /// Loads an XML file.
     /// </summary>
-    public static class XmlUtility
+    /// <typeparam name="T">The class to wich the XML file should be deserialized to.</typeparam>
+    /// <param name="filePath">The file path.</param>
+    /// <returns>Returns the deserialized XML file.</returns>
+    public static T? LoadXmlFromFile<T>(string filePath)
+        where T : class
     {
-        /// <summary>
-        /// Loads an XML file.
-        /// </summary>
-        /// <typeparam name="T">The class to wich the XML file should be deserialized to.</typeparam>
-        /// <param name="filePath">The file path.</param>
-        /// <returns>Returns the deserialized XML file.</returns>
-        public static T? LoadXmlFromFile<T>(string filePath)
-            where T : class
-        {
-            using var fs = new FileStream(filePath, FileMode.Open);
-            var xmlSer = new XmlSerializer(typeof(T));
-            return (T?)xmlSer.Deserialize(fs);
-        }
+        using var fs = new FileStream(filePath, FileMode.Open);
+        var xmlSer = new XmlSerializer(typeof(T));
+        return xmlSer.Deserialize(fs) as T;
     }
 }

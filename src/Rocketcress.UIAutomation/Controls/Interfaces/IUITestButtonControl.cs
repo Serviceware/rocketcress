@@ -1,9 +1,8 @@
-﻿namespace Rocketcress.UIAutomation.Controls
-{
-    public interface IUITestButtonControl : IUITestControl
-    {
-        string DisplayText { get; }
+﻿namespace Rocketcress.UIAutomation.Controls;
 
-        void Invoke();
-    }
+public interface IUITestButtonControl : IUITestControl
+{
+    string DisplayText { get; }
+
+    void Invoke();
 }

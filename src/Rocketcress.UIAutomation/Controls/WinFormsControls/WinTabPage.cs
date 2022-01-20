@@ -1,52 +1,12 @@
-﻿using System.Windows.Automation;
+﻿namespace Rocketcress.UIAutomation.Controls.WinFormsControls;
 
-namespace Rocketcress.UIAutomation.Controls.WinFormsControls
+[AutoDetectControl]
+[GenerateUIMapParts]
+public partial class WinTabPage : WinControl, IUITestTabPageControl
 {
-    [AutoDetectControl]
-    public class WinTabPage : WinControl, IUITestTabPageControl
-    {
-        protected override By BaseLocationKey => base.BaseLocationKey.AndControlType(ControlType.TabItem);
+    protected override By BaseLocationKey => base.BaseLocationKey.AndControlType(ControlType.TabItem);
 
-        #region Patterns
-        public SelectionItemPattern SelectionItemPattern => GetPattern<SelectionItemPattern>();
-        #endregion
+    public SelectionItemPattern SelectionItemPattern => GetPattern<SelectionItemPattern>();
 
-        #region Constructors
-        public WinTabPage(By locationKey)
-            : base(locationKey)
-        {
-        }
-
-        public WinTabPage(IUITestControl parent)
-            : base(parent)
-        {
-        }
-
-        public WinTabPage(AutomationElement element)
-            : base(element)
-        {
-        }
-
-        public WinTabPage(By locationKey, AutomationElement parent)
-            : base(locationKey, parent)
-        {
-        }
-
-        public WinTabPage(By locationKey, IUITestControl parent)
-            : base(locationKey, parent)
-        {
-        }
-
-        protected WinTabPage()
-        {
-        }
-
-        protected override void Initialize()
-        {
-            base.Initialize();
-        }
-        #endregion
-
-        IUITestControl IUITestTabPageControl.Header => throw new System.NotImplementedException();
-    }
+    IUITestControl IUITestTabPageControl.Header => throw new NotImplementedException();
 }

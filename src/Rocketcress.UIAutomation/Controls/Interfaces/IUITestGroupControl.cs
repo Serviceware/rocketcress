@@ -1,6 +1,5 @@
-﻿namespace Rocketcress.UIAutomation.Controls
+﻿namespace Rocketcress.UIAutomation.Controls;
+
+public interface IUITestGroupControl : IUITestControl
 {
-    public interface IUITestGroupControl : IUITestControl
-    {
-    }
 }

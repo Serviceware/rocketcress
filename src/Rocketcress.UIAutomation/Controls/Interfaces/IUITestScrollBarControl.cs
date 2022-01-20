@@ -1,12 +1,9 @@
-using System.Windows.Automation;
+namespace Rocketcress.UIAutomation.Controls;
 
-namespace Rocketcress.UIAutomation.Controls
+public interface IUITestScrollBarControl : IUITestControl
 {
-    public interface IUITestScrollBarControl : IUITestControl
-    {
-        double MaximumPosition { get; }
-        double MinimumPosition { get; }
-        OrientationType Orientation { get; }
-        double Position { get; set; }
-    }
+    double MaximumPosition { get; }
+    double MinimumPosition { get; }
+    OrientationType Orientation { get; }
+    double Position { get; set; }
 }

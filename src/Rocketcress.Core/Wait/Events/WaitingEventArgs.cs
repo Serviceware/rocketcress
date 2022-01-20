@@ -1,62 +1,56 @@
-﻿using System;
-using System.Collections.Generic;
+﻿namespace Rocketcress.Core;
 
-#pragma warning disable SA1402 // File may only contain a single type
+/// <summary>
+/// Represents a method that handles the WaitingStarting and WaitingEnded events of the Waiter.
+/// </summary>
+/// <param name="sender">The sender.</param>
+/// <param name="e">The event arguments.</param>
+public delegate void WaitingEventHandler(object? sender, WaitingEventArgs e);
 
-namespace Rocketcress.Core
+/// <summary>
+/// Represents event arguments for the WaitingStarting and WaitingEnded events of the Waiter.
+/// </summary>
+public class WaitingEventArgs : EventArgs
 {
     /// <summary>
-    /// Represents a method that handles the WaitingStarting and WaitingEnded events of the Waiter.
+    /// Gets a data store you can use on another event on this waiting operation.
     /// </summary>
-    /// <param name="sender">The sender.</param>
-    /// <param name="e">The event arguments.</param>
-    public delegate void WaitingEventHandler(object? sender, WaitingEventArgs e);
+    [Obsolete("Use WaitContext.Data instead.")]
+    public IDictionary<string, object> DataStore => WaitContext.Data;
 
     /// <summary>
-    /// Represents event arguments for the WaitingStarting and WaitingEnded events of the Waiter.
+    /// Gets the wait context.
     /// </summary>
-    public class WaitingEventArgs : EventArgs
+    public WaitContext WaitContext { get; }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="WaitingEventArgs"/> class.
+    /// </summary>
+    /// <param name="waitContext">The context of the wait operation.</param>
+    public WaitingEventArgs(WaitContext waitContext)
     {
-        /// <summary>
-        /// Gets a data store you can use on another event on this waiting operation.
-        /// </summary>
-        [Obsolete("Use WaitContext.Data instead.")]
-        public IDictionary<string, object> DataStore => WaitContext.Data;
-
-        /// <summary>
-        /// Gets the wait context.
-        /// </summary>
-        public WaitContext WaitContext { get; }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="WaitingEventArgs"/> class.
-        /// </summary>
-        /// <param name="waitContext">The context of the wait operation.</param>
-        public WaitingEventArgs(WaitContext waitContext)
-        {
-            WaitContext = waitContext;
-        }
+        WaitContext = waitContext;
     }
+}
+
+/// <summary>
+/// Represents event arguments for the WaitingStarting and WaitingEnded events of the Waiter.
+/// </summary>
+/// <typeparam name="T">The type of value the wait operation returns.</typeparam>
+public class WaitingEventArgs<T> : WaitingEventArgs
+{
+    /// <summary>
+    /// Gets the wait context.
+    /// </summary>
+    public new WaitContext<T> WaitContext { get; }
 
     /// <summary>
-    /// Represents event arguments for the WaitingStarting and WaitingEnded events of the Waiter.
+    /// Initializes a new instance of the <see cref="WaitingEventArgs{T}"/> class.
     /// </summary>
-    /// <typeparam name="T">The type of value the wait operation returns.</typeparam>
-    public class WaitingEventArgs<T> : WaitingEventArgs
+    /// <param name="waitContext">The context of the wait operation.</param>
+    public WaitingEventArgs(WaitContext<T> waitContext)
+        : base(waitContext)
     {
-        /// <summary>
-        /// Gets the wait context.
-        /// </summary>
-        public new WaitContext<T> WaitContext { get; }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="WaitingEventArgs{T}"/> class.
-        /// </summary>
-        /// <param name="waitContext">The context of the wait operation.</param>
-        public WaitingEventArgs(WaitContext<T> waitContext)
-            : base(waitContext)
-        {
-            WaitContext = waitContext;
-        }
+        WaitContext = waitContext;
     }
 }
