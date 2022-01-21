@@ -65,12 +65,14 @@ public class ChromeDriverProvider : IDriverProvider
             driverFileName = "chromedriver.exe";
             chromeVersion = Registry.CurrentUser.OpenSubKey(@"Software\Google\Chrome\BLBeacon")?.GetValue("version") as string;
         }
+#if !NETFRAMEWORK
         else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
         {
             urlFormat = "https://chromedriver.storage.googleapis.com/{0}/chromedriver_linux64.zip";
             driverFileName = "chromedriver";
-            chromeVersion = OsHelper.RunBashCommand("google-chrome --version | grep -iE \"[0-9.]{10,20}\"");
+            chromeVersion = Core.Utilities.ScriptUtility.RunBashCommand("google-chrome --version | grep -iE \"[0-9.]{10,20}\"");
         }
+#endif
         else
         {
             throw new NotSupportedException("The Web Driver for Chrome cannot be retrieved for this operating system.");

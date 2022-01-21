@@ -30,7 +30,7 @@ public abstract class View : TestObjectBase
     public virtual string WindowHandle { get; set; }
 
     public virtual IWait<bool> UntilExists
-        => Wait.Until(() => Exists)
+        => Wait.Until(() => Exists);
 
     /// <summary>
     /// Initializes a new instance of the <see cref="View"/> class.

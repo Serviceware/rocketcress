@@ -5,7 +5,7 @@ namespace Rocketcress.Core.Utilities;
 /// <summary>
 /// Provides methods that helps using seperate AppDomains.
 /// </summary>
-public static class AppDomainHelper
+public static class AppDomainUtility
 {
     /// <summary>
     /// Creates a new AppDomain with a given name.

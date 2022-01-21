@@ -14,7 +14,7 @@ public class TestObjectBase
     /// <summary>
     /// Gets the current instance of the <see cref="AssertEx"/> class.
     /// </summary>
-    protected static AssertEx Assert => AssertEx.Instance;
+    protected static Assert Assert => Assert.Instance;
 
     /// <summary>
     /// Retrieves the current method name from the Call Stack.

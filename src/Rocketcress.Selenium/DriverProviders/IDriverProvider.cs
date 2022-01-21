@@ -55,7 +55,6 @@ internal static class InternalDriverProviderExtensions
         IWebDriver result = default;
         var success = Retry.Action(() => result = createFunction())
             .WithMaxRetryCount(4)
-            .OnError().Call(ex => SeleniumTestContext.KillAllDrivers(false))
             .Start().Value;
         if (!success)
             throw new WebDriverException("Could not create driver. See earlier exceptions.");

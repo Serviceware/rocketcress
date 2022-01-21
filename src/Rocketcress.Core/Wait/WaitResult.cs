@@ -1,4 +1,6 @@
-﻿namespace Rocketcress.Core;
+﻿using System.Collections.ObjectModel;
+
+namespace Rocketcress.Core;
 
 /// <summary>
 /// Represents the result of a wait operation.

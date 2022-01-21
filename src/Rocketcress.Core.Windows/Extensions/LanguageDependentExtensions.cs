@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Globalization;
+using System.Windows;
 
 namespace Rocketcress.Core.Models;
 
@@ -15,7 +16,7 @@ public static class LanguageDependentExtensions
     /// <param name="x">The x-coordinate.</param>
     /// <param name="y">The y-coordinate.</param>
     /// <returns>Returns the current instance of the LanguageDependent class to chain multiple method calls.</returns>
-    public static LanguageDependent<Point> SetLanguage(this LanguageDependent<Point> obj, KnownLanguages language, double x, double y)
+    public static LanguageDependent<Point> SetLanguage(this LanguageDependent<Point> obj, CultureInfo language, double x, double y)
     {
         return obj.SetLanguage(language, new Point(x, y));
     }
@@ -29,7 +30,7 @@ public static class LanguageDependentExtensions
     /// <returns>Returns the current instance of the LanguageDependent class to chain multiple method calls.</returns>
     public static LanguageDependent<Point> SetGerman(this LanguageDependent<Point> obj, double x, double y)
     {
-        return obj.SetLanguage(KnownLanguages.German, new Point(x, y));
+        return obj.SetLanguage(CultureInfo.GetCultureInfo("de"), new Point(x, y));
     }
 
     /// <summary>
@@ -41,7 +42,7 @@ public static class LanguageDependentExtensions
     /// <returns>Returns the current instance of the LanguageDependent class to chain multiple method calls.</returns>
     public static LanguageDependent<Point> SetEnglish(this LanguageDependent<Point> obj, double x, double y)
     {
-        return obj.SetLanguage(KnownLanguages.English, new Point(x, y));
+        return obj.SetLanguage(CultureInfo.GetCultureInfo("en"), new Point(x, y));
     }
 
     /// <summary>
@@ -53,7 +54,7 @@ public static class LanguageDependentExtensions
     /// <returns>Returns the current instance of the LanguageDependent class to chain multiple method calls.</returns>
     public static LanguageDependent<Point> SetFrench(this LanguageDependent<Point> obj, double x, double y)
     {
-        return obj.SetLanguage(KnownLanguages.French, new Point(x, y));
+        return obj.SetLanguage(CultureInfo.GetCultureInfo("fr"), new Point(x, y));
     }
 
     /// <summary>
@@ -65,6 +66,6 @@ public static class LanguageDependentExtensions
     /// <returns>Returns the current instance of the LanguageDependent class to chain multiple method calls.</returns>
     public static LanguageDependent<Point> SetItalian(this LanguageDependent<Point> obj, double x, double y)
     {
-        return obj.SetLanguage(KnownLanguages.Italian, new Point(x, y));
+        return obj.SetLanguage(CultureInfo.GetCultureInfo("it"), new Point(x, y));
     }
 }

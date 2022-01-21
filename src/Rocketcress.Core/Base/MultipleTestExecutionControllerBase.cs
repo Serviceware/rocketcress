@@ -1,4 +1,6 @@
 ﻿#if !SLIM
+using System.Threading;
+
 namespace Rocketcress.Core.Base;
 
 // TODO: Add XML Comments
@@ -55,9 +57,9 @@ public abstract class MultipleTestExecutionControllerBase<TView, TTestMetadata> 
                     Assert.Fail($"Test timed out after {timeout / 1000:0} seconds.");
                 }
 
-                    OnExecutionEnded(metadata, i, UnitTestOutcome.Passed);
-                }
-                catch (Exception ex)
+                OnExecutionEnded(metadata, i, UnitTestOutcome.Passed);
+            }
+            catch (Exception ex)
             {
                 OnExecutionEnded(metadata, i, UnitTestOutcome.Failed);
                 Logger.LogError("Error during test run #{0}: {1}", i + 1, ex);

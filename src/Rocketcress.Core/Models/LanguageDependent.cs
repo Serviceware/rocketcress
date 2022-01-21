@@ -18,8 +18,7 @@ public abstract class LanguageDependent
 
     static LanguageDependent()
     {
-        DefaultLanguage = TestContextBase.CurrentContext?.Settings?.Language
-            ?? CultureInfo.GetCultureInfo("en-US");
+        DefaultLanguage = CultureInfo.GetCultureInfo("en-US");
     }
 
     /// <summary>
@@ -344,55 +343,4 @@ public class LanguageDependentJsonConverter : JsonConverter
             return t.GetGenericArguments()[0];
         return null;
     }
-}
-
-/// <summary>
-/// Represents a string that can be translated to other languages.
-/// </summary>
-[JsonConverter(typeof(LanguageDependentJsonConverter))]
-public class MultiLanguageString : LanguageDependent<string>
-{
-    /// <summary>
-    /// Sets the value for a given language.
-    /// </summary>
-    /// <param name="language">The id of the language.</param>
-    /// <param name="value">The new value.</param>
-    /// <returns>Returns the current instance of the MultiLanguageString class to chain multiple method calls.</returns>
-    public new MultiLanguageString SetLanguage(int language, string value) => (MultiLanguageString)base.SetLanguage(language, value);
-
-    /// <summary>
-    /// Sets the value for a given language.
-    /// </summary>
-    /// <param name="language">The language.</param>
-    /// <param name="value">The new value.</param>
-    /// <returns>Returns the current instance of the MultiLanguageString class to chain multiple method calls.</returns>
-    public new MultiLanguageString SetLanguage(KnownLanguages language, string value) => (MultiLanguageString)base.SetLanguage(language, value);
-
-    /// <summary>
-    /// Sets the value for the english language.
-    /// </summary>
-    /// <param name="value">The new value.</param>
-    /// <returns>Returns the current instance of the MultiLanguageString class to chain multiple method calls.</returns>
-    public new MultiLanguageString SetEnglish(string value) => SetLanguage(KnownLanguages.English, value);
-
-    /// <summary>
-    /// Sets the value for the german language.
-    /// </summary>
-    /// <param name="value">The new value.</param>
-    /// <returns>Returns the current instance of the MultiLanguageString class to chain multiple method calls.</returns>
-    public new MultiLanguageString SetGerman(string value) => SetLanguage(KnownLanguages.German, value);
-
-    /// <summary>
-    /// Sets the value for the french language.
-    /// </summary>
-    /// <param name="value">The new value.</param>
-    /// <returns>Returns the current instance of the MultiLanguageString class to chain multiple method calls.</returns>
-    public new MultiLanguageString SetFrench(string value) => SetLanguage(KnownLanguages.French, value);
-
-    /// <summary>
-    /// Sets the value for the italian language.
-    /// </summary>
-    /// <param name="value">The new value.</param>
-    /// <returns>Returns the current instance of the MultiLanguageString class to chain multiple method calls.</returns>
-    public new MultiLanguageString SetItalian(string value) => SetLanguage(KnownLanguages.Italian, value);
 }

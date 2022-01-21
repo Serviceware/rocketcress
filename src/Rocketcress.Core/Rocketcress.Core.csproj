@@ -27,6 +27,6 @@
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="MaSch.Test.Assertion" Version="$(MaSchTestVersion)" Condition="$(IsSlim) == 'true'" />
-    <PackageReference Include="MaSch.Test.Assertion.MSTest" Version="$(MaSchTestVersion)" Condition="$(IsSlim) != 'true'" />
+    <PackageReference Include="MaSch.Test.Assertion.MSTest" Version="0.5.5" Condition="$(IsSlim) != 'true'" />
   </ItemGroup>
 </Project>

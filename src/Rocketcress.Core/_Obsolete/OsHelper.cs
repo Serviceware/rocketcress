@@ -1,5 +1,4 @@
 ﻿using Rocketcress.Core.Utilities;
-using System;
 using System.Runtime.Versioning;
 
 namespace Rocketcress.Core
@@ -9,6 +8,7 @@ namespace Rocketcress.Core
     /// </summary>
     public static class OsHelper
     {
+#if !NETFRAMEWORK
         /// <summary>
         /// Runs a bash command on linux distributions.
         /// If the current OS is not Linux a <see cref="NotSupportedException"/> is thrown.
@@ -19,6 +19,7 @@ namespace Rocketcress.Core
         [Obsolete("Use Rocketcress.Core.Utilities.ScriptUtility.RunBashCommand instead.")]
         public static string RunBashCommand(string command)
             => ScriptUtility.RunBashCommand(command);
+#endif
 
         /// <summary>
         /// Sets the positon of the cursor in the current desktop session.

@@ -1,8 +1,10 @@
 ﻿using Rocketcress.Core;
 using Rocketcress.Core.Base;
+using Rocketcress.Core.Utilities;
 using Rocketcress.Selenium.Extensions;
 using System.Collections.ObjectModel;
 using System.Drawing;
+using System.Runtime.InteropServices;
 using Keys = OpenQA.Selenium.Keys;
 
 namespace Rocketcress.Selenium.Controls;
@@ -421,7 +423,8 @@ public class WebElement : TestObjectBase, IWebElement, IWrapsElement
     /// </summary>
     public void MoveMouseToElement()
     {
-        DesktopUtility.SetCursorPosition(0, 0);
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            DesktopUtility.SetCursorPosition(0, 0);
         Driver.GetActions().MoveToElement(this).Perform();
     }
 
@@ -432,7 +435,8 @@ public class WebElement : TestObjectBase, IWebElement, IWrapsElement
     /// <param name="offsetY">The y offset.</param>
     public void MoveMouseToElement(int offsetX, int offsetY)
     {
-        DesktopUtility.SetCursorPosition(0, 0);
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            DesktopUtility.SetCursorPosition(0, 0);
         Driver.GetActions().MoveToElement(this, offsetX, offsetY).Perform();
     }
 
@@ -685,9 +689,6 @@ public class WebElement : TestObjectBase, IWebElement, IWrapsElement
     [Obsolete("Use UntilClickable.WithTimeout(timeout).Start() instead. If assert is false add .NotThrowOnFailure() before starting.")]
     public bool WaitUntilClickable(int timeout, bool assert)
         => UntilClickable.WithTimeout(timeout).OnFailure(assert, "Element is not clickable: " + GetSearchDescription()).Start().Value;
-    #endregion
-
-    #region IWebElement Members
 
     /// <summary>
     /// Gets a value indicating whether or not this element is displayed.
@@ -961,8 +962,6 @@ public class WebElement : TestObjectBase, IWebElement, IWrapsElement
     {
         return WrappedElement.GetShadowRoot();
     }
-
-    #endregion
 
     /// <summary>
     /// Initializes all child controls of this element.

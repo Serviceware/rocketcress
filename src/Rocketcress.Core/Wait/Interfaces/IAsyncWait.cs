@@ -1,4 +1,6 @@
-﻿namespace Rocketcress.Core;
+﻿using System.Threading.Tasks;
+
+namespace Rocketcress.Core;
 
 /// <summary>
 /// Asynchronous wait operation that can be configured or started.

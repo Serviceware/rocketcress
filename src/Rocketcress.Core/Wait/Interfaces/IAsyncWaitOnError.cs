@@ -1,4 +1,6 @@
-﻿namespace Rocketcress.Core;
+﻿using System.Threading.Tasks;
+
+namespace Rocketcress.Core;
 
 /// <summary>
 /// Configuration for what should happen when an exception occurs during an asynchronous wait operation.

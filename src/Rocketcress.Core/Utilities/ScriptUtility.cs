@@ -1,11 +1,11 @@
-﻿using System.Runtime.Versioning;
+﻿using System.Runtime.InteropServices;
 
 namespace Rocketcress.Core.Utilities;
 
 /// <summary>
 /// Helper for OS specific actions.
 /// </summary>
-public static class OsHelper
+public static class ScriptUtility
 {
     [DllImport("user32.dll", EntryPoint = "SetCursorPos")]
     [return: MarshalAs(UnmanagedType.Bool)]
@@ -19,7 +19,7 @@ public static class OsHelper
     /// <returns>Returns the standard output of the bash command.</returns>
     public static string RunBashCommand(string command)
     {
-        if (!OperatingSystem.IsLinux())
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             throw new NotSupportedException("Bash Commands can only be executed on Linux.");
 
         var escapedArgs = command.Replace("\"", "\\\"");
@@ -48,7 +48,7 @@ public static class OsHelper
     /// <param name="y">The Y-position to set the cursor to.</param>
     public static void SetCursorPosition(int x, int y)
     {
-        if (OperatingSystem.IsWindows())
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
             SetCursorPos(x, y);
         }

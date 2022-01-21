@@ -1,5 +1,4 @@
-﻿using System;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 
 namespace Rocketcress.Core.Utilities
@@ -21,7 +20,7 @@ namespace Rocketcress.Core.Utilities
         [SupportedOSPlatform("windows")]
         public static void SetCursorPosition(int x, int y)
         {
-            if (OperatingSystem.IsWindows())
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 SetCursorPos(x, y);
             }

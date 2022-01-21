@@ -13,7 +13,7 @@ public class MailUtility
     private ExchangeService _service;
     private Folder _inbox;
 
-    private static AssertEx Assert => AssertEx.Instance;
+    private static Assert Assert => Assert.Instance;
 
     /// <summary>
     /// Gets or sets the domain for the user (only used for Exchange connections).

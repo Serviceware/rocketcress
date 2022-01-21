@@ -126,8 +126,8 @@ public class TestContextBase : TestObjectBase, IDisposable
     /// </summary>
     protected virtual void OnInitialize()
     {
-        Wait.Options.DefaultTimeout = Settings.Timeout;
-        LanguageDependent.DefaultLanguage = (int)Settings.Language;
+        Wait.DefaultOptions.Timeout = Settings.Timeout;
+        LanguageDependent.DefaultLanguage = Settings.Language;
     }
 
     /// <summary>
