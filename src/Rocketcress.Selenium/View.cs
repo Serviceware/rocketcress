@@ -10,6 +10,16 @@ namespace Rocketcress.Selenium;
 public abstract class View : TestObjectBase
 {
     /// <summary>
+    /// Initializes a new instance of the <see cref="View"/> class.
+    /// </summary>
+    /// <param name="driver">The driver to which this view is attached.</param>
+    public View(WebDriver driver)
+    {
+        Driver = driver ?? throw new ArgumentNullException(nameof(driver));
+        InitializeControls();
+    }
+
+    /// <summary>
     /// Gets the driver to which the view is assigned to.
     /// </summary>
     public WebDriver Driver { get; }
@@ -29,32 +39,18 @@ public abstract class View : TestObjectBase
     /// </summary>
     public virtual string WindowHandle { get; set; }
 
+    /// <summary>
+    /// Gets a wait operation that is not started and waits until this view exists.
+    /// </summary>
     public virtual IWait<bool> UntilExists
         => Wait.Until(() => Exists);
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="View"/> class.
-    /// </summary>
-    /// <param name="driver">The driver to which this view is attached.</param>
-    public View(WebDriver driver)
-    {
-        Driver = driver ?? throw new ArgumentNullException(nameof(driver));
-        InitializeControls();
-    }
-
-    /// <summary>
-    /// Initializes all controls of this view.
-    /// </summary>
-    protected virtual void InitializeControls()
-    {
-    }
 
     /// <summary>
     /// Waits until this view exists in the current window.
     /// </summary>
     /// <param name="assert">Determines wether to assert when the timeout has been reached.</param>
     /// <returns>Returns true if the view existed in time; otherwise false.</returns>
-    public virtual bool WaitUntilExists(bool assert = true) => WaitUntilExists(Wait.Options.DefaultTimeout, assert);
+    public virtual bool WaitUntilExists(bool assert = true) => WaitUntilExists(Wait.DefaultOptions.Timeout, assert);
 
     /// <summary>
     /// Waits until this view exists in the current window.
@@ -127,5 +123,12 @@ public abstract class View : TestObjectBase
     public void SetWindowToForeground()
     {
         Driver.ExecuteScript("window.focus();");
+    }
+
+    /// <summary>
+    /// Initializes all controls of this view.
+    /// </summary>
+    protected virtual void InitializeControls()
+    {
     }
 }

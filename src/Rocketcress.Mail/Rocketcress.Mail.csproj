@@ -4,6 +4,7 @@
 
     <ConfigureSlim>true</ConfigureSlim>
     <ConfigureSourceLink>true</ConfigureSourceLink>
+    <SignAssembly>true</SignAssembly>
 
     <PackageId>Serviceware.$(AssemblyName)</PackageId>
     <Description>Extends Rocketcress.Core with e-mail functionality.</Description>
@@ -12,6 +13,10 @@
   </PropertyGroup>
 
   <Import Project="../../build/Rocketcress.props" />
+
+  <ItemGroup>
+    <Using Include="Rocketcress.Core.Common"/>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Exchange.WebServices.NETStandard" Version="1.1.3" />

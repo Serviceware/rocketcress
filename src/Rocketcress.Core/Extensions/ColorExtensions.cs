@@ -1,5 +1,4 @@
 ﻿using System.Drawing;
-using System.Globalization;
 
 namespace Rocketcress.Core.Extensions;
 
@@ -15,8 +14,6 @@ public static class ColorExtensions
     /// <returns>Returns a string of the format #RRGGBB of the given color.</returns>
     public static string ToHexValue(this Color color)
     {
-        return "#" + color.R.ToString("X2", CultureInfo.InvariantCulture) +
-                     color.G.ToString("X2", CultureInfo.InvariantCulture) +
-                     color.B.ToString("X2", CultureInfo.InvariantCulture);
+        return FormattableString.Invariant($"#{color.R:X2}{color.G:X2}{color.B:X2}");
     }
 }

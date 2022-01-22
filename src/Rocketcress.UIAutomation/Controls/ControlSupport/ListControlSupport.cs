@@ -5,17 +5,30 @@ using Rocketcress.UIAutomation.Exceptions;
 
 namespace Rocketcress.UIAutomation.Controls.ControlSupport;
 
+/// <summary>
+/// Contains supporting code for list controls.
+/// </summary>
 public class ListControlSupport
 {
     private readonly UITestControl _control;
     private readonly By _listItemDefinition;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ListControlSupport"/> class.
+    /// </summary>
+    /// <param name="control">The control to use.</param>
+    /// <param name="listItemDefinition">The location key to use when searching for items.</param>
     public ListControlSupport(UITestControl control, By listItemDefinition)
     {
         _control = control;
         _listItemDefinition = listItemDefinition;
     }
 
+    /// <summary>
+    /// Gets the indices of the currently selected items in the list.
+    /// </summary>
+    /// <returns>The indices of the currently selected items in the list.</returns>
+    /// <exception cref="Rocketcress.UIAutomation.Exceptions.UIActionNotSupportedException">To get the selected index, the control needs to support the SelectionPattern.</exception>
     public IEnumerable<int> GetSelectedIndices()
     {
         if (!_control.TryGetPattern<SelectionPattern>(out var selectionPattern))
@@ -39,6 +52,10 @@ public class ListControlSupport
         }
     }
 
+    /// <summary>
+    /// Sets the index of the selected item.
+    /// </summary>
+    /// <param name="value">The index of the item to select.</param>
     public void SetSelectedIndex(int value)
     {
         _control.TryGetPattern<ExpandCollapsePattern>(out var expand);
@@ -51,8 +68,20 @@ public class ListControlSupport
         expand?.Collapse();
     }
 
+    /// <summary>
+    /// Sets the indices of the selected items.
+    /// </summary>
+    /// <param name="value">The indices of the items to select.</param>
+    /// <exception cref="Rocketcress.UIAutomation.Exceptions.UIActionNotSupportedException">
+    /// To set the selected indices, the control needs to support the SelectionPattern.
+    /// or
+    /// You can not select multiple items in this control.
+    /// </exception>
+    /// <exception cref="Rocketcress.UIAutomation.Exceptions.UIAutomationControlException">One or more indizes are out of range. Valid range is from 0 to {index - 1}.</exception>
     public void SetSelectedIndices(int[] value)
     {
+        Guard.NotNull(value);
+
         if (value.Length == 1)
         {
             SetSelectedIndex(value[0]);
@@ -87,6 +116,11 @@ public class ListControlSupport
         expand?.Collapse();
     }
 
+    /// <summary>
+    /// Gets the items currently selected in the list.
+    /// </summary>
+    /// <returns>The items currently selected in the list.</returns>
+    /// <exception cref="Rocketcress.UIAutomation.Exceptions.UIActionNotSupportedException">To get the selected index, the control needs to support the SelectionPattern.</exception>
     public IEnumerable<string> GetSelectedItems()
     {
         if (!_control.TryGetPattern<SelectionPattern>(out var selectionPattern))
@@ -95,6 +129,12 @@ public class ListControlSupport
         return selectionPattern.Current.GetSelection().Select(x => x.Current.Name);
     }
 
+    /// <summary>
+    /// Sets the currently selected item.
+    /// </summary>
+    /// <param name="value">The item to select.</param>
+    /// <exception cref="Rocketcress.UIAutomation.Exceptions.UIActionNotSupportedException">To set the selected item, the control needs to support the ItemContainerPattern.</exception>
+    /// <exception cref="Rocketcress.UIAutomation.Exceptions.NoSuchElementException">An element with name \"{value}\" was not found in the combo box items.</exception>
     public void SetSelectedItem(string value)
     {
         if (!_control.TryGetPattern<ItemContainerPattern>(out var itemContainerPattern))
@@ -112,8 +152,20 @@ public class ListControlSupport
         expand?.Collapse();
     }
 
+    /// <summary>
+    /// Sets the currently selected items.
+    /// </summary>
+    /// <param name="value">The items to select.</param>
+    /// <exception cref="Rocketcress.UIAutomation.Exceptions.UIActionNotSupportedException">
+    /// To get the selected index, the control needs to support the SelectionPattern.
+    /// or
+    /// You can not select multiple items in this control.
+    /// </exception>
+    /// <exception cref="Rocketcress.UIAutomation.Exceptions.UIAutomationControlException">The following elements were not found in the list.</exception>
     public void SetSelectedItems(ICollection<string> value)
     {
+        Guard.NotNull(value);
+
         if (value.Count == 1)
         {
             SetSelectedItem(value.First());
@@ -150,6 +202,10 @@ public class ListControlSupport
         expand?.Collapse();
     }
 
+    /// <summary>
+    /// Enumerates the items in the list.
+    /// </summary>
+    /// <returns>An <see cref="IEnumerable{T}"/> of <see cref="AutomationElement"/>s that represents the items in the list.</returns>
     public IEnumerable<AutomationElement> EnumerateItems()
     {
         _control.TryGetPattern<ScrollPattern>(out var scroll);

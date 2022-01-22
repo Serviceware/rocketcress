@@ -12,15 +12,6 @@ namespace Rocketcress.Core;
 /// </summary>
 public static class TestHelper
 {
-    /// <summary>
-    /// Enables or disables file system redirection for the calling thread.
-    /// </summary>
-    /// <param name="enable">Indicates the type of request for WOW64 system folder redirection. If TRUE, requests redirection be enabled; if FALSE, requests redirection be disabled.</param>
-    /// <returns>Boolean value indicating whether the function succeeded. If TRUE, the function succeeded; if FALSE, the function failed.</returns>
-    /// <remarks>https://docs.microsoft.com/en-us/windows/desktop/api/winbase/nf-winbase-wow64enablewow64fsredirection.</remarks>
-    [DllImport("Kernel32.Dll", EntryPoint = "Wow64EnableWow64FsRedirection")]
-    private static extern bool EnableWow64FSRedirection(bool enable);
-
 #if DEBUG
     private static bool _isDebugConfiguration = true;
 #else
@@ -71,6 +62,8 @@ public static class TestHelper
         "    - onException = action <=> .OnError().Call(action) and throw an AbortWaitException if retry should be aborted")]
     public static bool RetryActionCancelable(Func<bool> action, int maxRetryCount, bool catchExceptions = true, int delayBetweenRetries = 0, bool exceptionTrace = true, Func<Exception, bool> onException = null)
     {
+        Guard.NotNull(action);
+
         for (int i = 0; i <= maxRetryCount; i++)
         {
             try
@@ -129,6 +122,8 @@ public static class TestHelper
         "    - onException = action <=> .OnError().Call(action) and throw an AbortWaitException if retry should be aborted")]
     public static bool RetryActionCancelable(Action action, int maxRetryCount, int delayBetweenRetries = 0, bool exceptionTrace = true, Func<Exception, bool> onException = null)
     {
+        Guard.NotNull(action);
+
         for (int i = 0; i <= maxRetryCount; i++)
         {
             try
@@ -186,6 +181,8 @@ public static class TestHelper
         "    - onException = action <=> .OnError().Call(action) and throw an AbortWaitException if retry should be aborted")]
     public static bool RetryActionCancelable(Func<int, bool> action, int maxRetryCount, bool catchExceptions = true, int delayBetweenRetries = 0, bool exceptionTrace = true, Func<Exception, bool> onException = null)
     {
+        Guard.NotNull(action);
+
         for (int i = 0; i <= maxRetryCount; i++)
         {
             try
@@ -242,6 +239,8 @@ public static class TestHelper
         "    - onException = action <=> .OnError().Call(action) and throw an AbortWaitException if retry should be aborted")]
     public static bool RetryActionCancelable(Action<int> action, int maxRetryCount, int delayBetweenRetries = 0, bool exceptionTrace = true, Func<Exception, bool> onException = null)
     {
+        Guard.NotNull(action);
+
         for (int i = 0; i <= maxRetryCount; i++)
         {
             try
@@ -279,6 +278,8 @@ public static class TestHelper
     /// <returns>Returns true if the action completed successfully; otherwise false.</returns>
     public static bool Try(Action action, bool exceptionTrace)
     {
+        Guard.NotNull(action);
+
         try
         {
             action();
@@ -328,6 +329,8 @@ public static class TestHelper
     /// <returns>Returns the result of the action if it succeeds; otherwise the resultOnError.</returns>
     public static T Try<T>(Func<T> action, bool exceptionTrace, T resultOnError)
     {
+        Guard.NotNull(action);
+
         try
         {
             return action();
@@ -445,6 +448,8 @@ public static class TestHelper
     [Obsolete("Should not be used.")]
     public static T[] LoopUntilAllFinished<T>(IReadOnlyList<Func<T>> functions, Func<IReadOnlyList<T>, bool> loopCancellationExpression)
     {
+        Guard.NotNull(functions);
+
         var result = new T[functions.Count];
         var completed = new bool[functions.Count];
         var tasks = functions.Select(x => Task.Run(x)).ToArray();
@@ -524,4 +529,13 @@ public static class TestHelper
             return true;
         };
     }
+
+    /// <summary>
+    /// Enables or disables file system redirection for the calling thread.
+    /// </summary>
+    /// <param name="enable">Indicates the type of request for WOW64 system folder redirection. If TRUE, requests redirection be enabled; if FALSE, requests redirection be disabled.</param>
+    /// <returns>Boolean value indicating whether the function succeeded. If TRUE, the function succeeded; if FALSE, the function failed.</returns>
+    /// <remarks>https://docs.microsoft.com/en-us/windows/desktop/api/winbase/nf-winbase-wow64enablewow64fsredirection.</remarks>
+    [DllImport("Kernel32.Dll", EntryPoint = "Wow64EnableWow64FsRedirection")]
+    private static extern bool EnableWow64FSRedirection(bool enable);
 }

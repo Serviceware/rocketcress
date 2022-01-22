@@ -9,11 +9,6 @@ public class ServiceContext : IServiceProvider
 {
     private static ServiceContext? _instance;
 
-    /// <summary>
-    /// Gets the current singleton instance of the <see cref="ServiceContext"/> class.
-    /// </summary>
-    public static ServiceContext Instance => _instance ??= new ServiceContext();
-
     private readonly Dictionary<string, object> _services = new();
     private readonly Dictionary<Type, Func<ServiceContext, object>> _createFunctions = new();
 
@@ -24,6 +19,16 @@ public class ServiceContext : IServiceProvider
     {
         AddInstance<IServiceProvider>(this);
     }
+
+    /// <summary>
+    /// Gets the current singleton instance of the <see cref="ServiceContext"/> class.
+    /// </summary>
+    public static ServiceContext Instance => _instance ??= new ServiceContext();
+
+    /// <summary>
+    /// Resets the current instance.
+    /// </summary>
+    public static void ResetServiceContext() => ResetInstance();
 
     /// <summary>
     /// Registers a create function for a specific type that is called the first time this type is retrieved from this <see cref="ServiceContext"/>.
@@ -58,6 +63,8 @@ public class ServiceContext : IServiceProvider
     /// <returns>Returns the instance that is registered by the specified type and key.</returns>
     public object GetInstance(Type serviceType, string? key)
     {
+        Guard.NotNull(serviceType);
+
         var dictKey = GetKey(serviceType, key);
         if (!_services.ContainsKey(dictKey))
         {
@@ -120,6 +127,7 @@ public class ServiceContext : IServiceProvider
     /// <param name="instance">The instance to add.</param>
     public void AddInstance(Type type, string? name, object instance)
     {
+        Guard.NotNull(type);
         if (!type.IsInstanceOfType(instance))
             throw new ArgumentException($"The instance has to be an instance of {type.FullName}.", nameof(instance));
         _services[GetKey(type, name)] = instance;
@@ -156,6 +164,7 @@ public class ServiceContext : IServiceProvider
     /// <param name="name">The key of the instance.</param>
     public void RemoveInstance(Type type, string? name)
     {
+        Guard.NotNull(type);
         var key = GetKey(type, name);
         if (_services.ContainsKey(key))
             _services.Remove(key);
@@ -169,18 +178,11 @@ public class ServiceContext : IServiceProvider
         _services.Clear();
     }
 
+    /// <inheritdoc/>
     object IServiceProvider.GetService(Type serviceType)
     {
         return GetInstance(serviceType);
     }
-
-    /// <summary>
-    /// Resets the current instance.
-    /// </summary>
-    public static void ResetServiceContext() => ResetInstance();
-    internal static void ResetInstance() => _instance = null;
-
-    private static string GetKey(Type t, string? name) => $"{t.FullName}{(name != null ? ";" : string.Empty)}{name}";
 
     #region IServiceLocator
 
@@ -199,6 +201,7 @@ public class ServiceContext : IServiceProvider
     /// <returns>A sequence of instances of the requested serviceType.</returns>
     public IEnumerable<object> GetAllInstances(Type serviceType)
     {
+        Guard.NotNull(serviceType);
         var key = GetKey(serviceType, null);
         var keys = _services.Keys.Where(x => x.StartsWith(key, StringComparison.Ordinal)).ToArray();
         if (keys.Any())
@@ -234,4 +237,8 @@ public class ServiceContext : IServiceProvider
         => GetAllInstances(typeof(TService)).Select(x => (TService)x);
 
     #endregion
+
+    internal static void ResetInstance() => _instance = null;
+
+    private static string GetKey(Type t, string? name) => $"{t.FullName}{(name != null ? ";" : string.Empty)}{name}";
 }

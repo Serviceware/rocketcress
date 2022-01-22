@@ -1,41 +1,38 @@
-﻿using System;
-
-#if SLIM
+﻿#if SLIM
 using MaSch.Test.Assertion;
-#else
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 #endif
 
-namespace Rocketcress.Core.Assertion
+namespace Rocketcress.Core.Assertion;
+
+internal struct AssertOperation : IAssertOperation
 {
-    internal struct AssertOperation : IAssertOperation
+    private readonly bool _throw;
+
+    public AssertOperation(bool @throw)
     {
-        private bool _throw;
+        _throw = @throw;
+    }
 
-        public AssertOperation(bool @throw)
-        {
-            _throw = @throw;
-        }
+    public bool That(Action<Assert> assertAction)
+    {
+        Guard.NotNull(assertAction);
 
-        public bool That(Action<Assert> assertAction)
+        try
         {
-            try
-            {
-                var assert = _throw ? Assert.Instance : Assert.NonThrowInstance;
-                assertAction(assert);
-                return true;
-            }
-            catch (AssertFailedException)
-            {
-                if (_throw)
-                    throw;
-                return false;
-            }
+            var assert = _throw ? Assert.Instance : Assert.NonThrowInstance;
+            assertAction(assert);
+            return true;
         }
+        catch (AssertFailedException)
+        {
+            if (_throw)
+                throw;
+            return false;
+        }
+    }
 
-        public IAssertWithResult<T> WithResult<T>(T resultOnSuccess, T resultOnFailure)
-        {
-            return new AssertWithResult<T>(_throw, resultOnSuccess, resultOnFailure);
-        }
+    public IAssertWithResult<T> WithResult<T>(T resultOnSuccess, T resultOnFailure)
+    {
+        return new AssertWithResult<T>(_throw, resultOnSuccess, resultOnFailure);
     }
 }

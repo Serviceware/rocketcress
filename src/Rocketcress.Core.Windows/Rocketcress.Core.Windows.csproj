@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" Condition="$(IsSlim) == 'false'" />
+    <Using Include="Rocketcress.Core.Common"/>
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' != 'net48' ">

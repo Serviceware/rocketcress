@@ -4,8 +4,6 @@ internal sealed class Wait<T> : IWait<T>, IWaitOnError<T>, IWaitDefaultOptions
 {
     private readonly WaitRunner<T> _runner;
 
-    public IWaitOptions DefaultOptions { get; }
-
     internal Wait(
         Func<WaitContext<T>, T?> condition,
         IWaitOptions options,
@@ -23,6 +21,8 @@ internal sealed class Wait<T> : IWait<T>, IWaitOnError<T>, IWaitDefaultOptions
             x => onFinishedCallback(this, x),
             (x, y) => onExceptionCallback(this, x, y));
     }
+
+    public IWaitOptions DefaultOptions { get; }
 
     #region IWait<T> Members
 

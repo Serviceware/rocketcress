@@ -10,11 +10,6 @@ public sealed class ActionOnDispose : IDisposable
     private readonly Action? _actionWithoutTime;
 
     /// <summary>
-    /// Gets an empty <see cref="ActionOnDispose"/> object.
-    /// </summary>
-    public static ActionOnDispose Empty { get; } = new();
-
-    /// <summary>
     /// Initializes a new instance of the <see cref="ActionOnDispose"/> class.
     /// </summary>
     /// <param name="actionWithTime">The action to execute when this instance gets disposed. Has a parameter that is given the time in miliseconds that took from initialization to disposing.</param>
@@ -37,6 +32,11 @@ public sealed class ActionOnDispose : IDisposable
     private ActionOnDispose()
     {
     }
+
+    /// <summary>
+    /// Gets an empty <see cref="ActionOnDispose"/> object.
+    /// </summary>
+    public static ActionOnDispose Empty { get; } = new();
 
     /// <summary>
     /// Executes the underlying action.

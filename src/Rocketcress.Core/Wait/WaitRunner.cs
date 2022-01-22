@@ -5,16 +5,9 @@ namespace Rocketcress.Core;
 
 internal class WaitRunnerBase<T>
 {
-    private readonly string _operationName;
     private readonly Action<WaitContext> _onStartingCallback;
     private readonly Action<WaitContext> _onFinishedCallback;
     private readonly Action<WaitContext, Exception> _onExceptionCallback;
-
-    protected string OperationName => _operationName;
-
-    public IWaitOptions Options { get; }
-    public bool ThrowOnFailure { get; set; }
-    public string? ErrorMessage { get; set; }
 
     public WaitRunnerBase(
         IWaitOptions options,
@@ -23,8 +16,6 @@ internal class WaitRunnerBase<T>
         Action<WaitContext> onFinishedCallback,
         Action<WaitContext, Exception> onExceptionCallback)
     {
-        _operationName = operationName;
-
         _onStartingCallback = onStartingCallback;
         _onFinishedCallback = onFinishedCallback;
         _onExceptionCallback = onExceptionCallback;
@@ -32,7 +23,15 @@ internal class WaitRunnerBase<T>
         Options = options;
         ThrowOnFailure = false;
         ErrorMessage = null;
+
+        OperationName = operationName;
     }
+
+    public IWaitOptions Options { get; }
+    public bool ThrowOnFailure { get; set; }
+    public string? ErrorMessage { get; set; }
+
+    protected string OperationName { get; }
 
     protected WaitContext<T> Start()
     {
@@ -81,11 +80,11 @@ internal class WaitRunnerBase<T>
             return ErrorMessage;
         return result.Status switch
         {
-            WaitResultStatus.CallerAbortedWithoutValue => $"The caller aborted this {_operationName}.",
-            WaitResultStatus.Timeout => $"The {_operationName} timed out after {Options.Timeout.TotalSeconds:0.###} seconds.",
-            WaitResultStatus.TooManyRetries => $"The {_operationName} did not succeed after {Options.MaxRetryCount} retries.",
-            WaitResultStatus.TooManyExceptions => $"{result.Exceptions.Length} exceptions occurred during the {_operationName}, which exceeds the maximum allowed number of exceptions of {Options.MaxAcceptedExceptions}.",
-            _ => $"The {_operationName} failed due to an unknown event (Status = {result.Status})",
+            WaitResultStatus.CallerAbortedWithoutValue => $"The caller aborted this {OperationName}.",
+            WaitResultStatus.Timeout => $"The {OperationName} timed out after {Options.Timeout.TotalSeconds:0.###} seconds.",
+            WaitResultStatus.TooManyRetries => $"The {OperationName} did not succeed after {Options.MaxRetryCount} retries.",
+            WaitResultStatus.TooManyExceptions => $"{result.Exceptions.Length} exceptions occurred during the {OperationName}, which exceeds the maximum allowed number of exceptions of {Options.MaxAcceptedExceptions}.",
+            _ => $"The {OperationName} failed due to an unknown event (Status = {result.Status})",
         };
     }
 
@@ -141,8 +140,6 @@ internal sealed class WaitRunner<T> : WaitRunnerBase<T>
     private readonly List<Action<WaitContext<T>>> _continueWithActions = new();
     private readonly Func<WaitContext<T>, T?> _condition;
 
-    public Action<Exception>? ExceptionHandler { get; set; }
-
     public WaitRunner(
         Func<WaitContext<T>, T?> condition,
         IWaitOptions options,
@@ -154,6 +151,8 @@ internal sealed class WaitRunner<T> : WaitRunnerBase<T>
     {
         _condition = condition;
     }
+
+    public Action<Exception>? ExceptionHandler { get; set; }
 
     public void PrecedeWith(Action<WaitContext<T>> action) => _precedeWithActions.Add(action);
 
@@ -230,8 +229,6 @@ internal sealed class AsyncWaitRunner<T> : WaitRunnerBase<T>
     private readonly List<Func<WaitContext<T>, Task>> _continueWithActions = new();
     private readonly Func<WaitContext<T>, Task<T?>> _condition;
 
-    public Func<Exception, Task>? ExceptionHandler { get; set; }
-
     public AsyncWaitRunner(
         Func<WaitContext<T>, Task<T?>> condition,
         IWaitOptions options,
@@ -243,6 +240,8 @@ internal sealed class AsyncWaitRunner<T> : WaitRunnerBase<T>
     {
         _condition = condition;
     }
+
+    public Func<Exception, Task>? ExceptionHandler { get; set; }
 
     public void PrecedeWith(Func<WaitContext<T>, Task> action) => _precedeWithActions.Add(action);
 

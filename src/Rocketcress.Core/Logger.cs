@@ -7,7 +7,7 @@ namespace Rocketcress.Core;
 /// </summary>
 public static class Logger
 {
-    private static readonly IDictionary<LogLevel, string> _logLevelShortNames = new Dictionary<LogLevel, string>
+    private static readonly Dictionary<LogLevel, string> _logLevelShortNames = new()
     {
         [LogLevel.Debug] = "DBG",
         [LogLevel.Info] = "INF",
@@ -72,5 +72,6 @@ public static class Logger
     /// </summary>
     /// <param name="message">The message text.</param>
     /// <param name="params">The parameters that should be inserted into the message text (like string.Format).</param>
-    public static void LogCritical(string? message, params object?[]? @params) => Log(LogLevel.Critical, message, @params);
+    public static void LogCritical(string? message, params object?[]? @params)
+        => Log(LogLevel.Critical, message, @params);
 }

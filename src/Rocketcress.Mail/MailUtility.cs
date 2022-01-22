@@ -13,8 +13,6 @@ public class MailUtility
     private ExchangeService _service;
     private Folder _inbox;
 
-    private static Assert Assert => Assert.Instance;
-
     /// <summary>
     /// Gets or sets the domain for the user (only used for Exchange connections).
     /// </summary>
@@ -50,6 +48,8 @@ public class MailUtility
     /// </summary>
     public Uri ExchangeServerUrl { get; set; }
 
+    private static Assert Assert => Assert.Instance;
+
     /// <summary>
     /// Sends an email using SMTP.
     /// </summary>
@@ -58,6 +58,8 @@ public class MailUtility
     /// <param name="body">The body of the mail.</param>
     public void SendSmtp(string[] receivers, string subject, string body)
     {
+        Guard.NotNull(receivers);
+
         using var mail = new MailMessage
         {
             From = new MailAddress(Address),
@@ -148,26 +150,6 @@ public class MailUtility
         }
     }
 
-    private void InitializeExchange()
-    {
-        if (_service == null)
-        {
-            _service = new ExchangeService();
-            _service.TraceEnabled = true;
-            ServicePointManager.ServerCertificateValidationCallback = CertificateValidationCallBack;
-            _service.UseDefaultCredentials = false;
-            _service.Credentials = new WebCredentials(Username, Password, Domain);
-            _service.EnableScpLookup = false;
-            if (ExchangeServerUrl == null)
-                _service.AutodiscoverUrl(Address, SuppressRedirectionUrlValidation);
-            else
-                _service.Url = ExchangeServerUrl;
-        }
-
-        if (_inbox == null)
-            _inbox = Folder.Bind(_service, WellKnownFolderName.Inbox).Result;
-    }
-
     private static bool SuppressRedirectionUrlValidation(string url)
     {
         return true;
@@ -180,5 +162,27 @@ public class MailUtility
        System.Net.Security.SslPolicyErrors sslPolicyErrors)
     {
         return true;
+    }
+
+    private void InitializeExchange()
+    {
+        if (_service == null)
+        {
+            ServicePointManager.ServerCertificateValidationCallback = CertificateValidationCallBack;
+            _service = new ExchangeService
+            {
+                TraceEnabled = true,
+                UseDefaultCredentials = false,
+                Credentials = new WebCredentials(Username, Password, Domain),
+                EnableScpLookup = false,
+            };
+            if (ExchangeServerUrl == null)
+                _service.AutodiscoverUrl(Address, SuppressRedirectionUrlValidation);
+            else
+                _service.Url = ExchangeServerUrl;
+        }
+
+        if (_inbox == null)
+            _inbox = Folder.Bind(_service, WellKnownFolderName.Inbox).Result;
     }
 }

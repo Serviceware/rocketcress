@@ -15,7 +15,9 @@ public static class TasksExtensions
     /// <param name="expectedResult">The expected result.</param>
     /// <returns>Returns wether a task has finished and has a result that matches the expectedResult.</returns>
     public static bool HasResult<T>(this IEnumerable<Task<T>> tasks, T expectedResult)
-        => HasResult(tasks, x => Equals(x, expectedResult));
+    {
+        return HasResult(tasks, x => Equals(x, expectedResult));
+    }
 
     /// <summary>
     /// Checks if one of many tasks have completed and has a result that fulfills a condition.
@@ -26,6 +28,9 @@ public static class TasksExtensions
     /// <returns>Returns wether a task has finished and has a result that fulfills the condition.</returns>
     public static bool HasResult<T>(this IEnumerable<Task<T>> tasks, Func<T, bool> predicate)
     {
+        Guard.NotNull(tasks);
+        Guard.NotNull(predicate);
+
         return (from task in tasks
                 where task.Status == TaskStatus.RanToCompletion
                 select task.Result).Any(predicate);

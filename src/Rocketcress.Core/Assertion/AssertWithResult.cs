@@ -1,40 +1,37 @@
-﻿using System;
-
-#if SLIM
+﻿#if SLIM
 using MaSch.Test.Assertion;
-#else
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 #endif
 
-namespace Rocketcress.Core.Assertion
+namespace Rocketcress.Core.Assertion;
+
+internal struct AssertWithResult<T> : IAssertWithResult<T>
 {
-    internal struct AssertWithResult<T> : IAssertWithResult<T>
+    private readonly bool _throw;
+    private readonly T _resultOnSuccess;
+    private readonly T _resultOnFailure;
+
+    public AssertWithResult(bool @throw, T resultOnSuccess, T resultOnFailure)
     {
-        private readonly bool _throw;
-        private readonly T _resultOnSuccess;
-        private readonly T _resultOnFailure;
+        _throw = @throw;
+        _resultOnSuccess = resultOnSuccess;
+        _resultOnFailure = resultOnFailure;
+    }
 
-        public AssertWithResult(bool @throw, T resultOnSuccess, T resultOnFailure)
+    public T That(Action<Assert> assertAction)
+    {
+        Guard.NotNull(assertAction);
+
+        try
         {
-            _throw = @throw;
-            _resultOnSuccess = resultOnSuccess;
-            _resultOnFailure = resultOnFailure;
+            var assert = _throw ? Assert.Instance : Assert.NonThrowInstance;
+            assertAction(assert);
+            return _resultOnSuccess;
         }
-
-        public T That(Action<Assert> assertAction)
+        catch (AssertFailedException)
         {
-            try
-            {
-                var assert = _throw ? Assert.Instance : Assert.NonThrowInstance;
-                assertAction(assert);
-                return _resultOnSuccess;
-            }
-            catch (AssertFailedException)
-            {
-                if (_throw)
-                    throw;
-                return _resultOnFailure;
-            }
+            if (_throw)
+                throw;
+            return _resultOnFailure;
         }
     }
 }

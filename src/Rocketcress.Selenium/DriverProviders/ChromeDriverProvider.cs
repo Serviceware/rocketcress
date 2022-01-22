@@ -1,4 +1,6 @@
 ﻿using Microsoft.Win32;
+using OpenQA.Selenium.Chrome;
+using OpenQA.Selenium.Remote;
 using Rocketcress.Core;
 using System.Globalization;
 using System.IO.Compression;
@@ -15,32 +17,35 @@ public class ChromeDriverProvider : IDriverProvider
     /// <inheritdoc />
     public IWebDriver CreateDriver(string host, TimeSpan browserTimeout, CultureInfo language, Settings settings, IDriverConfiguration driverConfiguration)
     {
-        var cOptions = new OpenQA.Selenium.Chrome.ChromeOptions();
-        var cArgs = new List<string>
+        Guard.NotNull(language);
+        Guard.NotNull(settings);
+
+        var options = new ChromeOptions();
+        var arguments = new List<string>
             {
-                "--lang=" + language.IetfLanguageTag,   // Set browser language
-                "--auth-server-whitelist=*" + host,     // Add host as trusted machines for NT Authentication
+                $"--lang={language.Name}",                   // Set browser language
+                $"--auth-server-whitelist=*{host}",     // Add host as trusted machines for NT Authentication
                 "--disable-extensions",                 // Disable extensions (faster)
                 "--incognito",
                 "no-sandbox",
                 "disable-infobars",
             };
-        driverConfiguration?.ConfigureChromeArguments(cArgs);
-        cOptions.AddArguments(cArgs);
-        cOptions.UnhandledPromptBehavior = UnhandledPromptBehavior.Ignore;
-        cOptions.AcceptInsecureCertificates = true;
-        cOptions.SetLoggingPreference(LogType.Browser, OpenQA.Selenium.LogLevel.All);
-        driverConfiguration?.ConfigureChromeDriverOptions(cOptions);
+        driverConfiguration?.ConfigureChromeArguments(arguments);
+        options.AddArguments(arguments);
+        options.UnhandledPromptBehavior = UnhandledPromptBehavior.Ignore;
+        options.AcceptInsecureCertificates = true;
+        options.SetLoggingPreference(LogType.Browser, OpenQA.Selenium.LogLevel.All);
+        driverConfiguration?.ConfigureChromeDriverOptions(options);
 
         if (string.IsNullOrEmpty(settings.RemoteDriverUrl))
         {
             var (driverPath, driverExecutableName) = GetChromeDriverPath();
-            var cService = OpenQA.Selenium.Chrome.ChromeDriverService.CreateDefaultService(driverPath, driverExecutableName);
-            return this.RetryCreateDriver(() => new OpenQA.Selenium.Chrome.ChromeDriver(cService, cOptions, browserTimeout));
+            var driverService = ChromeDriverService.CreateDefaultService(driverPath, driverExecutableName);
+            return this.RetryCreateDriver(() => new ChromeDriver(driverService, options, browserTimeout));
         }
         else
         {
-            return this.RetryCreateDriver(() => new OpenQA.Selenium.Remote.RemoteWebDriver(new Uri(settings.RemoteDriverUrl), cOptions));
+            return this.RetryCreateDriver(() => new RemoteWebDriver(new Uri(settings.RemoteDriverUrl), options));
         }
     }
 

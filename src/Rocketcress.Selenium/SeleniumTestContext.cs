@@ -1,8 +1,10 @@
 ﻿using Rocketcress.Core;
 using Rocketcress.Core.Base;
 using Rocketcress.Core.Extensions;
+using Rocketcress.Core.Utilities;
 using Rocketcress.Selenium.DriverProviders;
 using System.Globalization;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
 namespace Rocketcress.Selenium;
@@ -12,10 +14,45 @@ namespace Rocketcress.Selenium;
 /// </summary>
 public class SeleniumTestContext : TestContextBase
 {
-    private static readonly Dictionary<Browser, IDriverProvider> DriverProviders;
     internal static readonly string DriverCachePath = Path.Combine(Path.GetTempPath(), "SeleniumDriverCache");
 
-    private IDriverConfiguration _driverConfiguration;
+    private static readonly Dictionary<Browser, IDriverProvider> DriverProviders;
+    private readonly IDriverConfiguration _driverConfiguration;
+
+    static SeleniumTestContext()
+    {
+        DriverProviders = new Dictionary<Browser, IDriverProvider>
+        {
+            [Browser.Chrome] = new ChromeDriverProvider(),
+            [Browser.Firefox] = new FirefoxDriverProvider(),
+            [Browser.Edge] = new EdgeDriverProvider(),
+        };
+
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            DriverProviders.Add(Browser.InternetExplorer, new InternetExplorerDriverProvider());
+    }
+
+#if !SLIM
+    /// <summary>
+    /// Initializes a new instance of the <see cref="SeleniumTestContext"/> class.
+    /// </summary>
+    /// <param name="testContext">The current MSTest test context.</param>
+    /// <param name="settings">The test settings.</param>
+    /// <param name="driverConfiguration">The driver configuration to use when creating web drivers.</param>
+    public SeleniumTestContext(TestContext testContext, Settings settings, IDriverConfiguration driverConfiguration)
+        : base(testContext, settings)
+#else
+    /// <summary>
+    /// Initializes a new instance of the <see cref="SeleniumTestContext"/> class.
+    /// </summary>
+    /// <param name="settings">The test settings.</param>
+    /// <param name="driverConfiguration">The driver configuration to use when creating web drivers.</param>
+    public SeleniumTestContext(Settings settings, IDriverConfiguration driverConfiguration)
+        : base(settings)
+#endif
+    {
+        _driverConfiguration = driverConfiguration;
+    }
 
     /// <summary>
     /// Gets a list of all <see cref="WebDriver"/>s that are currently running.
@@ -32,43 +69,34 @@ public class SeleniumTestContext : TestContextBase
     /// </summary>
     public new Settings Settings => (Settings)base.Settings;
 
-    static SeleniumTestContext()
-    {
-        DriverProviders = new Dictionary<Browser, IDriverProvider>
-        {
-            [Browser.Chrome] = new ChromeDriverProvider(),
-            [Browser.Firefox] = new FirefoxDriverProvider(),
-            [Browser.Edge] = new EdgeDriverProvider(),
-        };
+    /// <inheritdoc/>
+    public override bool CanTakeScreenshot { get; } = true;
 
-#if NETFRAMEWORK
-        DriverProviders.Add(Browser.InternetExplorer, new InternetExplorerDriverProvider());
-#else
-        if (OperatingSystem.IsWindows())
-            DriverProviders.Add(Browser.InternetExplorer, new InternetExplorerDriverProvider());
-#endif
-    }
-
-#pragma warning disable CS1572 // XML comment has a param tag, but there is no parameter by that name
-#pragma warning disable SA1612 // Element parameter documentation should match element parameters
     /// <summary>
-    /// Initializes a new instance of the <see cref="SeleniumTestContext"/> class.
+    /// Creates a new <see cref="IWebDriver"/>-Object for the given browser.
     /// </summary>
-    /// <param name="testContext">The current MSTest test context.</param>
-    /// <param name="settings">The test settings.</param>
-    /// <param name="driverConfiguration">The driver configuration to use when creating web drivers.</param>
-#if !SLIM
-    public SeleniumTestContext(TestContext testContext, Settings settings, IDriverConfiguration driverConfiguration)
-        : base(testContext, settings)
-#else
-    public SeleniumTestContext(Settings settings, IDriverConfiguration driverConfiguration)
-        : base(settings)
-#endif
+    /// <param name="browser">The browser for the <see cref="IWebDriver"/>.</param>
+    /// <param name="language">The language for the browser.</param>
+    /// <param name="settings">The settings for the test run.</param>
+    /// <param name="driverConfiguration">An object that is used to confiure the selenium driver that is created.</param>
+    /// <returns>The created driver.</returns>
+    public static IWebDriver GetDriver(Browser browser, CultureInfo language, Settings settings, IDriverConfiguration driverConfiguration = null)
     {
-        _driverConfiguration = driverConfiguration;
+        Guard.NotNull(language);
+        Guard.NotNull(settings);
+
+        string host = new Uri(settings.LoginUrl).Host;
+        var browserTimeout = settings.Timeout.TotalSeconds < 60 ? TimeSpan.FromSeconds(60) : settings.Timeout;
+
+        if (DriverProviders.TryGetValue(browser, out var provider))
+        {
+            return provider.CreateDriver(host, browserTimeout, language, settings, driverConfiguration);
+        }
+        else
+        {
+            throw new WebDriverException("Unknown browser: " + browser);
+        }
     }
-#pragma warning restore CS1572 // XML comment has a param tag, but there is no parameter by that name
-#pragma warning restore SA1612 // Element parameter documentation should match element parameters
 
     /// <inheritdoc/>
     public override sealed void Initialize()
@@ -103,24 +131,24 @@ public class SeleniumTestContext : TestContextBase
         }
         else
         {
-            string sBrowser = null;
+            string browserName = null;
 #if !SLIM
-            sBrowser = Convert.ToString(TestContext.Properties["TestConfiguration"])?.ToLower();
-            if (string.IsNullOrEmpty(sBrowser))
-                sBrowser = Convert.ToString(TestContext.Properties["__Tfs_TestConfigurationName__"])?.ToLower();
+            browserName = Convert.ToString(TestContext.Properties["TestConfiguration"])?.ToLower();
+            if (string.IsNullOrEmpty(browserName))
+                browserName = Convert.ToString(TestContext.Properties["__Tfs_TestConfigurationName__"])?.ToLower();
 #endif
 
-            Logger.LogDebug("TestConfiguration = '{0}'", sBrowser ?? "(null)");
+            Logger.LogDebug("TestConfiguration = '{0}'", browserName ?? "(null)");
             browser = Settings.DefaultBrowser;
-            if (sBrowser != null)
+            if (browserName is not null)
             {
-                if (sBrowser.Contains("chrome"))
+                if (browserName.Contains("chrome"))
                     browser = Browser.Chrome;
-                else if (sBrowser.Contains("firefox"))
+                else if (browserName.Contains("firefox"))
                     browser = Browser.Firefox;
-                else if (sBrowser.Contains("ie") || sBrowser.Contains("internet explorer") || sBrowser.Contains("internetexplorer"))
+                else if (browserName.Contains("ie") || browserName.Contains("internet explorer") || browserName.Contains("internetexplorer"))
                     browser = Browser.InternetExplorer;
-                else if (sBrowser.Contains("edge"))
+                else if (browserName.Contains("edge"))
                     browser = Browser.Edge;
             }
 
@@ -182,7 +210,7 @@ public class SeleniumTestContext : TestContextBase
         if (driver != null && !AllOpenedDrivers.Contains(driver))
             AllOpenedDrivers.Add(driver);
         if (driver?.GetBrowser() == Browser.InternetExplorer)
-            Wait.Options.DefaultTimeGap = TimeSpan.FromSeconds(1);
+            Wait.DefaultOptions.TimeGap = TimeSpan.FromSeconds(1);
         Driver = driver;
         if (switchToLastWindow)
             driver?.SwitchTo(driver.WindowHandles.Count - 1);
@@ -214,6 +242,7 @@ public class SeleniumTestContext : TestContextBase
     /// <param name="writeLog">Determines wether to write the browser log to the test log.</param>
     public void CloseDriver(WebDriver driver, bool writeLog = true)
     {
+        Guard.NotNull(driver);
         DisposeDriver(driver, Settings, writeLog);
         AllOpenedDrivers.Remove(driver);
         SwitchCurrentDriver(0);
@@ -233,6 +262,9 @@ public class SeleniumTestContext : TestContextBase
     /// <inheritdoc/>
     public override string TakeAndAppendScreenshot(string name)
     {
+        if (!CanTakeScreenshot)
+            return null;
+
         var browser = Driver.GetBrowser();
         var browserLang = Settings.CurrentBrowserLanguage;
         string browserTag = browser switch
@@ -294,8 +326,8 @@ public class SeleniumTestContext : TestContextBase
         Driver.Manage().Timeouts().PageLoad = Settings.Timeout;
         Driver.Manage().Timeouts().AsynchronousJavaScript = Settings.Timeout;
 
-        if (browser == Browser.InternetExplorer)
-            OsHelper.SetCursorPosition(0, 0);
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && browser == Browser.InternetExplorer)
+            DesktopUtility.SetCursorPosition(0, 0);
     }
 
     /// <inheritdoc />
@@ -371,29 +403,6 @@ public class SeleniumTestContext : TestContextBase
         catch (Exception ex)
         {
             Logger.LogWarning("Error while disposing driver: " + ex);
-        }
-    }
-
-    /// <summary>
-    /// Creates a new <see cref="IWebDriver"/>-Object for the given browser.
-    /// </summary>
-    /// <param name="browser">The browser for the <see cref="IWebDriver"/>.</param>
-    /// <param name="language">The language for the browser.</param>
-    /// <param name="settings">The settings for the test run.</param>
-    /// <param name="driverConfiguration">An object that is used to confiure the selenium driver that is created.</param>
-    /// <returns>The created driver.</returns>
-    public static IWebDriver GetDriver(Browser browser, CultureInfo language, Settings settings, IDriverConfiguration driverConfiguration = null)
-    {
-        string host = new Uri(settings.LoginUrl).Host;
-        var browserTimeout = settings.Timeout.TotalSeconds < 60 ? TimeSpan.FromSeconds(60) : settings.Timeout;
-
-        if (DriverProviders.TryGetValue(browser, out var provider))
-        {
-            return provider.CreateDriver(host, browserTimeout, language, settings, driverConfiguration);
-        }
-        else
-        {
-            throw new WebDriverException("Unknown browser: " + browser);
         }
     }
 }

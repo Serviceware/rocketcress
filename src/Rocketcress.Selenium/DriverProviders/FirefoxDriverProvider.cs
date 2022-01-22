@@ -1,4 +1,6 @@
-﻿using System.Globalization;
+﻿using OpenQA.Selenium.Firefox;
+using OpenQA.Selenium.Remote;
+using System.Globalization;
 
 namespace Rocketcress.Selenium.DriverProviders;
 
@@ -10,30 +12,33 @@ public class FirefoxDriverProvider : IDriverProvider
     /// <inheritdoc />
     public IWebDriver CreateDriver(string host, TimeSpan browserTimeout, CultureInfo language, Settings settings, IDriverConfiguration driverConfiguration)
     {
-        var profile = new OpenQA.Selenium.Firefox.FirefoxProfile();
-        profile.SetPreference("intl.accept_languages", language.IetfLanguageTag);   // Set browser language
+        Guard.NotNull(language);
+        Guard.NotNull(settings);
+
+        var profile = new FirefoxProfile();
+        profile.SetPreference("intl.accept_languages", language.Name);   // Set browser language
         profile.SetPreference("network.automatic-ntlm-auth.trusted-uris", host);    // Add host as trusted machines for NT Authentication
         profile.SetPreference("dom.ipc.plugins.enabled", false);    // Disable process separation due to error messages after test run: https://bugzilla.mozilla.org/show_bug.cgi?id=1027222
-        var fOptions = new OpenQA.Selenium.Firefox.FirefoxOptions();
-        fOptions.SetLoggingPreference(LogType.Browser, OpenQA.Selenium.LogLevel.All);
-        fOptions.Profile = profile;
-        fOptions.AcceptInsecureCertificates = true;
-        fOptions.UnhandledPromptBehavior = UnhandledPromptBehavior.Ignore;
-        driverConfiguration?.ConfigureFirefoxDriverOptions(fOptions);
+        var options = new FirefoxOptions();
+        options.SetLoggingPreference(LogType.Browser, LogLevel.All);
+        options.Profile = profile;
+        options.AcceptInsecureCertificates = true;
+        options.UnhandledPromptBehavior = UnhandledPromptBehavior.Ignore;
+        driverConfiguration?.ConfigureFirefoxDriverOptions(options);
 
         if (string.IsNullOrEmpty(settings.RemoteDriverUrl))
         {
             var driverPath = Path.Combine(Path.GetDirectoryName(typeof(SeleniumTestContext).Assembly.Location));
-            var service = OpenQA.Selenium.Firefox.FirefoxDriverService.CreateDefaultService(driverPath, "geckodriver.exe");
+            var driverService = FirefoxDriverService.CreateDefaultService(driverPath, "geckodriver.exe");
             var firefoxPath = @"C:\Program Files (x86)\Mozilla Firefox\firefox.exe";
             if (!File.Exists(firefoxPath))
                 firefoxPath = @"C:\Program Files\Mozilla Firefox\firefox.exe";
-            service.FirefoxBinaryPath = firefoxPath;  // Firefox installation
-            return this.RetryCreateDriver(() => new OpenQA.Selenium.Firefox.FirefoxDriver(service, fOptions, browserTimeout));
+            driverService.FirefoxBinaryPath = firefoxPath;  // Firefox installation
+            return this.RetryCreateDriver(() => new FirefoxDriver(driverService, options, browserTimeout));
         }
         else
         {
-            return this.RetryCreateDriver(() => new OpenQA.Selenium.Remote.RemoteWebDriver(new Uri(settings.RemoteDriverUrl), fOptions));
+            return this.RetryCreateDriver(() => new RemoteWebDriver(new Uri(settings.RemoteDriverUrl), options));
         }
     }
 

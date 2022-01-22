@@ -14,7 +14,11 @@ public static class StringExtensions
     /// <param name="trimString">The string to remove.</param>
     /// <returns>Returns the trimmed string.</returns>
     public static string TrimEnd(this string str, string trimString)
-        => TrimInternal(str, trimString, StringComparison.CurrentCulture, false, true);
+    {
+        Guard.NotNull(str);
+        Guard.NotNull(trimString);
+        return TrimInternal(str, trimString, StringComparison.CurrentCulture, false, true);
+    }
 
     /// <summary>
     /// Removes all occurrences of a string from the end of another string.
@@ -24,7 +28,11 @@ public static class StringExtensions
     /// <param name="comparison">The comparison to use when matching the trimString.</param>
     /// <returns>Returns the trimmed string.</returns>
     public static string TrimEnd(this string str, string trimString, StringComparison comparison)
-        => TrimInternal(str, trimString, comparison, false, true);
+    {
+        Guard.NotNull(str);
+        Guard.NotNull(trimString);
+        return TrimInternal(str, trimString, comparison, false, true);
+    }
 
     /// <summary>
     /// Removes all occurrences of a string from the start of another string.
@@ -33,7 +41,11 @@ public static class StringExtensions
     /// <param name="trimString">The string to remove.</param>
     /// <returns>Returns the trimmed string.</returns>
     public static string TrimStart(this string str, string trimString)
-        => TrimInternal(str, trimString, StringComparison.CurrentCulture, true, false);
+    {
+        Guard.NotNull(str);
+        Guard.NotNull(trimString);
+        return TrimInternal(str, trimString, StringComparison.CurrentCulture, true, false);
+    }
 
     /// <summary>
     /// Removes all occurrences of a string from the start of another string.
@@ -43,7 +55,11 @@ public static class StringExtensions
     /// <param name="comparison">The comparison to use when matching the trimString.</param>
     /// <returns>Returns the trimmed string.</returns>
     public static string TrimStart(this string str, string trimString, StringComparison comparison)
-        => TrimInternal(str, trimString, comparison, true, false);
+    {
+        Guard.NotNull(str);
+        Guard.NotNull(trimString);
+        return TrimInternal(str, trimString, comparison, true, false);
+    }
 
     /// <summary>
     /// Removes all occurrences of a string from the start and end of another string.
@@ -52,7 +68,11 @@ public static class StringExtensions
     /// <param name="trimString">The string to remove.</param>
     /// <returns>Returns the trimmed string.</returns>
     public static string Trim(this string str, string trimString)
-        => TrimInternal(str, trimString, StringComparison.CurrentCulture, true, true);
+    {
+        Guard.NotNull(str);
+        Guard.NotNull(trimString);
+        return TrimInternal(str, trimString, StringComparison.CurrentCulture, true, true);
+    }
 
     /// <summary>
     /// Removes all occurrences of a string from the start and end of another string.
@@ -62,7 +82,11 @@ public static class StringExtensions
     /// <param name="comparison">The comparison to use when matching the trimString.</param>
     /// <returns>Returns the trimmed string.</returns>
     public static string Trim(this string str, string trimString, StringComparison comparison)
-        => TrimInternal(str, trimString, comparison, true, true);
+    {
+        Guard.NotNull(str);
+        Guard.NotNull(trimString);
+        return TrimInternal(str, trimString, comparison, true, true);
+    }
 
     private static string TrimInternal(string str, string trimString, StringComparison comparison, bool trimStart, bool trimEnd)
     {

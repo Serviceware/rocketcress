@@ -8,10 +8,6 @@ namespace Rocketcress.Core.Utilities
     /// </summary>
     public static class DesktopUtility
     {
-        [DllImport("user32.dll", EntryPoint = "SetCursorPos")]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        private static extern bool SetCursorPos(int x, int y);
-
         /// <summary>
         /// Sets the positon of the cursor in the current desktop session.
         /// </summary>
@@ -25,5 +21,9 @@ namespace Rocketcress.Core.Utilities
                 SetCursorPos(x, y);
             }
         }
+
+        [DllImport("user32.dll", EntryPoint = "SetCursorPos")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool SetCursorPos(int x, int y);
     }
 }

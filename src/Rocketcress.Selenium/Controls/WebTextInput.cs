@@ -18,12 +18,17 @@ public partial class WebTextInput : WebElement
         {
             if (!string.IsNullOrEmpty(value))
             {
-                TestHelper.RetryAction(() =>
-                {
-                    Clear();
-                    SendKeys(value);
-                    return string.Equals(Text?.Replace("\r", string.Empty), value.Replace("\r", string.Empty), StringComparison.Ordinal);
-                }, 3, catchExceptions: false, delayBetweenRetries: 1000);
+                Retry.Until(
+                    () =>
+                    {
+                        Clear();
+                        SendKeys(value);
+                        return string.Equals(Text?.Replace("\r", string.Empty), value.Replace("\r", string.Empty), StringComparison.Ordinal);
+                    })
+                    .WithMaxRetryCount(3)
+                    .WithTimeGap(1000)
+                    .OnError().Abort()
+                    .Start();
             }
             else
             {

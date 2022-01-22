@@ -1,5 +1,4 @@
 ﻿#if !SLIM
-using Rocketcress.Core;
 using System.Globalization;
 using System.Reflection;
 
@@ -19,8 +18,8 @@ public class BrowserDataSourceAttribute : Attribute, ITestDataSource
     /// <param name="browsers">Determine the browsers on which to execute the test. Seperate multiple browsers by a ';'. You can also specify the language by adding @[lang] (e.g. Chrome@en-US) - default is en-US.</param>
     public BrowserDataSourceAttribute(string browsers)
     {
-        if (string.IsNullOrWhiteSpace(browsers))
-            throw new ArgumentException("The browsers parameter can not be null or white space.", nameof(browsers));
+        Guard.NotNullOrWhiteSpace(browsers);
+
         _browsers = browsers.Split(';')
             .Select(x =>
             {

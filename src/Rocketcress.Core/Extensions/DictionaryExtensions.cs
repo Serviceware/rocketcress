@@ -15,6 +15,8 @@ public static class DictionaryExtensions
     /// <returns>Returns the value of the key out of the dictioary. If the key does not exists, the default value is returned.</returns>
     public static TValue? TryGetValue<TKey, TValue>(this IDictionary<TKey, TValue> dict, TKey key)
     {
+        Guard.NotNull(dict);
+
         if (dict.ContainsKey(key))
             return dict[key];
         return default;

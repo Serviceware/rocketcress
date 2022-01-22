@@ -27,6 +27,7 @@
 
   <ItemGroup>
     <Compile Include="..\Rocketcress.Core\Attributes\Globals.cs" Link="Attributes\Globals.cs" />
+    <Compile Include="..\Rocketcress.Core\Common\Guard.cs" Link="Common\Guard.cs" />
     <Compile Include="..\Rocketcress.Core\Extensions\ArrayExtensions.cs" Link="Extensions\ArrayExtensions.cs" />
   </ItemGroup>
 

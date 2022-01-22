@@ -8,6 +8,10 @@ using static Rocketcress.SourceGenerators.Common.CodeGenerationHelpers;
 
 namespace Rocketcress.SourceGenerators;
 
+/// <summary>
+/// Generator for creating accessor file for settings files.
+/// </summary>
+/// <seealso cref="Microsoft.CodeAnalysis.ISourceGenerator" />
 [Generator]
 public class SettingsGenerator : ISourceGenerator
 {
@@ -17,10 +21,12 @@ public class SettingsGenerator : ISourceGenerator
         "Rocketcress.UIAutomation.Settings",
     };
 
+    /// <inheritdoc/>
     public void Initialize(GeneratorInitializationContext context)
     {
     }
 
+    /// <inheritdoc/>
     public void Execute(GeneratorExecutionContext context)
     {
         context.AnalyzerConfigOptions.GlobalOptions.TryGetValue("build_property.rootnamespace", out var globalNamespaceName);
@@ -35,7 +41,7 @@ public class SettingsGenerator : ISourceGenerator
         }
     }
 
-    public static string GenerateFromFile(string filePath, string namespaceName, string settingsType)
+    private static string GenerateFromFile(string filePath, string namespaceName, string settingsType)
     {
         var metadata = GetMetadata(filePath);
         var sb = new SourceBuilder();
@@ -209,21 +215,21 @@ public class SettingsGenerator : ISourceGenerator
         }
     }
 
-    public class SettingsMetadata
+    private class SettingsMetadata
     {
         public List<SettingsKey> DefaultKeys { get; } = new List<SettingsKey>();
         public List<KeyClassMetadata> KeyClasses { get; } = new List<KeyClassMetadata>();
         public List<SettingsType>? SettingsTypes { get; set; }
     }
 
-    public class KeyClassMetadata
+    private class KeyClassMetadata
     {
         public string? Prefix { get; set; }
         public string? Name { get; set; }
         public List<SettingsKey> Keys { get; } = new List<SettingsKey>();
     }
 
-    public class SettingsKey
+    private class SettingsKey
     {
         public string FullKey { get; }
         public string? Prefix { get; }
@@ -239,7 +245,7 @@ public class SettingsGenerator : ISourceGenerator
         }
     }
 
-    public class SettingsType
+    private class SettingsType
     {
         public string? TypeName { get; set; }
         public string? TagName { get; set; }

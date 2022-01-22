@@ -14,11 +14,6 @@ namespace Rocketcress.Selenium.Controls;
 /// </summary>
 public class WebElement : TestObjectBase, IWebElement, IWrapsElement
 {
-    /// <summary>
-    /// Event that is fired when the wrapped native selenium element has changed.
-    /// </summary>
-    public event EventHandler<IWebElement> WrappedElementChanged;
-
     private static readonly Dictionary<Browser, Dictionary<char, Action<WebElement>>> _specialCharacters = new()
     {
         [Browser.InternetExplorer] = new Dictionary<char, Action<WebElement>>
@@ -29,17 +24,6 @@ public class WebElement : TestObjectBase, IWebElement, IWrapsElement
         },
     };
     private IWebElement _wrappedElement;
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="WebElement"/> class.
-    /// </summary>
-    /// <param name="driver">The driver to which this element is attached.</param>
-    protected WebElement(WebDriver driver)
-    {
-        Driver = driver ?? throw new ArgumentNullException(nameof(driver));
-        SearchContext = Driver;
-        ComputedStyle = new Style(this);
-    }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="WebElement"/> class as lazy element.
@@ -77,6 +61,22 @@ public class WebElement : TestObjectBase, IWebElement, IWrapsElement
         WrappedElement = element;
         InitializeControls();
     }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="WebElement"/> class.
+    /// </summary>
+    /// <param name="driver">The driver to which this element is attached.</param>
+    protected WebElement(WebDriver driver)
+    {
+        Driver = driver ?? throw new ArgumentNullException(nameof(driver));
+        SearchContext = Driver;
+        ComputedStyle = new Style(this);
+    }
+
+    /// <summary>
+    /// Event that is fired when the wrapped native selenium element has changed.
+    /// </summary>
+    public event EventHandler<IWebElement> WrappedElementChanged;
 
     /// <summary>
     /// Gets or sets the <see cref="T:OpenQA.Selenium.IWebElement" /> wrapped by this object.
@@ -249,6 +249,113 @@ public class WebElement : TestObjectBase, IWebElement, IWrapsElement
         => Wait.Until(() => !IsClickable).ThrowOnFailure("Element is still clickable: " + GetSearchDescription());
 
     /// <summary>
+    /// Gets a value indicating whether or not this element is displayed.
+    /// </summary>
+    /// <remarks>
+    /// The <see cref="P:OpenQA.Selenium.IWebElement.Displayed" /> property avoids the problem
+    /// of having to parse an element's "style" attribute to determine
+    /// visibility of an element.
+    /// </remarks>
+    public virtual bool Displayed => Exists && _wrappedElement.Displayed;
+
+    /// <summary>
+    /// Gets a value indicating whether or not this element is enabled.
+    /// </summary>
+    /// <remarks>
+    /// The <see cref="P:OpenQA.Selenium.IWebElement.Enabled" /> property will generally
+    /// return <see langword="true" /> for everything except explicitly disabled input elements.
+    /// </remarks>
+    public virtual bool Enabled => WrappedElement.Enabled;
+
+    /// <summary>
+    /// Gets a <see cref="T:System.Drawing.Point" /> object containing the coordinates of the upper-left corner
+    /// of this element relative to the upper-left corner of the page.
+    /// </summary>
+    public virtual Point Location => WrappedElement.Location;
+
+    /// <summary>
+    /// Gets a value indicating whether or not this element is selected.
+    /// </summary>
+    /// <remarks>
+    /// This operation only applies to input elements such as checkboxes,
+    /// options in a select element and radio buttons.
+    /// </remarks>
+    public virtual bool Selected => WrappedElement.Selected;
+
+    /// <summary>
+    /// Gets a <see cref="P:OpenQA.Selenium.IWebElement.Size" /> object containing the height and width of this element.
+    /// </summary>
+    public virtual Size Size => WrappedElement.Size;
+
+    /// <summary>
+    /// Gets the tag name of this element.
+    /// </summary>
+    /// <remarks>
+    /// The <see cref="P:OpenQA.Selenium.IWebElement.TagName" /> property returns the tag name of the
+    /// element, not the value of the name attribute. For example, it will return
+    /// "input" for an element specified by the HTML markup &lt;input name="foo" /&gt;.
+    /// </remarks>
+    public virtual string TagName => WrappedElement.TagName;
+
+    /// <summary>
+    /// Gets the innerText of this element, without any leading or trailing whitespace,
+    /// and with other whitespace collapsed.
+    /// </summary>
+    public virtual string Text => WrappedElement.Text;
+
+    /// <summary>
+    /// Gets an element.
+    /// </summary>
+    /// <typeparam name="T">The type of the element to get.</typeparam>
+    /// <param name="locationKey">The location key to find the control.</param>
+    /// <returns>A element of type <typeparamref name="T"/>.</returns>
+    public static T GetElement<T>(By locationKey)
+        where T : WebElement
+    {
+        var ctor = typeof(T).GetConstructor(new[] { typeof(By) });
+        if (ctor == null)
+            throw new InvalidOperationException("The class " + typeof(T).FullName + " needs to implement a constructor with one By-Parameter");
+        return ctor.Invoke(new object[] { locationKey }) as T;
+    }
+
+    /// <summary>
+    /// Gets an element.
+    /// </summary>
+    /// <typeparam name="T">The type of the element to get.</typeparam>
+    /// <param name="locationKey">The location key to find the control.</param>
+    /// <param name="searchContext">The element to which the element is relative to.</param>
+    /// <returns>A element of type <typeparamref name="T"/>.</returns>
+    public static T GetElement<T>(By locationKey, ISearchContext searchContext)
+        where T : WebElement
+    {
+        var ctor = typeof(T).GetConstructor(new[] { typeof(By), typeof(ISearchContext) });
+        if (ctor == null)
+            throw new InvalidOperationException("The class " + typeof(T).FullName + " needs to implement a constructor with one By-Parameter and one ISearchContext-Parameter");
+        return ctor.Invoke(new object[] { locationKey, searchContext }) as T;
+    }
+
+    /// <summary>
+    /// Determines wether the element is stale (so not interactable).
+    /// </summary>
+    /// <param name="element">The element to check.</param>
+    /// <returns>True if the element is stale; otherwise false.</returns>
+    public static bool IsStale(IWebElement element)
+    {
+        try
+        {
+            return element == null || !element.Enabled;
+        }
+        catch (StaleElementReferenceException)
+        {
+            return true;
+        }
+        catch (NoSuchElementException)
+        {
+            return true;
+        }
+    }
+
+    /// <summary>
     /// Reloads the wrapped element.
     /// </summary>
     /// <returns>The <see cref="IWebElement"/> that has been found.</returns>
@@ -373,6 +480,7 @@ public class WebElement : TestObjectBase, IWebElement, IWrapsElement
     public T? TryGetAttribute<T>(string attributeName, Func<string, T> converter)
         where T : struct
     {
+        Guard.NotNull(converter);
         try
         {
             var value = GetAttribute(attributeName);
@@ -399,8 +507,8 @@ public class WebElement : TestObjectBase, IWebElement, IWrapsElement
     {
         if (levels < 1)
             throw new ArgumentOutOfRangeException(nameof(levels), "The argument 'levels' has to be greater than 0!");
-        var xPath = string.Join("/", Enumerable.Range(0, levels).Select(x => ".."));
-        return new WebElement(Driver, By.XPath(xPath), this);
+        var path = string.Join("/", Enumerable.Range(0, levels).Select(x => ".."));
+        return new WebElement(Driver, By.XPath(path), this);
     }
 
     /// <summary>
@@ -414,8 +522,8 @@ public class WebElement : TestObjectBase, IWebElement, IWrapsElement
     {
         if (levels < 1)
             throw new ArgumentOutOfRangeException(nameof(levels), "The Argument 'levels' has to be greater than 0!");
-        var xPath = string.Join("/", Enumerable.Range(0, levels).Select(x => ".."));
-        return GetElement<T>(By.XPath(xPath), this);
+        var path = string.Join("/", Enumerable.Range(0, levels).Select(x => ".."));
+        return GetElement<T>(By.XPath(path), this);
     }
 
     /// <summary>
@@ -691,61 +799,6 @@ public class WebElement : TestObjectBase, IWebElement, IWrapsElement
         => UntilClickable.WithTimeout(timeout).OnFailure(assert, "Element is not clickable: " + GetSearchDescription()).Start().Value;
 
     /// <summary>
-    /// Gets a value indicating whether or not this element is displayed.
-    /// </summary>
-    /// <remarks>
-    /// The <see cref="P:OpenQA.Selenium.IWebElement.Displayed" /> property avoids the problem
-    /// of having to parse an element's "style" attribute to determine
-    /// visibility of an element.
-    /// </remarks>
-    public virtual bool Displayed => Exists && _wrappedElement.Displayed;
-
-    /// <summary>
-    /// Gets a value indicating whether or not this element is enabled.
-    /// </summary>
-    /// <remarks>
-    /// The <see cref="P:OpenQA.Selenium.IWebElement.Enabled" /> property will generally
-    /// return <see langword="true" /> for everything except explicitly disabled input elements.
-    /// </remarks>
-    public virtual bool Enabled => WrappedElement.Enabled;
-
-    /// <summary>
-    /// Gets a <see cref="T:System.Drawing.Point" /> object containing the coordinates of the upper-left corner
-    /// of this element relative to the upper-left corner of the page.
-    /// </summary>
-    public virtual Point Location => WrappedElement.Location;
-
-    /// <summary>
-    /// Gets a value indicating whether or not this element is selected.
-    /// </summary>
-    /// <remarks>
-    /// This operation only applies to input elements such as checkboxes,
-    /// options in a select element and radio buttons.
-    /// </remarks>
-    public virtual bool Selected => WrappedElement.Selected;
-
-    /// <summary>
-    /// Gets a <see cref="P:OpenQA.Selenium.IWebElement.Size" /> object containing the height and width of this element.
-    /// </summary>
-    public virtual Size Size => WrappedElement.Size;
-
-    /// <summary>
-    /// Gets the tag name of this element.
-    /// </summary>
-    /// <remarks>
-    /// The <see cref="P:OpenQA.Selenium.IWebElement.TagName" /> property returns the tag name of the
-    /// element, not the value of the name attribute. For example, it will return
-    /// "input" for an element specified by the HTML markup &lt;input name="foo" /&gt;.
-    /// </remarks>
-    public virtual string TagName => WrappedElement.TagName;
-
-    /// <summary>
-    /// Gets the innerText of this element, without any leading or trailing whitespace,
-    /// and with other whitespace collapsed.
-    /// </summary>
-    public virtual string Text => WrappedElement.Text;
-
-    /// <summary>
     /// Clears the content of this element.
     /// </summary>
     /// <remarks>
@@ -913,7 +966,7 @@ public class WebElement : TestObjectBase, IWebElement, IWrapsElement
         else
         {
             // This is a workaround for mainly Internet Explorer. The IE Driver cannot write an '@'-character with SendKeys
-            var splittedText = text.Split(specialChars.Keys.OfType<char>().ToArray());
+            var splittedText = text?.Split(specialChars.Keys.OfType<char>().ToArray()) ?? Array.Empty<string>();
             int nextTextPosition = 0;
             foreach (var textElement in splittedText)
             {
@@ -983,57 +1036,5 @@ public class WebElement : TestObjectBase, IWebElement, IWrapsElement
         }
 
         return string.Format("<{0}{1}>...</{0}>", element.TagName, attributes.Count > 0 ? " " + string.Join(" ", attributes) : string.Empty);
-    }
-
-    /// <summary>
-    /// Gets an element.
-    /// </summary>
-    /// <typeparam name="T">The type of the element to get.</typeparam>
-    /// <param name="locationKey">The location key to find the control.</param>
-    /// <returns>A element of type <typeparamref name="T"/>.</returns>
-    public static T GetElement<T>(By locationKey)
-        where T : WebElement
-    {
-        var ctor = typeof(T).GetConstructor(new[] { typeof(By) });
-        if (ctor == null)
-            throw new InvalidOperationException("The class " + typeof(T).FullName + " needs to implement a constructor with one By-Parameter");
-        return ctor.Invoke(new object[] { locationKey }) as T;
-    }
-
-    /// <summary>
-    /// Gets an element.
-    /// </summary>
-    /// <typeparam name="T">The type of the element to get.</typeparam>
-    /// <param name="locationKey">The location key to find the control.</param>
-    /// <param name="searchContext">The element to which the element is relative to.</param>
-    /// <returns>A element of type <typeparamref name="T"/>.</returns>
-    public static T GetElement<T>(By locationKey, ISearchContext searchContext)
-        where T : WebElement
-    {
-        var ctor = typeof(T).GetConstructor(new[] { typeof(By), typeof(ISearchContext) });
-        if (ctor == null)
-            throw new InvalidOperationException("The class " + typeof(T).FullName + " needs to implement a constructor with one By-Parameter and one ISearchContext-Parameter");
-        return ctor.Invoke(new object[] { locationKey, searchContext }) as T;
-    }
-
-    /// <summary>
-    /// Determines wether the element is stale (so not interactable).
-    /// </summary>
-    /// <param name="element">The element to check.</param>
-    /// <returns>True if the element is stale; otherwise false.</returns>
-    public static bool IsStale(IWebElement element)
-    {
-        try
-        {
-            return element == null || !element.Enabled;
-        }
-        catch (StaleElementReferenceException)
-        {
-            return true;
-        }
-        catch (NoSuchElementException)
-        {
-            return true;
-        }
     }
 }

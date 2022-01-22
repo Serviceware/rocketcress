@@ -5,6 +5,10 @@
 /// </summary>
 internal sealed class WaitOptions : IWaitOptions, IObsoleteWaitOptions
 {
+    internal WaitOptions()
+    {
+    }
+
     /// <inheritdoc/>
     public bool TraceExceptions { get; set; }
 
@@ -58,10 +62,6 @@ internal sealed class WaitOptions : IWaitOptions, IObsoleteWaitOptions
 
     #endregion
 
-    internal WaitOptions()
-    {
-    }
-
     /// <inheritdoc/>
     public object Clone()
     {
@@ -93,6 +93,11 @@ internal sealed class WaitOptions : IWaitOptions, IObsoleteWaitOptions
     {
         private readonly IWaitOptions _options;
 
+        public ReadOnly(IWaitOptions options)
+        {
+            _options = options;
+        }
+
         public bool TraceExceptions => _options.TraceExceptions;
         public int? MaxAcceptedExceptions => _options.MaxAcceptedExceptions;
         public int? MaxRetryCount => _options.MaxRetryCount;
@@ -100,10 +105,5 @@ internal sealed class WaitOptions : IWaitOptions, IObsoleteWaitOptions
         public int TimeoutMs => _options.TimeoutMs;
         public TimeSpan TimeGap => _options.TimeGap;
         public int TimeGapMs => _options.TimeGapMs;
-
-        public ReadOnly(IWaitOptions options)
-        {
-            _options = options;
-        }
     }
 }

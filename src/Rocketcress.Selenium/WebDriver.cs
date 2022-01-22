@@ -11,6 +11,30 @@ namespace Rocketcress.Selenium;
 /// </summary>
 public class WebDriver : OpenQA.Selenium.Support.UI.IWait<WebDriver>, IWebDriver, IJavaScriptExecutor, ITakesScreenshot
 {
+    private readonly Type[] _allowedExceptionsGetWebDriverProp = new[]
+    {
+        typeof(WebDriverTimeoutException),
+    };
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="WebDriver"/> class.
+    /// </summary>
+    /// <param name="context">The current conotext.</param>
+    /// <param name="driver">The driver to wrap.</param>
+    /// <param name="timeout">The timeout to use.</param>
+    public WebDriver(SeleniumTestContext context, IWebDriver driver, TimeSpan timeout)
+    {
+        Context = Guard.NotNull(context);
+        Driver = Guard.NotNull(driver);
+        JavaScriptExecutor = (IJavaScriptExecutor)driver;
+        WaitDriver = new DefaultWait<WebDriver>(this);
+        WaitDriver.IgnoreExceptionTypes(typeof(NoSuchElementException), typeof(StaleElementReferenceException), typeof(WebDriverException));
+        Timeout = timeout;
+        KnownWindowHandles = new List<string>();
+        if (!string.IsNullOrEmpty(driver.CurrentWindowHandle))
+            KnownWindowHandles.Add(driver.CurrentWindowHandle);
+    }
+
     /// <summary>
     /// Gets the context on which this driver has been created on.
     /// </summary>
@@ -37,22 +61,33 @@ public class WebDriver : OpenQA.Selenium.Support.UI.IWait<WebDriver>, IWebDriver
     public List<string> KnownWindowHandles { get; set; }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="WebDriver"/> class.
+    /// Gets a value indicating whether the current window handle is open.
     /// </summary>
-    /// <param name="context">The current conotext.</param>
-    /// <param name="driver">The driver to wrap.</param>
-    /// <param name="timeout">The timeout to use.</param>
-    public WebDriver(SeleniumTestContext context, IWebDriver driver, TimeSpan timeout)
+    public bool IsCurrentHandleOpen
     {
-        Context = context ?? throw new ArgumentNullException(nameof(context));
-        Driver = driver ?? throw new ArgumentNullException(nameof(driver));
-        JavaScriptExecutor = (IJavaScriptExecutor)driver;
-        WaitDriver = new DefaultWait<WebDriver>(this);
-        WaitDriver.IgnoreExceptionTypes(typeof(NoSuchElementException), typeof(StaleElementReferenceException), typeof(WebDriverException));
-        Timeout = timeout;
-        KnownWindowHandles = new List<string>();
-        if (!string.IsNullOrEmpty(driver.CurrentWindowHandle))
-            KnownWindowHandles.Add(driver.CurrentWindowHandle);
+        get
+        {
+            try
+            {
+                return WindowHandles.Contains(CurrentWindowHandle);
+            }
+            catch (UnhandledAlertException)
+            {
+                return true; /* Danke IE für diese Ausnahme -.- */
+            }
+            catch (NoSuchWindowException)
+            {
+                return false;
+            }
+            catch (WebDriverException ex) when (ex.Message?.ToLower().Contains("timed out") == true)
+            {
+                return false;
+            }
+            catch (WebDriverException ex) when (ex.Message?.ToLower().Contains("null response") == true)
+            {
+                return true;
+            }
+        }
     }
 
     /// <summary>
@@ -76,7 +111,7 @@ public class WebDriver : OpenQA.Selenium.Support.UI.IWait<WebDriver>, IWebDriver
     /// </summary>
     /// <param name="assert">Determines wether to assert if the timeout has been reached.</param>
     /// <returns>Returns true if the page has loaded; otherwise false.</returns>
-    public bool UntilPageLoaded(bool assert = true) => UntilPageLoaded(Wait.Options.DefaultTimeout, assert);
+    public bool UntilPageLoaded(bool assert = true) => UntilPageLoaded(Wait.DefaultOptions.Timeout, assert);
 
     /// <summary>
     /// Waits until the current page is loaded.
@@ -102,7 +137,7 @@ public class WebDriver : OpenQA.Selenium.Support.UI.IWait<WebDriver>, IWebDriver
     /// </summary>
     /// <param name="count">The expected number of open windows.</param>
     /// <returns>Return true if the amount of windows did exist in time; otherwise false.</returns>
-    public bool UntilWindowsExists(int count) => UntilWindowsExists(count, Wait.Options.DefaultTimeoutMs);
+    public bool UntilWindowsExists(int count) => UntilWindowsExists(count, Wait.DefaultOptions.TimeoutMs);
 
     /// <summary>
     /// Waits until a specific amount of windows are open in the current browser instance.
@@ -144,6 +179,7 @@ public class WebDriver : OpenQA.Selenium.Support.UI.IWait<WebDriver>, IWebDriver
     /// <returns>Returns true if the windows was found in time; otherwise false.</returns>
     public bool WaitAndSwitchToWindow(View browserWindow, int? timeout = null, bool closeCurrent = false, bool assert = true)
     {
+        Guard.NotNull(browserWindow);
         if (!string.IsNullOrEmpty(browserWindow.WindowHandle))
             return true;
         int activeTimeout = timeout ?? (int)Timeout.TotalMilliseconds;
@@ -173,6 +209,8 @@ public class WebDriver : OpenQA.Selenium.Support.UI.IWait<WebDriver>, IWebDriver
     /// <returns><c>true</c> when the handle has been closed; otherwise <c>false</c>.</returns>
     public bool WaitForHandleToClose(View view, View nextView, int? timeout = null, bool assert = true)
     {
+        Guard.NotNull(view);
+        Guard.NotNull(nextView);
         int activeTimeout = timeout ?? (int)Timeout.TotalMilliseconds;
 
         var result = Wait.Until(() =>
@@ -223,6 +261,7 @@ public class WebDriver : OpenQA.Selenium.Support.UI.IWait<WebDriver>, IWebDriver
     /// <param name="browserWindow">The target view.</param>
     public void SwitchTo(View browserWindow)
     {
+        Guard.NotNull(browserWindow);
         Driver.SwitchTo().Window(browserWindow.WindowHandle);
     }
 
@@ -254,6 +293,7 @@ public class WebDriver : OpenQA.Selenium.Support.UI.IWait<WebDriver>, IWebDriver
     /// <returns>Returns an alert if one has popped up; otherwise null.</returns>
     public IAlert GetAlertFromAction(Action action, bool alertExpected, bool autoDismiss)
     {
+        Guard.NotNull(action);
         try
         {
             action();
@@ -319,36 +359,6 @@ public class WebDriver : OpenQA.Selenium.Support.UI.IWait<WebDriver>, IWebDriver
     }
 
     /// <summary>
-    /// Gets a value indicating whether the current window handle is open.
-    /// </summary>
-    public bool IsCurrentHandleOpen
-    {
-        get
-        {
-            try
-            {
-                return WindowHandles.Contains(CurrentWindowHandle);
-            }
-            catch (UnhandledAlertException)
-            {
-                return true; /* Danke IE für diese Ausnahme -.- */
-            }
-            catch (NoSuchWindowException)
-            {
-                return false;
-            }
-            catch (WebDriverException ex) when (ex.Message?.ToLower().Contains("timed out") == true)
-            {
-                return false;
-            }
-            catch (WebDriverException ex) when (ex.Message?.ToLower().Contains("null response") == true)
-            {
-                return true;
-            }
-        }
-    }
-
-    /// <summary>
     /// Skips an open certificate warning if one exists.
     /// </summary>
     public void SkipCertificateWarning()
@@ -386,6 +396,7 @@ public class WebDriver : OpenQA.Selenium.Support.UI.IWait<WebDriver>, IWebDriver
     /// <summary>
     /// Gets or sets how long to wait for the evaluated condition to be true.
     /// </summary>
+    [SuppressMessage("StyleCop.CSharp.OrderingRules", "SA1201:Elements should appear in the correct order", Justification = "Interface implementation region")]
     public TimeSpan Timeout
     {
         get => WaitDriver.Timeout;
@@ -495,6 +506,7 @@ public class WebDriver : OpenQA.Selenium.Support.UI.IWait<WebDriver>, IWebDriver
     /// <summary>
     /// Gets the current window handle, which is an opaque handle to this window that uniquely identifies it within this driver instance.
     /// </summary>
+    [SuppressMessage("StyleCop.CSharp.OrderingRules", "SA1201:Elements should appear in the correct order", Justification = "Interface implementation region")]
     public string CurrentWindowHandle => GetWebDriverProperty(x => x.CurrentWindowHandle, false, null);
 
     /// <summary>
@@ -612,6 +624,7 @@ public class WebDriver : OpenQA.Selenium.Support.UI.IWait<WebDriver>, IWebDriver
         return Driver.Manage();
     }
 
+    /// <inheritdoc/>
     INavigation IWebDriver.Navigate() => Navigate();
 
     /// <summary>
@@ -650,13 +663,6 @@ public class WebDriver : OpenQA.Selenium.Support.UI.IWait<WebDriver>, IWebDriver
 
     #endregion
 
-    #region Private Methods
-
-    private readonly Type[] _allowedExceptionsGetWebDriverProp = new[]
-    {
-        typeof(WebDriverTimeoutException),
-    };
-
     private T GetWebDriverProperty<T>(Func<IWebDriver, T> propertyFunction, bool throwEx, T returnOnError = default)
     {
         T result = default;
@@ -684,6 +690,4 @@ public class WebDriver : OpenQA.Selenium.Support.UI.IWait<WebDriver>, IWebDriver
 
         return result;
     }
-
-    #endregion
 }

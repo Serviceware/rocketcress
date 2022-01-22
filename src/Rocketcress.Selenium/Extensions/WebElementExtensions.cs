@@ -16,6 +16,7 @@ public static class WebElementExtensions
     /// <returns>A <see cref="WebElement"/> that is a wrapper for the <see cref="IWebElement"/>.</returns>
     public static WebElement Extend(this IWebElement element, WebDriver driver)
     {
+        Guard.NotNull(element);
         if (element is not WebElement result)
             result = new WebElement(driver, element);
         return result;
@@ -28,6 +29,7 @@ public static class WebElementExtensions
     /// <returns>Returns the parent from the element.</returns>
     public static IWebElement GetParent(this IWebElement element)
     {
+        Guard.NotNull(element);
         return element.FindElement(By.XPath(".."));
     }
 }

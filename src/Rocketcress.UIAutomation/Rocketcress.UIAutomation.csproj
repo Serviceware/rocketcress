@@ -20,12 +20,9 @@
     <UseWpf>true</UseWpf>
   </PropertyGroup>
 
-  <PropertyGroup>
-    <NoWarn>$(NoWarn);1591</NoWarn>
-  </PropertyGroup>
-
   <ItemGroup>
     <Using Include="Rocketcress.Core.Attributes" />
+    <Using Include="Rocketcress.Core.Common"/>
     <Using Include="System.Windows.Automation" />
     <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" Condition="$(IsSlim) == 'false'" />
   </ItemGroup>

@@ -10,6 +10,27 @@ public class TestContextBase : TestObjectBase, IDisposable
 {
 #if !SLIM
     /// <summary>
+    /// Initializes a new instance of the <see cref="TestContextBase"/> class.
+    /// </summary>
+    /// <param name="testContext">The current MSTest test context.</param>
+    /// <param name="settings">The test settings.</param>
+    public TestContextBase(TestContext testContext, SettingsBase settings)
+    {
+        TestContext = Guard.NotNull(testContext);
+#else
+    /// <summary>
+    /// Initializes a new instance of the <see cref="TestContextBase"/> class.
+    /// </summary>
+    /// <param name="settings">The test settings.</param>
+    public TestContextBase(SettingsBase settings)
+    {
+#endif
+        Settings = Guard.NotNull(settings);
+        OnContextCreated();
+    }
+
+#if !SLIM
+    /// <summary>
     /// Gets the current MSTest test context of the current test run.
     /// </summary>
     public TestContext TestContext { get; }
@@ -20,26 +41,10 @@ public class TestContextBase : TestObjectBase, IDisposable
     /// </summary>
     public virtual SettingsBase Settings { get; }
 
-#pragma warning disable CS1572 // XML comment has a param tag, but there is no parameter by that name
-#pragma warning disable SA1612 // Element parameter documentation should match element parameters
     /// <summary>
-    /// Initializes a new instance of the <see cref="TestContextBase"/> class.
+    /// Gets a value indicating whether this instance can take screenshots.
     /// </summary>
-    /// <param name="testContext">The current MSTest test context.</param>
-    /// <param name="settings">The test settings.</param>
-#if !SLIM
-    public TestContextBase(TestContext testContext, SettingsBase settings)
-    {
-        TestContext = testContext;
-#else
-    public TestContextBase(SettingsBase settings)
-    {
-#endif
-        Settings = settings;
-        OnContextCreated();
-    }
-#pragma warning restore SA1612 // Element parameter documentation should match element parameters
-#pragma warning restore CS1572 // XML comment has a param tag, but there is no parameter by that name
+    public virtual bool CanTakeScreenshot { get; } = false;
 
     /// <summary>
     /// Initializes this test context.
@@ -54,7 +59,9 @@ public class TestContextBase : TestObjectBase, IDisposable
     /// </summary>
     /// <returns>Returns the path to the screenshot file.</returns>
     public string? TakeAndAppendScreenshot()
-        => TakeAndAppendScreenshot(null);
+    {
+        return TakeAndAppendScreenshot(null);
+    }
 
     /// <summary>
     /// Takes a screenshots and appends it to the test result.
@@ -63,6 +70,9 @@ public class TestContextBase : TestObjectBase, IDisposable
     /// <returns>Returns the path to the screenshot file.</returns>
     public virtual string? TakeAndAppendScreenshot(string? name)
     {
+        if (!CanTakeScreenshot)
+            return null;
+
         try
         {
 #if !SLIM
@@ -111,7 +121,7 @@ public class TestContextBase : TestObjectBase, IDisposable
     /// <param name="path">The file to which the screenshot data should be written to.</param>
     protected virtual void SaveScreenshot(string path)
     {
-        // Do not take screenshot in base class. To enable this functionality override this method in a derived class.
+        // Do not take screenshot in base class. To enable this functionality override this method and the "CanTakeScreenshot" property in a derived class.
     }
 
     /// <summary>

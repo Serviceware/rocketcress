@@ -14,6 +14,10 @@
   <Import Project="../../build/Rocketcress.props" />
 
   <ItemGroup>
+    <Using Include="Rocketcress.Core.Common" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="System.ComponentModel.Composition" Version="5.0.0" />
   </ItemGroup>
 

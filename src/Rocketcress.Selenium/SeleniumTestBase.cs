@@ -29,19 +29,6 @@ public abstract class SeleniumTestBase<TSettings, TContext> : TestBase<TSettings
     where TSettings : Settings
     where TContext : SeleniumTestContext
 {
-    protected override TContext CreateContext()
-    {
-#if !SLIM
-        return CreateContext(
-            new[] { typeof(TestContext), typeof(TSettings), typeof(IDriverConfiguration) },
-            new object[] { TestContext, LoadSettings(), this });
-#else
-        return CreateContext(
-            new[] { typeof(TSettings), typeof(IDriverConfiguration) },
-            new object[] { LoadSettings(), this });
-#endif
-    }
-
     /// <inheritdoc />
     public virtual void ConfigureIEDriverOptions(OpenQA.Selenium.IE.InternetExplorerOptions options)
     {
@@ -80,6 +67,20 @@ public abstract class SeleniumTestBase<TSettings, TContext> : TestBase<TSettings
     /// <inheritdoc />
     public virtual void ConfigureSafariDriverOptions(OpenQA.Selenium.Safari.SafariOptions options)
     {
+    }
+
+    /// <inheritdoc/>
+    protected override TContext CreateContext()
+    {
+#if !SLIM
+        return CreateContext(
+            new[] { typeof(TestContext), typeof(TSettings), typeof(IDriverConfiguration) },
+            new object[] { TestContext, LoadSettings(), this });
+#else
+        return CreateContext(
+            new[] { typeof(TSettings), typeof(IDriverConfiguration) },
+            new object[] { LoadSettings(), this });
+#endif
     }
 }
 

@@ -16,6 +16,7 @@ public static class ConfigurableWaitExtensions
     public static TWait WithTimeout<TResult, TWait>(this IConfigurableWait<TResult, TWait> wait, TimeSpan? timeout)
         where TWait : IConfigurableWait<TResult, TWait>
     {
+        Guard.NotNull(wait);
         return timeout.HasValue
             ? wait.WithTimeout(timeout.Value)
             : wait.WithDefaultTimeout();
@@ -32,6 +33,7 @@ public static class ConfigurableWaitExtensions
     public static TWait WithTimeout<TResult, TWait>(this IConfigurableWait<TResult, TWait> wait, int timeoutMilliseconds)
         where TWait : IConfigurableWait<TResult, TWait>
     {
+        Guard.NotNull(wait);
         return wait.WithTimeout(TimeSpan.FromMilliseconds(timeoutMilliseconds));
     }
 
@@ -46,6 +48,7 @@ public static class ConfigurableWaitExtensions
     public static TWait WithTimeout<TResult, TWait>(this IConfigurableWait<TResult, TWait> wait, int? timeoutMilliseconds)
         where TWait : IConfigurableWait<TResult, TWait>
     {
+        Guard.NotNull(wait);
         return timeoutMilliseconds.HasValue
             ? wait.WithTimeout(TimeSpan.FromMilliseconds(timeoutMilliseconds.Value))
             : wait.WithDefaultTimeout();
@@ -61,6 +64,7 @@ public static class ConfigurableWaitExtensions
     public static TWait WithDefaultTimeout<TResult, TWait>(this IConfigurableWait<TResult, TWait> wait)
         where TWait : IConfigurableWait<TResult, TWait>
     {
+        Guard.NotNull(wait);
         var options = wait is IWaitDefaultOptions wdo ? wdo.DefaultOptions : Wait.DefaultOptions;
         return wait.WithTimeout(options.Timeout);
     }
@@ -76,6 +80,7 @@ public static class ConfigurableWaitExtensions
     public static TWait WithTimeGap<TResult, TWait>(this IConfigurableWait<TResult, TWait> wait, TimeSpan? timeGap)
         where TWait : IConfigurableWait<TResult, TWait>
     {
+        Guard.NotNull(wait);
         return timeGap.HasValue
             ? wait.WithTimeGap(timeGap.Value)
             : wait.WithDefaultTimeGap();
@@ -92,6 +97,7 @@ public static class ConfigurableWaitExtensions
     public static TWait WithTimeGap<TResult, TWait>(this IConfigurableWait<TResult, TWait> wait, int timeGapMilliseconds)
         where TWait : IConfigurableWait<TResult, TWait>
     {
+        Guard.NotNull(wait);
         return wait.WithTimeGap(TimeSpan.FromMilliseconds(timeGapMilliseconds));
     }
 
@@ -106,6 +112,7 @@ public static class ConfigurableWaitExtensions
     public static TWait WithTimeGap<TResult, TWait>(this IConfigurableWait<TResult, TWait> wait, int? timeGapMilliseconds)
         where TWait : IConfigurableWait<TResult, TWait>
     {
+        Guard.NotNull(wait);
         return timeGapMilliseconds.HasValue
             ? wait.WithTimeGap(TimeSpan.FromMilliseconds(timeGapMilliseconds.Value))
             : wait.WithDefaultTimeGap();
@@ -121,6 +128,7 @@ public static class ConfigurableWaitExtensions
     public static TWait WithDefaultTimeGap<TResult, TWait>(this IConfigurableWait<TResult, TWait> wait)
         where TWait : IConfigurableWait<TResult, TWait>
     {
+        Guard.NotNull(wait);
         var options = wait is IWaitDefaultOptions wdo ? wdo.DefaultOptions : Wait.DefaultOptions;
         return wait.WithTimeGap(options.TimeGap);
     }
@@ -136,6 +144,7 @@ public static class ConfigurableWaitExtensions
     public static TWait ThrowOnFailure<TResult, TWait>(this IConfigurableWait<TResult, TWait> wait)
         where TWait : IConfigurableWait<TResult, TWait>
     {
+        Guard.NotNull(wait);
         return wait.ThrowOnFailure(null);
     }
 
@@ -151,6 +160,7 @@ public static class ConfigurableWaitExtensions
     public static TWait OnFailure<TResult, TWait>(this IConfigurableWait<TResult, TWait> wait, bool @throw)
         where TWait : IConfigurableWait<TResult, TWait>
     {
+        Guard.NotNull(wait);
         return @throw ? wait.ThrowOnFailure(null) : wait.NotThrowOnFailure();
     }
 
@@ -167,6 +177,7 @@ public static class ConfigurableWaitExtensions
     public static TWait OnFailure<TResult, TWait>(this IConfigurableWait<TResult, TWait> wait, bool @throw, string? message)
         where TWait : IConfigurableWait<TResult, TWait>
     {
+        Guard.NotNull(wait);
         return @throw ? wait.ThrowOnFailure(message) : wait.NotThrowOnFailure();
     }
 
@@ -180,6 +191,7 @@ public static class ConfigurableWaitExtensions
     public static TWait WithDefaultMaxExceptionCount<TResult, TWait>(this IConfigurableWait<TResult, TWait> wait)
         where TWait : IConfigurableWait<TResult, TWait>
     {
+        Guard.NotNull(wait);
         var options = wait is IWaitDefaultOptions wdo ? wdo.DefaultOptions : Wait.DefaultOptions;
         return wait.WithMaxExceptionCount(options.MaxAcceptedExceptions);
     }
@@ -194,6 +206,7 @@ public static class ConfigurableWaitExtensions
     public static TWait WithDefaultMaxRetryCount<TResult, TWait>(this IConfigurableWait<TResult, TWait> wait)
         where TWait : IConfigurableWait<TResult, TWait>
     {
+        Guard.NotNull(wait);
         var options = wait is IWaitDefaultOptions wdo ? wdo.DefaultOptions : Wait.DefaultOptions;
         return wait.WithMaxRetryCount(options.MaxRetryCount);
     }

@@ -1,4 +1,6 @@
 <Project>
+  
+  <!-- Common properties -->
   <PropertyGroup>
     <LangVersion>latest</LangVersion>
     
@@ -20,17 +22,26 @@
       false
     </IsPackable>
   </PropertyGroup>
-
-  <PropertyGroup>
-    <MaSchTestVersion>0.5.2</MaSchTestVersion>
-  </PropertyGroup>
-
+  
   <PropertyGroup Condition=" $(IsSlim) == 'true' ">
     <Description>Contains code from $(AssemblyName) without the need to use MSTest v2.</Description>
     <AssemblyName>$(AssemblyName).Slim</AssemblyName>
     <DefineConstants>$(DefineConstants);SLIM</DefineConstants>
   </PropertyGroup>
 
+  
+  <!-- Global Usings -->
+  <ItemGroup>
+    <Using Include="System"/>
+    <Using Include="System.Collections.Generic"/>
+    <Using Include="System.Diagnostics"/>
+    <Using Include="System.Diagnostics.CodeAnalysis"/>
+    <Using Include="System.IO"/>
+    <Using Include="System.Linq"/>
+  </ItemGroup>
+
+
+  <!-- Source Link -->
   <PropertyGroup Condition=" $(ConfigureSourceLink) == 'true' ">
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
@@ -38,15 +49,12 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" $(IsTestProject) != 'true' ">
-    <DocumentationFile Condition=" $(NoDocumentation) != 'true' ">$(OutputPath)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
-    <PackageId>Serviceware.$(AssemblyName)</PackageId>
-  </PropertyGroup>
-
   <ItemGroup Condition=" $(ConfigureSourceLink) == 'true' ">
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All"/>
   </ItemGroup>
 
+  
+  <!-- Analyzers -->
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="6.0.0">
       <PrivateAssets>all</PrivateAssets>
@@ -57,21 +65,25 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
+  
+  <ItemGroup>
+    <AdditionalFiles Include="$(MSBuildThisFileDirectory)stylecop.json" Link="stylecop.json" Visible="false" />
+  </ItemGroup>
 
+
+  <!-- Test Projects -->
+  <PropertyGroup Condition=" $(IsTestProject) != 'true' ">
+    <DocumentationFile Condition=" $(NoDocumentation) != 'true' ">$(OutputPath)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
+    <PackageId>Serviceware.$(AssemblyName)</PackageId>
+  </PropertyGroup>
+
+  
+  <!-- Target files -->
   <Target Name="CopyTargetsFile" AfterTargets="BeforeBuild" Condition=" $(TargetFilePath) != '' ">
     <Copy SourceFiles="$(TargetFilePath)" DestinationFiles=".targets/$(PackageId).targets" />
   </Target>
 
   <ItemGroup Condition=" $(TargetFilePath) != '' ">
     <Content Include=".targets/$(PackageId).targets" Pack="true" PackagePath="build;buildCrossTargeting" Visible="false" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Using Include="System"/>
-    <Using Include="System.Collections.Generic"/>
-    <Using Include="System.Diagnostics"/>
-    <Using Include="System.Diagnostics.CodeAnalysis"/>
-    <Using Include="System.IO"/>
-    <Using Include="System.Linq"/>
   </ItemGroup>
 </Project>

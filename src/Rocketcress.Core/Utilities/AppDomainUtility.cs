@@ -24,24 +24,6 @@ public static class AppDomainUtility
         return appDomain;
     }
 
-    private static void LoadAssembliesInCurrentAppDomainIntoNew(AppDomain appDomain)
-    {
-        Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
-        foreach (Assembly assembly in assemblies)
-        {
-            try
-            {
-                var proxyDomain = new RemoteLoader();
-                Assembly asm = proxyDomain.LoadAssembly(assembly.FullName!);
-                appDomain.Load(asm.GetName());
-            }
-            catch (Exception ex)
-            {
-                Logger.LogWarning("Error while loading assembly \"{0}\": {1}", assembly.FullName, ex.InnerException?.Message);
-            }
-        }
-    }
-
     /// <summary>
     /// Executes a given function inside a new seperate AppDomain.
     /// </summary>
@@ -74,6 +56,9 @@ public static class AppDomainUtility
     /// <returns>Returns the result of the <paramref name="providerFunc"/>.</returns>
     public static TResult ExecuteInDifferentDomain<TProvider, TResult>(AppDomain domain, Func<TProvider, TResult> providerFunc)
     {
+        Guard.NotNull(domain);
+        Guard.NotNull(providerFunc);
+
         var provider = (TProvider)domain.CreateInstanceAndUnwrap(typeof(TProvider).Assembly.FullName!, typeof(TProvider).FullName!)!;
         return providerFunc(provider);
     }
@@ -106,8 +91,29 @@ public static class AppDomainUtility
     /// <param name="providerFunc">The functions to execute. Only methods that are called on the <typeparamref name="TProvider"/> object are executed in the other domain.</param>
     public static void ExecuteInDifferentDomain<TProvider>(AppDomain domain, Action<TProvider> providerFunc)
     {
+        Guard.NotNull(domain);
+        Guard.NotNull(providerFunc);
+
         var provider = (TProvider)domain.CreateInstanceAndUnwrap(typeof(TProvider).Assembly.FullName!, typeof(TProvider).FullName!)!;
         providerFunc(provider);
+    }
+
+    private static void LoadAssembliesInCurrentAppDomainIntoNew(AppDomain appDomain)
+    {
+        Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
+        foreach (Assembly assembly in assemblies)
+        {
+            try
+            {
+                var proxyDomain = new RemoteLoader();
+                Assembly asm = proxyDomain.LoadAssembly(assembly.FullName!);
+                appDomain.Load(asm.GetName());
+            }
+            catch (Exception ex)
+            {
+                Logger.LogWarning("Error while loading assembly \"{0}\": {1}", assembly.FullName, ex.InnerException?.Message);
+            }
+        }
     }
 
     /// <summary>

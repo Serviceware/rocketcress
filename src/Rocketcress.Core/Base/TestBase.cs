@@ -158,10 +158,6 @@ public abstract class TestBase<TSettings, TContext> : TestObjectBase
         return SettingsBase.GetFromFiles<TSettings>(specificSettingsFile, defaultSettingsFile);
     }
 
-#region Public Functions
-
-#endregion
-
     /// <summary>
     /// Dtermines wether the test is run in debug configuration.
     /// </summary>

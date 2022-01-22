@@ -13,16 +13,6 @@ public delegate void ExceptionEventHandler(object? sender, ExceptionEventArgs e)
 public class ExceptionEventArgs : EventArgs
 {
     /// <summary>
-    /// Gets the exception object that has been thrown during the waiting operation.
-    /// </summary>
-    public Exception ExceptionObject { get; }
-
-    /// <summary>
-    /// Gets the wait context.
-    /// </summary>
-    public WaitContext WaitContext { get; }
-
-    /// <summary>
     /// Initializes a new instance of the <see cref="ExceptionEventArgs"/> class.
     /// </summary>
     /// <param name="waitContext">The context of the wait operation.</param>
@@ -32,6 +22,16 @@ public class ExceptionEventArgs : EventArgs
         ExceptionObject = exception;
         WaitContext = waitContext;
     }
+
+    /// <summary>
+    /// Gets the exception object that has been thrown during the waiting operation.
+    /// </summary>
+    public Exception ExceptionObject { get; }
+
+    /// <summary>
+    /// Gets the wait context.
+    /// </summary>
+    public WaitContext WaitContext { get; }
 }
 
 /// <summary>
@@ -40,11 +40,6 @@ public class ExceptionEventArgs : EventArgs
 /// <typeparam name="T">The type of value the wait operation returns.</typeparam>
 public class ExceptionEventArgs<T> : ExceptionEventArgs
 {
-    /// <summary>
-    /// Gets the wait context.
-    /// </summary>
-    public new WaitContext<T> WaitContext { get; }
-
     /// <summary>
     /// Initializes a new instance of the <see cref="ExceptionEventArgs{T}"/> class.
     /// </summary>
@@ -55,4 +50,9 @@ public class ExceptionEventArgs<T> : ExceptionEventArgs
     {
         WaitContext = waitContext;
     }
+
+    /// <summary>
+    /// Gets the wait context.
+    /// </summary>
+    public new WaitContext<T> WaitContext { get; }
 }

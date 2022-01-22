@@ -7,6 +7,14 @@ namespace Rocketcress.Core;
 /// </summary>
 public class WaitResult
 {
+    internal WaitResult(WaitResultStatus status, object? value, TimeSpan duration, Exception[] exceptions)
+    {
+        Status = status;
+        Value = value;
+        Duration = duration;
+        Exceptions = exceptions;
+    }
+
     /// <summary>
     /// Gets the result status of the wait operation.
     /// </summary>
@@ -26,14 +34,6 @@ public class WaitResult
     /// Gets all exception that were through during the wait operation.
     /// </summary>
     public Exception[] Exceptions { get; }
-
-    internal WaitResult(WaitResultStatus status, object? value, TimeSpan duration, Exception[] exceptions)
-    {
-        Status = status;
-        Value = value;
-        Duration = duration;
-        Exceptions = exceptions;
-    }
 }
 
 /// <summary>
@@ -42,16 +42,16 @@ public class WaitResult
 /// <typeparam name="T">The type of the result value.</typeparam>
 public sealed class WaitResult<T> : WaitResult
 {
-    /// <summary>
-    /// Gets the result value.
-    /// </summary>
-    public new T? Value { get; }
-
     internal WaitResult(WaitResultStatus status, T? value, TimeSpan duration, Exception[] exceptions)
         : base(status, value, duration, exceptions)
     {
         Value = value;
     }
+
+    /// <summary>
+    /// Gets the result value.
+    /// </summary>
+    public new T? Value { get; }
 }
 
 /// <summary>
@@ -103,16 +103,14 @@ public abstract class WaitResultBuilder
 /// <typeparam name="T">The type of the result value.</typeparam>
 public sealed class WaitResultBuilder<T> : WaitResultBuilder
 {
-    private T? _value;
+    internal WaitResultBuilder()
+    {
+    }
 
     /// <summary>
     /// Gets the current value.
     /// </summary>
-    public new T? Value => _value;
-
-    internal WaitResultBuilder()
-    {
-    }
+    public new T? Value { get; private set; }
 
     /// <summary>
     /// Defines the value for the resulting <see cref="WaitResult{T}"/>. Status is automatically set to <see cref="WaitResultStatus.ValueAvailable"/> if not default value of <typeparamref name="T"/>.
@@ -123,7 +121,7 @@ public sealed class WaitResultBuilder<T> : WaitResultBuilder
     {
         if (Equals(value, default) && !Status.IsValueAvailable())
             Status = WaitResultStatus.ValueAvailable;
-        _value = value;
+        Value = value;
         return this;
     }
 
@@ -135,7 +133,7 @@ public sealed class WaitResultBuilder<T> : WaitResultBuilder
     public WaitResultBuilder<T> WithStatus(WaitResultStatus result)
     {
         if (!result.IsValueAvailable())
-            _value = default;
+            Value = default;
         Status = result;
         return this;
     }
@@ -158,13 +156,13 @@ public sealed class WaitResultBuilder<T> : WaitResultBuilder
     /// <returns>The built <see cref="WaitResult{T}"/>.</returns>
     public WaitResult<T> Build(TimeSpan duration)
     {
-        return new WaitResult<T>(Status, _value, duration, Exceptions.ToArray());
+        return new WaitResult<T>(Status, Value, duration, Exceptions.ToArray());
     }
 
     /// <inheritdoc/>
     protected override object? OnGetValue()
     {
-        return _value;
+        return Value;
     }
 }
 

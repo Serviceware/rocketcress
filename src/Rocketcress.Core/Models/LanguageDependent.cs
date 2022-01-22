@@ -11,11 +11,6 @@ namespace Rocketcress.Core.Models;
 /// </summary>
 public abstract class LanguageDependent
 {
-    /// <summary>
-    /// Gets or sets the default language when resolving the value of a <see cref="LanguageDependent"/>-instance.
-    /// </summary>
-    public static CultureInfo DefaultLanguage { get; set; }
-
     static LanguageDependent()
     {
         DefaultLanguage = CultureInfo.GetCultureInfo("en-US");
@@ -27,6 +22,11 @@ public abstract class LanguageDependent
     protected LanguageDependent()
     {
     }
+
+    /// <summary>
+    /// Gets or sets the default language when resolving the value of a <see cref="LanguageDependent"/>-instance.
+    /// </summary>
+    public static CultureInfo DefaultLanguage { get; set; }
 }
 
 /// <summary>
@@ -37,16 +37,6 @@ public abstract class LanguageDependent
 public class LanguageDependent<T>
 {
     /// <summary>
-    /// Gets or sets all the stored values for each language id.
-    /// </summary>
-    protected IDictionary<int, T> Objects { get; set; }
-
-    /// <summary>
-    /// Gets the value of the invariant language.
-    /// </summary>
-    public T? Invariant => this[CultureInfo.InvariantCulture.LCID];
-
-    /// <summary>
     /// Initializes a new instance of the <see cref="LanguageDependent{T}"/> class.
     /// </summary>
     public LanguageDependent()
@@ -54,51 +44,15 @@ public class LanguageDependent<T>
         Objects = new Dictionary<int, T>();
     }
 
-    #region Public Methods
+    /// <summary>
+    /// Gets the value of the invariant language.
+    /// </summary>
+    public T? Invariant => this[CultureInfo.InvariantCulture.LCID];
 
     /// <summary>
-    /// Sets the value for a given language.
+    /// Gets or sets all the stored values for each language id.
     /// </summary>
-    /// <param name="language">The id of the language.</param>
-    /// <param name="value">The new value.</param>
-    /// <returns>Returns the current instance of the LanguageDependent class to chain multiple method calls.</returns>
-    public LanguageDependent<T> SetLanguage(int language, T value)
-    {
-        Objects[language] = value;
-        return this;
-    }
-
-    /// <summary>
-    /// Sets the value for a given language.
-    /// </summary>
-    /// <param name="language">The language.</param>
-    /// <param name="value">The new value.</param>
-    /// <returns>Returns the current instance of the LanguageDependent class to chain multiple method calls.</returns>
-    public LanguageDependent<T> SetLanguage(CultureInfo language, T value)
-    {
-        Objects[language.LCID] = value;
-        return this;
-    }
-
-    /// <summary>
-    /// Check if a value for a language exists.
-    /// </summary>
-    /// <param name="language">The id of the language.</param>
-    /// <returns>Returns true if a value for the specified language exists; otherwise false.</returns>
-    public bool Contains(int language)
-        => Objects.ContainsKey(language);
-
-    /// <summary>
-    /// Check if a value for a language exists.
-    /// </summary>
-    /// <param name="language">The language.</param>
-    /// <returns>Returns true if a value for the specified language exists; otherwise false.</returns>
-    public bool Contains(CultureInfo language)
-        => Objects.ContainsKey(language.LCID);
-
-    #endregion
-
-    #region Indexer
+    protected IDictionary<int, T> Objects { get; set; }
 
     /// <summary>
     /// Retrieves a value.
@@ -129,11 +83,66 @@ public class LanguageDependent<T>
     [MaybeNull]
     public T this[CultureInfo language]
     {
-        get => this[language.LCID];
-        set => this[language.LCID] = value;
+        get => this[Guard.NotNull(language).LCID];
+        set => this[Guard.NotNull(language).LCID] = value;
     }
 
-    #endregion
+    /// <summary>
+    /// Gets the value for the current language of a <see cref="LanguageDependent{T}"/> object.
+    /// </summary>
+    /// <param name="objectInstance">The <see cref="LanguageDependent{T}"/> object to get the value from.</param>
+    public static implicit operator T?(LanguageDependent<T> objectInstance)
+    {
+        Guard.NotNull(objectInstance);
+        return objectInstance[LanguageDependent.DefaultLanguage];
+    }
+
+    /// <summary>
+    /// Sets the value for a given language.
+    /// </summary>
+    /// <param name="language">The id of the language.</param>
+    /// <param name="value">The new value.</param>
+    /// <returns>Returns the current instance of the LanguageDependent class to chain multiple method calls.</returns>
+    public LanguageDependent<T> SetLanguage(int language, T value)
+    {
+        Objects[language] = value;
+        return this;
+    }
+
+    /// <summary>
+    /// Sets the value for a given language.
+    /// </summary>
+    /// <param name="language">The language.</param>
+    /// <param name="value">The new value.</param>
+    /// <returns>Returns the current instance of the LanguageDependent class to chain multiple method calls.</returns>
+    public LanguageDependent<T> SetLanguage(CultureInfo language, T value)
+    {
+        Guard.NotNull(language);
+
+        Objects[language.LCID] = value;
+        return this;
+    }
+
+    /// <summary>
+    /// Check if a value for a language exists.
+    /// </summary>
+    /// <param name="language">The id of the language.</param>
+    /// <returns>Returns true if a value for the specified language exists; otherwise false.</returns>
+    public bool Contains(int language)
+    {
+        return Objects.ContainsKey(language);
+    }
+
+    /// <summary>
+    /// Check if a value for a language exists.
+    /// </summary>
+    /// <param name="language">The language.</param>
+    /// <returns>Returns true if a value for the specified language exists; otherwise false.</returns>
+    public bool Contains(CultureInfo language)
+    {
+        Guard.NotNull(language);
+        return Objects.ContainsKey(language.LCID);
+    }
 
     /// <summary>
     /// Retrieves the value of the default language.
@@ -142,15 +151,6 @@ public class LanguageDependent<T>
     public override string ToString()
     {
         return this[LanguageDependent.DefaultLanguage]?.ToString() ?? "(null)";
-    }
-
-    /// <summary>
-    /// Gets the value for the current language of a <see cref="LanguageDependent{T}"/> object.
-    /// </summary>
-    /// <param name="s">The <see cref="LanguageDependent{T}"/> object to get the value from.</param>
-    public static implicit operator T?(LanguageDependent<T> s)
-    {
-        return s[LanguageDependent.DefaultLanguage];
     }
 }
 
@@ -167,7 +167,10 @@ public static class LanguageDependentExtensions
     /// <param name="value">The new value.</param>
     /// <returns>Returns the current instance of the LanguageDependent class to chain multiple method calls.</returns>
     public static LanguageDependent<T> SetEnglish<T>(this LanguageDependent<T> obj, T value)
-        => obj.SetLanguage(CultureInfo.GetCultureInfo("en"), value);
+    {
+        Guard.NotNull(obj);
+        return obj.SetLanguage(CultureInfo.GetCultureInfo("en"), value);
+    }
 
     /// <summary>
     /// Sets the value for the german language.
@@ -177,7 +180,10 @@ public static class LanguageDependentExtensions
     /// <param name="value">The new value.</param>
     /// <returns>Returns the current instance of the LanguageDependent class to chain multiple method calls.</returns>
     public static LanguageDependent<T> SetGerman<T>(this LanguageDependent<T> obj, T value)
-        => obj.SetLanguage(CultureInfo.GetCultureInfo("de"), value);
+    {
+        Guard.NotNull(obj);
+        return obj.SetLanguage(CultureInfo.GetCultureInfo("de"), value);
+    }
 
     /// <summary>
     /// Sets the value for the french language.
@@ -187,7 +193,10 @@ public static class LanguageDependentExtensions
     /// <param name="value">The new value.</param>
     /// <returns>Returns the current instance of the LanguageDependent class to chain multiple method calls.</returns>
     public static LanguageDependent<T> SetFrench<T>(this LanguageDependent<T> obj, T value)
-        => obj.SetLanguage(CultureInfo.GetCultureInfo("fr"), value);
+    {
+        Guard.NotNull(obj);
+        return obj.SetLanguage(CultureInfo.GetCultureInfo("fr"), value);
+    }
 
     /// <summary>
     /// Sets the value for the italian language.
@@ -197,7 +206,10 @@ public static class LanguageDependentExtensions
     /// <param name="value">The new value.</param>
     /// <returns>Returns the current instance of the LanguageDependent class to chain multiple method calls.</returns>
     public static LanguageDependent<T> SetItalian<T>(this LanguageDependent<T> obj, T value)
-        => obj.SetLanguage(CultureInfo.GetCultureInfo("it"), value);
+    {
+        Guard.NotNull(obj);
+        return obj.SetLanguage(CultureInfo.GetCultureInfo("it"), value);
+    }
 
     /// <summary>
     /// Sets the value for a given language.
@@ -209,6 +221,7 @@ public static class LanguageDependentExtensions
     /// <returns>Returns the current instance of the LanguageDependent class to chain multiple method calls.</returns>
     public static LanguageDependent<System.Drawing.Point> SetLanguage(this LanguageDependent<System.Drawing.Point> obj, CultureInfo language, int x, int y)
     {
+        Guard.NotNull(obj);
         return obj.SetLanguage(language, new System.Drawing.Point(x, y));
     }
 
@@ -221,6 +234,7 @@ public static class LanguageDependentExtensions
     /// <returns>Returns the current instance of the LanguageDependent class to chain multiple method calls.</returns>
     public static LanguageDependent<System.Drawing.Point> SetGerman(this LanguageDependent<System.Drawing.Point> obj, int x, int y)
     {
+        Guard.NotNull(obj);
         return obj.SetLanguage(CultureInfo.GetCultureInfo("de"), new System.Drawing.Point(x, y));
     }
 
@@ -233,6 +247,7 @@ public static class LanguageDependentExtensions
     /// <returns>Returns the current instance of the LanguageDependent class to chain multiple method calls.</returns>
     public static LanguageDependent<System.Drawing.Point> SetEnglish(this LanguageDependent<System.Drawing.Point> obj, int x, int y)
     {
+        Guard.NotNull(obj);
         return obj.SetLanguage(CultureInfo.GetCultureInfo("en"), new System.Drawing.Point(x, y));
     }
 
@@ -245,6 +260,7 @@ public static class LanguageDependentExtensions
     /// <returns>Returns the current instance of the LanguageDependent class to chain multiple method calls.</returns>
     public static LanguageDependent<System.Drawing.Point> SetFrench(this LanguageDependent<System.Drawing.Point> obj, int x, int y)
     {
+        Guard.NotNull(obj);
         return obj.SetLanguage(CultureInfo.GetCultureInfo("fr"), new System.Drawing.Point(x, y));
     }
 
@@ -257,6 +273,7 @@ public static class LanguageDependentExtensions
     /// <returns>Returns the current instance of the LanguageDependent class to chain multiple method calls.</returns>
     public static LanguageDependent<System.Drawing.Point> SetItalian(this LanguageDependent<System.Drawing.Point> obj, int x, int y)
     {
+        Guard.NotNull(obj);
         return obj.SetLanguage(CultureInfo.GetCultureInfo("it"), new System.Drawing.Point(x, y));
     }
 }

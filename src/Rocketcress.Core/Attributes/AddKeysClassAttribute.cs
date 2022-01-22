@@ -17,6 +17,8 @@ public class AddKeysClassAttribute : Attribute
     /// <param name="keysClassType">The type of the key class.</param>
     public AddKeysClassAttribute(Type keysClassType)
     {
+        Guard.NotNull(keysClassType);
+
         _keysClassType = keysClassType;
         _keysClassName = keysClassType.Name;
     }
@@ -27,30 +29,10 @@ public class AddKeysClassAttribute : Attribute
     /// <param name="keysClassName">The class name of the key class.</param>
     public AddKeysClassAttribute(string keysClassName)
     {
+        Guard.NotNullOrEmpty(keysClassName);
+
         _keysClassName = keysClassName;
         _keysClassType = null;
-    }
-
-    /// <summary>
-    /// Searches for a class with the given key class name in a specified namespace.
-    /// </summary>
-    /// <param name="testNamespace">The namespace to search in.</param>
-    /// <returns>Returns the found type. If no type was found null is returned.</returns>
-    public Type? GetKeysClassType(string? testNamespace)
-    {
-        var result = _keysClassType;
-        if (result == null && !string.IsNullOrEmpty(testNamespace))
-        {
-            var nsSplit = testNamespace.Split('.');
-            for (int i = nsSplit.Length; i > 0 && result == null; i--)
-            {
-                result = AppDomain.CurrentDomain.GetAssemblies()
-                    .Select(x => x.GetType(string.Join(".", nsSplit.Take(i)) + "." + _keysClassName))
-                    .FirstOrDefault(x => x != null);
-            }
-        }
-
-        return result;
     }
 
     /// <summary>
@@ -68,6 +50,8 @@ public class AddKeysClassAttribute : Attribute
     /// <returns>Returns a list of keys defined in the specified type.</returns>
     public static string[] GetKeys(Type testClass, string? testNamespace)
     {
+        Guard.NotNull(testClass);
+
         var @namespace = string.IsNullOrEmpty(testNamespace) ? testClass.Namespace : testNamespace;
         var attributes = testClass.GetCustomAttributes<AddKeysClassAttribute>();
         return (from x in attributes
@@ -77,5 +61,27 @@ public class AddKeysClassAttribute : Attribute
                                 where f.FieldType == typeof(string) && f.GetCustomAttribute<IgnoreKeyAttribute>() == null
                                 select (string?)f.GetValue(null)).Concat(GetKeys(type, @namespace))
                 select key).ToArray();
+    }
+
+    /// <summary>
+    /// Searches for a class with the given key class name in a specified namespace.
+    /// </summary>
+    /// <param name="testNamespace">The namespace to search in.</param>
+    /// <returns>Returns the found type. If no type was found null is returned.</returns>
+    public Type? GetKeysClassType(string? testNamespace)
+    {
+        var result = _keysClassType;
+        if (result == null && !string.IsNullOrEmpty(testNamespace))
+        {
+            var namespaceParts = testNamespace.Split('.');
+            for (int i = namespaceParts.Length; i > 0 && result == null; i--)
+            {
+                result = AppDomain.CurrentDomain.GetAssemblies()
+                    .Select(x => x.GetType(string.Join(".", namespaceParts.Take(i)) + "." + _keysClassName))
+                    .FirstOrDefault(x => x != null);
+            }
+        }
+
+        return result;
     }
 }

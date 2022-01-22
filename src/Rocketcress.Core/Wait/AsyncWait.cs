@@ -6,8 +6,6 @@ internal sealed class AsyncWait<T> : IAsyncWait<T>, IAsyncWaitOnError<T>, IWaitD
 {
     private readonly AsyncWaitRunner<T> _runner;
 
-    public IWaitOptions DefaultOptions { get; }
-
     internal AsyncWait(
         Func<WaitContext<T>, Task<T?>> condition,
         IWaitOptions options,
@@ -25,6 +23,8 @@ internal sealed class AsyncWait<T> : IAsyncWait<T>, IAsyncWaitOnError<T>, IWaitD
             x => onFinishedCallback(this, x),
             (x, y) => onExceptionCallback(this, x, y));
     }
+
+    public IWaitOptions DefaultOptions { get; }
 
     #region IAsyncWait<T> Members
 

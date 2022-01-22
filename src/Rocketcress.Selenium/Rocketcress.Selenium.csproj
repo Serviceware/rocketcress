@@ -5,6 +5,7 @@
 
     <ConfigureSlim>true</ConfigureSlim>
     <ConfigureSourceLink>true</ConfigureSourceLink>
+    <SignAssembly>true</SignAssembly>
     <TargetFilePath>Rocketcress.Selenium.targets</TargetFilePath>
 
     <Description>You can reference this library if you want to write tests using the Selenium framework.</Description>
@@ -22,6 +23,7 @@
 
   <ItemGroup>
     <Using Include="Rocketcress.Core.Attributes" />
+    <Using Include="Rocketcress.Core.Common"/>
     <Using Include="OpenQA.Selenium" />
     <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" Condition="$(IsSlim) == 'false'" />
   </ItemGroup>

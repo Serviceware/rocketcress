@@ -33,6 +33,49 @@ public class TestObjectBase
     }
 
     /// <summary>
+    /// Gets the value of a property in the static property cache.
+    /// </summary>
+    /// <typeparam name="T">The type of value to retrieve.</typeparam>
+    /// <param name="propertyName">The name of the property to get.</param>
+    /// <returns>Returns the current value of the specified property.</returns>
+    protected static T? GetStaticProperty<T>([CallerMemberName] string propertyName = "")
+        => _staticPropertyStorage.GetProperty<T>(propertyName);
+
+    /// <summary>
+    /// Gets the value of a property in the static property cache.
+    /// </summary>
+    /// <typeparam name="T">The type of value to retrieve.</typeparam>
+    /// <param name="initializer">A function that is executed if the property has no value yet.</param>
+    /// <param name="propertyName">The name of the property to get.</param>
+    /// <returns>Returns the current value of the specified property.</returns>
+    protected static T? GetStaticProperty<T>(Func<T> initializer, [CallerMemberName] string propertyName = "")
+        => _staticPropertyStorage.GetProperty(initializer, propertyName);
+
+    /// <summary>
+    /// Sets the value of a property in the static property cache.
+    /// </summary>
+    /// <typeparam name="T">The type of value to set.</typeparam>
+    /// <param name="value">The value to set.</param>
+    /// <param name="propertyName">The name of the property to set.</param>
+    protected static void SetStaticProperty<T>(T value, [CallerMemberName] string propertyName = "")
+        => _staticPropertyStorage.SetProperty(value, propertyName);
+
+    /// <summary>
+    /// Resets the value of a property in the static property cache.
+    /// </summary>
+    /// <param name="propertyName">The name of the property for which the value should be reset.</param>
+    protected static void ResetStaticProperty([CallerMemberName] string propertyName = "")
+        => _staticPropertyStorage.ResetProperty(propertyName);
+
+    /// <summary>
+    /// Determines wether a property has a value in the static property cache.
+    /// </summary>
+    /// <param name="propertyName">The name of the property to check.</param>
+    /// <returns>Returns true if the property has a value; otherwise false.</returns>
+    protected static bool HasStaticProperty([CallerMemberName] string propertyName = "")
+        => _staticPropertyStorage.HasProperty(propertyName);
+
+    /// <summary>
     /// Gets the value of a property in the property cache.
     /// </summary>
     /// <typeparam name="T">The type of value to retrieve.</typeparam>
@@ -80,49 +123,6 @@ public class TestObjectBase
     /// </summary>
     protected virtual void ClearProperties()
         => _instancePropertyStorage.Clear();
-
-    /// <summary>
-    /// Gets the value of a property in the static property cache.
-    /// </summary>
-    /// <typeparam name="T">The type of value to retrieve.</typeparam>
-    /// <param name="propertyName">The name of the property to get.</param>
-    /// <returns>Returns the current value of the specified property.</returns>
-    protected static T? GetStaticProperty<T>([CallerMemberName] string propertyName = "")
-        => _staticPropertyStorage.GetProperty<T>(propertyName);
-
-    /// <summary>
-    /// Gets the value of a property in the static property cache.
-    /// </summary>
-    /// <typeparam name="T">The type of value to retrieve.</typeparam>
-    /// <param name="initializer">A function that is executed if the property has no value yet.</param>
-    /// <param name="propertyName">The name of the property to get.</param>
-    /// <returns>Returns the current value of the specified property.</returns>
-    protected static T? GetStaticProperty<T>(Func<T> initializer, [CallerMemberName] string propertyName = "")
-        => _staticPropertyStorage.GetProperty(initializer, propertyName);
-
-    /// <summary>
-    /// Sets the value of a property in the static property cache.
-    /// </summary>
-    /// <typeparam name="T">The type of value to set.</typeparam>
-    /// <param name="value">The value to set.</param>
-    /// <param name="propertyName">The name of the property to set.</param>
-    protected static void SetStaticProperty<T>(T value, [CallerMemberName] string propertyName = "")
-        => _staticPropertyStorage.SetProperty(value, propertyName);
-
-    /// <summary>
-    /// Resets the value of a property in the static property cache.
-    /// </summary>
-    /// <param name="propertyName">The name of the property for which the value should be reset.</param>
-    protected static void ResetStaticProperty([CallerMemberName] string propertyName = "")
-        => _staticPropertyStorage.ResetProperty(propertyName);
-
-    /// <summary>
-    /// Determines wether a property has a value in the static property cache.
-    /// </summary>
-    /// <param name="propertyName">The name of the property to check.</param>
-    /// <returns>Returns true if the property has a value; otherwise false.</returns>
-    protected static bool HasStaticProperty([CallerMemberName] string propertyName = "")
-        => _staticPropertyStorage.HasProperty(propertyName);
 
     /// <summary>
     /// Clears all property values of the static property cache.

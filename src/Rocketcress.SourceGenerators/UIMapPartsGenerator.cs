@@ -7,14 +7,13 @@ using static Rocketcress.SourceGenerators.Common.CodeGenerationHelpers;
 
 namespace Rocketcress.SourceGenerators;
 
+/// <summary>
+/// Generator for creating some bolerplat code for UIMap classes.
+/// </summary>
+/// <seealso cref="Microsoft.CodeAnalysis.ISourceGenerator" />
 [Generator]
 public class UIMapPartsGenerator : ISourceGenerator
 {
-    private static void LaunchDebuggerOnBuild() => CodeGenerationHelpers.LaunchDebuggerOnBuild();
-    private static SymbolDisplayFormat DefinitionFormat => CodeGenerationHelpers.DefinitionFormat;
-    private static SymbolDisplayFormat UsageFormat => CodeGenerationHelpers.UsageFormat;
-    private static SymbolDisplayFormat TypeDefinitionFormat => CodeGenerationHelpers.TypeDefinitionFormat;
-
     private static readonly Dictionary<FrameworkType, string> ByFullName = new()
     {
         [FrameworkType.UIAutomation] = "global::Rocketcress.UIAutomation.By",
@@ -56,11 +55,19 @@ public class UIMapPartsGenerator : ISourceGenerator
     };
     private static readonly Regex PropertyNameSplitRegex = new(@"([A-Z]?[a-z0-9]+|[A-Z]+(?![a-z]))");
 
+    private enum FrameworkType
+    {
+        UIAutomation,
+        Selenium,
+    }
+
+    /// <inheritdoc/>
     public void Initialize(GeneratorInitializationContext context)
     {
         // No initialization required
     }
 
+    /// <inheritdoc/>
     public void Execute(GeneratorExecutionContext context)
     {
         var debugGeneratorSymbol = context.Compilation.GetTypeByMetadataName("Rocketcress.Core.Attributes.DebugGeneratorAttribute");
@@ -118,8 +125,8 @@ public class UIMapPartsGenerator : ISourceGenerator
                               let accessibility = optionsAttr?.NamedArguments.FirstOrDefault(x => x.Key == "Accessibility").Value.Value is int tmpAccess ? (ControlPropertyAccessibility)tmpAccess : UIMapControlOptionsAttributeDefault.Accessibility
                               let isVirtual = optionsAttr?.NamedArguments.FirstOrDefault(x => x.Key == "IsVirtual").Value.Value is bool tmpVirtual ? tmpVirtual : UIMapControlOptionsAttributeDefault.IsVirtual
                               let isHidden = optionsAttr?.NamedArguments.FirstOrDefault(x => x.Key == "IsHidden").Value.Value is bool tmpHidden ? tmpHidden : UIMapControlOptionsAttributeDefault.IsHidden
-                              let idStyle = optionsAttr?.NamedArguments.FirstOrDefault(x => x.Key == "IdStyle").Value.Value is int tmpIdStyle ? (IdStyle)tmpIdStyle : UIMapControlOptionsAttributeDefault.IdStyle
-                              select new ControlDefinition(prop.Type.ToDisplayString(DefinitionFormat), prop, GetNameWithStyle(prop.Name, idStyle, defaultIdStyle), initialize, parent, accessibility, isVirtual, isHidden, null));
+                              let identifierStyle = optionsAttr?.NamedArguments.FirstOrDefault(x => x.Key == "IdStyle").Value.Value is int tmpIdStyle ? (IdStyle)tmpIdStyle : UIMapControlOptionsAttributeDefault.IdStyle
+                              select new ControlDefinition(prop.Type.ToDisplayString(DefinitionFormat), prop, GetNameWithStyle(prop.Name, identifierStyle, defaultIdStyle), initialize, parent, accessibility, isVirtual, isHidden, null));
 
             var builder = new SourceBuilder();
             AddUsings(builder, typeSymbol);
@@ -211,12 +218,12 @@ public class UIMapPartsGenerator : ISourceGenerator
         }
 
         var parentArg = attr?.NamedArguments.FirstOrDefault(x => x.Key == "ParentControl");
-        var idStyle = attr?.NamedArguments.FirstOrDefault(x => x.Key == "IdStyle").Value.Value is int tmpIdStyle ? (IdStyle)tmpIdStyle : UIMapControlAttributeDefault.IdStyle;
+        var identifierStyle = attr?.NamedArguments.FirstOrDefault(x => x.Key == "IdStyle").Value.Value is int tmpIdStyle ? (IdStyle)tmpIdStyle : UIMapControlAttributeDefault.IdStyle;
 
         return new ControlDefinition(
             controlType ?? property.Type.ToDisplayString(DefinitionFormat),
             property,
-            GetNameWithStyle(property.Name, idStyle, defaultIdStyle),
+            GetNameWithStyle(property.Name, identifierStyle, defaultIdStyle),
             attr?.NamedArguments.FirstOrDefault(x => x.Key == "Initialize").Value.Value is bool tmpInit ? tmpInit : UIMapControlAttributeDefault.Initialize,
             parentArg.HasValue && parentArg.Value.Key == "ParentControl" ? parentArg.Value.Value.Value as string : UIMapControlAttributeDefault.ParentControl,
             ControlPropertyAccessibility.Public,
@@ -274,12 +281,12 @@ public class UIMapPartsGenerator : ISourceGenerator
     private static bool AddConstructors(bool isFirst, SourceBuilder builder, INamedTypeSymbol generateAttributeSymbol, INamedTypeSymbol typeSymbol, FrameworkType frameworkType)
     {
         var ctors = GetConstructors(generateAttributeSymbol, typeSymbol, Array.Empty<IMethodSymbol>());
-        var xCtors = typeSymbol.GetMembers().OfType<IMethodSymbol>().Where(x => !x.IsImplicitlyDeclared && x.MethodKind == MethodKind.Constructor && !x.IsStatic && (x.DeclaredAccessibility == Microsoft.CodeAnalysis.Accessibility.Public || x.DeclaredAccessibility == Microsoft.CodeAnalysis.Accessibility.Protected));
+        var existingCtors = typeSymbol.GetMembers().OfType<IMethodSymbol>().Where(x => !x.IsImplicitlyDeclared && x.MethodKind == MethodKind.Constructor && !x.IsStatic && (x.DeclaredAccessibility == Accessibility.Public || x.DeclaredAccessibility == Accessibility.Protected));
 
         bool hasCtor = false;
         foreach (var ctor in ctors)
         {
-            if (xCtors.Any(x => x.Parameters.Select(x => x.Type).SequenceEqual(ctor.Parameters.Select(x => x.Type), SymbolEqualityComparer.Default)))
+            if (existingCtors.Any(x => x.Parameters.Select(x => x.Type).SequenceEqual(ctor.Parameters.Select(x => x.Type), SymbolEqualityComparer.Default)))
                 continue;
 
             if (!hasCtor && !isFirst)
@@ -303,7 +310,7 @@ public class UIMapPartsGenerator : ISourceGenerator
 
     private static IEnumerable<IMethodSymbol> GetConstructors(INamedTypeSymbol generateAttributeSymbol, INamedTypeSymbol typeSymbol, IEnumerable<IMethodSymbol> additionalCtors)
     {
-        var ctors = typeSymbol.BaseType.GetMembers().OfType<IMethodSymbol>().Where(x => !x.IsImplicitlyDeclared && x.MethodKind == MethodKind.Constructor && !x.IsStatic && (x.DeclaredAccessibility == Microsoft.CodeAnalysis.Accessibility.Public || x.DeclaredAccessibility == Microsoft.CodeAnalysis.Accessibility.Protected));
+        var ctors = typeSymbol.BaseType.GetMembers().OfType<IMethodSymbol>().Where(x => !x.IsImplicitlyDeclared && x.MethodKind == MethodKind.Constructor && !x.IsStatic && (x.DeclaredAccessibility == Accessibility.Public || x.DeclaredAccessibility == Accessibility.Protected));
         var generateAttr = typeSymbol.BaseType.GetAttributes().FirstOrDefault(x => SymbolEqualityComparer.Default.Equals(x.AttributeClass, generateAttributeSymbol));
         var generateCtors = generateAttr != null && (generateAttr.NamedArguments.FirstOrDefault(x => x.Key == "GenerateDefaultConstructors").Value.Value is bool tmpCtor ? tmpCtor : GenerateUIMapPartsAttributeDefaults.GenerateDefaultConstructors);
 
@@ -451,10 +458,4 @@ public class UIMapPartsGenerator : ISourceGenerator
         bool IsVirtual,
         bool IsHidden,
         string? ByExpression);
-
-    private enum FrameworkType
-    {
-        UIAutomation,
-        Selenium,
-    }
 }

@@ -98,6 +98,9 @@ public class SourceBuilder
     /// <returns>A reference to this instance after the append operation has completed.</returns>
     public SourceBuilder Append(string value)
     {
+        if (value is null)
+            return this;
+
         var indent = new string(' ', _currentIndent * IdentCharCount);
         var lines = value.Replace("\r", string.Empty).Split(new[] { '\n' }, StringSplitOptions.None);
         foreach (var line in lines.Take(lines.Length - 1))

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Rocketcress.Core
+﻿namespace Rocketcress.Core
 {
     /// <summary>
     /// Wait options for a wait operation.

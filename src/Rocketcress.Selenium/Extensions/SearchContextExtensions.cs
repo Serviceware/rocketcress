@@ -13,6 +13,7 @@ public static class SearchContextExtensions
     /// <returns>Returns the element if it was found; otherwise null.</returns>
     public static IWebElement TryFindElement(this ISearchContext context, By locationKey)
     {
+        Guard.NotNull(context);
         return context.FindElements(locationKey).FirstOrDefault();
     }
 
@@ -24,6 +25,7 @@ public static class SearchContextExtensions
     /// <returns>Returns true if an element was found; otherwise false.</returns>
     public static bool IsElementExistent(this ISearchContext context, By locationKey)
     {
+        Guard.NotNull(context);
         return context.TryFindElement(locationKey) != null;
     }
 
@@ -35,6 +37,7 @@ public static class SearchContextExtensions
     /// <returns>Returns the inner text of the found element. If no eleemnt was found null is returned.</returns>
     public static string TryGetTextFromElement(this ISearchContext context, By locationKey)
     {
+        Guard.NotNull(context);
         var element = context.TryFindElement(locationKey);
         return element?.Text;
     }

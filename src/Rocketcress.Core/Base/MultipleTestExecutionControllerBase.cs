@@ -5,6 +5,7 @@ namespace Rocketcress.Core.Base;
 
 // TODO: Add XML Comments
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+#pragma warning disable SA1600 // Elements should be documented
 public abstract class MultipleTestExecutionControllerBase<TView, TTestMetadata> : TestObjectBase
     where TView : class
 {
@@ -32,6 +33,9 @@ public abstract class MultipleTestExecutionControllerBase<TView, TTestMetadata> 
 
     public List<Exception> Execute(int executionCount, ICollection<TView> views, TTestMetadata metadata, Action<CancellationToken> testAction, int timeout, bool continueOnError = true, bool failOnError = true)
     {
+        Guard.NotNull(views);
+        Guard.NotNull(testAction);
+
         var exceptions = new List<Exception>();
         if (executionCount <= 0)
             throw new ArgumentOutOfRangeException(nameof(executionCount), "The executionCount has to be greater than 0");
@@ -106,6 +110,8 @@ public abstract class MultipleTestExecutionControllerBase<TView, TTestMetadata> 
 
     protected virtual void SetTestResult(List<Exception> exceptions, bool[] success)
     {
+        Guard.NotNull(exceptions);
+
         if (exceptions.Any())
         {
             throw new AggregateException(exceptions.Count + " Errors occured during TestRun", exceptions);
