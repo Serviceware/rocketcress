@@ -83,7 +83,7 @@ steps:
     foreach ($file in Get-ChildItem -Path "$(Build.ArtifactStagingDirectory)" -Filter *.nupkg) {
       Write-Output "Processing file $($file.name)..."
 
-      $match = [Text.RegularExpressions.Regex]::Match($file.name, "Serviceware\.Rocketcress\.(?<Name>.+?)\.(Slim\.)?(?<Version>[\.0-9]+).*\.nupkg")
+      $match = [Text.RegularExpressions.Regex]::Match($file.name, "Serviceware\.Rocketcress\.(?<Name>.+?)\.(Slim\.)?(?<Version>[\.0-9]+.*)\.nupkg")
       if ($match.Success) {
         $tagName = "$($match.Groups["Name"])/$($match.Groups["Version"])"
         git rev-parse "$tagName" 2>&1>$null
