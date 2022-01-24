@@ -3,11 +3,15 @@ using System.Windows;
 
 namespace Rocketcress.UIAutomation.Controls;
 
+/// <summary>
+/// Represents a UIAutomation control.
+/// </summary>
 public interface IUITestControl
 {
+    /// <summary>
+    /// Occurs when the property <see cref="AutomationElement"/> changed.
+    /// </summary>
     event EventHandler AutomationElementChanged;
-
-    #region Properties
 
     /// <summary>
     /// Gets the location key that is used to find the underlying <see cref="System.Windows.Automation.AutomationElement"/>.
@@ -43,9 +47,6 @@ public interface IUITestControl
     /// Gets a value indicating whether the control exists and is displayed (not offscreen).
     /// </summary>
     bool Displayed { get; }
-    #endregion
-
-    #region AutomationElement Properties
 
     /// <summary>
     /// Gets a lazy <see cref="IUITestControl"/> object representing the parent of this control.
@@ -136,9 +137,6 @@ public interface IUITestControl
     /// Gets the help text of this control.
     /// </summary>
     string HelpText { get; }
-    #endregion
-
-    #region Methods
 
     /// <summary>
     /// Clears the underlying AutomationElement, so that on the next acces to the <see cref="AutomationElement"/> property, this control is searched again.
@@ -523,5 +521,4 @@ public interface IUITestControl
     /// <param name="y">The relative y-coordinate to read the pixel from.</param>
     /// <returns>Returns the color that is displayed relative to this control.</returns>
     System.Drawing.Color GetColorFromPoint(int x, int y);
-    #endregion
 }

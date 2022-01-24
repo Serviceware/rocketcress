@@ -1,6 +1,10 @@
 ﻿namespace Rocketcress.UIAutomation.Controls;
 
-public interface IUITestCheckBoxControl : IUITestControl
+/// <summary>
+/// Represents a check box UIAutomation control.
+/// </summary>
+/// <seealso cref="IUITestControl" />
+/// <seealso cref="IUITestCheckableControl" />
+public interface IUITestCheckBoxControl : IUITestControl, IUITestCheckableControl
 {
-    bool Checked { get; set; }
 }

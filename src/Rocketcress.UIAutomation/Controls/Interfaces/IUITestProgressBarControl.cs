@@ -1,8 +1,9 @@
-namespace Rocketcress.UIAutomation.Controls;
+﻿namespace Rocketcress.UIAutomation.Controls;
 
-public interface IUITestProgressBarControl : IUITestControl
+/// <summary>
+/// Represents a progress bar UIAutomation control.
+/// </summary>
+/// <seealso cref="IUITestControl" />
+public interface IUITestProgressBarControl : IUITestControl, IUITestMinMaxControl
 {
-    double MinimumValue { get; }
-    double MaximumValue { get; }
-    double Position { get; }
 }

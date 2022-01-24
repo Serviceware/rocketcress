@@ -1,6 +1,10 @@
-namespace Rocketcress.UIAutomation.Controls;
+﻿namespace Rocketcress.UIAutomation.Controls;
 
-public interface IUITestToolBarControl : IUITestControl
+/// <summary>
+/// Represents a tool bar UIAutomation control.
+/// </summary>
+/// <seealso cref="IUITestControl" />
+/// <seealso cref="IUITestContainerControl" />
+public interface IUITestToolBarControl : IUITestControl, IUITestContainerControl
 {
-    IEnumerable<IUITestControl> Items { get; }
 }

@@ -32,15 +32,6 @@ public class UITestControl : TestObjectBase, IUITestControl
     /// Initializes a new instance of the <see cref="UITestControl"/> class as lazy element.
     /// </summary>
     /// <param name="application">The application which hosts this control.</param>
-    protected UITestControl(Application application)
-    {
-        Application = application ?? throw new ArgumentNullException(nameof(application));
-    }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="UITestControl"/> class as lazy element.
-    /// </summary>
-    /// <param name="application">The application which hosts this control.</param>
     /// <param name="locationKey">The location key.</param>
     public UITestControl(Application application, By locationKey)
         : this(application, locationKey, (UITestControl)null)
@@ -104,6 +95,15 @@ public class UITestControl : TestObjectBase, IUITestControl
     }
 
     /// <summary>
+    /// Initializes a new instance of the <see cref="UITestControl"/> class as lazy element.
+    /// </summary>
+    /// <param name="application">The application which hosts this control.</param>
+    protected UITestControl(Application application)
+    {
+        Application = application ?? throw new ArgumentNullException(nameof(application));
+    }
+
+    /// <summary>
     /// Event that is triggered whenever the underlying <see cref="System.Windows.Automation.AutomationElement"/> changed.
     /// </summary>
     public event EventHandler AutomationElementChanged;
@@ -112,11 +112,6 @@ public class UITestControl : TestObjectBase, IUITestControl
     /// Gets the location key that is used to find the underlying <see cref="System.Windows.Automation.AutomationElement"/>.
     /// </summary>
     public virtual By LocationKey { get; private set; }
-
-    /// <summary>
-    /// Gets a base location key that is prepended to the location key provided to the constructor.
-    /// </summary>
-    protected virtual By BaseLocationKey => By.Empty;
 
     /// <summary>
     /// Gets the parent control.
@@ -293,6 +288,11 @@ public class UITestControl : TestObjectBase, IUITestControl
     public virtual string HelpText => GetPropertyValue<string>(AutomationElement.HelpTextProperty);
 
     /// <summary>
+    /// Gets a base location key that is prepended to the location key provided to the constructor.
+    /// </summary>
+    protected virtual By BaseLocationKey => By.Empty;
+
+    /// <summary>
     /// Clears the underlying AutomationElement, so that on the next acces to the <see cref="AutomationElement"/> property, this control is searched again.
     /// </summary>
     public virtual void ClearAutomationElementCache()
@@ -422,6 +422,8 @@ public class UITestControl : TestObjectBase, IUITestControl
     /// <param name="toControl">The drag target control.</param>
     public virtual void DragDrop(IUITestControl toControl)
     {
+        Guard.NotNull(toControl);
+
         EnsureClickable();
         toControl.EnsureClickable();
         if (!Enabled)
@@ -929,17 +931,46 @@ public class UITestControl : TestObjectBase, IUITestControl
     }
 
     /// <summary>
+    /// Logs the specified debug message.
+    /// </summary>
+    /// <param name="message">The message.</param>
+    /// <param name="params">The parameters.</param>
+    protected internal virtual void LogDebug(string message, params object[] @params) => Logger.LogDebug(message + $" ({GetSearchDescription()})", @params);
+
+    /// <summary>
+    /// Logs the specified informational message.
+    /// </summary>
+    /// <param name="message">The message.</param>
+    /// <param name="params">The parameters.</param>
+    protected internal virtual void LogInfo(string message, params object[] @params) => Logger.LogInfo(message + $" ({GetSearchDescription()})", @params);
+
+    /// <summary>
+    /// Logs the specified warning message.
+    /// </summary>
+    /// <param name="message">The message.</param>
+    /// <param name="params">The parameters.</param>
+    protected internal virtual void LogWarning(string message, params object[] @params) => Logger.LogWarning(message + $" ({GetSearchDescription()})", @params);
+
+    /// <summary>
+    /// Logs the specified error message.
+    /// </summary>
+    /// <param name="message">The message.</param>
+    /// <param name="params">The parameters.</param>
+    protected internal virtual void LogError(string message, params object[] @params) => Logger.LogError(message + $" ({GetSearchDescription()})", @params);
+
+    /// <summary>
+    /// Logs the specified critical message.
+    /// </summary>
+    /// <param name="message">The message.</param>
+    /// <param name="params">The parameters.</param>
+    protected internal virtual void LogCritical(string message, params object[] @params) => Logger.LogCritical(message + $" ({GetSearchDescription()})", @params);
+
+    /// <summary>
     /// Initializes the control and potentially child control for this control. This method is executed in the constructors.
     /// </summary>
     protected virtual void Initialize()
     {
     }
-
-    protected internal virtual void LogDebug(string message, params object[] @params) => Logger.LogDebug(message + $" ({GetSearchDescription()})", @params);
-    protected internal virtual void LogInfo(string message, params object[] @params) => Logger.LogInfo(message + $" ({GetSearchDescription()})", @params);
-    protected internal virtual void LogWarning(string message, params object[] @params) => Logger.LogWarning(message + $" ({GetSearchDescription()})", @params);
-    protected internal virtual void LogError(string message, params object[] @params) => Logger.LogError(message + $" ({GetSearchDescription()})", @params);
-    protected internal virtual void LogCritical(string message, params object[] @params) => Logger.LogCritical(message + $" ({GetSearchDescription()})", @params);
 
     private IEnumerable<AutomationElement> GetAllParents()
     {
@@ -957,7 +988,9 @@ public class UITestControl : TestObjectBase, IUITestControl
     }
 }
 
-[SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1402:File may only contain a single type", Justification = "Extension methods")]
+/// <summary>
+/// Provides extension methods for the <see cref="IUITestControl"/> interface.
+/// </summary>
 public static class UITestControlExtensions
 {
     /// <summary>

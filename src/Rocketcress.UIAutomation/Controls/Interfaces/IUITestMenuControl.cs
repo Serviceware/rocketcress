@@ -1,6 +1,10 @@
 ﻿namespace Rocketcress.UIAutomation.Controls;
 
-public interface IUITestMenuControl : IUITestControl
+/// <summary>
+/// Represents a menu UIAutomation control.
+/// </summary>
+/// <seealso cref="IUITestControl" />
+/// <seealso cref="IUITestContainerControl" />
+public interface IUITestMenuControl : IUITestControl, IUITestContainerControl
 {
-    IEnumerable<IUITestControl> Items { get; }
 }

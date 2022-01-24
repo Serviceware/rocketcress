@@ -10,6 +10,26 @@ namespace Rocketcress.UIAutomation;
 /// </summary>
 public class UIAutomationTestContext : WindowsTestContextBase
 {
+#if !SLIM
+    /// <summary>
+    /// Initializes a new instance of the <see cref="UIAutomationTestContext"/> class.
+    /// </summary>
+    /// <param name="testContext">The current MSTest test context.</param>
+    /// <param name="settings">The test settings.</param>
+    public UIAutomationTestContext(TestContext testContext, Settings settings)
+        : base(testContext, settings)
+#else
+    /// <summary>
+    /// Initializes a new instance of the <see cref="UIAutomationTestContext"/> class.
+    /// </summary>
+    /// <param name="settings">The test settings.</param>
+    public UIAutomationTestContext(Settings settings)
+        : base(settings)
+#endif
+    {
+        Applications = new List<Application>();
+    }
+
     /// <summary>
     /// Gets the current test settings.
     /// </summary>
@@ -25,26 +45,7 @@ public class UIAutomationTestContext : WindowsTestContextBase
     /// </summary>
     public List<Application> Applications { get; }
 
-#pragma warning disable CS1572 // XML comment has a param tag, but there is no parameter by that name
-#pragma warning disable SA1612 // Element parameter documentation should match element parameters
-    /// <summary>
-    /// Initializes a new instance of the <see cref="UIAutomationTestContext"/> class.
-    /// </summary>
-    /// <param name="testContext">The current MSTest test context.</param>
-    /// <param name="settings">The test settings.</param>
-#if !SLIM
-    public UIAutomationTestContext(TestContext testContext, Settings settings)
-        : base(testContext, settings)
-#else
-    public UIAutomationTestContext(Settings settings)
-        : base(settings)
-#endif
-    {
-        Applications = new List<Application>();
-    }
-#pragma warning restore CS1572 // XML comment has a param tag, but there is no parameter by that name
-#pragma warning restore SA1612 // Element parameter documentation should match element parameters
-
+    /// <inheritdoc />
     protected override void OnInitialize()
     {
         base.OnInitialize();

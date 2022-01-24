@@ -1,9 +1,14 @@
-namespace Rocketcress.UIAutomation.Controls;
+﻿namespace Rocketcress.UIAutomation.Controls;
 
-public interface IUITestScrollBarControl : IUITestControl
+/// <summary>
+/// Represents a scroll bar UIAutomation control.
+/// </summary
+/// <seealso cref="IUITestControl" />
+/// <seealso cref="IUITestMinMaxControl" />
+public interface IUITestScrollBarControl : IUITestControl, IUITestMinMaxControl
 {
-    double MaximumPosition { get; }
-    double MinimumPosition { get; }
+    /// <summary>
+    /// Gets the orientation.
+    /// </summary>
     OrientationType Orientation { get; }
-    double Position { get; set; }
 }

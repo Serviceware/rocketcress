@@ -1,7 +1,14 @@
 ﻿namespace Rocketcress.UIAutomation.Controls;
 
-public interface IUITestHyperlinkControl : IUITestControl
+/// <summary>
+/// Represents a hyperlink UIAutomation control.
+/// </summary>
+/// <seealso cref="IUITestControl" />
+/// <seealso cref="IUITestInvokableControl" />
+public interface IUITestHyperlinkControl : IUITestControl, IUITestInvokableControl
 {
+    /// <summary>
+    /// Gets the alternative text of this <see cref="IUITestHyperlinkControl"/>.
+    /// </summary>
     string Alt { get; }
-    void Invoke();
 }

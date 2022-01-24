@@ -1,20 +1,38 @@
 ﻿namespace Rocketcress.UIAutomation.ControlSearch.SearchParts;
 
+/// <summary>
+/// Represents an <see cref="ISearchPart"/> that searched for ancestors.
+/// </summary>
+/// <seealso cref="Rocketcress.UIAutomation.ControlSearch.SearchParts.SearchPartBase" />
+/// <seealso cref="Rocketcress.UIAutomation.ControlSearch.INestedSearchPart" />
+/// <seealso cref="Rocketcress.UIAutomation.ControlSearch.IDepthSearchPart" />
 public class AncestorsSearchPart : SearchPartBase, INestedSearchPart, IDepthSearchPart
 {
-    public int MaxDepth { get; set; }
-    public ISearchPart ChildPart { get; set; }
-
+    /// <summary>
+    /// Initializes a new instance of the <see cref="AncestorsSearchPart"/> class.
+    /// </summary>
+    /// <param name="maxDepth">The maximum search depth.</param>
     public AncestorsSearchPart(int maxDepth)
         : this(maxDepth, null, null)
     {
     }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="AncestorsSearchPart"/> class.
+    /// </summary>
+    /// <param name="maxDepth">The maximum search depth.</param>
+    /// <param name="condition">The condition.</param>
     public AncestorsSearchPart(int maxDepth, ISearchCondition condition)
         : this(maxDepth, condition, null)
     {
     }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="AncestorsSearchPart"/> class.
+    /// </summary>
+    /// <param name="maxDepth">The maximum search depth.</param>
+    /// <param name="condition">The condition.</param>
+    /// <param name="childPart">The child part.</param>
     public AncestorsSearchPart(int maxDepth, ISearchCondition condition, ISearchPart childPart)
     {
         MaxDepth = maxDepth;
@@ -22,8 +40,25 @@ public class AncestorsSearchPart : SearchPartBase, INestedSearchPart, IDepthSear
         Condition = condition;
     }
 
+    /// <inheritdoc/>
+    public int MaxDepth { get; set; }
+
+    /// <inheritdoc/>
+    public ISearchPart ChildPart { get; set; }
+
+    /// <inheritdoc/>
+    public override string GetDescription()
+    {
+        var prefix = "/" + (MaxDepth == 1 ? ".." : MaxDepth < 0 ? "..." : $"...{{{MaxDepth}}}");
+        return prefix + GetConditionDescription() + GetSkipTakeDescription();
+    }
+
+    /// <inheritdoc/>
     protected override IEnumerable<AutomationElement> FindElementsInternal(AutomationElement element, TreeWalker treeWalker)
     {
+        Guard.NotNull(element);
+        Guard.NotNull(treeWalker);
+
         IEnumerable<AutomationElement> currentLevel = new[] { element };
         List<AutomationElement> nextLevel;
         var depth = 0;
@@ -56,15 +91,10 @@ public class AncestorsSearchPart : SearchPartBase, INestedSearchPart, IDepthSear
         }
     }
 
+    /// <inheritdoc/>
     protected override SearchPartBase CloneInternal()
     {
         var childPart = (ISearchPart)ChildPart?.Clone();
         return new AncestorsSearchPart(MaxDepth, null, childPart);
-    }
-
-    public override string GetDescription()
-    {
-        var prefix = "/" + (MaxDepth == 1 ? ".." : MaxDepth < 0 ? "..." : $"...{{{MaxDepth}}}");
-        return prefix + GetConditionDescription() + GetSkipTakeDescription();
     }
 }

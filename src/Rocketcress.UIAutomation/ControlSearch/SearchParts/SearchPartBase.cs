@@ -3,12 +3,26 @@ using PropertyCondition = Rocketcress.UIAutomation.ControlSearch.Conditions.Prop
 
 namespace Rocketcress.UIAutomation.ControlSearch.SearchParts;
 
+/// <summary>
+/// Represents a search part for finding UIAutomation elements.
+/// </summary>
+/// <seealso cref="Rocketcress.UIAutomation.ControlSearch.ISearchPart" />
 public abstract class SearchPartBase : ISearchPart
 {
+    /// <inheritdoc/>
     public virtual ISearchCondition Condition { get; set; }
+
+    /// <summary>
+    /// Gets or sets the skip count.
+    /// </summary>
     public virtual int? SkipCount { get; set; }
+
+    /// <summary>
+    /// Gets or sets the take count.
+    /// </summary>
     public virtual int? TakeCount { get; set; }
 
+    /// <inheritdoc/>
     public IEnumerable<AutomationElement> FindElements(AutomationElement element, TreeWalker treeWalker)
     {
         var result = FindElementsInternal(element, treeWalker);
@@ -19,8 +33,7 @@ public abstract class SearchPartBase : ISearchPart
         return result;
     }
 
-    protected abstract IEnumerable<AutomationElement> FindElementsInternal(AutomationElement element, TreeWalker treeWalker);
-
+    /// <inheritdoc/>
     public object Clone()
     {
         var clone = CloneInternal();
@@ -51,9 +64,27 @@ public abstract class SearchPartBase : ISearchPart
         return clone;
     }
 
-    protected abstract SearchPartBase CloneInternal();
+    /// <inheritdoc/>
     public abstract string GetDescription();
 
+    /// <summary>
+    /// Creates a new object that is a copy of the current instance.
+    /// </summary>
+    /// <returns>A new object that is a copy of this instance.</returns>
+    protected abstract SearchPartBase CloneInternal();
+
+    /// <summary>
+    /// Finds the elements matching the <see cref="Condition"/>.
+    /// </summary>
+    /// <param name="element">The element.</param>
+    /// <param name="treeWalker">The tree walker.</param>
+    /// <returns>An <see cref="IEnumerable{T}"/> that iterates through all elements matching the <see cref="Condition"/>.</returns>
+    protected abstract IEnumerable<AutomationElement> FindElementsInternal(AutomationElement element, TreeWalker treeWalker);
+
+    /// <summary>
+    /// Gets the skip take description.
+    /// </summary>
+    /// <returns>The description.</returns>
     protected string GetSkipTakeDescription()
     {
         if (SkipCount.HasValue || TakeCount.HasValue)
@@ -61,6 +92,10 @@ public abstract class SearchPartBase : ISearchPart
         return null;
     }
 
+    /// <summary>
+    /// Gets the condition description.
+    /// </summary>
+    /// <returns>The description.</returns>
     protected string GetConditionDescription()
     {
         if (Condition == null)

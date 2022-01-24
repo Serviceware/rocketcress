@@ -1,8 +1,11 @@
-namespace Rocketcress.UIAutomation.Controls;
+﻿namespace Rocketcress.UIAutomation.Controls;
 
-public interface IUITestToggleButtonControl : IUITestControl
+/// <summary>
+/// Represents a toggle button UIAutomation control.
+/// </summary>
+/// <seealso cref="IUITestControl" />
+/// <seealso cref="IUITestDisplayTextControl" />
+/// <seealso cref="IUITestCheckableControl" />
+public interface IUITestToggleButtonControl : IUITestControl, IUITestDisplayTextControl, IUITestCheckableControl
 {
-    string DisplayText { get; }
-    bool Indeterminate { get; }
-    bool Pressed { get; set; }
 }
