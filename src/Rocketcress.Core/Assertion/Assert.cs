@@ -14,21 +14,6 @@ public partial class Assert : AssertBase
     private readonly bool _throw;
 
     /// <summary>
-    /// Gets the current instance of the AssertEx singleton instance.
-    /// </summary>
-    public static Assert Instance => _instance ??= new Assert(true);
-
-    internal static Assert NonThrowInstance => _nonThrowInstance ??= new Assert(false);
-
-    /// <summary>
-    /// Gets or sets a value indicating whether failed assertions should be logged.
-    /// </summary>
-    public bool IsFailedAssertionLogEnabled { get; set; } = true;
-
-    /// <inheritdoc/>
-    protected override string? AssertNamePrefix { get; } = "Assert";
-
-    /// <summary>
     /// Initializes a new instance of the <see cref="Assert"/> class.
     /// </summary>
     /// <param name="throw">Determines wether this instance is intended for the case, an <see cref="AssertFailedException"/> should be thrown.</param>
@@ -36,6 +21,21 @@ public partial class Assert : AssertBase
     {
         _throw = @throw;
     }
+
+    /// <summary>
+    /// Gets the current instance of the AssertEx singleton instance.
+    /// </summary>
+    public static Assert Instance => _instance ??= new Assert(true);
+
+    /// <summary>
+    /// Gets or sets a value indicating whether failed assertions should be logged.
+    /// </summary>
+    public bool IsFailedAssertionLogEnabled { get; set; } = true;
+
+    internal static Assert NonThrowInstance => _nonThrowInstance ??= new Assert(false);
+
+    /// <inheritdoc/>
+    protected override string? AssertNamePrefix { get; } = "Assert";
 
     /// <summary>
     /// Creates an assert operation.

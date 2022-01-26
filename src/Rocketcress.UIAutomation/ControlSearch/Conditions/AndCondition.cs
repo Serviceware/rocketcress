@@ -6,8 +6,6 @@
 /// <seealso cref="Rocketcress.UIAutomation.ControlSearch.Conditions.CompositionSearchConditionBase" />
 public class AndCondition : CompositionSearchConditionBase
 {
-    public override SearchConditionOperator OperatorType => SearchConditionOperator.And;
-
     /// <summary>
     /// Initializes a new instance of the <see cref="AndCondition"/> class.
     /// </summary>
@@ -25,6 +23,9 @@ public class AndCondition : CompositionSearchConditionBase
         : base(conditions)
     {
     }
+
+    /// <inheritdoc />
+    public override SearchConditionOperator OperatorType => SearchConditionOperator.And;
 
     /// <inheritdoc />
     public override bool Check(AutomationElement element, TreeWalker treeWalker)

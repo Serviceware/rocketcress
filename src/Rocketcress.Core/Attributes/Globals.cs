@@ -1,6 +1,7 @@
 ﻿namespace Rocketcress.Core.Attributes;
 
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+#pragma warning disable SA1600 // Elements should be documented
 #if DEBUG
 public static class GenerateUIMapPartsAttributeDefaults
 #else
@@ -36,6 +37,7 @@ internal static class UIMapControlAttributeDefault
     public static readonly string ParentControl = "this";
     public static readonly IdStyle IdStyle = IdStyle.Unset;
 }
+#pragma warning restore SA1600 // Elements should be documented
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 
 /// <summary>

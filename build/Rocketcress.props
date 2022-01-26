@@ -11,7 +11,6 @@
     <RepositoryUrl>https://github.com/Serviceware/rocketcress</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <AssemblyOriginatorKeyFile Condition=" $(SignAssembly) == 'true' ">$(MSBuildThisFileDirectory)Rocketcress.snk</AssemblyOriginatorKeyFile>
-    <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)Rocketcress.ruleset</CodeAnalysisRuleSet>
     <OutputPath>$(MSBuildThisFileDirectory)..\bin\$(Configuration)</OutputPath>
     <NoWarn Condition=" '$(TargetFramework)' == 'net48' or '$(TargetFramework)' == 'netstandard2.0' ">$(NoWarn);8600;8601;8602;8603;8604;8777;8767</NoWarn>
     
@@ -21,6 +20,13 @@
     <IsPackable Condition="($(IsPackable) == '' and ((($(IsSlim) == 'false' and $(Configuration.EndsWith('-Slim'))) or ($(ConfigureSign) == 'true' and $(CanSign) != 'true')) or $(IsTestProject) == 'true'))">
       false
     </IsPackable>
+  </PropertyGroup>
+  
+  <PropertyGroup Condition=" $(IsTestProject) != 'true' ">
+    <CodeAnalysisRuleSet Condition="$(TargetFramework) != 'net48'">$(MSBuildThisFileDirectory)Rocketcress.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet Condition="$(TargetFramework) == 'net48'">$(MSBuildThisFileDirectory)Rocketcress.net48.ruleset</CodeAnalysisRuleSet>
+    <DocumentationFile Condition=" $(NoDocumentation) != 'true' ">$(OutputPath)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
+    <PackageId>Serviceware.$(AssemblyName)</PackageId>
   </PropertyGroup>
   
   <PropertyGroup Condition=" $(IsSlim) == 'true' ">
@@ -72,9 +78,8 @@
 
 
   <!-- Test Projects -->
-  <PropertyGroup Condition=" $(IsTestProject) != 'true' ">
-    <DocumentationFile Condition=" $(NoDocumentation) != 'true' ">$(OutputPath)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
-    <PackageId>Serviceware.$(AssemblyName)</PackageId>
+  <PropertyGroup Condition=" $(IsTestProject) == 'true' ">
+    <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)Rocketcress.Tests.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 
   

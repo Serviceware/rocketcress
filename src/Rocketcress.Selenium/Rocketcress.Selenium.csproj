@@ -5,7 +5,7 @@
 
     <ConfigureSlim>true</ConfigureSlim>
     <ConfigureSourceLink>true</ConfigureSourceLink>
-    <SignAssembly>true</SignAssembly>
+    <SignAssembly>false</SignAssembly>
     <TargetFilePath>Rocketcress.Selenium.targets</TargetFilePath>
 
     <Description>You can reference this library if you want to write tests using the Selenium framework.</Description>

@@ -2,7 +2,7 @@
 
 /// <summary>
 /// Represents a scroll bar UIAutomation control.
-/// </summary
+/// </summary>
 /// <seealso cref="IUITestControl" />
 /// <seealso cref="IUITestMinMaxControl" />
 public interface IUITestScrollBarControl : IUITestControl, IUITestMinMaxControl

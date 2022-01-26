@@ -1,5 +1,11 @@
 ﻿namespace Rocketcress.UIAutomation.ControlSearch.Conditions;
 
+/// <summary>
+/// Delegate to determine whether an <see cref="AutomationElement"/> matches or not.
+/// </summary>
+/// <param name="element">The element.</param>
+/// <param name="treeWalker">The tree walker.</param>
+/// <returns><c>true</c> if the element matches; otherwise <c>false</c>.</returns>
 public delegate bool FunctionConditionDelegate(AutomationElement element, TreeWalker treeWalker);
 
 /// <summary>
@@ -36,14 +42,14 @@ public class FunctionCondition : SearchConditionBase
     }
 
     /// <inheritdoc />
-    protected override SearchConditionBase CloneInternal()
-    {
-        return new FunctionCondition(ConditionName, Condition);
-    }
-
-    /// <inheritdoc />
     public override string GetDescription()
     {
         return $"func('{ConditionName}')";
+    }
+
+    /// <inheritdoc />
+    protected override SearchConditionBase CloneInternal()
+    {
+        return new FunctionCondition(ConditionName, Condition);
     }
 }

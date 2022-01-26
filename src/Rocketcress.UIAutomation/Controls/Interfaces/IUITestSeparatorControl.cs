@@ -1,4 +1,4 @@
-namespace Rocketcress.UIAutomation.Controls;
+﻿namespace Rocketcress.UIAutomation.Controls;
 
 /// <summary>
 /// Represents a seperator UIAutomation control.

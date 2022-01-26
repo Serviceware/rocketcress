@@ -6,11 +6,6 @@
 public class WaitFailedException : Exception
 {
     /// <summary>
-    /// Gets the result of the wait operation.
-    /// </summary>
-    public WaitResult WaitResult { get; }
-
-    /// <summary>
     /// Initializes a new instance of the <see cref="WaitFailedException"/> class.
     /// </summary>
     /// <param name="waitResult">The result of the wait operation.</param>
@@ -41,4 +36,9 @@ public class WaitFailedException : Exception
     {
         WaitResult = waitResult;
     }
+
+    /// <summary>
+    /// Gets the result of the wait operation.
+    /// </summary>
+    public WaitResult WaitResult { get; }
 }

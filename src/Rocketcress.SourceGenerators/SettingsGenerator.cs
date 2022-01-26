@@ -231,11 +231,6 @@ public class SettingsGenerator : ISourceGenerator
 
     private class SettingsKey
     {
-        public string FullKey { get; }
-        public string? Prefix { get; }
-        public string Tag { get; }
-        public string Key { get; }
-
         public SettingsKey(string fullKey, string? prefix, string tag, string key)
         {
             FullKey = fullKey;
@@ -243,6 +238,11 @@ public class SettingsGenerator : ISourceGenerator
             Tag = tag;
             Key = key;
         }
+
+        public string FullKey { get; }
+        public string? Prefix { get; }
+        public string Tag { get; }
+        public string Key { get; }
     }
 
     private class SettingsType

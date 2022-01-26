@@ -59,13 +59,10 @@ public partial class CommonWindow : UITestControl, IUITestWindowControl
     public override bool Displayed => Exists && _windowControlSupport.IsWindowVisible();
 
     /// <inheritdoc/>
-    public virtual bool SetWindowSize(Size windowSize) => SetWindowSize(windowSize, true, true);
+    public virtual void SetWindowSize(Size windowSize) => _windowControlSupport.SetWindowSize(windowSize, true);
 
     /// <inheritdoc/>
-    public virtual bool SetWindowSize(Size windowSize, bool moveCenter) => SetWindowSize(windowSize, moveCenter, true);
-
-    /// <inheritdoc/>
-    public virtual bool SetWindowSize(Size windowSize, bool moveCenter, bool assert) => _windowControlSupport.SetWindowSize(windowSize, moveCenter, assert);
+    public virtual void SetWindowSize(Size windowSize, bool moveCenter) => _windowControlSupport.SetWindowSize(windowSize, moveCenter);
 
     /// <inheritdoc/>
     public virtual void MoveToCenter() => _windowControlSupport.MoveToCenter();

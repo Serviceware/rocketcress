@@ -37,8 +37,11 @@ public partial class CommonMenuItem : UITestControl, IUITestMenuItemControl
     public virtual bool Checked
     {
         get => _toggleControlSupport.GetChecked();
-        set => _toggleControlSupport.SetChecked(value, true);
+        set => _toggleControlSupport.SetChecked(value);
     }
+
+    /// <inheritdoc/>
+    public bool Indeterminate => TogglePattern.Current.ToggleState == ToggleState.Indeterminate;
 
     /// <inheritdoc/>
     public virtual bool Expanded

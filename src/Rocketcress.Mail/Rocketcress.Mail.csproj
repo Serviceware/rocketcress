@@ -4,7 +4,7 @@
 
     <ConfigureSlim>true</ConfigureSlim>
     <ConfigureSourceLink>true</ConfigureSourceLink>
-    <SignAssembly>true</SignAssembly>
+    <SignAssembly>false</SignAssembly>
 
     <PackageId>Serviceware.$(AssemblyName)</PackageId>
     <Description>Extends Rocketcress.Core with e-mail functionality.</Description>

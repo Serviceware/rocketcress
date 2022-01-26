@@ -13,6 +13,7 @@ public class UITestControlDescriptor
     /// <param name="control">The control to describe.</param>
     public UITestControlDescriptor(IUITestControl control)
     {
+        Guard.NotNull(control);
         Parent = control.SearchContext == null ? null : new UITestControlDescriptor(control.SearchContext);
         LocationKey = control.LocationKey;
         AutomationElement = (control as UITestControl)?.GetCachedAutomationElement();

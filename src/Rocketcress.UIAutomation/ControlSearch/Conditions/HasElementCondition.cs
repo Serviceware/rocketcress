@@ -7,11 +7,6 @@
 public class HasElementCondition : SearchConditionBase
 {
     /// <summary>
-    /// Gets the element part.
-    /// </summary>
-    public ISearchPart ElementPart { get; internal set; }
-
-    /// <summary>
     /// Initializes a new instance of the <see cref="HasElementCondition"/> class.
     /// </summary>
     /// <param name="elementPart">The element part.</param>
@@ -19,6 +14,11 @@ public class HasElementCondition : SearchConditionBase
     {
         ElementPart = Guard.NotNull(elementPart);
     }
+
+    /// <summary>
+    /// Gets the element part.
+    /// </summary>
+    public ISearchPart ElementPart { get; internal set; }
 
     /// <inheritdoc />
     public override bool Check(AutomationElement element, TreeWalker treeWalker)
