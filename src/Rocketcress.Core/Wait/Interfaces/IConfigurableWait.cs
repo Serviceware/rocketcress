@@ -38,6 +38,13 @@ public interface IConfigurableWait<TResult, TWait>
     TWait NotThrowOnFailure();
 
     /// <summary>
+    /// Defines the default error message that should be used when the wait operation is configured to throw an error on failure.
+    /// </summary>
+    /// <param name="message">The message to use.</param>
+    /// <returns>The configured wait operation.</returns>
+    TWait WithDefaultErrorMessage(string? message);
+
+    /// <summary>
     /// Defines the maximum amount of exception that are allowed during the wait operation.
     /// If set to <c>null</c>, the amount of exceptions is not limited.
     /// </summary>
@@ -59,4 +66,18 @@ public interface IConfigurableWait<TResult, TWait>
     /// <param name="configurationFunction">The function that is used to configure the wait operation.</param>
     /// <returns>The configured wait operation.</returns>
     TWait Configure(Action<IWaitOptions> configurationFunction);
+
+    /// <summary>
+    /// Precedes the wait operation with a specified action.
+    /// </summary>
+    /// <param name="precededAction">The preceded action.</param>
+    /// <returns>The configured wait operation.</returns>
+    TWait PrecedeWith(Action<WaitContext<TResult>> precededAction);
+
+    /// <summary>
+    /// Continues the wait operation with a specified action.
+    /// </summary>
+    /// <param name="continuedAction">The continued action.</param>
+    /// <returns>The configured wait operation.</returns>
+    TWait ContinueWith(Action<WaitContext<TResult>> continuedAction);
 }

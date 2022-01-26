@@ -42,14 +42,21 @@ public abstract class View : TestObjectBase
     /// <summary>
     /// Gets a wait operation that is not started and waits until this view exists.
     /// </summary>
-    public virtual IWait<bool> UntilExists
-        => Wait.Until(() => Exists);
+    public virtual IWait<bool> UntilExists => Wait
+        .Until(() => Driver.IsPageLoadComplete() && Exists)
+        .WithDefaultErrorMessage($"View could not be found. RepresentedBy: {RepresentedBy}")
+        .PrecedeWith(ctx =>
+        {
+            Driver.UntilPageLoaded.WithTimeout(ctx.Options.Timeout).OnFailure(ctx.ThrowOnFailure).Start();
+            Driver.SkipCertificateWarning();
+        });
 
     /// <summary>
     /// Waits until this view exists in the current window.
     /// </summary>
     /// <param name="assert">Determines wether to assert when the timeout has been reached.</param>
     /// <returns>Returns true if the view existed in time; otherwise false.</returns>
+    [Obsolete("Use UntilExists.Start() instead. If assert is set to true add .ThrowOnFailure() before starting.")]
     public virtual bool WaitUntilExists(bool assert = true) => WaitUntilExists(Wait.DefaultOptions.Timeout, assert);
 
     /// <summary>
@@ -58,6 +65,7 @@ public abstract class View : TestObjectBase
     /// <param name="timeout">The timeout in miliseconds for this waiting operation.</param>
     /// <param name="assert">Determines wether to assert when the timeout has been reached.</param>
     /// <returns>Returns true if the view existed in time; otherwise false.</returns>
+    [Obsolete("Use UntilExists.WithTimeout(timeout).Start() instead. If assert is set to true add .ThrowOnFailure() before starting.")]
     public virtual bool WaitUntilExists(int timeout, bool assert = true) => WaitUntilExists(TimeSpan.FromMilliseconds(timeout), assert);
 
     /// <summary>
@@ -66,6 +74,7 @@ public abstract class View : TestObjectBase
     /// <param name="timeout">The timeout for this waiting operation.</param>
     /// <param name="assert">Determines wether to assert when the timeout has been reached.</param>
     /// <returns>Returns true if the view existed in time; otherwise false.</returns>
+    [Obsolete("Use UntilExists.WithTimeout(timeout).Start() instead. If assert is set to true add .ThrowOnFailure() before starting.")]
     public virtual bool WaitUntilExists(TimeSpan timeout, bool assert = true)
     {
         Wait.Until(() => Driver.IsPageLoadComplete()).WithTimeout(timeout).OnFailure(assert).Start();

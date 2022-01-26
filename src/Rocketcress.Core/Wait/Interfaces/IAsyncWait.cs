@@ -15,16 +15,16 @@ public interface IAsyncWait<T> : IAsyncStartableWait<T>, IConfigurableWait<T, IA
     IAsyncWaitOnError<T> OnError();
 
     /// <summary>
-    /// Adds an action to be executed before the wait operation starts.
+    /// Precedes the wait operation with a specified action.
     /// </summary>
-    /// <param name="action">The action to execute before the wait operation starts.</param>
+    /// <param name="precededAction">The preceded action.</param>
     /// <returns>The configured wait operation.</returns>
-    IAsyncWait<T> PrecedeWith(Func<WaitContext<T>, Task> action);
+    IAsyncWait<T> PrecedeWith(Func<WaitContext<T>, Task> precededAction);
 
     /// <summary>
-    /// Adds an action to be executed after the wait operation starts.
+    /// Continues the wait operation with a specified action.
     /// </summary>
-    /// <param name="action">The action to execute before the wait operation starts.</param>
+    /// <param name="continuedAction">The continued action.</param>
     /// <returns>The configured wait operation.</returns>
-    IAsyncWait<T> ContinueWith(Func<WaitContext<T>, Task> action);
+    IAsyncWait<T> ContinueWith(Func<WaitContext<T>, Task> continuedAction);
 }

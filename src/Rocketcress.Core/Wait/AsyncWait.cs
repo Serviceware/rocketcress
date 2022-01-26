@@ -63,6 +63,12 @@ internal sealed class AsyncWait<T> : IAsyncWait<T>, IAsyncWaitOnError<T>, IWaitD
         return this;
     }
 
+    public IAsyncWait<T> WithDefaultErrorMessage(string? message)
+    {
+        _runner.DefaultErrorMessage = message;
+        return this;
+    }
+
     public IAsyncWait<T> WithMaxExceptionCount(int? count)
     {
         _runner.Options.MaxAcceptedExceptions = count;
@@ -90,6 +96,26 @@ internal sealed class AsyncWait<T> : IAsyncWait<T>, IAsyncWaitOnError<T>, IWaitD
     public IAsyncWait<T> Configure(Action<IWaitOptions> configurationFunction)
     {
         configurationFunction(_runner.Options);
+        return this;
+    }
+
+    public IAsyncWait<T> PrecedeWith(Action<WaitContext<T>> action)
+    {
+        _runner.PrecedeWith(ctx =>
+        {
+            action(ctx);
+            return Task.CompletedTask;
+        });
+        return this;
+    }
+
+    public IAsyncWait<T> ContinueWith(Action<WaitContext<T>> action)
+    {
+        _runner.ContinueWith(ctx =>
+        {
+            action(ctx);
+            return Task.CompletedTask;
+        });
         return this;
     }
 

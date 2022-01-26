@@ -91,6 +91,11 @@ public class WebDriver : OpenQA.Selenium.Support.UI.IWait<WebDriver>, IWebDriver
     }
 
     /// <summary>
+    /// Gets a wait operation that waits until the web page has been loaded.
+    /// </summary>
+    public Core.IWait<bool> UntilPageLoaded => Wait.Until(() => IsPageLoadComplete()).WithDefaultErrorMessage("Page has not been loaded.");
+
+    /// <summary>
     /// Check wether the page has been loaded completely.
     /// </summary>
     /// <returns>Return true if the readyState of the document is complete; otherwise false.</returns>
@@ -111,7 +116,8 @@ public class WebDriver : OpenQA.Selenium.Support.UI.IWait<WebDriver>, IWebDriver
     /// </summary>
     /// <param name="assert">Determines wether to assert if the timeout has been reached.</param>
     /// <returns>Returns true if the page has loaded; otherwise false.</returns>
-    public bool UntilPageLoaded(bool assert = true) => UntilPageLoaded(Wait.DefaultOptions.Timeout, assert);
+    [Obsolete("Use UntilPageLoaded.Start() instead. If assert is set to true add .ThrowOnFailure() before starting.")]
+    public bool WaitUntilPageLoaded(bool assert = true) => WaitUntilPageLoaded(Wait.DefaultOptions.Timeout, assert);
 
     /// <summary>
     /// Waits until the current page is loaded.
@@ -119,7 +125,8 @@ public class WebDriver : OpenQA.Selenium.Support.UI.IWait<WebDriver>, IWebDriver
     /// <param name="timeout">The timeout in miliseconds for this wait operation.</param>
     /// <param name="assert">Determines wether to assert if the timeout has been reached.</param>
     /// <returns>Returns true if the page has loaded; otherwise false.</returns>
-    public bool UntilPageLoaded(int timeout, bool assert = true) => UntilPageLoaded(TimeSpan.FromMilliseconds(timeout), assert);
+    [Obsolete("Use UntilPageLoaded.WithTimeout(timeout).Start() instead. If assert is set to true add .ThrowOnFailure() before starting.")]
+    public bool WaitUntilPageLoaded(int timeout, bool assert = true) => WaitUntilPageLoaded(TimeSpan.FromMilliseconds(timeout), assert);
 
     /// <summary>
     /// Waits until the current page is loaded.
@@ -127,9 +134,10 @@ public class WebDriver : OpenQA.Selenium.Support.UI.IWait<WebDriver>, IWebDriver
     /// <param name="timeout">The timeout for this wait operation.</param>
     /// <param name="assert">Determines wether to assert if the timeout has been reached.</param>
     /// <returns>Returns true if the page has loaded; otherwise false.</returns>
-    public bool UntilPageLoaded(TimeSpan timeout, bool assert = true)
+    [Obsolete("Use UntilPageLoaded.WithTimeout(timeout).Start() instead. If assert is set to true add .ThrowOnFailure() before starting.")]
+    public bool WaitUntilPageLoaded(TimeSpan timeout, bool assert = true)
     {
-        return Wait.Until(() => IsPageLoadComplete()).WithTimeout(timeout).OnFailure(assert, "Page has not been loaded.").Start().Value;
+        return UntilPageLoaded.WithTimeout(timeout).OnFailure(assert).Start().Value;
     }
 
     /// <summary>
@@ -243,7 +251,7 @@ public class WebDriver : OpenQA.Selenium.Support.UI.IWait<WebDriver>, IWebDriver
     {
         Close(currentWindow);
         SwitchTo(nextView);
-        UntilPageLoaded(timeout ?? (int)Timeout.TotalMilliseconds);
+        UntilPageLoaded.WithTimeout(timeout ?? (int)Timeout.TotalMilliseconds).ThrowOnFailure().Start();
     }
 
     /// <summary>
@@ -371,7 +379,7 @@ public class WebDriver : OpenQA.Selenium.Support.UI.IWait<WebDriver>, IWebDriver
         }
 
         if (waitForPageLoad)
-            UntilPageLoaded();
+            UntilPageLoaded.ThrowOnFailure().Start();
     }
 
     /// <summary>

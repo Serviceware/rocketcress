@@ -23,6 +23,7 @@ internal class WaitRunnerBase<T>
         Options = options;
         ThrowOnFailure = false;
         ErrorMessage = null;
+        DefaultErrorMessage = null;
 
         OperationName = operationName;
     }
@@ -30,6 +31,7 @@ internal class WaitRunnerBase<T>
     public IWaitOptions Options { get; }
     public bool ThrowOnFailure { get; set; }
     public string? ErrorMessage { get; set; }
+    public string? DefaultErrorMessage { get; set; }
 
     protected string OperationName { get; }
 
@@ -76,8 +78,14 @@ internal class WaitRunnerBase<T>
 
     protected string GetErrorMessage(WaitResult<T> result, bool ignoreCustomMessage)
     {
-        if (!ignoreCustomMessage && ErrorMessage is not null)
-            return ErrorMessage;
+        if (!ignoreCustomMessage)
+        {
+            if (ErrorMessage is not null)
+                return ErrorMessage;
+            if (DefaultErrorMessage is not null)
+                return DefaultErrorMessage;
+        }
+
         return result.Status switch
         {
             WaitResultStatus.CallerAbortedWithoutValue => $"The caller aborted this {OperationName}.",
@@ -136,8 +144,8 @@ internal class WaitRunnerBase<T>
 
 internal sealed class WaitRunner<T> : WaitRunnerBase<T>
 {
-    private readonly List<Action<WaitContext<T>>> _precedeWithActions = new();
-    private readonly List<Action<WaitContext<T>>> _continueWithActions = new();
+    private readonly LinkedList<Action<WaitContext<T>>> _precedeWithActions = new();
+    private readonly LinkedList<Action<WaitContext<T>>> _continueWithActions = new();
     private readonly Func<WaitContext<T>, T?> _condition;
 
     public WaitRunner(
@@ -154,9 +162,9 @@ internal sealed class WaitRunner<T> : WaitRunnerBase<T>
 
     public Action<Exception>? ExceptionHandler { get; set; }
 
-    public void PrecedeWith(Action<WaitContext<T>> action) => _precedeWithActions.Add(action);
+    public void PrecedeWith(Action<WaitContext<T>> action) => _precedeWithActions.AddFirst(action);
 
-    public void ContinueWith(Action<WaitContext<T>> action) => _continueWithActions.Add(action);
+    public void ContinueWith(Action<WaitContext<T>> action) => _continueWithActions.AddLast(action);
 
     public WaitResult<T> Run()
     {
@@ -225,8 +233,8 @@ internal sealed class WaitRunner<T> : WaitRunnerBase<T>
 
 internal sealed class AsyncWaitRunner<T> : WaitRunnerBase<T>
 {
-    private readonly List<Func<WaitContext<T>, Task>> _precedeWithActions = new();
-    private readonly List<Func<WaitContext<T>, Task>> _continueWithActions = new();
+    private readonly LinkedList<Func<WaitContext<T>, Task>> _precedeWithActions = new();
+    private readonly LinkedList<Func<WaitContext<T>, Task>> _continueWithActions = new();
     private readonly Func<WaitContext<T>, Task<T?>> _condition;
 
     public AsyncWaitRunner(
@@ -243,9 +251,9 @@ internal sealed class AsyncWaitRunner<T> : WaitRunnerBase<T>
 
     public Func<Exception, Task>? ExceptionHandler { get; set; }
 
-    public void PrecedeWith(Func<WaitContext<T>, Task> action) => _precedeWithActions.Add(action);
+    public void PrecedeWith(Func<WaitContext<T>, Task> action) => _precedeWithActions.AddFirst(action);
 
-    public void ContinueWith(Func<WaitContext<T>, Task> action) => _continueWithActions.Add(action);
+    public void ContinueWith(Func<WaitContext<T>, Task> action) => _continueWithActions.AddLast(action);
 
     public async Task<WaitResult<T>> RunAsync()
     {

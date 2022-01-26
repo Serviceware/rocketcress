@@ -31,18 +31,6 @@ internal sealed class Wait<T> : IWait<T>, IWaitOnError<T>, IWaitDefaultOptions
         return this;
     }
 
-    public IWait<T> PrecedeWith(Action<WaitContext<T>> action)
-    {
-        _runner.PrecedeWith(action);
-        return this;
-    }
-
-    public IWait<T> ContinueWith(Action<WaitContext<T>> action)
-    {
-        _runner.ContinueWith(action);
-        return this;
-    }
-
     #endregion
 
     #region IConfigurableWait<T, IWait<T>> Members
@@ -58,6 +46,12 @@ internal sealed class Wait<T> : IWait<T>, IWaitOnError<T>, IWaitDefaultOptions
     {
         _runner.ThrowOnFailure = false;
         _runner.ErrorMessage = null;
+        return this;
+    }
+
+    public IWait<T> WithDefaultErrorMessage(string? message)
+    {
+        _runner.DefaultErrorMessage = message;
         return this;
     }
 
@@ -88,6 +82,18 @@ internal sealed class Wait<T> : IWait<T>, IWaitOnError<T>, IWaitDefaultOptions
     public IWait<T> Configure(Action<IWaitOptions> configurationFunction)
     {
         configurationFunction(_runner.Options);
+        return this;
+    }
+
+    public IWait<T> PrecedeWith(Action<WaitContext<T>> action)
+    {
+        _runner.PrecedeWith(action);
+        return this;
+    }
+
+    public IWait<T> ContinueWith(Action<WaitContext<T>> action)
+    {
+        _runner.ContinueWith(action);
         return this;
     }
 
