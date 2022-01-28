@@ -21,18 +21,18 @@
       false
     </IsPackable>
   </PropertyGroup>
-  
+
+  <PropertyGroup Condition=" $(IsSlim) == 'true' ">
+    <Description>Contains code from $(AssemblyName) without the need to use MSTest v2.</Description>
+    <AssemblyName>$(AssemblyName).Slim</AssemblyName>
+    <DefineConstants>$(DefineConstants);SLIM</DefineConstants>
+  </PropertyGroup>
+
   <PropertyGroup Condition=" $(IsTestProject) != 'true' ">
     <CodeAnalysisRuleSet Condition="$(TargetFramework) != 'net48'">$(MSBuildThisFileDirectory)Rocketcress.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisRuleSet Condition="$(TargetFramework) == 'net48'">$(MSBuildThisFileDirectory)Rocketcress.net48.ruleset</CodeAnalysisRuleSet>
     <DocumentationFile Condition=" $(NoDocumentation) != 'true' ">$(OutputPath)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
     <PackageId>Serviceware.$(AssemblyName)</PackageId>
-  </PropertyGroup>
-  
-  <PropertyGroup Condition=" $(IsSlim) == 'true' ">
-    <Description>Contains code from $(AssemblyName) without the need to use MSTest v2.</Description>
-    <AssemblyName>$(AssemblyName).Slim</AssemblyName>
-    <DefineConstants>$(DefineConstants);SLIM</DefineConstants>
   </PropertyGroup>
 
   
