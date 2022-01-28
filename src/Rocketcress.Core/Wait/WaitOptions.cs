@@ -1,25 +1,59 @@
-﻿namespace Rocketcress.Core;
+﻿using System.ComponentModel;
+using System.Runtime.CompilerServices;
+
+namespace Rocketcress.Core;
 
 /// <summary>
 /// Provides options for the <see cref="Wait"/> class.
 /// </summary>
 internal sealed class WaitOptions : IWaitOptions, IObsoleteWaitOptions
 {
+    private bool _traceExceptions;
+    private int? _maxAcceptedExceptions;
+    private int? _maxRetryCount;
+    private TimeSpan _timeout;
+    private TimeSpan _timeGap;
+
     internal WaitOptions()
     {
     }
 
-    /// <inheritdoc/>
-    public bool TraceExceptions { get; set; }
+    /// <summary>
+    /// Occurs when a property value changes.
+    /// </summary>
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     /// <inheritdoc/>
-    public int? MaxAcceptedExceptions { get; set; }
+    public bool TraceExceptions
+    {
+        get => _traceExceptions;
+        set => SetProperty(value, ref _traceExceptions);
+    }
 
     /// <inheritdoc/>
-    public int? MaxRetryCount { get; set; }
+    public int? MaxAcceptedExceptions
+    {
+        get => _maxAcceptedExceptions;
+        set => SetProperty(value, ref _maxAcceptedExceptions);
+    }
 
     /// <inheritdoc/>
-    public TimeSpan Timeout { get; set; }
+    public int? MaxRetryCount
+    {
+        get => _maxRetryCount;
+        set => SetProperty(value, ref _maxRetryCount);
+    }
+
+    /// <inheritdoc/>
+    public TimeSpan Timeout
+    {
+        get => _timeout;
+        set
+        {
+            if (SetProperty(value, ref _timeout))
+                OnPropertyChanged(nameof(TimeoutMs));
+        }
+    }
 
     /// <inheritdoc/>
     public int TimeoutMs
@@ -29,7 +63,15 @@ internal sealed class WaitOptions : IWaitOptions, IObsoleteWaitOptions
     }
 
     /// <inheritdoc/>
-    public TimeSpan TimeGap { get; set; }
+    public TimeSpan TimeGap
+    {
+        get => _timeGap;
+        set
+        {
+            if (SetProperty(value, ref _timeGap))
+                OnPropertyChanged(nameof(TimeGapMs));
+        }
+    }
 
     /// <inheritdoc/>
     public int TimeGapMs
@@ -87,6 +129,20 @@ internal sealed class WaitOptions : IWaitOptions, IObsoleteWaitOptions
         {
             return Math.Max((int)timeSpan.TotalMilliseconds, int.MaxValue);
         }
+    }
+
+    private bool SetProperty<T>(T value, ref T @field, [CallerMemberName] string propertyName = "")
+    {
+        bool notify = !Equals(value, @field);
+        field = value;
+        if (notify)
+            OnPropertyChanged(propertyName);
+        return notify;
+    }
+
+    private void OnPropertyChanged([CallerMemberName] string propertyName = "")
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
     private class ReadOnly : IReadOnlyWaitOptions

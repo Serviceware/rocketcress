@@ -5,7 +5,6 @@ using Rocketcress.Selenium.Extensions;
 using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Runtime.InteropServices;
-using Keys = OpenQA.Selenium.Keys;
 
 namespace Rocketcress.Selenium.Controls;
 
@@ -14,15 +13,6 @@ namespace Rocketcress.Selenium.Controls;
 /// </summary>
 public class WebElement : TestObjectBase, IWebElement, IWrapsElement
 {
-    private static readonly Dictionary<Browser, Dictionary<char, Action<WebElement>>> _specialCharacters = new()
-    {
-        [Browser.InternetExplorer] = new Dictionary<char, Action<WebElement>>
-        {
-            ['@'] = element => element.Driver.GetActions().SendKeys(element, Keys.End).WhileKeysPressed(element, x => x.SendKeys("q"), Keys.Control, Keys.Alt).Perform(),
-            ['['] = element => element.Driver.GetActions().SendKeys(element, Keys.End).WhileKeysPressed(element, x => x.SendKeys("8"), Keys.Control, Keys.Alt).Perform(),
-            [']'] = element => element.Driver.GetActions().SendKeys(element, Keys.End).WhileKeysPressed(element, x => x.SendKeys("9"), Keys.Control, Keys.Alt).Perform(),
-        },
-    };
     private IWebElement _wrappedElement;
 
     /// <summary>
@@ -69,6 +59,7 @@ public class WebElement : TestObjectBase, IWebElement, IWrapsElement
     protected WebElement(WebDriver driver)
     {
         Driver = driver ?? throw new ArgumentNullException(nameof(driver));
+        Wait = CreateWaitEntry();
         SearchContext = Driver;
         ComputedStyle = new Style(this);
     }
@@ -207,40 +198,9 @@ public class WebElement : TestObjectBase, IWebElement, IWrapsElement
     public virtual By LocationKey { get; private set; }
 
     /// <summary>
-    /// Gets a wait operation that waits until this element exists.
+    /// Gets the wait entry point for this <see cref="WebElement"/>.
     /// </summary>
-    public virtual IWait<bool> UntilExists
-        => Wait.Until(() => Exists).WithDefaultErrorMessage("Element could not be found: " + GetSearchDescription());
-
-    /// <summary>
-    /// Gets a wait operation that waits until this element does not exists.
-    /// </summary>
-    public virtual IWait<bool> UntilNotExists
-        => Wait.Until(() => !Exists).WithDefaultErrorMessage("Element does still exist: " + GetSearchDescription());
-
-    /// <summary>
-    /// Gets a wait operation that waits until this element is displayed.
-    /// </summary>
-    public virtual IWait<bool> UntilDisplayed
-        => Wait.Until(() => Displayed).WithDefaultErrorMessage("Element does not exist or is not displayed: " + GetSearchDescription());
-
-    /// <summary>
-    /// Gets a wait operation that waits until this element is not displayed.
-    /// </summary>
-    public virtual IWait<bool> UntilNotDisplayed
-        => Wait.Until(() => !Displayed).WithDefaultErrorMessage("Element is still displayed: " + GetSearchDescription());
-
-    /// <summary>
-    /// Gets a wait operation that waits until this element is clickable.
-    /// </summary>
-    public virtual IWait<bool> UntilClickable
-        => Wait.Until(() => IsClickable).WithDefaultErrorMessage("Element is not clickable: " + GetSearchDescription());
-
-    /// <summary>
-    /// Gets a wait operation that waits until this element is not clickable.
-    /// </summary>
-    public virtual IWait<bool> UntilNotClickable
-        => Wait.Until(() => !IsClickable).WithDefaultErrorMessage("Element is still clickable: " + GetSearchDescription());
+    public virtual WaitEntry Wait { get; }
 
     /// <summary>
     /// Gets a value indicating whether or not this element is displayed.
@@ -631,23 +591,23 @@ public class WebElement : TestObjectBase, IWebElement, IWrapsElement
     /// Waits until this element exists.
     /// </summary>
     /// <returns>True if the element existed in time; otherwise false.</returns>
-    [Obsolete("Use UntilExists.ThrowOnFailure().Start() instead.")]
-    public bool WaitUntilExists() => WaitUntilExists(Wait.DefaultOptions.TimeoutMs, true);
+    [Obsolete("Use element.Wait.UntilExists.ThrowOnFailure().Start() instead.")]
+    public bool WaitUntilExists() => WaitUntilExists(Core.Wait.DefaultOptions.TimeoutMs, true);
 
     /// <summary>
     /// Waits until this element exists.
     /// </summary>
     /// <param name="assert">Determines wether to throw an AssertFailedException if the timeout expires.</param>
     /// <returns>True if the element existed in time; otherwise false.</returns>
-    [Obsolete("Use UntilExists.Start() instead. If assert is true add .ThrowOnFailure() before starting.")]
-    public bool WaitUntilExists(bool assert) => WaitUntilExists(Wait.DefaultOptions.TimeoutMs, assert);
+    [Obsolete("Use element.Wait.UntilExists.Start() instead. If assert is true add .ThrowOnFailure() before starting.")]
+    public bool WaitUntilExists(bool assert) => WaitUntilExists(Core.Wait.DefaultOptions.TimeoutMs, assert);
 
     /// <summary>
     /// Waits until this element exists.
     /// </summary>
     /// <param name="timeout">The timeout in miliseconds.</param>
     /// <returns>True if the element existed in time; otherwise false.</returns>
-    [Obsolete("Use UntilExists.WithTimeout(timeout).ThrowOnFailure().Start() instead.")]
+    [Obsolete("Use element.Wait.UntilExists.WithTimeout(timeout).ThrowOnFailure().Start() instead.")]
     public bool WaitUntilExists(int timeout) => WaitUntilExists(timeout, true);
 
     /// <summary>
@@ -656,31 +616,31 @@ public class WebElement : TestObjectBase, IWebElement, IWrapsElement
     /// <param name="timeout">The timeout in miliseconds.</param>
     /// <param name="assert">Determines wether to throw an AssertFailedException if the timeout expires.</param>
     /// <returns>True if the element existed in time; otherwise false.</returns>
-    [Obsolete("Use UntilExists.WithTimeout(timeout).Start() instead. If assert is true add .ThrowOnFailure() before starting.")]
+    [Obsolete("Use element.Wait.UntilExists.WithTimeout(timeout).Start() instead. If assert is true add .ThrowOnFailure() before starting.")]
     public bool WaitUntilExists(int timeout, bool assert)
-        => UntilExists.WithTimeout(timeout).OnFailure(assert, "Element could not be found: " + GetSearchDescription()).Start().Value;
+        => Wait.UntilExists.WithTimeout(timeout).OnFailure(assert, "Element could not be found: " + GetSearchDescription()).Start().Value;
 
     /// <summary>
     /// Waits until this element is displayed.
     /// </summary>
     /// <returns>True if the element is displayed in time; otherwise false.</returns>
-    [Obsolete("Use UntilDisplayed.ThrowOnFailure().Start() instead.")]
-    public bool WaitUntilDisplayed() => WaitUntilDisplayed(Wait.DefaultOptions.TimeoutMs, true);
+    [Obsolete("Use element.Wait.UntilDisplayed.ThrowOnFailure().Start() instead.")]
+    public bool WaitUntilDisplayed() => WaitUntilDisplayed(Core.Wait.DefaultOptions.TimeoutMs, true);
 
     /// <summary>
     /// Waits until this element is displayed.
     /// </summary>
     /// <param name="assert">Determines wether to throw an AssertFailedException if the timeout expires.</param>
     /// <returns>True if the element is displayed in time; otherwise false.</returns>
-    [Obsolete("Use UntilDisplayed.Start() instead. If assert is true add .ThrowOnFailure() before starting.")]
-    public bool WaitUntilDisplayed(bool assert) => WaitUntilDisplayed(Wait.DefaultOptions.TimeoutMs, assert);
+    [Obsolete("Use element.Wait.UntilDisplayed.Start() instead. If assert is true add .ThrowOnFailure() before starting.")]
+    public bool WaitUntilDisplayed(bool assert) => WaitUntilDisplayed(Core.Wait.DefaultOptions.TimeoutMs, assert);
 
     /// <summary>
     /// Waits until this element is displayed and Assert.
     /// </summary>
     /// <param name="timeout">The timeout in miliseconds.</param>
     /// <returns>True if the element is displayed in time; otherwise false.</returns>
-    [Obsolete("Use UntilDisplayed.WithTimeout(timeout).ThrowOnFailure().Start() instead.")]
+    [Obsolete("Use element.Wait.UntilDisplayed.WithTimeout(timeout).ThrowOnFailure().Start() instead.")]
     public bool WaitUntilDisplayed(int timeout) => WaitUntilDisplayed(timeout, true);
 
     /// <summary>
@@ -689,31 +649,31 @@ public class WebElement : TestObjectBase, IWebElement, IWrapsElement
     /// <param name="timeout">The timeout in miliseconds.</param>
     /// <param name="assert">Determines wether to throw an AssertFailedException if the timeout expires.</param>
     /// <returns>True if the element is displayed in time; otherwise false.</returns>
-    [Obsolete("Use UntilDisplayed.WithTimeout(timeout).Start() instead. If assert is true add .ThrowOnFailure() before starting.")]
+    [Obsolete("Use element.Wait.UntilDisplayed.WithTimeout(timeout).Start() instead. If assert is true add .ThrowOnFailure() before starting.")]
     public bool WaitUntilDisplayed(int timeout, bool assert)
-        => UntilDisplayed.WithTimeout(timeout).OnFailure(assert, "Element does not exist or is not displayed: " + GetSearchDescription()).Start().Value;
+        => Wait.UntilDisplayed.WithTimeout(timeout).OnFailure(assert, "Element does not exist or is not displayed: " + GetSearchDescription()).Start().Value;
 
     /// <summary>
     /// Waits until this element does not exist.
     /// </summary>
     /// <returns>True if the element vanished in time; otherwise false.</returns>
-    [Obsolete("Use UntilNotExists.ThrowOnFailure().Start() instead.")]
-    public bool WaitUntilNotExists() => WaitUntilNotExists(Wait.DefaultOptions.TimeoutMs, true);
+    [Obsolete("Use element.Wait.UntilNotExists.ThrowOnFailure().Start() instead.")]
+    public bool WaitUntilNotExists() => WaitUntilNotExists(Core.Wait.DefaultOptions.TimeoutMs, true);
 
     /// <summary>
     /// Waits until this element does not exist.
     /// </summary>
     /// <param name="assert">Determines wether to throw an AssertFailedException if the timeout expires.</param>
     /// <returns>True if the element vanished in time; otherwise false.</returns>
-    [Obsolete("Use UntilNotExists.Start() instead. If assert is true add .ThrowOnFailure() before starting.")]
-    public bool WaitUntilNotExists(bool assert) => WaitUntilNotExists(Wait.DefaultOptions.TimeoutMs, assert);
+    [Obsolete("Use element.Wait.UntilNotExists.Start() instead. If assert is true add .ThrowOnFailure() before starting.")]
+    public bool WaitUntilNotExists(bool assert) => WaitUntilNotExists(Core.Wait.DefaultOptions.TimeoutMs, assert);
 
     /// <summary>
     /// Waits until this element does not exist.
     /// </summary>
     /// <param name="timeout">The timeout in miliseconds.</param>
     /// <returns>True if the element vanished in time; otherwise false.</returns>
-    [Obsolete("Use UntilNotExists.WithTimeout(timeout).ThrowOnFailure().Start() instead.")]
+    [Obsolete("Use element.Wait.UntilNotExists.WithTimeout(timeout).ThrowOnFailure().Start() instead.")]
     public bool WaitUntilNotExists(int timeout) => WaitUntilNotExists(timeout, true);
 
     /// <summary>
@@ -722,31 +682,31 @@ public class WebElement : TestObjectBase, IWebElement, IWrapsElement
     /// <param name="timeout">The timeout in miliseconds.</param>
     /// <param name="assert">Determines wether to throw an AssertFailedException if the timeout expires.</param>
     /// <returns>True if the element vanished in time; otherwise false.</returns>
-    [Obsolete("Use UntilNotExists.WithTimeout(timeout).Start() instead. If assert is true add .ThrowOnFailure() before starting.")]
+    [Obsolete("Use element.Wait.UntilNotExists.WithTimeout(timeout).Start() instead. If assert is true add .ThrowOnFailure() before starting.")]
     public bool WaitUntilNotExists(int timeout, bool assert)
-        => UntilNotExists.WithTimeout(timeout).OnFailure(assert, "Element does still exist: " + GetSearchDescription()).Start().Value;
+        => Wait.UntilNotExists.WithTimeout(timeout).OnFailure(assert, "Element does still exist: " + GetSearchDescription()).Start().Value;
 
     /// <summary>
     /// Waits until this element is not displayed.
     /// </summary>
     /// <returns>True if the element disappeared in time; otherwise false.</returns>
-    [Obsolete("Use UntilNotDisplayed.ThrowOnFailure().Start() instead.")]
-    public bool WaitUntilNotDisplayed() => WaitUntilNotDisplayed(Wait.DefaultOptions.TimeoutMs, true);
+    [Obsolete("Use element.Wait.UntilNotDisplayed.ThrowOnFailure().Start() instead.")]
+    public bool WaitUntilNotDisplayed() => WaitUntilNotDisplayed(Core.Wait.DefaultOptions.TimeoutMs, true);
 
     /// <summary>
     /// Waits until this element is not displayed.
     /// </summary>
     /// <param name="assert">Determines wether to throw an AssertFailedException if the timeout expires.</param>
     /// <returns>True if the element disappeared in time; otherwise false.</returns>
-    [Obsolete("Use UntilNotDisplayed.Start() instead. If assert is true add .ThrowOnFailure() before starting.")]
-    public bool WaitUntilNotDisplayed(bool assert) => WaitUntilNotDisplayed(Wait.DefaultOptions.TimeoutMs, assert);
+    [Obsolete("Use element.Wait.UntilNotDisplayed.Start() instead. If assert is true add .ThrowOnFailure() before starting.")]
+    public bool WaitUntilNotDisplayed(bool assert) => WaitUntilNotDisplayed(Core.Wait.DefaultOptions.TimeoutMs, assert);
 
     /// <summary>
     /// Waits until this element is not displayed.
     /// </summary>
     /// <param name="timeout">The timeout in miliseconds.</param>
     /// <returns>True if the element disappeared in time; otherwise false.</returns>
-    [Obsolete("Use UntilNotDisplayed.WithTimeout(timeout).ThrowOnFailure().Start() instead.")]
+    [Obsolete("Use element.Wait.UntilNotDisplayed.WithTimeout(timeout).ThrowOnFailure().Start() instead.")]
     public bool WaitUntilNotDisplayed(int timeout) => WaitUntilNotDisplayed(timeout, true);
 
     /// <summary>
@@ -755,31 +715,31 @@ public class WebElement : TestObjectBase, IWebElement, IWrapsElement
     /// <param name="timeout">The timeout in miliseconds.</param>
     /// <param name="assert">Determines wether to throw an AssertFailedException if the timeout expires.</param>
     /// <returns>True if the element disappeared in time; otherwise false.</returns>
-    [Obsolete("Use UntilNotDisplayed.WithTimeout(timeout).Start() instead. If assert is true add .ThrowOnFailure() before starting.")]
+    [Obsolete("Use element.Wait.UntilNotDisplayed.WithTimeout(timeout).Start() instead. If assert is true add .ThrowOnFailure() before starting.")]
     public bool WaitUntilNotDisplayed(int timeout, bool assert)
-        => UntilNotDisplayed.WithTimeout(timeout).OnFailure(assert, "Element is still displayed: " + GetSearchDescription()).Start().Value;
+        => Wait.UntilNotDisplayed.WithTimeout(timeout).OnFailure(assert, "Element is still displayed: " + GetSearchDescription()).Start().Value;
 
     /// <summary>
     /// Waits until this element is clickable.
     /// </summary>
     /// <returns>True if the element is clickable in time; otherwise false.</returns>
-    [Obsolete("Use UntilClickable.ThrowOnFailure().Start() instead.")]
-    public bool WaitUntilClickable() => WaitUntilClickable(Wait.DefaultOptions.TimeoutMs, true);
+    [Obsolete("Use element.Wait.UntilClickable.ThrowOnFailure().Start() instead.")]
+    public bool WaitUntilClickable() => WaitUntilClickable(Core.Wait.DefaultOptions.TimeoutMs, true);
 
     /// <summary>
     /// Waits until this element is clickable.
     /// </summary>
     /// <param name="assert">Determines wether to throw an AssertFailedException if the timeout expires.</param>
     /// <returns>True if the element is clickable in time; otherwise false.</returns>
-    [Obsolete("Use UntilClickable.Start() instead. If assert is true add .ThrowOnFailure() before starting.")]
-    public bool WaitUntilClickable(bool assert) => WaitUntilClickable(Wait.DefaultOptions.TimeoutMs, assert);
+    [Obsolete("Use element.Wait.UntilClickable.Start() instead. If assert is true add .ThrowOnFailure() before starting.")]
+    public bool WaitUntilClickable(bool assert) => WaitUntilClickable(Core.Wait.DefaultOptions.TimeoutMs, assert);
 
     /// <summary>
     /// Waits until this element is clickable.
     /// </summary>
     /// <param name="timeout">The timeout in miliseconds.</param>
     /// <returns>True if the element is clickable in time; otherwise false.</returns>
-    [Obsolete("Use UntilClickable.WithTimeout(timeout).ThrowOnFailure().Start() instead.")]
+    [Obsolete("Use element.Wait.UntilClickable.WithTimeout(timeout).ThrowOnFailure().Start() instead.")]
     public bool WaitUntilClickable(int timeout) => WaitUntilClickable(timeout, true);
 
     /// <summary>
@@ -788,9 +748,9 @@ public class WebElement : TestObjectBase, IWebElement, IWrapsElement
     /// <param name="timeout">The timeout in miliseconds.</param>
     /// <param name="assert">Determines wether to throw an AssertFailedException if the timeout expires.</param>
     /// <returns>True if the element is clickable in time; otherwise false.</returns>
-    [Obsolete("Use UntilClickable.WithTimeout(timeout).Start() instead. If assert is true add .ThrowOnFailure() before starting.")]
+    [Obsolete("Use element.Wait.UntilClickable.WithTimeout(timeout).Start() instead. If assert is true add .ThrowOnFailure() before starting.")]
     public bool WaitUntilClickable(int timeout, bool assert)
-        => UntilClickable.WithTimeout(timeout).OnFailure(assert, "Element is not clickable: " + GetSearchDescription()).Start().Value;
+        => Wait.UntilClickable.WithTimeout(timeout).OnFailure(assert, "Element is not clickable: " + GetSearchDescription()).Start().Value;
 
     /// <summary>
     /// Clears the content of this element.
@@ -846,14 +806,14 @@ public class WebElement : TestObjectBase, IWebElement, IWrapsElement
     /// </remarks>
     public virtual void Click(bool forceClick)
     {
-        UntilExists.ThrowOnFailure().Start();
+        Wait.UntilExists.ThrowOnFailure().Start();
         bool clickSuccessfull = false;
         if (!forceClick)
         {
-            if (!UntilDisplayed.WithTimeout(5000).Start().Value || !UntilClickable.WithTimeout(5000).Start().Value)
+            if (!Wait.UntilDisplayed.WithTimeout(5000).Start().Value || !Wait.UntilClickable.WithTimeout(5000).Start().Value)
                 ScrollIntoView();
 
-            if (UntilClickable.WithTimeout(5000).Start().Value)
+            if (Wait.UntilClickable.WithTimeout(5000).Start().Value)
             {
                 try
                 {
@@ -950,33 +910,7 @@ public class WebElement : TestObjectBase, IWebElement, IWrapsElement
     /// <seealso cref="T:OpenQA.Selenium.Keys" />
     public virtual void SendKeys(string text)
     {
-        var browser = Driver.GetBrowser();
-        var specialChars = _specialCharacters.TryGetValue(browser, out var sc) ? sc : null;
-
-        if (specialChars == null)
-        {
-            WrappedElement.SendKeys(text);
-        }
-        else
-        {
-            // This is a workaround for mainly Internet Explorer. The IE Driver cannot write an '@'-character with SendKeys
-            var splittedText = text?.Split(specialChars.Keys.OfType<char>().ToArray()) ?? Array.Empty<string>();
-            int nextTextPosition = 0;
-            foreach (var textElement in splittedText)
-            {
-                if (nextTextPosition > 0)
-                {
-                    char c = text[nextTextPosition - 1];
-                    if (specialChars.TryGetValue(c, out var action))
-                        action(this);
-                    else
-                        WrappedElement.SendKeys(c.ToString());
-                }
-
-                WrappedElement.SendKeys(textElement);
-                nextTextPosition = nextTextPosition + textElement.Length + 1;
-            }
-        }
+        WrappedElement.SendKeys(text);
     }
 
     /// <summary>
@@ -1017,6 +951,15 @@ public class WebElement : TestObjectBase, IWebElement, IWrapsElement
     {
     }
 
+    /// <summary>
+    /// Creates the wait entry used for this instance.
+    /// </summary>
+    /// <returns>The wait entry used for this instance.</returns>
+    protected virtual WaitEntry CreateWaitEntry()
+    {
+        return new WaitEntry(this);
+    }
+
     private static string GetStringForElement(IWebElement element, IJavaScriptExecutor javaScript)
     {
         ICollection<string> attributes;
@@ -1030,5 +973,65 @@ public class WebElement : TestObjectBase, IWebElement, IWrapsElement
         }
 
         return string.Format("<{0}{1}>...</{0}>", element.TagName, attributes.Count > 0 ? " " + string.Join(" ", attributes) : string.Empty);
+    }
+
+    /// <summary>
+    /// Wait entry for the <see cref="WebElement"/> class.
+    /// </summary>
+    public class WaitEntry : Core.WaitEntry
+    {
+        private readonly WebElement _element;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="WaitEntry"/> class.
+        /// </summary>
+        /// <param name="element">The web element.</param>
+        public WaitEntry(WebElement element)
+        {
+            _element = element;
+        }
+
+        /// <summary>
+        /// Gets a wait operation that waits until this element exists.
+        /// </summary>
+        public virtual IWait<bool> UntilExists
+            => Until(GetExists).WithDefaultErrorMessage($"Element could not be found: {_element.GetSearchDescription()}");
+
+        /// <summary>
+        /// Gets a wait operation that waits until this element does not exists.
+        /// </summary>
+        public virtual IWait<bool> UntilNotExists
+            => Until(GetNotExists).WithDefaultErrorMessage($"Element does still exist: {_element.GetSearchDescription()}");
+
+        /// <summary>
+        /// Gets a wait operation that waits until this element is displayed.
+        /// </summary>
+        public virtual IWait<bool> UntilDisplayed
+            => Until(GetDisplayed).WithDefaultErrorMessage($"Element does not exist or is not displayed: {_element.GetSearchDescription()}");
+
+        /// <summary>
+        /// Gets a wait operation that waits until this element is not displayed.
+        /// </summary>
+        public virtual IWait<bool> UntilNotDisplayed
+            => Until(GetNotDisplayed).WithDefaultErrorMessage($"Element is still displayed: {_element.GetSearchDescription()}");
+
+        /// <summary>
+        /// Gets a wait operation that waits until this element is clickable.
+        /// </summary>
+        public virtual IWait<bool> UntilClickable
+            => Until(GetClickable).WithDefaultErrorMessage($"Element is not clickable: {_element.GetSearchDescription()}");
+
+        /// <summary>
+        /// Gets a wait operation that waits until this element is not clickable.
+        /// </summary>
+        public virtual IWait<bool> UntilNotClickable
+            => Until(GetNotClickable).WithDefaultErrorMessage($"Element is still clickable: {_element.GetSearchDescription()}");
+
+        private bool GetExists() => _element.Exists;
+        private bool GetNotExists() => !_element.Exists;
+        private bool GetDisplayed() => _element.Displayed;
+        private bool GetNotDisplayed() => !_element.Displayed;
+        private bool GetClickable() => _element.IsClickable;
+        private bool GetNotClickable() => !_element.IsClickable;
     }
 }

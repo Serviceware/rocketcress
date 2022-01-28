@@ -61,4 +61,49 @@ public partial class WebTextInput : WebElement
                 string.Equals(GetAttribute("readonly"), "true", StringComparison.OrdinalIgnoreCase);
         }
     }
+
+    /// <summary>
+    /// Gets the wait entry point for this <see cref="WebTextInput" />.
+    /// </summary>
+    public new virtual WaitEntry Wait => (WaitEntry)base.Wait;
+
+    /// <inheritdoc/>
+    protected override WebElement.WaitEntry CreateWaitEntry()
+    {
+        return new WaitEntry(this);
+    }
+
+    /// <summary>
+    /// Wait entry for the <see cref="WebTextInput"/> class.
+    /// </summary>
+    /// <seealso cref="Rocketcress.Selenium.Controls.WebElement.WaitEntry" />
+    public new class WaitEntry : WebElement.WaitEntry
+    {
+        private readonly WebTextInput _element;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="WaitEntry"/> class.
+        /// </summary>
+        /// <param name="element">The web element.</param>
+        public WaitEntry(WebTextInput element)
+            : base(element)
+        {
+            _element = element;
+        }
+
+        /// <summary>
+        /// Gets a wait operation that waits until this element is read only.
+        /// </summary>
+        public virtual IWait<bool> UntilReadOnly
+            => Until(GetReadOnly).WithDefaultErrorMessage($"Element is not read only: {_element.GetSearchDescription()}");
+
+        /// <summary>
+        /// Gets a wait operation that waits until this element is not read only.
+        /// </summary>
+        public virtual IWait<bool> UntilNotReadOnly
+            => Until(GetNotReadOnly).WithDefaultErrorMessage($"Element is still read only: {_element.GetSearchDescription()}");
+
+        private bool GetReadOnly() => _element.ReadOnly;
+        private bool GetNotReadOnly() => !_element.ReadOnly;
+    }
 }
