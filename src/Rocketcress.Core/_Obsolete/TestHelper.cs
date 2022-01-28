@@ -12,15 +12,6 @@ namespace Rocketcress.Core;
 /// </summary>
 public static class TestHelper
 {
-    /// <summary>
-    /// Enables or disables file system redirection for the calling thread.
-    /// </summary>
-    /// <param name="enable">Indicates the type of request for WOW64 system folder redirection. If TRUE, requests redirection be enabled; if FALSE, requests redirection be disabled.</param>
-    /// <returns>Boolean value indicating whether the function succeeded. If TRUE, the function succeeded; if FALSE, the function failed.</returns>
-    /// <remarks>https://docs.microsoft.com/en-us/windows/desktop/api/winbase/nf-winbase-wow64enablewow64fsredirection.</remarks>
-    [DllImport("Kernel32.Dll", EntryPoint = "Wow64EnableWow64FsRedirection")]
-    private static extern bool EnableWow64FSRedirection(bool enable);
-
 #if DEBUG
     private static bool _isDebugConfiguration = true;
 #else
@@ -46,6 +37,11 @@ public static class TestHelper
     /// <param name="exceptionTrace">Determines whether to trace exceptions that occure during execution.</param>
     /// <param name="onException">An action that is executed when an exception occurres.</param>
     /// <returns>Returns true if the action has been successfully executed once; otherwise false.</returns>
+    [Obsolete("Use Retry.Until(action).WithMaxRetryCount(maxRetryCount) instead.\n" +
+        "    - catchExceptions = false <=> .OnError().Abort()" +
+        "    - delayBetweenRetries = n <=> .WithTimeGap(n)" +
+        "    - exceptionTrace = false <=> .Configure(x => x.TraceExceptions = false)" +
+        "    - onException = action <=> .OnError().Call(action)")]
     public static bool RetryAction(Func<bool> action, int maxRetryCount, bool catchExceptions = true, int delayBetweenRetries = 0, bool exceptionTrace = true, Action<Exception> onException = null)
         => RetryActionCancelable(action, maxRetryCount, catchExceptions, delayBetweenRetries, exceptionTrace, onException == null ? (Func<Exception, bool>)null : CreateOnExceptionFunction(onException));
 
@@ -59,8 +55,15 @@ public static class TestHelper
     /// <param name="exceptionTrace">Determines whether to trace exceptions that occure during execution.</param>
     /// <param name="onException">An action that is executed when an exception occurres. If the function returns true execution continues; otherwise the execution is stopped.</param>
     /// <returns>Returns true if the action has been successfully executed once; otherwise false.</returns>
+    [Obsolete("Use Retry.Until(action).WithMaxRetryCount(maxRetryCount) instead.\n" +
+        "    - catchExceptions = false <=> .OnError().Abort()" +
+        "    - delayBetweenRetries = n <=> .WithTimeGap(n)" +
+        "    - exceptionTrace = false <=> .Configure(x => x.TraceExceptions = false)" +
+        "    - onException = action <=> .OnError().Call(action) and throw an AbortWaitException if retry should be aborted")]
     public static bool RetryActionCancelable(Func<bool> action, int maxRetryCount, bool catchExceptions = true, int delayBetweenRetries = 0, bool exceptionTrace = true, Func<Exception, bool> onException = null)
     {
+        Guard.NotNull(action);
+
         for (int i = 0; i <= maxRetryCount; i++)
         {
             try
@@ -97,6 +100,10 @@ public static class TestHelper
     /// <param name="exceptionTrace">Determines whether to trace exceptions that occure during execution.</param>
     /// <param name="onException">An action that is executed when an exception occurres.</param>
     /// <returns>Returns true if the action has been successfully executed once; otherwise false.</returns>
+    [Obsolete("Use Retry.Action(action).WithMaxRetryCount(maxRetryCount) instead.\n" +
+        "    - delayBetweenRetries = n <=> .WithTimeGap(n)" +
+        "    - exceptionTrace = false <=> .Configure(x => x.TraceExceptions = false)" +
+        "    - onException = action <=> .OnError().Call(action)")]
     public static bool RetryAction(Action action, int maxRetryCount, int delayBetweenRetries = 0, bool exceptionTrace = true, Action<Exception> onException = null)
         => RetryActionCancelable(action, maxRetryCount, delayBetweenRetries, exceptionTrace, onException == null ? (Func<Exception, bool>)null : CreateOnExceptionFunction(onException));
 
@@ -109,8 +116,14 @@ public static class TestHelper
     /// <param name="exceptionTrace">Determines whether to trace exceptions that occure during execution.</param>
     /// <param name="onException">An action that is executed when an exception occurres. If the function returns true execution continues; otherwise the execution is stopped.</param>
     /// <returns>Returns true if the action has been successfully executed once; otherwise false.</returns>
+    [Obsolete("Use Retry.Action(action).WithMaxRetryCount(maxRetryCount) instead.\n" +
+        "    - delayBetweenRetries = n <=> .WithTimeGap(n)" +
+        "    - exceptionTrace = false <=> .Configure(x => x.TraceExceptions = false)" +
+        "    - onException = action <=> .OnError().Call(action) and throw an AbortWaitException if retry should be aborted")]
     public static bool RetryActionCancelable(Action action, int maxRetryCount, int delayBetweenRetries = 0, bool exceptionTrace = true, Func<Exception, bool> onException = null)
     {
+        Guard.NotNull(action);
+
         for (int i = 0; i <= maxRetryCount; i++)
         {
             try
@@ -143,6 +156,11 @@ public static class TestHelper
     /// <param name="exceptionTrace">Determines whether to trace exceptions that occure during execution.</param>
     /// <param name="onException">An action that is executed when an exception occurres.</param>
     /// <returns>Returns true if the action has been successfully executed once; otherwise false.</returns>
+    [Obsolete("Use Retry.Until(action).WithMaxRetryCount(maxRetryCount) instead.\n" +
+        "    - catchExceptions = false <=> .OnError().Abort()" +
+        "    - delayBetweenRetries = n <=> .WithTimeGap(n)" +
+        "    - exceptionTrace = false <=> .Configure(x => x.TraceExceptions = false)" +
+        "    - onException = action <=> .OnError().Call(action)")]
     public static bool RetryAction(Func<int, bool> action, int maxRetryCount, bool catchExceptions = true, int delayBetweenRetries = 0, bool exceptionTrace = true, Action<Exception> onException = null)
         => RetryActionCancelable(action, maxRetryCount, catchExceptions, delayBetweenRetries, exceptionTrace, onException == null ? (Func<Exception, bool>)null : CreateOnExceptionFunction(onException));
 
@@ -156,8 +174,15 @@ public static class TestHelper
     /// <param name="exceptionTrace">Determines whether to trace exceptions that occure during execution.</param>
     /// <param name="onException">An action that is executed when an exception occurres. If the function returns true execution continues; otherwise the execution is stopped.</param>
     /// <returns>Returns true if the action has been successfully executed once; otherwise false.</returns>
+    [Obsolete("Use Retry.Until(action).WithMaxRetryCount(maxRetryCount) instead.\n" +
+        "    - catchExceptions = false <=> .OnError().Abort()" +
+        "    - delayBetweenRetries = n <=> .WithTimeGap(n)" +
+        "    - exceptionTrace = false <=> .Configure(x => x.TraceExceptions = false)" +
+        "    - onException = action <=> .OnError().Call(action) and throw an AbortWaitException if retry should be aborted")]
     public static bool RetryActionCancelable(Func<int, bool> action, int maxRetryCount, bool catchExceptions = true, int delayBetweenRetries = 0, bool exceptionTrace = true, Func<Exception, bool> onException = null)
     {
+        Guard.NotNull(action);
+
         for (int i = 0; i <= maxRetryCount; i++)
         {
             try
@@ -192,6 +217,10 @@ public static class TestHelper
     /// <param name="exceptionTrace">Determines whether to trace exceptions that occure during execution.</param>
     /// <param name="onException">An action that is executed when an exception occurres.</param>
     /// <returns>Returns true if the action has been successfully executed once; otherwise false.</returns>
+    [Obsolete("Use Retry.Action(action).WithMaxRetryCount(maxRetryCount) instead.\n" +
+        "    - delayBetweenRetries = n <=> .WithTimeGap(n)" +
+        "    - exceptionTrace = false <=> .Configure(x => x.TraceExceptions = false)" +
+        "    - onException = action <=> .OnError().Call(action)")]
     public static bool RetryAction(Action<int> action, int maxRetryCount, int delayBetweenRetries = 0, bool exceptionTrace = true, Action<Exception> onException = null)
         => RetryActionCancelable(action, maxRetryCount, delayBetweenRetries, exceptionTrace, onException == null ? (Func<Exception, bool>)null : CreateOnExceptionFunction(onException));
 
@@ -204,8 +233,14 @@ public static class TestHelper
     /// <param name="exceptionTrace">Determines whether to trace exceptions that occure during execution.</param>
     /// <param name="onException">An action that is executed when an exception occurres. If the function returns true execution continues; otherwise the execution is stopped.</param>
     /// <returns>Returns true if the action has been successfully executed once; otherwise false.</returns>
+    [Obsolete("Use Retry.Action(action).WithMaxRetryCount(maxRetryCount) instead.\n" +
+        "    - delayBetweenRetries = n <=> .WithTimeGap(n)" +
+        "    - exceptionTrace = false <=> .Configure(x => x.TraceExceptions = false)" +
+        "    - onException = action <=> .OnError().Call(action) and throw an AbortWaitException if retry should be aborted")]
     public static bool RetryActionCancelable(Action<int> action, int maxRetryCount, int delayBetweenRetries = 0, bool exceptionTrace = true, Func<Exception, bool> onException = null)
     {
+        Guard.NotNull(action);
+
         for (int i = 0; i <= maxRetryCount; i++)
         {
             try
@@ -243,6 +278,8 @@ public static class TestHelper
     /// <returns>Returns true if the action completed successfully; otherwise false.</returns>
     public static bool Try(Action action, bool exceptionTrace)
     {
+        Guard.NotNull(action);
+
         try
         {
             action();
@@ -292,6 +329,8 @@ public static class TestHelper
     /// <returns>Returns the result of the action if it succeeds; otherwise the resultOnError.</returns>
     public static T Try<T>(Func<T> action, bool exceptionTrace, T resultOnError)
     {
+        Guard.NotNull(action);
+
         try
         {
             return action();
@@ -396,6 +435,7 @@ public static class TestHelper
     /// <typeparam name="T">The type of the result.</typeparam>
     /// <param name="functions">A list of functions to execute.</param>
     /// <returns>Returns all of the function results as an array. The results are ordered the same way as the functions.</returns>
+    [Obsolete("Should not be used.")]
     public static T[] LoopUntilAllFinished<T>(IReadOnlyList<Func<T>> functions) => LoopUntilAllFinished(functions, null);
 
     /// <summary>
@@ -405,8 +445,11 @@ public static class TestHelper
     /// <param name="functions">A list of functions to execute.</param>
     /// <param name="loopCancellationExpression">A function that is executed continuously. If this function returns false the wait is cancelled.</param>
     /// <returns>Returns all of the function results as an array. The results are ordered the same way as the functions.</returns>
+    [Obsolete("Should not be used.")]
     public static T[] LoopUntilAllFinished<T>(IReadOnlyList<Func<T>> functions, Func<IReadOnlyList<T>, bool> loopCancellationExpression)
     {
+        Guard.NotNull(functions);
+
         var result = new T[functions.Count];
         var completed = new bool[functions.Count];
         var tasks = functions.Select(x => Task.Run(x)).ToArray();
@@ -437,6 +480,7 @@ public static class TestHelper
     /// <param name="action">The action to execute.</param>
     /// <param name="timeout">The maximum execution time.</param>
     /// <returns>Returns true if the action executed without running in a timeout; otherwise false.</returns>
+    [Obsolete("Should not be used.")]
     public static bool RunWithTimeout(Action action, TimeSpan timeout) => RunWithTimeout(action, (int)timeout.TotalMilliseconds);
 
     /// <summary>
@@ -445,6 +489,7 @@ public static class TestHelper
     /// <param name="action">The action to execute.</param>
     /// <param name="timeout">The maximum execution time in miliseconds.</param>
     /// <returns>Returns true if the action executed without running in a timeout; otherwise false.</returns>
+    [Obsolete("Should not be used.")]
     public static bool RunWithTimeout(Action action, int timeout)
     {
         Exception exception = null;
@@ -484,4 +529,13 @@ public static class TestHelper
             return true;
         };
     }
+
+    /// <summary>
+    /// Enables or disables file system redirection for the calling thread.
+    /// </summary>
+    /// <param name="enable">Indicates the type of request for WOW64 system folder redirection. If TRUE, requests redirection be enabled; if FALSE, requests redirection be disabled.</param>
+    /// <returns>Boolean value indicating whether the function succeeded. If TRUE, the function succeeded; if FALSE, the function failed.</returns>
+    /// <remarks>https://docs.microsoft.com/en-us/windows/desktop/api/winbase/nf-winbase-wow64enablewow64fsredirection.</remarks>
+    [DllImport("Kernel32.Dll", EntryPoint = "Wow64EnableWow64FsRedirection")]
+    private static extern bool EnableWow64FSRedirection(bool enable);
 }

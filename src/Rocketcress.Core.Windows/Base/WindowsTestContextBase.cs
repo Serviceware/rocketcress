@@ -9,24 +9,27 @@ namespace Rocketcress.Core.Base;
 /// </summary>
 public abstract class WindowsTestContextBase : TestContextBase
 {
-#pragma warning disable CS1572 // XML comment has a param tag, but there is no parameter by that name
-#pragma warning disable SA1612 // Element parameter documentation should match element parameters
+#if !SLIM
     /// <summary>
     /// Initializes a new instance of the <see cref="WindowsTestContextBase"/> class.
     /// </summary>
     /// <param name="testContext">The current MSTest test context.</param>
     /// <param name="settings">The test settings.</param>
-#if !SLIM
     protected WindowsTestContextBase(TestContext testContext, SettingsBase settings)
         : base(testContext, settings)
 #else
+    /// <summary>
+    /// Initializes a new instance of the <see cref="WindowsTestContextBase"/> class.
+    /// </summary>
+    /// <param name="settings">The test settings.</param>
     protected WindowsTestContextBase(SettingsBase settings)
         : base(settings)
 #endif
     {
     }
-#pragma warning restore CS1572 // XML comment has a param tag, but there is no parameter by that name
-#pragma warning restore SA1612 // Element parameter documentation should match element parameters
+
+    /// <inheritdoc/>
+    public override bool CanTakeScreenshot { get; } = true;
 
     /// <inheritdoc />
     protected override void SaveScreenshot(string path)
@@ -36,8 +39,8 @@ public abstract class WindowsTestContextBase : TestContextBase
         int screenWidth = SystemInformation.VirtualScreen.Width;
         int screenHeight = SystemInformation.VirtualScreen.Height;
 
-        using Bitmap bmp = new Bitmap(screenWidth, screenHeight);
-        using (Graphics g = Graphics.FromImage(bmp))
+        using var bmp = new Bitmap(screenWidth, screenHeight);
+        using (var g = Graphics.FromImage(bmp))
             g.CopyFromScreen(screenLeft, screenTop, 0, 0, bmp.Size);
         bmp.Save(path, ImageFormat.Jpeg);
     }

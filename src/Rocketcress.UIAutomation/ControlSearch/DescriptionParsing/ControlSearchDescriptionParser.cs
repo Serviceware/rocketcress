@@ -59,6 +59,53 @@ internal class ControlSearchDescriptionParser
         return result;
     }
 
+    public static ISearchCondition ParseCondition(string conditionGroup)
+    {
+        string currentOperator = null;
+        var conditions = new List<ISearchCondition>();
+
+        foreach (Match match in RegularExpressions.SplitConditionsRegex.Matches($"{conditionGroup}"))
+        {
+            if (match.Value == "and" || match.Value == "or")
+            {
+                if (!string.IsNullOrEmpty(currentOperator))
+                    throw new InvalidOperationException($"There are two operators directly nearby: {currentOperator} -> {match.Value}");
+                currentOperator = match.Value;
+            }
+            else
+            {
+                if (string.IsNullOrEmpty(currentOperator) && conditions.Count > 0)
+                    throw new InvalidOperationException("Missing operator");
+
+                var condition = ParseConditionPart(match.Value);
+
+                if (string.IsNullOrEmpty(currentOperator) || currentOperator == "or")
+                {
+                    conditions.Add(condition);
+                }
+                else
+                {
+                    if (conditions.Last() is not AndCondition andCondition)
+                    {
+                        andCondition = new AndCondition(conditions.Last());
+                        conditions.RemoveAt(conditions.Count - 1);
+                        conditions.Add(andCondition);
+                    }
+
+                    andCondition.Conditions.Add(condition);
+                }
+
+                currentOperator = null;
+            }
+        }
+
+        if (conditions.Count == 0)
+            return null;
+        else if (conditions.Count == 1)
+            return conditions[0];
+        return new OrCondition(conditions);
+    }
+
     private static SearchPartBase CreateSearchPartFromPath(string pathGroup)
     {
         var result = new List<SearchPartBase>();
@@ -116,53 +163,6 @@ internal class ControlSearchDescriptionParser
         {
             return validPaths.Any(x => path == x || optionalPath == x);
         }
-    }
-
-    public static ISearchCondition ParseCondition(string conditionGroup)
-    {
-        string currentOperator = null;
-        var conditions = new List<ISearchCondition>();
-
-        foreach (Match match in RegularExpressions.SplitConditionsRegex.Matches($"{conditionGroup}"))
-        {
-            if (match.Value == "and" || match.Value == "or")
-            {
-                if (!string.IsNullOrEmpty(currentOperator))
-                    throw new InvalidOperationException($"There are two operators directly nearby: {currentOperator} -> {match.Value}");
-                currentOperator = match.Value;
-            }
-            else
-            {
-                if (string.IsNullOrEmpty(currentOperator) && conditions.Count > 0)
-                    throw new InvalidOperationException("Missing operator");
-
-                var condition = ParseConditionPart(match.Value);
-
-                if (string.IsNullOrEmpty(currentOperator) || currentOperator == "or")
-                {
-                    conditions.Add(condition);
-                }
-                else
-                {
-                    if (conditions.Last() is not AndCondition andCondition)
-                    {
-                        andCondition = new AndCondition(conditions.Last());
-                        conditions.RemoveAt(conditions.Count - 1);
-                        conditions.Add(andCondition);
-                    }
-
-                    andCondition.Conditions.Add(condition);
-                }
-
-                currentOperator = null;
-            }
-        }
-
-        if (conditions.Count == 0)
-            return null;
-        else if (conditions.Count == 1)
-            return conditions[0];
-        return new OrCondition(conditions);
     }
 
     private static ISearchCondition ParseConditionPart(string condition)

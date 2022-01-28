@@ -3,17 +3,28 @@ using Rocketcress.UIAutomation.Extensions;
 
 namespace Rocketcress.UIAutomation.ControlSearch.Conditions;
 
+/// <summary>
+/// Represents a search condition for finding UIAutomation elements that match a specific property.
+/// </summary>
+/// <seealso cref="Rocketcress.UIAutomation.ControlSearch.Conditions.SearchConditionBase" />
 public class PropertyCondition : SearchConditionBase
 {
-    public AutomationProperty Property { get; set; }
-    public object Value { get; set; }
-    public ByOptions Options { get; set; }
-
+    /// <summary>
+    /// Initializes a new instance of the <see cref="PropertyCondition"/> class.
+    /// </summary>
+    /// <param name="property">The property to check.</param>
+    /// <param name="value">The value to match.</param>
     public PropertyCondition(AutomationProperty property, object value)
         : this(property, value, ByOptions.None)
     {
     }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="PropertyCondition"/> class.
+    /// </summary>
+    /// <param name="property">The property to check.</param>
+    /// <param name="value">The value to match.</param>
+    /// <param name="options">The comparison options.</param>
     public PropertyCondition(AutomationProperty property, object value, ByOptions options)
     {
         Property = property;
@@ -21,14 +32,32 @@ public class PropertyCondition : SearchConditionBase
         Options = options;
     }
 
+    /// <summary>
+    /// Gets or sets the property to check.
+    /// </summary>
+    public AutomationProperty Property { get; set; }
+
+    /// <summary>
+    /// Gets or sets the value to match.
+    /// </summary>
+    public object Value { get; set; }
+
+    /// <summary>
+    /// Gets or sets the comparison options.
+    /// </summary>
+    public ByOptions Options { get; set; }
+
+    /// <inheritdoc />
     public override bool Check(AutomationElement element, TreeWalker treeWalker)
     {
+        Guard.NotNull(element);
+
         bool result;
 
         var value = element.GetCurrentPropertyValue(Property);
-        if (value is string sActual && Value is string sExpected)
+        if (value is string actualString && Value is string expectedString)
         {
-            result = Options.Check(sExpected, sActual);
+            result = Options.Check(expectedString, actualString);
         }
         else
         {
@@ -38,11 +67,7 @@ public class PropertyCondition : SearchConditionBase
         return result;
     }
 
-    protected override SearchConditionBase CloneInternal()
-    {
-        return new PropertyCondition(Property, Value, Options);
-    }
-
+    /// <inheritdoc />
     public override string GetDescription()
     {
         string strValue;
@@ -61,6 +86,7 @@ public class PropertyCondition : SearchConditionBase
         return $"@{propertyName}{new string(@operator)}'{strValue}'";
     }
 
+    /// <inheritdoc />
     public override bool Equals(object obj)
     {
         return obj is PropertyCondition other &&
@@ -69,8 +95,15 @@ public class PropertyCondition : SearchConditionBase
                Equals(Options, other.Options);
     }
 
+    /// <inheritdoc />
     public override int GetHashCode()
     {
         return (Property, Value, Options).GetHashCode();
+    }
+
+    /// <inheritdoc />
+    protected override SearchConditionBase CloneInternal()
+    {
+        return new PropertyCondition(Property, Value, Options);
     }
 }

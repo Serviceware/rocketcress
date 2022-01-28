@@ -14,10 +14,8 @@ public static class EnumerableExtensions
     /// <returns>The index of the first matching item, or -1 if no items match.</returns>
     public static int IndexOf<T>(this IEnumerable<T> items, Func<T, bool> predicate)
     {
-        if (items == null)
-            throw new ArgumentNullException(nameof(items));
-        if (predicate == null)
-            throw new ArgumentNullException(nameof(predicate));
+        Guard.NotNull(items);
+        Guard.NotNull(predicate);
 
         int retVal = 0;
         foreach (var item in items)
@@ -50,6 +48,9 @@ public static class EnumerableExtensions
     /// <param name="action">The action to execute for each element.</param>
     public static void ForEach<T>(this IEnumerable<T> items, Action<T> action)
     {
+        Guard.NotNull(items);
+        Guard.NotNull(action);
+
         foreach (var item in items)
             action(item);
     }
@@ -63,6 +64,9 @@ public static class EnumerableExtensions
     /// <returns>Returns an enumerable of values after executing the action.</returns>
     public static IEnumerable<T> Each<T>(this IEnumerable<T> items, Action<T> action)
     {
+        Guard.NotNull(items);
+        Guard.NotNull(action);
+
         foreach (var item in items)
         {
             action(item);
@@ -78,7 +82,7 @@ public static class EnumerableExtensions
     /// <returns>Returns true if the enumerable is null or has not elements; otherwise false.</returns>
     public static bool IsNullOrEmpty<T>(this IEnumerable<T> enumerable)
     {
-        return enumerable == null || !enumerable.Any();
+        return enumerable is null || !enumerable.Any();
     }
 
     /// <summary>
@@ -90,6 +94,8 @@ public static class EnumerableExtensions
     /// <returns>Return true if a first element existed; otherwise false.</returns>
     public static bool TryFirst<T>(this IEnumerable<T> enumerable, [MaybeNullWhen(false)] out T value)
     {
+        Guard.NotNull(enumerable);
+
         using var e = enumerable.GetEnumerator();
         var result = e.MoveNext();
         value = result ? e.Current : default;
@@ -106,6 +112,9 @@ public static class EnumerableExtensions
     /// <returns>Return true if a first element that fulfills the condition existed; otherwise false.</returns>
     public static bool TryFirst<T>(this IEnumerable<T> enumerable, Func<T, bool> predicate, [MaybeNullWhen(false)] out T value)
     {
+        Guard.NotNull(enumerable);
+        Guard.NotNull(predicate);
+
         foreach (T element in enumerable)
         {
             if (predicate(element))
@@ -138,6 +147,8 @@ public static class EnumerableExtensions
     /// <returns>Returns an enumerable containing all element from the enumerator.</returns>
     public static IEnumerable<T> AsEnumerable<T>(this IEnumerator<T> enumerator)
     {
+        Guard.NotNull(enumerator);
+
         while (enumerator.MoveNext())
             yield return enumerator.Current;
     }

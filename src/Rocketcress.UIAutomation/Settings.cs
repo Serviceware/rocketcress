@@ -2,6 +2,10 @@
 
 namespace Rocketcress.UIAutomation;
 
+/// <summary>
+/// Settings for UIAutomation tests.
+/// </summary>
+/// <seealso cref="Rocketcress.Core.Base.SettingsBase" />
 public class Settings : SettingsBase
 {
     /// <summary>

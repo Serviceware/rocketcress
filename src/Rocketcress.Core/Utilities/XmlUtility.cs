@@ -1,11 +1,11 @@
 ﻿using System.Xml.Serialization;
 
-namespace Rocketcress.Core.IO;
+namespace Rocketcress.Core.Utilities;
 
 /// <summary>
 /// Provides methods that help with XML files.
 /// </summary>
-public static class XmlHelper
+public static class XmlUtility
 {
     /// <summary>
     /// Loads an XML file.

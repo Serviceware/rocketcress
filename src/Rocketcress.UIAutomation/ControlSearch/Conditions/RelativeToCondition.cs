@@ -2,17 +2,34 @@
 
 namespace Rocketcress.UIAutomation.ControlSearch.Conditions;
 
+/// <summary>
+/// Represents a search condition for finding UIAutomation elements that are relatives to other elements matched by a specified <see cref="ISearchCondition"/>.
+/// </summary>
+/// <seealso cref="Rocketcress.UIAutomation.ControlSearch.Conditions.SearchConditionBase" />
 public class RelativeToCondition : SearchConditionBase
 {
-    public int Distance { get; set; }
-    public ISearchCondition Condition { get; set; }
-
+    /// <summary>
+    /// Initializes a new instance of the <see cref="RelativeToCondition"/> class.
+    /// </summary>
+    /// <param name="distance">The distance to the other control (negative values for preceding relatives).</param>
+    /// <param name="condition">The condition for the relative element.</param>
     public RelativeToCondition(int distance, ISearchCondition condition)
     {
         Distance = distance;
-        Condition = condition ?? throw new ArgumentNullException(nameof(condition));
+        Condition = Guard.NotNull(condition);
     }
 
+    /// <summary>
+    /// Gets or sets the distance to the other control (negative values for preceding relatives).
+    /// </summary>
+    public int Distance { get; set; }
+
+    /// <summary>
+    /// Gets or sets the condition for the relative element.
+    /// </summary>
+    public ISearchCondition Condition { get; set; }
+
+    /// <inheritdoc />
     public override bool Check(AutomationElement element, TreeWalker treeWalker)
     {
         bool result;
@@ -29,14 +46,16 @@ public class RelativeToCondition : SearchConditionBase
         return result;
     }
 
+    /// <inheritdoc />
+    public override string GetDescription()
+    {
+        return $"relativeto({Condition.GetDescription()}, {Distance})";
+    }
+
+    /// <inheritdoc />
     protected override SearchConditionBase CloneInternal()
     {
         var condition = (ISearchCondition)Condition.Clone();
         return new RelativeToCondition(Distance, condition);
-    }
-
-    public override string GetDescription()
-    {
-        return $"relativeto({Condition.GetDescription()}, {Distance})";
     }
 }

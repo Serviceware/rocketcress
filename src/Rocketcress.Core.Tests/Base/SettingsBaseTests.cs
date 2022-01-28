@@ -478,7 +478,7 @@ public class SettingsBaseTests : TestClassBase
         Assert.AreEqual(15, settings.Timeout.TotalSeconds);
         Assert.AreEqual("MyUser", settings.Username);
         Assert.AreEqual("MyPassword", settings.Password);
-        Assert.AreEqual(LanguageOptions.German, settings.Language);
+        Assert.AreEqual(7, settings.Language.LCID);
         Assert.AreEqual(123L, settings.OtherSettings["MySetting1"]);
         Assert.AreEqual("System.String", settings.SettingsTypes[0].TypeName);
         Assert.AreEqual("str", settings.SettingsTypes[0].TagName);
@@ -532,7 +532,7 @@ public class SettingsBaseTests : TestClassBase
         Assert.AreEqual(20, settings.Timeout.TotalSeconds);
         Assert.AreEqual("MyUser2", settings.Username);
         Assert.AreEqual("MyPassword2", settings.Password);
-        Assert.AreEqual(LanguageOptions.French, settings.Language);
+        Assert.AreEqual(12, settings.Language.LCID);
         Assert.AreEqual(789L, settings.OtherSettings["MySetting1"]);
         Assert.AreEqual(456L, settings.OtherSettings["MySetting2"]);
         Assert.AreEqual(753L, settings.OtherSettings["MySetting3"]);

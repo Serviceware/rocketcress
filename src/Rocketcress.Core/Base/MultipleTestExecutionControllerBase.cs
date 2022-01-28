@@ -1,8 +1,11 @@
 ﻿#if !SLIM
+using System.Threading;
+
 namespace Rocketcress.Core.Base;
 
 // TODO: Add XML Comments
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+#pragma warning disable SA1600 // Elements should be documented
 public abstract class MultipleTestExecutionControllerBase<TView, TTestMetadata> : TestObjectBase
     where TView : class
 {
@@ -11,25 +14,28 @@ public abstract class MultipleTestExecutionControllerBase<TView, TTestMetadata> 
     public abstract void OnExecutionStart(TTestMetadata metadata, int testIndex);
     public abstract void OnExecutionEnded(TTestMetadata metadata, int testIndex, UnitTestOutcome outcome);
     public abstract void OnExecutionError(TTestMetadata metadata, int testIndex, Exception exception, string locationDescription);
-    public abstract void ResetView(TView view);
+    public abstract void ResetView(TView view, CancellationToken token);
 
-    public List<Exception> Execute(TView view, TTestMetadata metadata, Action testAction, int timeout, bool continueOnError = true, bool failOnError = true)
+    public List<Exception> Execute(TView view, TTestMetadata metadata, Action<CancellationToken> testAction, int timeout, bool continueOnError = true, bool failOnError = true)
     {
         return Execute(DefaultExecutionCount, view, metadata, testAction, timeout, continueOnError, failOnError);
     }
 
-    public List<Exception> Execute(ICollection<TView> views, TTestMetadata metadata, Action testAction, int timeout, bool continueOnError = true, bool failOnError = true)
+    public List<Exception> Execute(ICollection<TView> views, TTestMetadata metadata, Action<CancellationToken> testAction, int timeout, bool continueOnError = true, bool failOnError = true)
     {
         return Execute(DefaultExecutionCount, views, metadata, testAction, timeout, continueOnError, failOnError);
     }
 
-    public List<Exception> Execute(int executionCount, TView view, TTestMetadata metadata, Action testAction, int timeout, bool continueOnError = true, bool failOnError = true)
+    public List<Exception> Execute(int executionCount, TView view, TTestMetadata metadata, Action<CancellationToken> testAction, int timeout, bool continueOnError = true, bool failOnError = true)
     {
         return Execute(executionCount, new[] { view }, metadata, testAction, timeout, continueOnError, failOnError);
     }
 
-    public List<Exception> Execute(int executionCount, ICollection<TView> views, TTestMetadata metadata, Action testAction, int timeout, bool continueOnError = true, bool failOnError = true)
+    public List<Exception> Execute(int executionCount, ICollection<TView> views, TTestMetadata metadata, Action<CancellationToken> testAction, int timeout, bool continueOnError = true, bool failOnError = true)
     {
+        Guard.NotNull(views);
+        Guard.NotNull(testAction);
+
         var exceptions = new List<Exception>();
         if (executionCount <= 0)
             throw new ArgumentOutOfRangeException(nameof(executionCount), "The executionCount has to be greater than 0");
@@ -42,10 +48,18 @@ public abstract class MultipleTestExecutionControllerBase<TView, TTestMetadata> 
             {
                 OnExecutionStart(metadata, i);
 
-                if (!TestHelper.RunWithTimeout(testAction, timeout))
-                    Assert.Fail($"Test timed out after {timeout / 1000:0} seconds.");
-                else
+                var cts = new CancellationTokenSource();
+                cts.CancelAfter(timeout);
+
+                try
+                {
+                    testAction(cts.Token);
                     success[i] = true;
+                }
+                catch (OperationCanceledException)
+                {
+                    Assert.Fail($"Test timed out after {timeout / 1000:0} seconds.");
+                }
 
                 OnExecutionEnded(metadata, i, UnitTestOutcome.Passed);
             }
@@ -64,11 +78,14 @@ public abstract class MultipleTestExecutionControllerBase<TView, TTestMetadata> 
                 {
                     try
                     {
-                        if (!TestHelper.RunWithTimeout(() => ResetView(view), TimeSpan.FromMinutes(5)))
-                        {
-                            isCanceled = true;
-                            break;
-                        }
+                        var cts = new CancellationTokenSource();
+                        cts.CancelAfter(TimeSpan.FromMinutes(5));
+                        ResetView(view, cts.Token);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        isCanceled = true;
+                        break;
                     }
                     catch (Exception ex)
                     {
@@ -93,6 +110,8 @@ public abstract class MultipleTestExecutionControllerBase<TView, TTestMetadata> 
 
     protected virtual void SetTestResult(List<Exception> exceptions, bool[] success)
     {
+        Guard.NotNull(exceptions);
+
         if (exceptions.Any())
         {
             throw new AggregateException(exceptions.Count + " Errors occured during TestRun", exceptions);

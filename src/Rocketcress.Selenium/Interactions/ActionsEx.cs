@@ -320,6 +320,8 @@ public class ActionsEx : Actions
     /// <returns>A self-reference to this <see cref="ActionsEx"/>.</returns>
     public ActionsEx WhileKeysPressed(Action<ActionsEx> action, params string[] keys)
     {
+        Guard.NotNull(action);
+
         KeysDown(keys);
         action(this);
         KeysUp(keys);
@@ -335,6 +337,8 @@ public class ActionsEx : Actions
     /// <returns>A self-reference to this <see cref="ActionsEx"/>.</returns>
     public ActionsEx WhileKeysPressed(IWebElement element, Action<ActionsEx> action, params string[] keys)
     {
+        Guard.NotNull(action);
+
         KeysDown(element, keys);
         action(this);
         KeysUp(element, keys);

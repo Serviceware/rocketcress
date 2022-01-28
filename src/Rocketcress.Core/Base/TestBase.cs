@@ -1,6 +1,6 @@
-﻿using System.Reflection;
+﻿using Rocketcress.Core.Attributes;
+using System.Reflection;
 using System.Runtime.ExceptionServices;
-using Rocketcress.Core.Attributes;
 
 namespace Rocketcress.Core.Base;
 
@@ -157,10 +157,6 @@ public abstract class TestBase<TSettings, TContext> : TestObjectBase
         var defaultSettingsFile = SettingsBase.GetSettingFile(assembly, null, true);
         return SettingsBase.GetFromFiles<TSettings>(specificSettingsFile, defaultSettingsFile);
     }
-
-#region Public Functions
-
-#endregion
 
     /// <summary>
     /// Dtermines wether the test is run in debug configuration.

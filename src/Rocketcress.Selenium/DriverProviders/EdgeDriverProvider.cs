@@ -1,4 +1,6 @@
 ﻿using Microsoft.Win32;
+using OpenQA.Selenium.Edge;
+using OpenQA.Selenium.Remote;
 using Rocketcress.Core;
 using System.Globalization;
 using System.IO.Compression;
@@ -15,32 +17,35 @@ public class EdgeDriverProvider : IDriverProvider
     /// <inheritdoc />
     public IWebDriver CreateDriver(string host, TimeSpan browserTimeout, CultureInfo language, Settings settings, IDriverConfiguration driverConfiguration)
     {
-        var eOptions = new OpenQA.Selenium.Edge.EdgeOptions();
-        var eArgs = new List<string>
+        Guard.NotNull(language);
+        Guard.NotNull(settings);
+
+        var options = new EdgeOptions();
+        var arguments = new List<string>
             {
-                "--lang=" + language.IetfLanguageTag,   // Set browser language
-                "--auth-server-whitelist=*" + host,     // Add host as trusted machines for NT Authentication
+                $"--lang={language.Name}",                   // Set browser language
+                $"--auth-server-whitelist=*{host}",     // Add host as trusted machines for NT Authentication
                 "--disable-extensions",                 // Disable extensions (faster)
                 "--inprivate",
                 "--no-sandbox",
                 "--disable-infobars",
             };
-        driverConfiguration?.ConfigureEdgeArguments(eArgs);
-        eOptions.AddArguments(eArgs);
-        eOptions.UnhandledPromptBehavior = UnhandledPromptBehavior.Ignore;
-        eOptions.AcceptInsecureCertificates = true;
-        eOptions.SetLoggingPreference(LogType.Browser, OpenQA.Selenium.LogLevel.All);
-        driverConfiguration?.ConfigureEdgeDriverOptions(eOptions);
+        driverConfiguration?.ConfigureEdgeArguments(arguments);
+        options.AddArguments(arguments);
+        options.UnhandledPromptBehavior = UnhandledPromptBehavior.Ignore;
+        options.AcceptInsecureCertificates = true;
+        options.SetLoggingPreference(LogType.Browser, OpenQA.Selenium.LogLevel.All);
+        driverConfiguration?.ConfigureEdgeDriverOptions(options);
 
         if (string.IsNullOrEmpty(settings.RemoteDriverUrl))
         {
             var (driverPath, driverExecutableName) = GetEdgeDriverPath();
-            var eService = OpenQA.Selenium.Edge.EdgeDriverService.CreateDefaultService(driverPath, driverExecutableName);
-            return this.RetryCreateDriver(() => new OpenQA.Selenium.Edge.EdgeDriver(eService, eOptions, browserTimeout));
+            var driverService = EdgeDriverService.CreateDefaultService(driverPath, driverExecutableName);
+            return this.RetryCreateDriver(() => new EdgeDriver(driverService, options, browserTimeout));
         }
         else
         {
-            return this.RetryCreateDriver(() => new OpenQA.Selenium.Remote.RemoteWebDriver(new Uri(settings.RemoteDriverUrl), eOptions));
+            return this.RetryCreateDriver(() => new RemoteWebDriver(new Uri(settings.RemoteDriverUrl), options));
         }
     }
 

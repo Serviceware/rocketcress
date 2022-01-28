@@ -25,7 +25,7 @@ public class ServiceContextExportProvider : ExportProvider
     /// <param name="serviceContext">The service context to use.</param>
     public ServiceContextExportProvider(ServiceContext serviceContext)
     {
-        _serviceContext = serviceContext;
+        _serviceContext = Guard.NotNull(serviceContext);
 
         var container = new CompositionContainer(this);
         serviceContext.AddInstance<CompositionContainer>(container);
@@ -39,6 +39,7 @@ public class ServiceContextExportProvider : ExportProvider
     /// <returns>A collection that contains all the exports that match the specified condition.</returns>
     protected override IEnumerable<Export> GetExportsCore(ImportDefinition definition, AtomicComposition atomicComposition)
     {
+        Guard.NotNull(definition);
         var type = Type.GetType(definition.ContractName);
         if (type == null)
         {

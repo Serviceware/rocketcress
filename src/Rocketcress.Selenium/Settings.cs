@@ -1,6 +1,5 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
-using Rocketcress.Core;
 using Rocketcress.Core.Base;
 using System.Drawing;
 using System.Globalization;
@@ -12,6 +11,16 @@ namespace Rocketcress.Selenium;
 /// </summary>
 public class Settings : SettingsBase
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Settings"/> class.
+    /// </summary>
+    public Settings()
+    {
+        Resolution = new Size(1280, 768);
+        DefaultBrowser = Browser.Chrome;
+        DefaultBrowserLanguage = CultureInfo.GetCultureInfo("en-us");
+    }
+
     /// <summary>
     /// Gets or sets the URL to the login page of the tested application.
     /// </summary>
@@ -32,7 +41,6 @@ public class Settings : SettingsBase
     /// Gets or sets the current browser.
     /// </summary>
     [JsonIgnore]
-    [JsonConverter(typeof(StringEnumConverter))]
     public virtual Browser CurrentBrowser { get; set; }
 
     /// <summary>
@@ -50,14 +58,4 @@ public class Settings : SettingsBase
     /// Gets or sets the URL of a Selenium Remote Web Driver (leave empty or null to use local driver).
     /// </summary>
     public virtual string RemoteDriverUrl { get; set; }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Settings"/> class.
-    /// </summary>
-    public Settings()
-    {
-        Resolution = new Size(1280, 768);
-        DefaultBrowser = Browser.Chrome;
-        DefaultBrowserLanguage = CultureInfo.GetCultureInfo("en-us");
-    }
 }

@@ -14,6 +14,8 @@ public static class AppDomainExtensions
     public static T CreateInstance<T>(this AppDomain domain)
         where T : class
     {
+        Guard.NotNull(domain);
+
         var result = (T)domain.CreateInstanceAndUnwrap(typeof(T).Assembly.GetName().Name!, typeof(T).FullName!)!;
         return result;
     }

@@ -14,7 +14,7 @@ public static class DbConnectionExtensions
     /// <param name="query">The command text to set to the command.</param>
     /// <param name="params">The parameters for the command.</param>
     /// <returns>Returns a new DbCommand object.</returns>
-    public static IDbCommand CreateCommand(this IDbConnection connection, string query, params (string Name, object Value)[] @params)
+    public static IDbCommand CreateCommand(this IDbConnection connection, string query, params (string Name, object? Value)[]? @params)
         => CreateCommand(connection, query, null, @params);
 
     /// <summary>
@@ -44,8 +44,10 @@ public static class DbConnectionExtensions
     /// <param name="timeout">The timeout for the command.</param>
     /// <param name="params">The parameters for the command.</param>
     /// <returns>Returns a new DbCommand object.</returns>
-    public static IDbCommand CreateCommand(this IDbConnection connection, string query, int? timeout, params (string Name, object Value)[]? @params)
+    public static IDbCommand CreateCommand(this IDbConnection connection, string query, int? timeout, params (string Name, object? Value)[]? @params)
     {
+        Guard.NotNull(connection);
+
         OpenIfNecessary(connection);
         var command = connection.CreateCommand();
         command.CommandText = query;
@@ -67,7 +69,7 @@ public static class DbConnectionExtensions
     /// <param name="query">The query to execute.</param>
     /// <param name="params">The parameters for the command.</param>
     /// <returns>Returns the first column of the first row of the result. If no rows are available, null is returned.</returns>
-    public static object? ExecuteScalar(this IDbConnection connection, string query, params (string Name, object Value)[] @params)
+    public static object? ExecuteScalar(this IDbConnection connection, string query, params (string Name, object? Value)[]? @params)
         => ExecuteScalar(connection, query, null, @params);
 
     /// <summary>
@@ -97,7 +99,7 @@ public static class DbConnectionExtensions
     /// <param name="timeout">The timeout for the command.</param>
     /// <param name="params">The parameters for the command.</param>
     /// <returns>Returns the first column of the first row of the result. If no rows are available, null is returned.</returns>
-    public static object? ExecuteScalar(this IDbConnection connection, string query, int? timeout, params (string Name, object Value)[]? @params)
+    public static object? ExecuteScalar(this IDbConnection connection, string query, int? timeout, params (string Name, object? Value)[]? @params)
     {
         using var cmd = CreateCommand(connection, query, timeout, @params);
         return cmd.ExecuteScalar();
@@ -110,7 +112,7 @@ public static class DbConnectionExtensions
     /// <param name="query">The query to execute.</param>
     /// <param name="params">The parameters for the command.</param>
     /// <returns>Returns the data as a DbDataReader.</returns>
-    public static IDataReader ExecuteReader(this IDbConnection connection, string query, params (string Name, object Value)[] @params)
+    public static IDataReader ExecuteReader(this IDbConnection connection, string query, params (string Name, object? Value)[]? @params)
         => ExecuteReader(connection, query, null, @params);
 
     /// <summary>
@@ -140,7 +142,7 @@ public static class DbConnectionExtensions
     /// <param name="timeout">The timeout for the command.</param>
     /// <param name="params">The parameters for the command.</param>
     /// <returns>Returns the data as a DbDataReader.</returns>
-    public static IDataReader ExecuteReader(this IDbConnection connection, string query, int? timeout, params (string Name, object Value)[]? @params)
+    public static IDataReader ExecuteReader(this IDbConnection connection, string query, int? timeout, params (string Name, object? Value)[]? @params)
     {
         var cmd = CreateCommand(connection, query, timeout, @params);
         return new DataReaderWrapper(cmd, cmd.ExecuteReader());
@@ -153,7 +155,7 @@ public static class DbConnectionExtensions
     /// <param name="query">The query to execute.</param>
     /// <param name="params">The parameters for the command.</param>
     /// <returns>Returns the number of affected rows by the query..</returns>
-    public static int ExecuteNonQuery(this IDbConnection connection, string query, params (string Name, object Value)[] @params)
+    public static int ExecuteNonQuery(this IDbConnection connection, string query, params (string Name, object? Value)[]? @params)
         => ExecuteNonQuery(connection, query, null, @params);
 
     /// <summary>
@@ -183,7 +185,7 @@ public static class DbConnectionExtensions
     /// <param name="timeout">The timeout for the command.</param>
     /// <param name="params">The parameters for the command.</param>
     /// <returns>Returns the number of affected rows by the query..</returns>
-    public static int ExecuteNonQuery(this IDbConnection connection, string query, int? timeout, params (string Name, object Value)[]? @params)
+    public static int ExecuteNonQuery(this IDbConnection connection, string query, int? timeout, params (string Name, object? Value)[]? @params)
     {
         using var cmd = CreateCommand(connection, query, timeout, @params);
         return cmd.ExecuteNonQuery();
@@ -195,6 +197,8 @@ public static class DbConnectionExtensions
     /// <param name="connection">The connection to open.</param>
     public static void OpenIfNecessary(this IDbConnection connection)
     {
+        Guard.NotNull(connection);
+
         if (connection.State != ConnectionState.Open)
             connection.Open();
     }
@@ -210,12 +214,12 @@ public static class DbConnectionExtensions
             _reader = reader;
         }
 
-        public object this[int i] => _reader[i];
-        public object this[string name] => _reader[name];
         public int Depth => _reader.Depth;
         public bool IsClosed => _reader.IsClosed;
         public int RecordsAffected => _reader.RecordsAffected;
         public int FieldCount => _reader.FieldCount;
+        public object this[int i] => _reader[i];
+        public object this[string name] => _reader[name];
 
         public void Close() => _reader.Close();
         public bool GetBoolean(int i) => _reader.GetBoolean(i);

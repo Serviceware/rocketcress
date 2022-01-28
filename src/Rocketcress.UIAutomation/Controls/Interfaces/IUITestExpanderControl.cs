@@ -1,6 +1,10 @@
 ﻿namespace Rocketcress.UIAutomation.Controls;
 
-public interface IUITestExpanderControl : IUITestControl
+/// <summary>
+/// Represents a expander UIAutomation control.
+/// </summary>
+/// <seealso cref="IUITestControl" />
+/// <seealso cref="IUITestExpandableControl" />
+public interface IUITestExpanderControl : IUITestControl, IUITestExpandableControl
 {
-    bool Expanded { get; set; }
 }

@@ -1,6 +1,10 @@
-namespace Rocketcress.UIAutomation.Controls;
+﻿namespace Rocketcress.UIAutomation.Controls;
 
-public interface IUITestTitleBarControl : IUITestControl
+/// <summary>
+/// Represents a title bar UIAutomation control.
+/// </summary>
+/// <seealso cref="IUITestControl" />
+/// <seealso cref="IUITestDisplayTextControl" />
+public interface IUITestTitleBarControl : IUITestControl, IUITestDisplayTextControl
 {
-    string DisplayText { get; }
 }

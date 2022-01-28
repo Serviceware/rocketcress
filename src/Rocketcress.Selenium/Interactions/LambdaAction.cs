@@ -15,6 +15,7 @@ public class LambdaAction : IAction
     /// <param name="action">The action to execute.</param>
     public LambdaAction(Action action)
     {
+        Guard.NotNull(action);
         _action = action;
     }
 

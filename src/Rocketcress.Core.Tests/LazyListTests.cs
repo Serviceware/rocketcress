@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 
 namespace Rocketcress.Core.Tests;
 
@@ -129,7 +129,7 @@ public class LazyListTests : TestClassBase
 
         var enumerator = ((IEnumerable)list).GetEnumerator();
 
-        Assert.ThrowsException<IndexOutOfRangeException>(() => enumerator.Current);
+        Assert.ThrowsException<InvalidOperationException>(() => enumerator.Current);
     }
 
     [TestMethod]
@@ -193,7 +193,7 @@ public class LazyListTests : TestClassBase
 
         var enumerator = list.GetEnumerator();
 
-        Assert.ThrowsException<IndexOutOfRangeException>(() => enumerator.Current);
+        Assert.ThrowsException<InvalidOperationException>(() => enumerator.Current);
     }
 
     [TestMethod]

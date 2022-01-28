@@ -40,7 +40,7 @@ public static class Waiter
     /// <summary>
     /// Gets or sets a value indicating whether exceptions during waiting operations should be traced.
     /// </summary>
-    [Obsolete("Use Wait.Options.TraceExceptions instead.")]
+    [Obsolete("Use Wait.DefaultOptions.TraceExceptions instead.")]
     public static bool TraceExceptions
     {
         get => Wait.Options.TraceExceptions;
@@ -51,7 +51,7 @@ public static class Waiter
     /// Gets or sets the maximal accepted exceptions during waiting operations. If more that the specified exceptions are thrown the waiting operation fails.
     /// If the value is set to null, the accepted exceptions are infinite.
     /// </summary>
-    [Obsolete("Use Wait.Options.MaxAcceptedExceptions instead.")]
+    [Obsolete("Use Wait.DefaultOptions.MaxAcceptedExceptions instead.")]
     public static int? MaxAcceptedExceptions
     {
         get => Wait.Options.MaxAcceptedExceptions;
@@ -61,7 +61,7 @@ public static class Waiter
     /// <summary>
     /// Gets or sets the default timeout for waiting operations.
     /// </summary>
-    [Obsolete("Use Wait.Options.DefaultTimeout instead.")]
+    [Obsolete("Use Wait.DefaultOptions.Timeout instead.")]
     public static TimeSpan DefaultTimeout
     {
         get => Wait.Options.DefaultTimeout;
@@ -71,7 +71,7 @@ public static class Waiter
     /// <summary>
     /// Gets or sets the default timeout for waiting operations in miliseconds.
     /// </summary>
-    [Obsolete("Use Wait.Options.DefaultTimeout instead.")]
+    [Obsolete("Use Wait.DefaultOptions.TimeoutMs instead.")]
     public static int DefaultTimeoutMs
     {
         get => (int)Wait.Options.DefaultTimeout.TotalMilliseconds;
@@ -81,7 +81,7 @@ public static class Waiter
     /// <summary>
     /// Gets or sets the time to wait between checking during a waiting operation.
     /// </summary>
-    [Obsolete("Use Wait.Options.DefaultTimeGap instead.")]
+    [Obsolete("Use Wait.DefaultOptions.TimeGapMs instead.")]
     public static int DefaultWaitBetweenChecks
     {
         get => (int)Wait.Options.DefaultTimeGap.TotalMilliseconds;

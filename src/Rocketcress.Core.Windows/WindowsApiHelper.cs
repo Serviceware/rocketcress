@@ -10,6 +10,9 @@ using System.Windows.Forms;
 #pragma warning disable CA1401 // P/Invokes should not be visible
 #pragma warning disable SA1313 // Parameter names should begin with lower-case letter
 #pragma warning disable SA1300 // Element should begin with upper-case letter
+#pragma warning disable SA1305 // Field names should not use Hungarian notation
+#pragma warning disable SA1201 // Elements should appear in the correct order
+#pragma warning disable SA1202 // Elements should be ordered by access
 
 namespace Rocketcress.Core;
 
@@ -19,7 +22,9 @@ namespace Rocketcress.Core;
 public static class WindowsApiHelper
 {
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+#pragma warning disable SA1600 // Elements should be documented
     public delegate bool Win32Callback(IntPtr hwnd, IntPtr lParam);
+#pragma warning restore SA1600 // Elements should be documented
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 
     /// <summary>
@@ -317,7 +322,7 @@ public static class WindowsApiHelper
     /// <param name="process">The process to check.</param>
     /// <param name="timeoutMs">The check timeout in miliseconds.</param>
     /// <returns>Returns true if the process is responding; otherwise false.</returns>
-    public static bool IsProcessResponding(Process process, int timeoutMs = 10) => IsProcessRespondingInternal(Process.GetProcessById(process.Id), timeoutMs);
+    public static bool IsProcessResponding(Process process, int timeoutMs = 10) => IsProcessRespondingInternal(Process.GetProcessById(Guard.NotNull(process).Id), timeoutMs);
     private static bool IsProcessRespondingInternal(Process process, int timeoutMs = 10)
     {
         var handleRef = new HandleRef(process, process.MainWindowHandle);

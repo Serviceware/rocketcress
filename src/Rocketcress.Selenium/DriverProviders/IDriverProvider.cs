@@ -53,7 +53,9 @@ internal static class InternalDriverProviderExtensions
     public static IWebDriver RetryCreateDriver(this IDriverProvider provider, Func<IWebDriver> createFunction)
     {
         IWebDriver result = default;
-        var success = TestHelper.RetryAction(() => result = createFunction(), 4);
+        var success = Retry.Action(() => result = createFunction())
+            .WithMaxRetryCount(4)
+            .Start().Value;
         if (!success)
             throw new WebDriverException("Could not create driver. See earlier exceptions.");
         return result;

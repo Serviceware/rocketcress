@@ -50,16 +50,6 @@ public class Style
     public bool IsBold => this["font-weight"] == "bold";
 
     /// <summary>
-    /// Determines wether a css attribute is set.
-    /// </summary>
-    /// <param name="key">The attribute to check.</param>
-    /// <returns>True if the attribute is set; otherwise false.</returns>
-    public bool ContainsKey(string key)
-    {
-        return _isComputedStyle || _dictionary.ContainsKey(key.ToLower());
-    }
-
-    /// <summary>
     /// Gets a CSS value.
     /// </summary>
     /// <param name="key">The name of the CSS attribute to get the value of.</param>
@@ -68,6 +58,7 @@ public class Style
     {
         get
         {
+            Guard.NotNull(key);
             if (_isComputedStyle)
                 return _element.GetCssValue(key.ToLower());
             else
@@ -75,8 +66,22 @@ public class Style
         }
     }
 
+    /// <summary>
+    /// Determines wether a css attribute is set.
+    /// </summary>
+    /// <param name="key">The attribute to check.</param>
+    /// <returns>True if the attribute is set; otherwise false.</returns>
+    public bool ContainsKey(string key)
+    {
+        Guard.NotNull(key);
+        return _isComputedStyle || _dictionary.ContainsKey(key.ToLower());
+    }
+
     private static IDictionary<string, string> Parse(string styleText)
     {
+        if (styleText is null)
+            return new Dictionary<string, string>();
+
         return styleText.Split(new[] { ";" }, StringSplitOptions.RemoveEmptyEntries)
             .Select(x => x.Split(':')).Where(x => x.Length == 2).ToDictionary(x => x[0].Trim().ToLower(), x => x[1].Trim());
     }

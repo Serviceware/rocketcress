@@ -1,4 +1,6 @@
 ﻿using Microsoft.Win32;
+using OpenQA.Selenium.IE;
+using OpenQA.Selenium.Remote;
 using Rocketcress.Core;
 using Rocketcress.Core.Base;
 using System.Globalization;
@@ -20,24 +22,27 @@ public class InternetExplorerDriverProvider : IDriverProvider, IDriverCleaner
     /// <inheritdoc />
     public IWebDriver CreateDriver(string host, TimeSpan browserTimeout, CultureInfo language, Settings settings, IDriverConfiguration driverConfiguration)
     {
-        var ieOptions = new OpenQA.Selenium.IE.InternetExplorerOptions
+        Guard.NotNull(language);
+        Guard.NotNull(settings);
+
+        var options = new InternetExplorerOptions
         {
             EnablePersistentHover = true,
             IgnoreZoomLevel = true,
             EnsureCleanSession = true,
             UnhandledPromptBehavior = UnhandledPromptBehavior.Ignore,
         };
-        ieOptions.SetLoggingPreference(LogType.Browser, OpenQA.Selenium.LogLevel.All);
-        driverConfiguration?.ConfigureIEDriverOptions(ieOptions);
+        options.SetLoggingPreference(LogType.Browser, OpenQA.Selenium.LogLevel.All);
+        driverConfiguration?.ConfigureIEDriverOptions(options);
 
         if (string.IsNullOrEmpty(settings.RemoteDriverUrl))
         {
-            var driverPath = Path.Combine(Path.GetDirectoryName(typeof(SeleniumTestContext).Assembly.Location));
-            var iePaths = GetInternetExplorerDriverPath(driverPath);
-            var ieService = OpenQA.Selenium.IE.InternetExplorerDriverService.CreateDefaultService(iePaths.DriverPath, iePaths.DriverExecutableName);
+            var driverSourcePath = Path.Combine(Path.GetDirectoryName(typeof(SeleniumTestContext).Assembly.Location));
+            var (driverPath, driverExecutableName) = GetInternetExplorerDriverPath(driverSourcePath);
+            var driverService = InternetExplorerDriverService.CreateDefaultService(driverPath, driverExecutableName);
 
             // Set browser language
-            SetRegistryValue(Registry.CurrentUser, @"Software\Microsoft\Internet Explorer\International", "AcceptLanguage", language.IetfLanguageTag, RegistryValueKind.String, settings, IEPrevLang);
+            SetRegistryValue(Registry.CurrentUser, @"Software\Microsoft\Internet Explorer\International", "AcceptLanguage", language.Name, RegistryValueKind.String, settings, IEPrevLang);
 
             // Disable Popup blocker
             SetRegistryValue(Registry.CurrentUser, @"Software\Microsoft\Internet Explorer\New Windows", "PopupMgr", "no", RegistryValueKind.String, settings, IEPrevPopupMgr);
@@ -58,11 +63,11 @@ public class InternetExplorerDriverProvider : IDriverProvider, IDriverCleaner
                 Logger.LogWarning("An error occurred while setting the first page of IE: " + ex);
             }
 
-            return this.RetryCreateDriver(() => new OpenQA.Selenium.IE.InternetExplorerDriver(ieService, ieOptions, browserTimeout));
+            return this.RetryCreateDriver(() => new InternetExplorerDriver(driverService, options, browserTimeout));
         }
         else
         {
-            return this.RetryCreateDriver(() => new OpenQA.Selenium.Remote.RemoteWebDriver(new Uri(settings.RemoteDriverUrl), ieOptions));
+            return this.RetryCreateDriver(() => new RemoteWebDriver(new Uri(settings.RemoteDriverUrl), options));
         }
     }
 
@@ -77,6 +82,9 @@ public class InternetExplorerDriverProvider : IDriverProvider, IDriverCleaner
     /// <inheritdoc />
     public void CleanupDriver(IWebDriver driver, Settings settings)
     {
+        Guard.NotNull(driver);
+        Guard.NotNull(settings);
+
         driver.Quit(); // Double Quit because of the IE Driver
 
         // Rollback all changes made to the registry -->

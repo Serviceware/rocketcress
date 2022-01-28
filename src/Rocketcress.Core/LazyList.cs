@@ -8,15 +8,10 @@ namespace Rocketcress.Core;
 /// <typeparam name="T">The type of the elements in this list.</typeparam>
 public class LazyList<T> : IReadOnlyList<T>
 {
-    private readonly List<T> _cachedItems;
+    private readonly List<T> _cachedItems = new();
     private readonly IEnumerable<T> _enumerable;
     private IEnumerator<T>? _currentEnumerator;
     private bool _enumeratorAtEnd = false;
-
-    /// <summary>
-    /// Gets the current enumerator of the underlying <see cref="IEnumerable{T}"/>.
-    /// </summary>
-    protected IEnumerator<T> CurrentEnumerator => _currentEnumerator ??= _enumerable.GetEnumerator();
 
     /// <summary>
     /// Initializes a new instance of the <see cref="LazyList{T}"/> class.
@@ -24,31 +19,7 @@ public class LazyList<T> : IReadOnlyList<T>
     /// <param name="enumerable">The items that should be loaded with this lazy list.</param>
     public LazyList(IEnumerable<T> enumerable)
     {
-        _cachedItems = new List<T>();
         _enumerable = enumerable;
-    }
-
-    /// <summary>
-    /// Gets the element at the specified index in the list.
-    /// </summary>
-    /// <param name="index">The zero-based index of the element to get.</param>
-    /// <returns>The element at the specified index in the list.</returns>
-    public T this[int index]
-    {
-        get
-        {
-            if (index < _cachedItems.Count)
-                return _cachedItems[index];
-            while (!_enumeratorAtEnd && index >= _cachedItems.Count)
-            {
-                if (CurrentEnumerator.MoveNext())
-                    _cachedItems.Add(CurrentEnumerator.Current);
-                else
-                    _enumeratorAtEnd = true;
-            }
-
-            return _cachedItems[index];
-        }
     }
 
     /// <summary>
@@ -77,10 +48,40 @@ public class LazyList<T> : IReadOnlyList<T>
     }
 
     /// <summary>
+    /// Gets the current enumerator of the underlying <see cref="IEnumerable{T}"/>.
+    /// </summary>
+    protected IEnumerator<T> CurrentEnumerator => _currentEnumerator ??= _enumerable.GetEnumerator();
+
+    /// <summary>
+    /// Gets the element at the specified index in the list.
+    /// </summary>
+    /// <param name="index">The zero-based index of the element to get.</param>
+    /// <returns>The element at the specified index in the list.</returns>
+    public T this[int index]
+    {
+        get
+        {
+            if (index < _cachedItems.Count)
+                return _cachedItems[index];
+            while (!_enumeratorAtEnd && index >= _cachedItems.Count)
+            {
+                if (CurrentEnumerator.MoveNext())
+                    _cachedItems.Add(CurrentEnumerator.Current);
+                else
+                    _enumeratorAtEnd = true;
+            }
+
+            return _cachedItems[index];
+        }
+    }
+
+    /// <summary>
     /// Returns an enumerator that iterates through the collection.
     /// </summary>
     /// <returns>An enumerator that can be used to iterate through the collection.</returns>
     public IEnumerator<T> GetEnumerator() => new LazyListEnumerator(this);
+
+    /// <inheritdoc/>
     IEnumerator IEnumerable.GetEnumerator() => new LazyListEnumerator(this);
 
     /// <summary>
@@ -98,16 +99,27 @@ public class LazyList<T> : IReadOnlyList<T>
         private LazyList<T>? _lazyList;
         private int _currentIndex = -1;
 
-        private LazyList<T> LazyList => _lazyList ?? throw new ObjectDisposedException(nameof(LazyListEnumerator));
-
         public LazyListEnumerator(LazyList<T> lazyList)
         {
             _lazyList = lazyList;
         }
 
-        public T Current => _currentIndex < 0 || _currentIndex > LazyList._cachedItems.Count ? throw new IndexOutOfRangeException() : LazyList._cachedItems[_currentIndex];
+        public T Current
+        {
+            get
+            {
+                if (_currentIndex < 0)
+                    throw new InvalidOperationException("Enumeration has not started. Call MoveNext.");
+                if (_currentIndex > LazyList._cachedItems.Count)
+                    throw new InvalidOperationException("Enumeration already finished.");
+
+                return LazyList._cachedItems[_currentIndex];
+            }
+        }
 
         object IEnumerator.Current => Current!;
+
+        private LazyList<T> LazyList => _lazyList ?? throw new ObjectDisposedException(nameof(LazyListEnumerator));
 
         public void Dispose()
         {

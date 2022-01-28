@@ -3,10 +3,19 @@ using System.Reflection;
 
 namespace Rocketcress.UIAutomation.Common;
 
+/// <summary>
+/// Utility for working with UIAutomation controls.
+/// </summary>
 public static class ControlUtility
 {
     private static List<(By LocationKey, Type ControlType)> _controlRegistry;
 
+    /// <summary>
+    /// Finds the correct control class for the given <see cref="AutomationElement"/> and creates an instance of it.
+    /// </summary>
+    /// <param name="application">The application the element is attached to.</param>
+    /// <param name="element">The element to wrap into a control instance.</param>
+    /// <returns>An instance of the correct control class matching the <paramref name="element"/>.</returns>
     public static IUITestControl GetControl(Application application, AutomationElement element)
     {
         if (element == null)
@@ -28,6 +37,9 @@ public static class ControlUtility
         return (IUITestControl)Activator.CreateInstance(targetType, element);
     }
 
+    /// <summary>
+    /// Ensures the control registry is filled by scanning all assemblies in the current <see cref="AppDomain"/> for classes with <see cref="AutoDetectControlAttribute"/>.
+    /// </summary>
     public static void EnsureControlRegistryIsFilled()
     {
         if (_controlRegistry == null)

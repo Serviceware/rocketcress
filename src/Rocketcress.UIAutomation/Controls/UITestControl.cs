@@ -32,15 +32,6 @@ public class UITestControl : TestObjectBase, IUITestControl
     /// Initializes a new instance of the <see cref="UITestControl"/> class as lazy element.
     /// </summary>
     /// <param name="application">The application which hosts this control.</param>
-    protected UITestControl(Application application)
-    {
-        Application = application ?? throw new ArgumentNullException(nameof(application));
-    }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="UITestControl"/> class as lazy element.
-    /// </summary>
-    /// <param name="application">The application which hosts this control.</param>
     /// <param name="locationKey">The location key.</param>
     public UITestControl(Application application, By locationKey)
         : this(application, locationKey, (UITestControl)null)
@@ -104,6 +95,15 @@ public class UITestControl : TestObjectBase, IUITestControl
     }
 
     /// <summary>
+    /// Initializes a new instance of the <see cref="UITestControl"/> class as lazy element.
+    /// </summary>
+    /// <param name="application">The application which hosts this control.</param>
+    protected UITestControl(Application application)
+    {
+        Application = application ?? throw new ArgumentNullException(nameof(application));
+    }
+
+    /// <summary>
     /// Event that is triggered whenever the underlying <see cref="System.Windows.Automation.AutomationElement"/> changed.
     /// </summary>
     public event EventHandler AutomationElementChanged;
@@ -112,11 +112,6 @@ public class UITestControl : TestObjectBase, IUITestControl
     /// Gets the location key that is used to find the underlying <see cref="System.Windows.Automation.AutomationElement"/>.
     /// </summary>
     public virtual By LocationKey { get; private set; }
-
-    /// <summary>
-    /// Gets a base location key that is prepended to the location key provided to the constructor.
-    /// </summary>
-    protected virtual By BaseLocationKey => By.Empty;
 
     /// <summary>
     /// Gets the parent control.
@@ -293,6 +288,11 @@ public class UITestControl : TestObjectBase, IUITestControl
     public virtual string HelpText => GetPropertyValue<string>(AutomationElement.HelpTextProperty);
 
     /// <summary>
+    /// Gets a base location key that is prepended to the location key provided to the constructor.
+    /// </summary>
+    protected virtual By BaseLocationKey => By.Empty;
+
+    /// <summary>
     /// Clears the underlying AutomationElement, so that on the next acces to the <see cref="AutomationElement"/> property, this control is searched again.
     /// </summary>
     public virtual void ClearAutomationElementCache()
@@ -422,6 +422,8 @@ public class UITestControl : TestObjectBase, IUITestControl
     /// <param name="toControl">The drag target control.</param>
     public virtual void DragDrop(IUITestControl toControl)
     {
+        Guard.NotNull(toControl);
+
         EnsureClickable();
         toControl.EnsureClickable();
         if (!Enabled)
@@ -463,14 +465,14 @@ public class UITestControl : TestObjectBase, IUITestControl
     /// Moves the mouse to a clickable point on this control.
     /// </summary>
     /// <returns><c>true</c> when the mouse has been moved; otherwise <c>false</c>.</returns>
-    public virtual bool MoveMouseToClickablePoint() => MoveMouseSlowlyToClickablePoint(0, Wait.Options.DefaultTimeoutMs, true);
+    public virtual bool MoveMouseToClickablePoint() => MoveMouseSlowlyToClickablePoint(0, Wait.DefaultOptions.TimeoutMs, true);
 
     /// <summary>
     /// Moves the mouse to a clickable point on this control.
     /// </summary>
     /// <param name="assert">Determined wether to throw an exception if the control is not displayed in time.</param>
     /// <returns><c>true</c> when the mouse has been moved; otherwise <c>false</c>.</returns>
-    public virtual bool MoveMouseToClickablePoint(bool assert) => MoveMouseSlowlyToClickablePoint(0, Wait.Options.DefaultTimeoutMs, assert);
+    public virtual bool MoveMouseToClickablePoint(bool assert) => MoveMouseSlowlyToClickablePoint(0, Wait.DefaultOptions.TimeoutMs, assert);
 
     /// <summary>
     /// Moves the mouse to a clickable point on this control.
@@ -485,7 +487,7 @@ public class UITestControl : TestObjectBase, IUITestControl
     /// </summary>
     /// <param name="duration">The duration of the mouse travel.</param>
     /// <returns><c>true</c> when the mouse has been moved; otherwise <c>false</c>.</returns>
-    public virtual bool MoveMouseSlowlyToClickablePoint(int duration) => MoveMouseSlowlyToClickablePoint(duration, Wait.Options.DefaultTimeoutMs, true);
+    public virtual bool MoveMouseSlowlyToClickablePoint(int duration) => MoveMouseSlowlyToClickablePoint(duration, Wait.DefaultOptions.TimeoutMs, true);
 
     /// <summary>
     /// Moves the mouse to a clickable point on this control.
@@ -493,7 +495,7 @@ public class UITestControl : TestObjectBase, IUITestControl
     /// <param name="duration">The duration of the mouse travel.</param>
     /// <param name="assert">Determined wether to throw an exception if the control is not displayed in time.</param>
     /// <returns><c>true</c> when the mouse has been moved; otherwise <c>false</c>.</returns>
-    public virtual bool MoveMouseSlowlyToClickablePoint(int duration, bool assert) => MoveMouseSlowlyToClickablePoint(duration, Wait.Options.DefaultTimeoutMs, assert);
+    public virtual bool MoveMouseSlowlyToClickablePoint(int duration, bool assert) => MoveMouseSlowlyToClickablePoint(duration, Wait.DefaultOptions.TimeoutMs, assert);
 
     /// <summary>
     /// Moves the mouse to a clickable point on this control.
@@ -707,7 +709,7 @@ public class UITestControl : TestObjectBase, IUITestControl
     /// Waits until the control exists.
     /// </summary>
     /// <returns>true if the control exists; otherwise false.</returns>
-    public virtual bool WaitUntilExists() => WaitUntilExists(Wait.Options.DefaultTimeoutMs, true);
+    public virtual bool WaitUntilExists() => WaitUntilExists(Wait.DefaultOptions.TimeoutMs, true);
 
     /// <summary>
     /// Waits until the control exists.
@@ -721,7 +723,7 @@ public class UITestControl : TestObjectBase, IUITestControl
     /// </summary>
     /// <param name="assert">Determines if the test should be marked as failed if the control does not exists after the wait.</param>
     /// <returns>true if the control exists; otherwise false.</returns>
-    public virtual bool WaitUntilExists(bool assert) => WaitUntilExists(Wait.Options.DefaultTimeoutMs, assert);
+    public virtual bool WaitUntilExists(bool assert) => WaitUntilExists(Wait.DefaultOptions.TimeoutMs, assert);
 
     /// <summary>
     /// Waits until the control exists.
@@ -738,7 +740,7 @@ public class UITestControl : TestObjectBase, IUITestControl
     /// Waits until the control is displayed.
     /// </summary>
     /// <returns>true if the control is displayed; otherwise false.</returns>
-    public virtual bool WaitUntilDisplayed() => WaitUntilDisplayed(Wait.Options.DefaultTimeoutMs, true);
+    public virtual bool WaitUntilDisplayed() => WaitUntilDisplayed(Wait.DefaultOptions.TimeoutMs, true);
 
     /// <summary>
     /// Waits until the control is displayed.
@@ -752,7 +754,7 @@ public class UITestControl : TestObjectBase, IUITestControl
     /// </summary>
     /// <param name="assert">Determines if the test should be marked as failed if the control is not displayed after the wait.</param>
     /// <returns>true if the control is displayed; otherwise false.</returns>
-    public virtual bool WaitUntilDisplayed(bool assert) => WaitUntilDisplayed(Wait.Options.DefaultTimeoutMs, assert);
+    public virtual bool WaitUntilDisplayed(bool assert) => WaitUntilDisplayed(Wait.DefaultOptions.TimeoutMs, assert);
 
     /// <summary>
     /// Waits until the control is displayed.
@@ -769,7 +771,7 @@ public class UITestControl : TestObjectBase, IUITestControl
     /// Waits until the control does not exist.
     /// </summary>
     /// <returns>true if the control does not exist; otherwise false.</returns>
-    public virtual bool WaitUntilNotExists() => WaitUntilNotExists(Wait.Options.DefaultTimeoutMs, true);
+    public virtual bool WaitUntilNotExists() => WaitUntilNotExists(Wait.DefaultOptions.TimeoutMs, true);
 
     /// <summary>
     /// Waits until the control does not exist.
@@ -783,7 +785,7 @@ public class UITestControl : TestObjectBase, IUITestControl
     /// </summary>
     /// <param name="assert">Determines if the test should be marked as failed if the control still exists after the wait.</param>
     /// <returns>true if the control does not exist; otherwise false.</returns>
-    public virtual bool WaitUntilNotExists(bool assert) => WaitUntilNotExists(Wait.Options.DefaultTimeoutMs, assert);
+    public virtual bool WaitUntilNotExists(bool assert) => WaitUntilNotExists(Wait.DefaultOptions.TimeoutMs, assert);
 
     /// <summary>
     /// Waits until the control does not exist.
@@ -800,7 +802,7 @@ public class UITestControl : TestObjectBase, IUITestControl
     /// Waits until the control is not displayed.
     /// </summary>
     /// <returns>true if the control is not displayed; otherwise false.</returns>
-    public virtual bool WaitUntilNotDisplayed() => WaitUntilNotDisplayed(Wait.Options.DefaultTimeoutMs, true);
+    public virtual bool WaitUntilNotDisplayed() => WaitUntilNotDisplayed(Wait.DefaultOptions.TimeoutMs, true);
 
     /// <summary>
     /// Waits until the control is not displayed.
@@ -814,7 +816,7 @@ public class UITestControl : TestObjectBase, IUITestControl
     /// </summary>
     /// <param name="assert">Determines if the test should be marked as failed if the control is still displayed after the wait.</param>
     /// <returns>true if the control is not displayed; otherwise false.</returns>
-    public virtual bool WaitUntilNotDisplayed(bool assert) => WaitUntilNotDisplayed(Wait.Options.DefaultTimeoutMs, assert);
+    public virtual bool WaitUntilNotDisplayed(bool assert) => WaitUntilNotDisplayed(Wait.DefaultOptions.TimeoutMs, assert);
 
     /// <summary>
     /// Waits until the control is not displayed.
@@ -831,7 +833,7 @@ public class UITestControl : TestObjectBase, IUITestControl
     /// Blocks the current thread until this control is ready to receive mouse or keyboard input, or until the default time-out expires.
     /// </summary>
     /// <returns>true if this control is ready to receive mouse or keyboard input before the time-out; otherwise, false.</returns>
-    public virtual bool WaitForControlReady() => WaitForControlReady(Wait.Options.DefaultTimeoutMs, true);
+    public virtual bool WaitForControlReady() => WaitForControlReady(Wait.DefaultOptions.TimeoutMs, true);
 
     /// <summary>
     /// Blocks the current thread until this control is ready to receive mouse or keyboard input, or until the default time-out expires.
@@ -845,7 +847,7 @@ public class UITestControl : TestObjectBase, IUITestControl
     /// </summary>
     /// <param name="assert">Determines if the test should be marked as failed if the control is not ready after the wait.</param>
     /// <returns>true if this control is ready to receive mouse or keyboard input before the time-out; otherwise, false.</returns>
-    public virtual bool WaitForControlReady(bool assert) => WaitForControlReady(Wait.Options.DefaultTimeoutMs, assert);
+    public virtual bool WaitForControlReady(bool assert) => WaitForControlReady(Wait.DefaultOptions.TimeoutMs, assert);
 
     /// <summary>
     /// Blocks the current thread until this control is ready to receive mouse or keyboard input, or until the default time-out expires.
@@ -929,17 +931,46 @@ public class UITestControl : TestObjectBase, IUITestControl
     }
 
     /// <summary>
+    /// Logs the specified debug message.
+    /// </summary>
+    /// <param name="message">The message.</param>
+    /// <param name="params">The parameters.</param>
+    protected internal virtual void LogDebug(string message, params object[] @params) => Logger.LogDebug(message + $" ({GetSearchDescription()})", @params);
+
+    /// <summary>
+    /// Logs the specified informational message.
+    /// </summary>
+    /// <param name="message">The message.</param>
+    /// <param name="params">The parameters.</param>
+    protected internal virtual void LogInfo(string message, params object[] @params) => Logger.LogInfo(message + $" ({GetSearchDescription()})", @params);
+
+    /// <summary>
+    /// Logs the specified warning message.
+    /// </summary>
+    /// <param name="message">The message.</param>
+    /// <param name="params">The parameters.</param>
+    protected internal virtual void LogWarning(string message, params object[] @params) => Logger.LogWarning(message + $" ({GetSearchDescription()})", @params);
+
+    /// <summary>
+    /// Logs the specified error message.
+    /// </summary>
+    /// <param name="message">The message.</param>
+    /// <param name="params">The parameters.</param>
+    protected internal virtual void LogError(string message, params object[] @params) => Logger.LogError(message + $" ({GetSearchDescription()})", @params);
+
+    /// <summary>
+    /// Logs the specified critical message.
+    /// </summary>
+    /// <param name="message">The message.</param>
+    /// <param name="params">The parameters.</param>
+    protected internal virtual void LogCritical(string message, params object[] @params) => Logger.LogCritical(message + $" ({GetSearchDescription()})", @params);
+
+    /// <summary>
     /// Initializes the control and potentially child control for this control. This method is executed in the constructors.
     /// </summary>
     protected virtual void Initialize()
     {
     }
-
-    protected internal virtual void LogDebug(string message, params object[] @params) => Logger.LogDebug(message + $" ({GetSearchDescription()})", @params);
-    protected internal virtual void LogInfo(string message, params object[] @params) => Logger.LogInfo(message + $" ({GetSearchDescription()})", @params);
-    protected internal virtual void LogWarning(string message, params object[] @params) => Logger.LogWarning(message + $" ({GetSearchDescription()})", @params);
-    protected internal virtual void LogError(string message, params object[] @params) => Logger.LogError(message + $" ({GetSearchDescription()})", @params);
-    protected internal virtual void LogCritical(string message, params object[] @params) => Logger.LogCritical(message + $" ({GetSearchDescription()})", @params);
 
     private IEnumerable<AutomationElement> GetAllParents()
     {
@@ -957,7 +988,9 @@ public class UITestControl : TestObjectBase, IUITestControl
     }
 }
 
-[SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1402:File may only contain a single type", Justification = "Extension methods")]
+/// <summary>
+/// Provides extension methods for the <see cref="IUITestControl"/> interface.
+/// </summary>
 public static class UITestControlExtensions
 {
     /// <summary>

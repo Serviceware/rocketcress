@@ -5,6 +5,13 @@
 /// </summary>
 public class Application
 {
+    private Application(UIAutomationTestContext context, Process process, ApplicationStartType startType)
+    {
+        Context = context ?? throw new ArgumentNullException(nameof(context));
+        Process = process ?? throw new ArgumentNullException(nameof(process));
+        StartType = startType;
+    }
+
     /// <summary>
     /// Gets the context this application has been attached or stated on.
     /// </summary>
@@ -19,19 +26,6 @@ public class Application
     /// Gets a value indicating how the application has been started.
     /// </summary>
     public ApplicationStartType StartType { get; }
-
-    private Application(UIAutomationTestContext context, Process process, ApplicationStartType startType)
-    {
-        Context = context ?? throw new ArgumentNullException(nameof(context));
-        Process = process ?? throw new ArgumentNullException(nameof(process));
-        StartType = startType;
-    }
-
-    private static void AddApplicationToContext(UIAutomationTestContext context, Application application)
-    {
-        context.Applications.Add(application);
-        context.ActiveApplication = application;
-    }
 
     /// <summary>
     /// Launches an application from a specified file location.
@@ -116,6 +110,12 @@ public class Application
         var app = new Application(context, process, ApplicationStartType.Attached);
         AddApplicationToContext(context, app);
         return app;
+    }
+
+    private static void AddApplicationToContext(UIAutomationTestContext context, Application application)
+    {
+        context.Applications.Add(application);
+        context.ActiveApplication = application;
     }
 }
 

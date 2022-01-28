@@ -1,8 +1,11 @@
 ﻿namespace Rocketcress.UIAutomation.Controls;
 
-public interface IUITestButtonControl : IUITestControl
+/// <summary>
+/// Represents a UIAutomation button control.
+/// </summary>
+/// <seealso cref="IUITestControl" />
+/// <seealso cref="IUITestDisplayTextControl" />
+/// <seealso cref="IUITestInvokableControl" />
+public interface IUITestButtonControl : IUITestControl, IUITestDisplayTextControl, IUITestInvokableControl
 {
-    string DisplayText { get; }
-
-    void Invoke();
 }

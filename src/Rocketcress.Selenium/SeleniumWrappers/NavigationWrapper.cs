@@ -6,6 +6,17 @@
 public class NavigationWrapper : INavigation
 {
     /// <summary>
+    /// Initializes a new instance of the <see cref="NavigationWrapper"/> class.
+    /// </summary>
+    /// <param name="driver">The driver that is wrapped.</param>
+    /// <param name="wrappedNavigation">The <see cref="INavigation"/> that is wrapped.</param>
+    public NavigationWrapper(WebDriver driver, INavigation wrappedNavigation)
+    {
+        Driver = Guard.NotNull(driver);
+        WrappedNavigation = wrappedNavigation;
+    }
+
+    /// <summary>
     /// Gets the driver that is wrapped.
     /// </summary>
     protected WebDriver Driver { get; }
@@ -14,17 +25,6 @@ public class NavigationWrapper : INavigation
     /// Gets the navigation instance that is wrapped.
     /// </summary>
     protected INavigation WrappedNavigation { get; }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="NavigationWrapper"/> class.
-    /// </summary>
-    /// <param name="driver">The driver that is wrapped.</param>
-    /// <param name="wrappedNavigation">The <see cref="INavigation"/> that is wrapped.</param>
-    public NavigationWrapper(WebDriver driver, INavigation wrappedNavigation)
-    {
-        Driver = driver ?? throw new ArgumentNullException(nameof(driver));
-        WrappedNavigation = wrappedNavigation;
-    }
 
     /// <summary>
     /// Move back a single entry in the browser's history.
@@ -96,10 +96,10 @@ public class NavigationWrapper : INavigation
         {
             if (url == null)
                 WrappedNavigation.GoToUrl((string)null);
-            else if (url is string sUrl)
-                WrappedNavigation.GoToUrl(sUrl);
-            else if (url is Uri uUrl)
-                WrappedNavigation.GoToUrl(uUrl);
+            else if (url is string stringUrl)
+                WrappedNavigation.GoToUrl(stringUrl);
+            else if (url is Uri uri)
+                WrappedNavigation.GoToUrl(uri);
             else
                 throw new ArgumentException("Url has to be string or Uri.", nameof(url));
         }

@@ -1,26 +1,25 @@
 ﻿using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 
-namespace Rocketcress.Core;
+namespace Rocketcress.Core.Utilities;
 
 /// <summary>
 /// Helper for OS specific actions.
 /// </summary>
-public static class OsHelper
+public static class ScriptUtility
 {
-    [DllImport("user32.dll", EntryPoint = "SetCursorPos")]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    private static extern bool SetCursorPos(int x, int y);
-
     /// <summary>
     /// Runs a bash command on linux distributions.
     /// If the current OS is not Linux a <see cref="NotSupportedException"/> is thrown.
     /// </summary>
     /// <param name="command">The bash command to execute.</param>
     /// <returns>Returns the standard output of the bash command.</returns>
+    [SupportedOSPlatform("linux")]
     public static string RunBashCommand(string command)
     {
         if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             throw new NotSupportedException("Bash Commands can only be executed on Linux.");
+        Guard.NotNull(command);
 
         var escapedArgs = command.Replace("\"", "\\\"");
         var process = new Process()
@@ -46,6 +45,7 @@ public static class OsHelper
     /// </summary>
     /// <param name="x">The X-position to set the cursor to.</param>
     /// <param name="y">The Y-position to set the cursor to.</param>
+    [SupportedOSPlatform("windows")]
     public static void SetCursorPosition(int x, int y)
     {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -53,4 +53,8 @@ public static class OsHelper
             SetCursorPos(x, y);
         }
     }
+
+    [DllImport("user32.dll", EntryPoint = "SetCursorPos")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool SetCursorPos(int x, int y);
 }

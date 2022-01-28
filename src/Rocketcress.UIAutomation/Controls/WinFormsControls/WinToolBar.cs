@@ -2,12 +2,24 @@
 
 namespace Rocketcress.UIAutomation.Controls.WinFormsControls;
 
+/// <summary>
+/// Represents a Windows Forms tool bar control.
+/// </summary>
+/// <seealso cref="Rocketcress.UIAutomation.Controls.WinFormsControls.WinControl" />
+/// <seealso cref="Rocketcress.UIAutomation.Controls.IUITestToolBarControl" />
 [AutoDetectControl]
 [GenerateUIMapParts]
 public partial class WinToolBar : WinControl, IUITestToolBarControl
 {
+    /// <inheritdoc/>
     protected override By BaseLocationKey => base.BaseLocationKey.AndControlType(ControlType.ToolBar);
 
+    /// <summary>
+    /// Gets or sets the location key that is used to find items.
+    /// </summary>
+    [SuppressMessage("StyleCop.CSharp.OrderingRules", "SA1202:Elements should be ordered by access", Justification = "Base Location Key should be on top.")]
     public By ItemLocationKey { get; set; } = By.Framework(FrameworkIds.WindowsForms).AndProperty(AutomationElement.IsKeyboardFocusableProperty, true);
+
+    /// <inheritdoc/>
     public virtual IEnumerable<IUITestControl> Items => FindElements(ItemLocationKey);
 }

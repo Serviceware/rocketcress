@@ -6,34 +6,56 @@ using Rocketcress.UIAutomation.Exceptions;
 
 namespace Rocketcress.UIAutomation.Controls.WinFormsControls;
 
+/// <summary>
+/// Represents a Windows Forms combo box control.
+/// </summary>
+/// <seealso cref="Rocketcress.UIAutomation.Controls.WinFormsControls.WinControl" />
+/// <seealso cref="Rocketcress.UIAutomation.Controls.IUITestComboBoxControl" />
 [AutoDetectControl]
 [GenerateUIMapParts]
 public partial class WinComboBox : WinControl, IUITestComboBoxControl
 {
+    /// <inheritdoc/>
     protected override By BaseLocationKey => base.BaseLocationKey.AndControlType(ControlType.ComboBox);
 
+    [SuppressMessage("StyleCop.CSharp.OrderingRules", "SA1201:Elements should appear in the correct order", Justification = "Base Location Key should be on top.")]
     private static readonly By ByItem = By.Scope(TreeScope.Children).AndControlType(ControlType.ListItem);
     private ValueControlSupport _valueControlSupport;
     private ListControlSupport _listControlSupport;
 
-    [UIMapControl]
-    private UITestControl ListControl { get; set; } = InitUsing<UITestControl>(() => By.ControlType(ControlType.List));
-
-    [UIMapControl(IdStyle = IdStyle.Disabled)]
-    private CommonButton ExpandButton { get; set; }
-
+    /// <summary>
+    /// Gets the expand collapse pattern.
+    /// </summary>
     public ExpandCollapsePattern ExpandCollapsePattern => GetPattern<ExpandCollapsePattern>();
+
+    /// <summary>
+    /// Gets the item container pattern.
+    /// </summary>
     public ItemContainerPattern ItemContainerPattern => GetPattern<ItemContainerPattern>();
+
+    /// <summary>
+    /// Gets the scroll pattern.
+    /// </summary>
     public ScrollPattern ScrollPattern => GetPattern<ScrollPattern>();
+
+    /// <summary>
+    /// Gets the selection pattern.
+    /// </summary>
     public SelectionPattern SelectionPattern => GetPattern<SelectionPattern>();
+
+    /// <summary>
+    /// Gets the value pattern.
+    /// </summary>
     public ValuePattern ValuePattern => GetPattern<ValuePattern>();
 
+    /// <inheritdoc/>
     public virtual string SelectedItem
     {
         get => _listControlSupport.GetSelectedItems().FirstOrDefault();
         set => _listControlSupport.SetSelectedItem(value);
     }
 
+    /// <inheritdoc/>
     public virtual int SelectedIndex
     {
         get
@@ -51,6 +73,7 @@ public partial class WinComboBox : WinControl, IUITestComboBoxControl
         }
     }
 
+    /// <inheritdoc/>
     public virtual string Text
     {
         get => TryGetPattern<ValuePattern>(out var valuePattern) ? valuePattern.Current.Value : SelectedItem;
@@ -62,6 +85,7 @@ public partial class WinComboBox : WinControl, IUITestComboBoxControl
         }
     }
 
+    /// <inheritdoc/>
     public virtual bool Expanded
     {
         get => ListControl.Displayed;
@@ -75,7 +99,14 @@ public partial class WinComboBox : WinControl, IUITestComboBoxControl
         }
     }
 
+    /// <inheritdoc/>
     public virtual IEnumerable<IUITestControl> Items => _listControlSupport.EnumerateItems().Select(x => ControlUtility.GetControl(Application, x));
+
+    [UIMapControl]
+    private UITestControl ListControl { get; set; } = InitUsing<UITestControl>(() => By.ControlType(ControlType.List));
+
+    [UIMapControl(IdStyle = IdStyle.Disabled)]
+    private CommonButton ExpandButton { get; set; }
 
     partial void OnInitialized()
     {

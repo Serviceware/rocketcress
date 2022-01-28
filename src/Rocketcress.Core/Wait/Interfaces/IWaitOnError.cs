@@ -8,6 +8,7 @@ public interface IWaitOnError<T>
 {
     /// <summary>
     /// Configures the wait operation to call the specified action when an exception occurs.
+    /// If the action throws an <see cref="WaitAbortedException"/> the operation is aborted.
     /// </summary>
     /// <param name="action">The action to execute.</param>
     /// <returns>The configured wait operation.</returns>
@@ -16,6 +17,7 @@ public interface IWaitOnError<T>
     /// <summary>
     /// Configures the wait operation to call the specified result factory when an exception occurs.
     /// If the result factory returns the default value of <typeparamref name="T"/> the wait operation continues.
+    /// If the action throws an <see cref="WaitAbortedException"/> the operation is aborted.
     /// </summary>
     /// <param name="resultFactory">The result factory to execute.</param>
     /// <returns>The configured wait operation.</returns>
@@ -31,7 +33,7 @@ public interface IWaitOnError<T>
 
     /// <summary>
     /// Configures the wait operation to abort when an exception occurs.
-    /// If the wait operation is configured to throw on timeout, this will also lead to an exception.
+    /// If the wait operation is configured to throw on failure, this will also lead to an exception.
     /// </summary>
     /// <returns>The configured wait operation.</returns>
     IWait<T> Abort();

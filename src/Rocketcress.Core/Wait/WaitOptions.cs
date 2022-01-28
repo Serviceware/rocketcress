@@ -1,55 +1,165 @@
-﻿namespace Rocketcress.Core;
+﻿using System.ComponentModel;
+using System.Runtime.CompilerServices;
+
+namespace Rocketcress.Core;
 
 /// <summary>
 /// Provides options for the <see cref="Wait"/> class.
 /// </summary>
-public sealed class WaitOptions
+internal sealed class WaitOptions : IWaitOptions, IObsoleteWaitOptions
 {
-    /// <summary>
-    /// Gets or sets a value indicating whether exceptions during wait operations should be traced.
-    /// </summary>
-    public bool TraceExceptions { get; set; }
-
-    /// <summary>
-    /// Gets or sets the maximum number of accepted exceptions during wait operations.
-    /// If more than the specified exceptions are thrown during a wait operation, it will fail.
-    /// If set to <c>null</c>, the accepted exceptions are infinite.
-    /// </summary>
-    public int? MaxAcceptedExceptions { get; set; }
-
-    /// <summary>
-    /// Gets or sets the default timeout for wait operations.
-    /// </summary>
-    public TimeSpan DefaultTimeout { get; set; }
-
-    /// <summary>
-    /// Gets or sets the default timeout for wait operations in milliseconds.
-    /// </summary>
-    public int DefaultTimeoutMs
-    {
-        get => (int)DefaultTimeout.TotalMilliseconds;
-        set => DefaultTimeout = TimeSpan.FromMilliseconds(value);
-    }
-
-    /// <summary>
-    /// Gets or sets the time to wait between checking the condition during a wait operation.
-    /// </summary>
-    public TimeSpan DefaultTimeGap { get; set; }
-
-    /// <summary>
-    /// Gets or sets the time in milliseconds to wait between checking the condition during a wait operation.
-    /// </summary>
-    public int DefaultTimeGapMs
-    {
-        get => (int)DefaultTimeGap.TotalMilliseconds;
-        set => DefaultTimeGap = TimeSpan.FromMilliseconds(value);
-    }
+    private bool _traceExceptions;
+    private int? _maxAcceptedExceptions;
+    private int? _maxRetryCount;
+    private TimeSpan _timeout;
+    private TimeSpan _timeGap;
 
     internal WaitOptions()
     {
-        TraceExceptions = true;
-        MaxAcceptedExceptions = null;
-        DefaultTimeout = TimeSpan.FromSeconds(10);
-        DefaultTimeGap = TimeSpan.FromMilliseconds(100);
+    }
+
+    /// <summary>
+    /// Occurs when a property value changes.
+    /// </summary>
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    /// <inheritdoc/>
+    public bool TraceExceptions
+    {
+        get => _traceExceptions;
+        set => SetProperty(value, ref _traceExceptions);
+    }
+
+    /// <inheritdoc/>
+    public int? MaxAcceptedExceptions
+    {
+        get => _maxAcceptedExceptions;
+        set => SetProperty(value, ref _maxAcceptedExceptions);
+    }
+
+    /// <inheritdoc/>
+    public int? MaxRetryCount
+    {
+        get => _maxRetryCount;
+        set => SetProperty(value, ref _maxRetryCount);
+    }
+
+    /// <inheritdoc/>
+    public TimeSpan Timeout
+    {
+        get => _timeout;
+        set
+        {
+            if (SetProperty(value, ref _timeout))
+                OnPropertyChanged(nameof(TimeoutMs));
+        }
+    }
+
+    /// <inheritdoc/>
+    public int TimeoutMs
+    {
+        get => GetMilliseconds(Timeout);
+        set => Timeout = TimeSpan.FromMilliseconds(value);
+    }
+
+    /// <inheritdoc/>
+    public TimeSpan TimeGap
+    {
+        get => _timeGap;
+        set
+        {
+            if (SetProperty(value, ref _timeGap))
+                OnPropertyChanged(nameof(TimeGapMs));
+        }
+    }
+
+    /// <inheritdoc/>
+    public int TimeGapMs
+    {
+        get => GetMilliseconds(TimeGap);
+        set => TimeGap = TimeSpan.FromMilliseconds(value);
+    }
+
+    #region Obsolete
+
+    /// <inheritdoc/>
+    public TimeSpan DefaultTimeout { get; set; }
+
+    /// <inheritdoc/>
+    public int DefaultTimeoutMs
+    {
+        get => TimeoutMs;
+        set => TimeoutMs = value;
+    }
+
+    /// <inheritdoc/>
+    public TimeSpan DefaultTimeGap { get; set; }
+
+    /// <inheritdoc/>
+    public int DefaultTimeGapMs
+    {
+        get => TimeGapMs;
+        set => TimeGapMs = value;
+    }
+
+    #endregion
+
+    /// <inheritdoc/>
+    public object Clone()
+    {
+        return new WaitOptions
+        {
+            TraceExceptions = TraceExceptions,
+            MaxAcceptedExceptions = MaxAcceptedExceptions,
+            MaxRetryCount = MaxRetryCount,
+            Timeout = Timeout,
+            TimeGap = TimeGap,
+        };
+    }
+
+    /// <inheritdoc/>
+    public IReadOnlyWaitOptions AsReadOnly()
+    {
+        return new ReadOnly(this);
+    }
+
+    private static int GetMilliseconds(TimeSpan timeSpan)
+    {
+        unchecked
+        {
+            return Math.Max((int)timeSpan.TotalMilliseconds, int.MaxValue);
+        }
+    }
+
+    private bool SetProperty<T>(T value, ref T @field, [CallerMemberName] string propertyName = "")
+    {
+        bool notify = !Equals(value, @field);
+        field = value;
+        if (notify)
+            OnPropertyChanged(propertyName);
+        return notify;
+    }
+
+    private void OnPropertyChanged([CallerMemberName] string propertyName = "")
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+
+    private class ReadOnly : IReadOnlyWaitOptions
+    {
+        private readonly IWaitOptions _options;
+
+        public ReadOnly(IWaitOptions options)
+        {
+            _options = options;
+        }
+
+        public bool TraceExceptions => _options.TraceExceptions;
+        public int? MaxAcceptedExceptions => _options.MaxAcceptedExceptions;
+        public int? MaxRetryCount => _options.MaxRetryCount;
+        public TimeSpan Timeout => _options.Timeout;
+        public int TimeoutMs => _options.TimeoutMs;
+        public TimeSpan TimeGap => _options.TimeGap;
+        public int TimeGapMs => _options.TimeGapMs;
     }
 }

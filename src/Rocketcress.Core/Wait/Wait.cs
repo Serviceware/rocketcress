@@ -1,16 +1,39 @@
 ﻿namespace Rocketcress.Core;
 
-internal sealed class Wait<T> : IWait<T>, IWaitOnError<T>
+internal sealed class Wait<T> : IWait<T>, IWaitOnError<T>, IWaitDefaultOptions
 {
     private readonly WaitRunner<T> _runner;
-    private readonly Func<T?> _condition;
-    private Func<Exception, (WaitRunnerErrorResult Result, T? Value)>? _exceptionHandler;
 
-    internal Wait(Func<T?> condition)
+    internal Wait(
+        Func<WaitContext<T>, T?> condition,
+        IWaitOptions options,
+        string name,
+        Action<object?, WaitContext> onStartingCallback,
+        Action<object?, WaitContext> onFinishedCallback,
+        Action<object?, WaitContext, Exception> onExceptionCallback)
     {
-        _runner = new WaitRunner<T>();
-        _condition = condition;
+        DefaultOptions = options;
+        _runner = new WaitRunner<T>(
+            condition,
+            (IWaitOptions)options.Clone(),
+            name,
+            x => onStartingCallback(this, x),
+            x => onFinishedCallback(this, x),
+            (x, y) => onExceptionCallback(this, x, y));
     }
+
+    public IWaitOptions DefaultOptions { get; }
+
+    #region IWait<T> Members
+
+    public IWaitOnError<T> OnError()
+    {
+        return this;
+    }
+
+    #endregion
+
+    #region IConfigurableWait<T, IWait<T>> Members
 
     public IWait<T> ThrowOnFailure(string? message)
     {
@@ -19,59 +42,106 @@ internal sealed class Wait<T> : IWait<T>, IWaitOnError<T>
         return this;
     }
 
+    public IWait<T> NotThrowOnFailure()
+    {
+        _runner.ThrowOnFailure = false;
+        _runner.ErrorMessage = null;
+        return this;
+    }
+
+    public IWait<T> WithDefaultErrorMessage(string? message)
+    {
+        _runner.DefaultErrorMessage = message;
+        return this;
+    }
+
     public IWait<T> WithMaxExceptionCount(int? count)
     {
-        _runner.MaxExceptionCount = count;
+        _runner.Options.MaxAcceptedExceptions = count;
         return this;
     }
 
     public IWait<T> WithTimeGap(TimeSpan timeGap)
     {
-        _runner.TimeGap = timeGap;
+        _runner.Options.TimeGap = timeGap;
         return this;
     }
 
     public IWait<T> WithTimeout(TimeSpan timeout)
     {
-        _runner.Timeout = timeout;
+        _runner.Options.Timeout = timeout;
         return this;
     }
 
-    public IWaitOnError<T> OnError()
+    public IWait<T> WithMaxRetryCount(int? count)
     {
+        _runner.Options.MaxRetryCount = count;
         return this;
     }
+
+    public IWait<T> Configure(Action<IWaitOptions> configurationFunction)
+    {
+        configurationFunction(_runner.Options);
+        return this;
+    }
+
+    public IWait<T> PrecedeWith(Action<WaitContext<T>> action)
+    {
+        _runner.PrecedeWith(action);
+        return this;
+    }
+
+    public IWait<T> ContinueWith(Action<WaitContext<T>> action)
+    {
+        _runner.ContinueWith(action);
+        return this;
+    }
+
+    #endregion
+
+    #region IStartableWait<T> Members
 
     public IWait<T> Abort()
     {
-        _exceptionHandler = x => (WaitRunnerErrorResult.Abort, default);
+        _runner.ExceptionHandler = x => throw new WaitAbortedException();
         return this;
     }
 
     public IWait<T> Call(Action<Exception> action)
     {
-        _exceptionHandler = x =>
-        {
-            action(x);
-            return (WaitRunnerErrorResult.None, default);
-        };
+        _runner.ExceptionHandler = action;
         return this;
     }
 
     public IWait<T> Return(Func<Exception, T?> resultFactory)
     {
-        _exceptionHandler = x => (WaitRunnerErrorResult.Return, resultFactory(x));
+        _runner.ExceptionHandler = x =>
+        {
+            var value = resultFactory(x);
+            if (!Equals(value, default))
+                throw new WaitAbortedException<T>(value);
+        };
         return this;
     }
 
     public IWait<T> Return(T? value)
     {
-        _exceptionHandler = x => (WaitRunnerErrorResult.Return, value);
+        _runner.ExceptionHandler = x =>
+        {
+            if (!Equals(value, default))
+                throw new WaitAbortedException<T>(value);
+        };
         return this;
     }
 
+    #endregion
+
+    #region IStartableWait<T> Members
+
     public WaitResult<T> Start()
     {
-        return _runner.Run(this, _condition, _exceptionHandler);
+        return _runner.Run();
     }
+
+    #endregion
 }

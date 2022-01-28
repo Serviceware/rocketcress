@@ -1,4 +1,6 @@
 <Project>
+  
+  <!-- Common properties -->
   <PropertyGroup>
     <LangVersion>latest</LangVersion>
     
@@ -9,7 +11,6 @@
     <RepositoryUrl>https://github.com/Serviceware/rocketcress</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <AssemblyOriginatorKeyFile Condition=" $(SignAssembly) == 'true' ">$(MSBuildThisFileDirectory)Rocketcress.snk</AssemblyOriginatorKeyFile>
-    <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)Rocketcress.ruleset</CodeAnalysisRuleSet>
     <OutputPath>$(MSBuildThisFileDirectory)..\bin\$(Configuration)</OutputPath>
     <NoWarn Condition=" '$(TargetFramework)' == 'net48' or '$(TargetFramework)' == 'netstandard2.0' ">$(NoWarn);8600;8601;8602;8603;8604;8777;8767</NoWarn>
     
@@ -20,13 +21,33 @@
       false
     </IsPackable>
   </PropertyGroup>
-
+  
+  <PropertyGroup Condition=" $(IsTestProject) != 'true' ">
+    <CodeAnalysisRuleSet Condition="$(TargetFramework) != 'net48'">$(MSBuildThisFileDirectory)Rocketcress.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet Condition="$(TargetFramework) == 'net48'">$(MSBuildThisFileDirectory)Rocketcress.net48.ruleset</CodeAnalysisRuleSet>
+    <DocumentationFile Condition=" $(NoDocumentation) != 'true' ">$(OutputPath)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
+    <PackageId>Serviceware.$(AssemblyName)</PackageId>
+  </PropertyGroup>
+  
   <PropertyGroup Condition=" $(IsSlim) == 'true' ">
     <Description>Contains code from $(AssemblyName) without the need to use MSTest v2.</Description>
     <AssemblyName>$(AssemblyName).Slim</AssemblyName>
     <DefineConstants>$(DefineConstants);SLIM</DefineConstants>
   </PropertyGroup>
 
+  
+  <!-- Global Usings -->
+  <ItemGroup>
+    <Using Include="System"/>
+    <Using Include="System.Collections.Generic"/>
+    <Using Include="System.Diagnostics"/>
+    <Using Include="System.Diagnostics.CodeAnalysis"/>
+    <Using Include="System.IO"/>
+    <Using Include="System.Linq"/>
+  </ItemGroup>
+
+
+  <!-- Source Link -->
   <PropertyGroup Condition=" $(ConfigureSourceLink) == 'true' ">
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
@@ -34,15 +55,12 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" $(IsTestProject) != 'true' ">
-    <DocumentationFile Condition=" $(NoDocumentation) != 'true' ">$(OutputPath)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
-    <PackageId>Serviceware.$(AssemblyName)</PackageId>
-  </PropertyGroup>
-
   <ItemGroup Condition=" $(ConfigureSourceLink) == 'true' ">
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All"/>
   </ItemGroup>
 
+  
+  <!-- Analyzers -->
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="6.0.0">
       <PrivateAssets>all</PrivateAssets>
@@ -53,21 +71,24 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
+  
+  <ItemGroup>
+    <AdditionalFiles Include="$(MSBuildThisFileDirectory)stylecop.json" Link="stylecop.json" Visible="false" />
+  </ItemGroup>
 
+
+  <!-- Test Projects -->
+  <PropertyGroup Condition=" $(IsTestProject) == 'true' ">
+    <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)Rocketcress.Tests.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+
+  
+  <!-- Target files -->
   <Target Name="CopyTargetsFile" AfterTargets="BeforeBuild" Condition=" $(TargetFilePath) != '' ">
     <Copy SourceFiles="$(TargetFilePath)" DestinationFiles=".targets/$(PackageId).targets" />
   </Target>
 
   <ItemGroup Condition=" $(TargetFilePath) != '' ">
     <Content Include=".targets/$(PackageId).targets" Pack="true" PackagePath="build;buildCrossTargeting" Visible="false" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Using Include="System"/>
-    <Using Include="System.Collections.Generic"/>
-    <Using Include="System.Diagnostics"/>
-    <Using Include="System.Diagnostics.CodeAnalysis"/>
-    <Using Include="System.IO"/>
-    <Using Include="System.Linq"/>
   </ItemGroup>
 </Project>

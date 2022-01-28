@@ -1,7 +1,14 @@
-namespace Rocketcress.UIAutomation.Controls;
+﻿namespace Rocketcress.UIAutomation.Controls;
 
-public interface IUITestTextControl : IUITestControl
+/// <summary>
+/// Represents a text UIAutomation control.
+/// </summary>
+/// <seealso cref="IUITestControl" />
+/// <seealso cref="IUITestDisplayTextControl" />
+public interface IUITestTextControl : IUITestControl, IUITestDisplayTextControl
 {
-    string DisplayText { get; }
+    /// <summary>
+    /// Gets the text.
+    /// </summary>
     string Text { get; }
 }

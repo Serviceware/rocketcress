@@ -3,6 +3,9 @@
 namespace Rocketcress.Core.WindowsApiTypes;
 
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+#pragma warning disable SA1600 // Elements should be documented
+#pragma warning disable SA1602 // Enumeration items should be documented
+
 /// <summary>
 /// http://msdn.microsoft.com/en-us/library/windows/desktop/ms646270(v=vs.85).aspx.
 /// </summary>
