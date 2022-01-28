@@ -5,6 +5,7 @@ using Rocketcress.Selenium.Extensions;
 using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Runtime.InteropServices;
+using SeleniumBy = OpenQA.Selenium.By;
 
 namespace Rocketcress.Selenium.Controls;
 
@@ -20,7 +21,7 @@ public class WebElement : TestObjectBase, IWebElement, IWrapsElement
     /// </summary>
     /// <param name="driver">The driver to which this element is attached.</param>
     /// <param name="locationKey">The location key.</param>
-    public WebElement(WebDriver driver, By locationKey)
+    public WebElement(WebDriver driver, SeleniumBy locationKey)
         : this(driver, locationKey, null)
     {
     }
@@ -31,7 +32,7 @@ public class WebElement : TestObjectBase, IWebElement, IWrapsElement
     /// <param name="driver">The driver to which this element is attached.</param>
     /// <param name="locationKey">The location key.</param>
     /// <param name="searchContext">The search context.</param>
-    public WebElement(WebDriver driver, By locationKey, ISearchContext searchContext)
+    public WebElement(WebDriver driver, SeleniumBy locationKey, ISearchContext searchContext)
         : this(driver)
     {
         if (searchContext is not null)
@@ -195,7 +196,7 @@ public class WebElement : TestObjectBase, IWebElement, IWrapsElement
     /// <summary>
     /// Gets the location key that is used to search for the control on the UI.
     /// </summary>
-    public virtual By LocationKey { get; private set; }
+    public virtual SeleniumBy LocationKey { get; private set; }
 
     /// <summary>
     /// Gets the wait entry point for this <see cref="WebElement"/>.
@@ -263,10 +264,10 @@ public class WebElement : TestObjectBase, IWebElement, IWrapsElement
     /// <typeparam name="T">The type of the element to get.</typeparam>
     /// <param name="locationKey">The location key to find the control.</param>
     /// <returns>A element of type <typeparamref name="T"/>.</returns>
-    public static T GetElement<T>(By locationKey)
+    public static T GetElement<T>(SeleniumBy locationKey)
         where T : WebElement
     {
-        var ctor = typeof(T).GetConstructor(new[] { typeof(By) });
+        var ctor = typeof(T).GetConstructor(new[] { typeof(SeleniumBy) });
         if (ctor == null)
             throw new InvalidOperationException("The class " + typeof(T).FullName + " needs to implement a constructor with one By-Parameter");
         return ctor.Invoke(new object[] { locationKey }) as T;
@@ -279,10 +280,10 @@ public class WebElement : TestObjectBase, IWebElement, IWrapsElement
     /// <param name="locationKey">The location key to find the control.</param>
     /// <param name="searchContext">The element to which the element is relative to.</param>
     /// <returns>A element of type <typeparamref name="T"/>.</returns>
-    public static T GetElement<T>(By locationKey, ISearchContext searchContext)
+    public static T GetElement<T>(SeleniumBy locationKey, ISearchContext searchContext)
         where T : WebElement
     {
-        var ctor = typeof(T).GetConstructor(new[] { typeof(By), typeof(ISearchContext) });
+        var ctor = typeof(T).GetConstructor(new[] { typeof(SeleniumBy), typeof(ISearchContext) });
         if (ctor == null)
             throw new InvalidOperationException("The class " + typeof(T).FullName + " needs to implement a constructor with one By-Parameter and one ISearchContext-Parameter");
         return ctor.Invoke(new object[] { locationKey, searchContext }) as T;
@@ -462,7 +463,7 @@ public class WebElement : TestObjectBase, IWebElement, IWrapsElement
         if (levels < 1)
             throw new ArgumentOutOfRangeException(nameof(levels), "The argument 'levels' has to be greater than 0!");
         var path = string.Join("/", Enumerable.Range(0, levels).Select(x => ".."));
-        return new WebElement(Driver, By.XPath(path), this);
+        return new WebElement(Driver, SeleniumBy.XPath(path), this);
     }
 
     /// <summary>
@@ -477,7 +478,7 @@ public class WebElement : TestObjectBase, IWebElement, IWrapsElement
         if (levels < 1)
             throw new ArgumentOutOfRangeException(nameof(levels), "The Argument 'levels' has to be greater than 0!");
         var path = string.Join("/", Enumerable.Range(0, levels).Select(x => ".."));
-        return GetElement<T>(By.XPath(path), this);
+        return GetElement<T>(SeleniumBy.XPath(path), this);
     }
 
     /// <summary>
@@ -579,7 +580,7 @@ public class WebElement : TestObjectBase, IWebElement, IWrapsElement
     /// </summary>
     /// <param name="newLocationKey">The location key that should be used to search the element.</param>
     /// <param name="searchContext">The search context in which the element should be searched in.</param>
-    public void UpdateLocationKey(By newLocationKey, ISearchContext searchContext)
+    public void UpdateLocationKey(SeleniumBy newLocationKey, ISearchContext searchContext)
     {
         LocationKey = newLocationKey;
         SearchContext = searchContext;
@@ -840,7 +841,7 @@ public class WebElement : TestObjectBase, IWebElement, IWrapsElement
     /// <returns>
     /// The first matching <see cref="T:OpenQA.Selenium.IWebElement" /> on the current context.
     /// </returns>
-    public virtual IWebElement FindElement(By by)
+    public virtual IWebElement FindElement(SeleniumBy by)
     {
         return WrappedElement.FindElement(by);
     }
@@ -854,7 +855,7 @@ public class WebElement : TestObjectBase, IWebElement, IWrapsElement
     /// A <see cref="T:System.Collections.ObjectModel.ReadOnlyCollection`1" /> of all <see cref="T:OpenQA.Selenium.IWebElement">WebElements</see>
     /// matching the current criteria, or an empty list if nothing matches.
     /// </returns>
-    public virtual ReadOnlyCollection<IWebElement> FindElements(By by)
+    public virtual ReadOnlyCollection<IWebElement> FindElements(SeleniumBy by)
     {
         return WrappedElement.FindElements(by);
     }

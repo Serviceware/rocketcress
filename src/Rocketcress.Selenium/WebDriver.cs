@@ -604,7 +604,7 @@ public class WebDriver : OpenQA.Selenium.Support.UI.IWait<WebDriver>, IWebDriver
     /// </summary>
     /// <param name="by">The locating mechanism to use.</param>
     /// <returns>The first matching OpenQA.Selenium.IWebElement on the current context.</returns>
-    public IWebElement FindElement(By by)
+    public IWebElement FindElement(OpenQA.Selenium.By by)
     {
         return Driver.FindElement(by);
     }
@@ -614,7 +614,7 @@ public class WebDriver : OpenQA.Selenium.Support.UI.IWait<WebDriver>, IWebDriver
     /// </summary>
     /// <param name="by">The locating mechanism to use.</param>
     /// <returns>A System.Collections.ObjectModel.ReadOnlyCollection`1 of all WebElements matching the current criteria, or an empty list if nothing matches.</returns>
-    public ReadOnlyCollection<IWebElement> FindElements(By by)
+    public ReadOnlyCollection<IWebElement> FindElements(OpenQA.Selenium.By by)
     {
         try
         {

@@ -1,4 +1,6 @@
-﻿namespace Rocketcress.Selenium.Extensions;
+﻿using SeleniumBy = OpenQA.Selenium.By;
+
+namespace Rocketcress.Selenium.Extensions;
 
 /// <summary>
 /// Provides extension methods for the <see cref="ISearchContext"/> interface.
@@ -11,7 +13,7 @@ public static class SearchContextExtensions
     /// <param name="context">The context to search an element in.</param>
     /// <param name="locationKey">The key to locate the element.</param>
     /// <returns>Returns the element if it was found; otherwise null.</returns>
-    public static IWebElement TryFindElement(this ISearchContext context, By locationKey)
+    public static IWebElement TryFindElement(this ISearchContext context, SeleniumBy locationKey)
     {
         Guard.NotNull(context);
         return context.FindElements(locationKey).FirstOrDefault();
@@ -23,7 +25,7 @@ public static class SearchContextExtensions
     /// <param name="context">The context to search an element in.</param>
     /// <param name="locationKey">The key to locate the element.</param>
     /// <returns>Returns true if an element was found; otherwise false.</returns>
-    public static bool IsElementExistent(this ISearchContext context, By locationKey)
+    public static bool IsElementExistent(this ISearchContext context, SeleniumBy locationKey)
     {
         Guard.NotNull(context);
         return context.TryFindElement(locationKey) != null;
@@ -35,7 +37,7 @@ public static class SearchContextExtensions
     /// <param name="context">The context to search an element in.</param>
     /// <param name="locationKey">The key to locate the element.</param>
     /// <returns>Returns the inner text of the found element. If no eleemnt was found null is returned.</returns>
-    public static string TryGetTextFromElement(this ISearchContext context, By locationKey)
+    public static string TryGetTextFromElement(this ISearchContext context, SeleniumBy locationKey)
     {
         Guard.NotNull(context);
         var element = context.TryFindElement(locationKey);
