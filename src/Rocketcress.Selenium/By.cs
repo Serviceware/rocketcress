@@ -111,9 +111,12 @@ public class By : OpenQA.Selenium.By
     public static By FromBy(OpenQA.Selenium.By by)
     {
         Guard.NotNull(by);
+        By result;
         if (by.Mechanism != null && by.Criteria != null)
-            return new By(by.Mechanism, by.Criteria);
+            result = new By(by.Mechanism, by.Criteria);
         else
-            return new By(by.FindElement, by.FindElements);
+            result = new By(by.FindElement, by.FindElements);
+        result.Description = by.ToString();
+        return result;
     }
 }

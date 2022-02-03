@@ -9,7 +9,7 @@
     <PackageId>Serviceware.$(AssemblyName)</PackageId>
     <Description>Extends Rocketcress.Core with e-mail functionality.</Description>
     <PackageTags>Rocketcress;Test;Tests;Mail</PackageTags>
-    <Version>2.0.0-beta04</Version>
+    <Version>2.0.0-beta05</Version>
   </PropertyGroup>
 
   <Import Project="../../build/Rocketcress.props" />
