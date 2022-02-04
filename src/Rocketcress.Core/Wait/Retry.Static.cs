@@ -15,8 +15,8 @@ public static class Retry
         TraceExceptions = true,
         MaxAcceptedExceptions = null,
         MaxRetryCount = 5,
-        Timeout = TimeSpan.MaxValue,
-        TimeGap = TimeSpan.Zero,
+        Timeout = TimeSpan.FromSeconds(10),
+        TimeGap = TimeSpan.FromMilliseconds(100),
     };
 
     /// <summary>

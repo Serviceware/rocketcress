@@ -58,7 +58,7 @@ internal sealed class WaitOptions : IWaitOptions, IObsoleteWaitOptions
     /// <inheritdoc/>
     public int TimeoutMs
     {
-        get => GetMilliseconds(Timeout);
+        get => (int)Timeout.TotalMilliseconds;
         set => Timeout = TimeSpan.FromMilliseconds(value);
     }
 
@@ -76,7 +76,7 @@ internal sealed class WaitOptions : IWaitOptions, IObsoleteWaitOptions
     /// <inheritdoc/>
     public int TimeGapMs
     {
-        get => GetMilliseconds(TimeGap);
+        get => (int)TimeGap.TotalMilliseconds;
         set => TimeGap = TimeSpan.FromMilliseconds(value);
     }
 
@@ -121,14 +121,6 @@ internal sealed class WaitOptions : IWaitOptions, IObsoleteWaitOptions
     public IReadOnlyWaitOptions AsReadOnly()
     {
         return new ReadOnly(this);
-    }
-
-    private static int GetMilliseconds(TimeSpan timeSpan)
-    {
-        unchecked
-        {
-            return Math.Max((int)timeSpan.TotalMilliseconds, int.MaxValue);
-        }
     }
 
     private bool SetProperty<T>(T value, ref T @field, [CallerMemberName] string propertyName = "")
