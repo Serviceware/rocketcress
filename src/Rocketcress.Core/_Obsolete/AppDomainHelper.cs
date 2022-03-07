@@ -1,4 +1,5 @@
-﻿using Rocketcress.Core.Utilities;
+﻿#if NETFRAMEWORK || (NETCOREAPP && !NET6_0_OR_GREATER)
+using Rocketcress.Core.Utilities;
 
 #nullable disable
 
@@ -64,3 +65,4 @@ public static class AppDomainHelper
     {
     }
 }
+#endif

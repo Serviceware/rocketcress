@@ -4,7 +4,7 @@ using OpenQA.Selenium.Remote;
 using Rocketcress.Core;
 using System.Globalization;
 using System.IO.Compression;
-using System.Net;
+using System.Net.Http;
 using System.Runtime.InteropServices;
 
 namespace Rocketcress.Selenium.DriverProviders;
@@ -14,6 +14,8 @@ namespace Rocketcress.Selenium.DriverProviders;
 /// </summary>
 public class EdgeDriverProvider : IDriverProvider
 {
+    private static readonly object _driverDownloadLock = new();
+
     /// <inheritdoc />
     public IWebDriver CreateDriver(string host, TimeSpan browserTimeout, CultureInfo language, Settings settings, IDriverConfiguration driverConfiguration)
     {
@@ -80,26 +82,11 @@ public class EdgeDriverProvider : IDriverProvider
 
         if (!File.Exists(driverFilePath))
         {
-            Directory.CreateDirectory(driverTempPath);
-            var driverZipUrl = string.Format(urlFormat, edgeVersion);
-            var zipPath = Path.Combine(driverTempPath, "edgedriver_win32.zip");
-
-            Logger.LogInfo($"Driver does not exist in Cache. Downloading correct driver from {driverZipUrl}...");
-            using (var client = new WebClient())
+            lock (_driverDownloadLock)
             {
-                client.DownloadFile(driverZipUrl, zipPath);
+                if (!File.Exists(driverFilePath))
+                    DownloadDriver(urlFormat, driverFileName, edgeVersion, driverTempPath, driverFilePath);
             }
-
-            using (var zip = ZipFile.OpenRead(zipPath))
-            {
-                var driverEntry = zip.GetEntry(driverFileName)
-                    ?? throw new InvalidOperationException($"The downloaded file from \"{driverZipUrl}\" does not contain a \"{driverFileName}\" file.");
-                driverEntry.ExtractToFile(driverFilePath);
-            }
-
-            File.Delete(zipPath);
-
-            Logger.LogInfo("Successfully downloaded and unzipped driver to: " + driverFilePath);
         }
         else
         {
@@ -108,5 +95,32 @@ public class EdgeDriverProvider : IDriverProvider
 
         Logger.LogInfo($"Using driver \"{driverFileName}\" in folder \"{driverTempPath}\"");
         return (driverTempPath, driverFileName);
+    }
+
+    private static void DownloadDriver(string urlFormat, string driverFileName, string edgeVersion, string driverTempPath, string driverFilePath)
+    {
+        Directory.CreateDirectory(driverTempPath);
+        var driverZipUrl = string.Format(urlFormat, edgeVersion);
+        var zipPath = Path.Combine(driverTempPath, "edgedriver_win32.zip");
+
+        Logger.LogInfo($"Driver does not exist in Cache. Downloading correct driver from {driverZipUrl}...");
+        using (var client = new HttpClient())
+        using (var response = client.GetAsync(driverZipUrl).Result)
+        using (var driverZipStream = new FileStream(zipPath, FileMode.Create))
+        {
+            response.EnsureSuccessStatusCode();
+            response.Content.CopyToAsync(driverZipStream).Wait();
+        }
+
+        using (var zip = ZipFile.OpenRead(zipPath))
+        {
+            var driverEntry = zip.GetEntry(driverFileName)
+                ?? throw new InvalidOperationException($"The downloaded file from \"{driverZipUrl}\" does not contain a \"{driverFileName}\" file.");
+            driverEntry.ExtractToFile(driverFilePath);
+        }
+
+        File.Delete(zipPath);
+
+        Logger.LogInfo("Successfully downloaded and unzipped driver to: " + driverFilePath);
     }
 }

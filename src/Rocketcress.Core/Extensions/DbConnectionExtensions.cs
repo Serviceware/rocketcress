@@ -224,9 +224,9 @@ public static class DbConnectionExtensions
         public void Close() => _reader.Close();
         public bool GetBoolean(int i) => _reader.GetBoolean(i);
         public byte GetByte(int i) => _reader.GetByte(i);
-        public long GetBytes(int i, long fieldOffset, byte[] buffer, int bufferoffset, int length) => _reader.GetBytes(i, fieldOffset, buffer, bufferoffset, length);
+        public long GetBytes(int i, long fieldOffset, byte[]? buffer, int bufferoffset, int length) => _reader.GetBytes(i, fieldOffset, buffer!, bufferoffset, length);
         public char GetChar(int i) => _reader.GetChar(i);
-        public long GetChars(int i, long fieldoffset, char[] buffer, int bufferoffset, int length) => _reader.GetChars(i, fieldoffset, buffer, bufferoffset, length);
+        public long GetChars(int i, long fieldoffset, char[]? buffer, int bufferoffset, int length) => _reader.GetChars(i, fieldoffset, buffer!, bufferoffset, length);
         public IDataReader GetData(int i) => _reader.GetData(i);
         public string GetDataTypeName(int i) => _reader.GetDataTypeName(i);
         public DateTime GetDateTime(int i) => _reader.GetDateTime(i);

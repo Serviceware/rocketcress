@@ -4,7 +4,7 @@ using OpenQA.Selenium.Remote;
 using Rocketcress.Core;
 using System.Globalization;
 using System.IO.Compression;
-using System.Net;
+using System.Net.Http;
 using System.Runtime.InteropServices;
 
 namespace Rocketcress.Selenium.DriverProviders;
@@ -14,6 +14,9 @@ namespace Rocketcress.Selenium.DriverProviders;
 /// </summary>
 public class ChromeDriverProvider : IDriverProvider
 {
+    private const string UrlLatestVersionFormat = "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_{0}";
+    private static readonly object _driverDownloadLock = new();
+
     /// <inheritdoc />
     public IWebDriver CreateDriver(string host, TimeSpan browserTimeout, CultureInfo language, Settings settings, IDriverConfiguration driverConfiguration)
     {
@@ -60,7 +63,6 @@ public class ChromeDriverProvider : IDriverProvider
 
     private static (string DriverPath, string DriverExecutableName) GetChromeDriverPath()
     {
-        const string urlLatestVersionFormat = "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_{0}";
         string urlFormat;
         string driverFileName;
         string chromeVersion;
@@ -93,32 +95,11 @@ public class ChromeDriverProvider : IDriverProvider
 
         if (!File.Exists(driverFilePath))
         {
-            Logger.LogInfo("Driver does not exist in Cache.");
-            Directory.CreateDirectory(driverTempPath);
-            string driverVersionUrl = string.Format(urlLatestVersionFormat, chromeMajorVersion);
-            string driverVersion;
-            string driverZipUrl;
-            var zipPath = Path.Combine(driverTempPath, "chromedriver.zip");
-
-            using (var client = new WebClient())
+            lock (_driverDownloadLock)
             {
-                Logger.LogInfo($"Downloading correct driver version from {driverVersionUrl}...");
-                driverVersion = client.DownloadString(driverVersionUrl);
-
-                driverZipUrl = string.Format(urlFormat, driverVersion);
-                Logger.LogInfo($"Downloading correct driver from {driverZipUrl}...");
-                client.DownloadFile(driverZipUrl, zipPath);
+                if (!File.Exists(driverFilePath))
+                    DownloadDriver(urlFormat, driverFileName, chromeMajorVersion, driverTempPath, driverFilePath);
             }
-
-            using (var zip = ZipFile.OpenRead(zipPath))
-            {
-                var driverEntry = zip.GetEntry(driverFileName) ?? throw new InvalidOperationException($"The downloaded file from \"{driverZipUrl}\" does not contain a \"{driverFileName}\" file.");
-                driverEntry.ExtractToFile(driverFilePath);
-            }
-
-            File.Delete(zipPath);
-
-            Logger.LogInfo("Successfully downloaded and unzipped driver to: " + driverFilePath);
         }
         else
         {
@@ -127,5 +108,38 @@ public class ChromeDriverProvider : IDriverProvider
 
         Logger.LogInfo($"Using driver \"{driverFileName}\" in folder \"{driverTempPath}\"");
         return (driverTempPath, driverFileName);
+    }
+
+    private static void DownloadDriver(string urlFormat, string driverFileName, int chromeMajorVersion, string driverTempPath, string driverFilePath)
+    {
+        Logger.LogInfo("Driver does not exist in Cache.");
+        Directory.CreateDirectory(driverTempPath);
+        string driverVersionUrl = string.Format(UrlLatestVersionFormat, chromeMajorVersion);
+        string driverVersion;
+        string driverZipUrl;
+        var zipPath = Path.Combine(driverTempPath, "chromedriver.zip");
+
+        using (var client = new HttpClient())
+        {
+            driverVersion = client.GetStringAsync(driverVersionUrl).Result;
+
+            driverZipUrl = string.Format(urlFormat, driverVersion);
+            using (var response = client.GetAsync(driverZipUrl).Result)
+            using (var driverZipStream = new FileStream(zipPath, FileMode.Create))
+            {
+                response.EnsureSuccessStatusCode();
+                response.Content.CopyToAsync(driverZipStream).Wait();
+            }
+        }
+
+        using (var zip = ZipFile.OpenRead(zipPath))
+        {
+            var driverEntry = zip.GetEntry(driverFileName) ?? throw new InvalidOperationException($"The downloaded file from \"{driverZipUrl}\" does not contain a \"{driverFileName}\" file.");
+            driverEntry.ExtractToFile(driverFilePath);
+        }
+
+        File.Delete(zipPath);
+
+        Logger.LogInfo("Successfully downloaded and unzipped driver to: " + driverFilePath);
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿#if NETFRAMEWORK || (NETCOREAPP && !NET6_0_OR_GREATER)
+using System.Reflection;
 
 namespace Rocketcress.Core.Utilities;
 
@@ -157,3 +158,4 @@ public static class AppDomainUtility
         }
     }
 }
+#endif
