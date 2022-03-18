@@ -10,7 +10,6 @@
 
     <Description>This library contains C# 9 Source Generators that can be used by test projects.</Description>
     <PackageTags>Rocketcress;Test;Tests;Generator;Generators;SourceGenerator;SourceGenerators</PackageTags>
-    <Version>2.0.0-beta07</Version>
 
     <IsPackable>True</IsPackable>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>

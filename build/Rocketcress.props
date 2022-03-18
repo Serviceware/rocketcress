@@ -20,6 +20,8 @@
     <IsPackable Condition="($(IsPackable) == '' and ((($(IsSlim) == 'false' and $(Configuration.EndsWith('-Slim'))) or ($(ConfigureSign) == 'true' and $(CanSign) != 'true')) or $(IsTestProject) == 'true'))">
       false
     </IsPackable>
+
+    <Version>2.0.0-beta08</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition=" $(IsSlim) == 'true' ">

@@ -3,6 +3,7 @@ using Rocketcress.Core;
 using Rocketcress.Selenium.Interactions;
 using Rocketcress.Selenium.SeleniumWrappers;
 using System.Collections.ObjectModel;
+using System.Globalization;
 
 namespace Rocketcress.Selenium;
 
@@ -22,10 +23,12 @@ public class WebDriver : OpenQA.Selenium.Support.UI.IWait<WebDriver>, IWebDriver
     /// <param name="context">The current conotext.</param>
     /// <param name="driver">The driver to wrap.</param>
     /// <param name="timeout">The timeout to use.</param>
-    public WebDriver(SeleniumTestContext context, IWebDriver driver, TimeSpan timeout)
+    /// <param name="language">The language for which the driver was created.</param>
+    public WebDriver(SeleniumTestContext context, IWebDriver driver, TimeSpan timeout, CultureInfo language)
     {
         Context = Guard.NotNull(context);
         Driver = Guard.NotNull(driver);
+        Language = Guard.NotNull(language);
         JavaScriptExecutor = (IJavaScriptExecutor)driver;
         WaitDriver = new DefaultWait<WebDriver>(this);
         WaitDriver.IgnoreExceptionTypes(typeof(NoSuchElementException), typeof(StaleElementReferenceException), typeof(WebDriverException));
@@ -47,6 +50,11 @@ public class WebDriver : OpenQA.Selenium.Support.UI.IWait<WebDriver>, IWebDriver
     /// Gets the underlying driver.
     /// </summary>
     public IWebDriver Driver { get; private set; }
+
+    /// <summary>
+    /// Gets the language of the currently opened browser.
+    /// </summary>
+    public CultureInfo Language { get; }
 
     /// <summary>
     /// Gets the underlying javascript executor.

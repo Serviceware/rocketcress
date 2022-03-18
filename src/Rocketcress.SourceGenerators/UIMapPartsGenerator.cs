@@ -17,7 +17,7 @@ public class UIMapPartsGenerator : ISourceGenerator
     private static readonly Dictionary<FrameworkType, string> ByFullName = new()
     {
         [FrameworkType.UIAutomation] = "global::Rocketcress.UIAutomation.By",
-        [FrameworkType.Selenium] = "global::OpenQA.Selenium.By",
+        [FrameworkType.Selenium] = "global::Rocketcress.Selenium.By",
     };
     private static readonly Dictionary<FrameworkType, string> DefaultBy = new()
     {
@@ -99,12 +99,14 @@ public class UIMapPartsGenerator : ISourceGenerator
 
             var generateCtors = generateAttr.NamedArguments.FirstOrDefault(x => x.Key == "GenerateDefaultConstructors").Value.Value is bool tmpCtor ? tmpCtor : GenerateUIMapPartsAttributeDefaults.GenerateDefaultConstructors;
             var controlDefType = generateAttr.NamedArguments.FirstOrDefault(x => x.Key == "ControlsDefinition").Value.Value as INamedTypeSymbol;
-            var defaultIdStyle = GetDefaultIdStyle(generateAttributeSymbol, generateAttr, typeSymbol) ?? GenerateUIMapPartsAttributeDefaults.IdStyle;
+            var controlDefaultOptions = GetDefaultUIMapControlOptions(generateAttributeSymbol, generateAttr, typeSymbol);
+            var defaultIdStyle = controlDefaultOptions.IdStyle ?? GenerateUIMapPartsAttributeDefaults.IdStyle;
+            var defaultIdFormat = controlDefaultOptions.IdFormat;
 
             var controls = (from prop in typeSymbol.GetMembers().OfType<IPropertySymbol>()
                             let controlAttr = prop.GetAttributes().FirstOrDefault(x => SymbolEqualityComparer.Default.Equals(x.AttributeClass, controlAttributeSymbol))
                             where controlAttr != null
-                            let def = GetControlDefinitionFromProperty(prop, controlAttr, frameworkType, defaultIdStyle)
+                            let def = GetControlDefinitionFromProperty(typeSymbol, prop, controlAttr, frameworkType, controlDefaultOptions)
                             where def != null
                             select def).ToList();
 
@@ -126,7 +128,8 @@ public class UIMapPartsGenerator : ISourceGenerator
                               let isVirtual = optionsAttr?.NamedArguments.FirstOrDefault(x => x.Key == "IsVirtual").Value.Value is bool tmpVirtual ? tmpVirtual : UIMapControlOptionsAttributeDefault.IsVirtual
                               let isHidden = optionsAttr?.NamedArguments.FirstOrDefault(x => x.Key == "IsHidden").Value.Value is bool tmpHidden ? tmpHidden : UIMapControlOptionsAttributeDefault.IsHidden
                               let identifierStyle = optionsAttr?.NamedArguments.FirstOrDefault(x => x.Key == "IdStyle").Value.Value is int tmpIdStyle ? (IdStyle)tmpIdStyle : UIMapControlOptionsAttributeDefault.IdStyle
-                              select new ControlDefinition(prop.Type.ToDisplayString(DefinitionFormat), prop, GetNameWithStyle(prop.Name, identifierStyle, defaultIdStyle), initialize, parent, accessibility, isVirtual, isHidden, null));
+                              let identifierFormat = optionsAttr?.NamedArguments.FirstOrDefault(x => x.Key == "IdFormat").Value.Value is string tmpIdFormat ? tmpIdFormat : (defaultIdFormat ?? UIMapControlOptionsAttributeDefault.IdFormat)
+                              select new ControlDefinition(prop.Type.ToDisplayString(DefinitionFormat), prop, GetNameWithStyle(null, prop.Name, identifierStyle, defaultIdStyle, identifierFormat), initialize, parent, accessibility, isVirtual, isHidden, null, true));
 
             var builder = new SourceBuilder();
             AddUsings(builder, typeSymbol);
@@ -143,27 +146,36 @@ public class UIMapPartsGenerator : ISourceGenerator
 
                 hasContent |= AddInitialize(!hasContent, builder, typeSymbol, frameworkType, controls);
 
-                AddFixedMembers(!hasContent, builder, frameworkType);
+                AddFixedMembers(!hasContent, builder, typeSymbol, frameworkType);
             }
 
             context.AddSource(typeSymbol, builder, nameof(UIMapPartsGenerator));
         }
     }
 
-    private static IdStyle? GetDefaultIdStyle(INamedTypeSymbol generateAttributeSymbol, AttributeData generateAttr, ITypeSymbol symbol)
+    private static UIMapControlDefaultOptions GetDefaultUIMapControlOptions(INamedTypeSymbol generateAttributeSymbol, AttributeData generateAttr, ITypeSymbol symbol)
     {
-        var result = generateAttr.NamedArguments.FirstOrDefault(x => x.Key == "IdStyle").Value.Value is int tmpIdStyle ? (IdStyle)tmpIdStyle : (IdStyle?)null;
-        if (result.HasValue)
-            return result.Value;
+        var result = new UIMapControlDefaultOptions();
+        Recursion(result, generateAttributeSymbol, generateAttr, symbol);
+        return result;
 
-        if (symbol.ContainingSymbol is ITypeSymbol parentSymbol)
+        static void Recursion(UIMapControlDefaultOptions result, INamedTypeSymbol generateAttributeSymbol, AttributeData generateAttr, ITypeSymbol symbol)
         {
-            var attr = parentSymbol.GetAttributes().FirstOrDefault(x => SymbolEqualityComparer.Default.Equals(x.AttributeClass, generateAttributeSymbol));
-            if (attr != null)
-                return GetDefaultIdStyle(generateAttributeSymbol, attr, parentSymbol);
-        }
+            var identifierStyle = generateAttr.NamedArguments.FirstOrDefault(x => x.Key == "IdStyle").Value.Value is int tmpIdStyle ? (IdStyle)tmpIdStyle : (IdStyle?)null;
+            if (identifierStyle.HasValue)
+                result.IdStyle = identifierStyle;
 
-        return null;
+            var identifierFormat = generateAttr.NamedArguments.FirstOrDefault(x => x.Key == "IdFormat").Value.Value is string tmpIdFormat ? tmpIdFormat : null;
+            if (!string.IsNullOrWhiteSpace(identifierFormat))
+                result.IdFormat = identifierFormat;
+
+            if (!result.IsComplete && symbol.ContainingSymbol is ITypeSymbol parentSymbol)
+            {
+                var attr = parentSymbol.GetAttributes().FirstOrDefault(x => SymbolEqualityComparer.Default.Equals(x.AttributeClass, generateAttributeSymbol));
+                if (attr != null)
+                    Recursion(result, generateAttributeSymbol, attr, parentSymbol);
+            }
+        }
     }
 
     private static void AddUsings(SourceBuilder builder, INamedTypeSymbol typeSymbol)
@@ -193,24 +205,40 @@ public class UIMapPartsGenerator : ISourceGenerator
             builder.AppendLine();
     }
 
-    private static ControlDefinition GetControlDefinitionFromProperty(IPropertySymbol property, AttributeData attr, FrameworkType frameworkType, IdStyle defaultIdStyle)
+    private static ControlDefinition GetControlDefinitionFromProperty(INamedTypeSymbol typeSymbol, IPropertySymbol property, AttributeData attr, FrameworkType frameworkType, UIMapControlDefaultOptions controlDefaultOptions)
     {
         if (property.DeclaringSyntaxReferences.FirstOrDefault()?.GetSyntax() is not PropertyDeclarationSyntax syntax)
             return null;
 
         string byExpr = null;
+        bool isStaticByExpr = true;
         string controlType = null;
         if (syntax.Initializer != null &&
             syntax.Initializer.Value is InvocationExpressionSyntax initUsingExpr &&
             initUsingExpr.Expression is GenericNameSyntax initUsingSyntax &&
             initUsingSyntax.Identifier.Text == "InitUsing")
         {
-            if (initUsingExpr.ArgumentList.Arguments.Count > 0 && initUsingExpr.ArgumentList.Arguments[0].Expression is ParenthesizedLambdaExpressionSyntax lambda)
+            if (initUsingExpr.ArgumentList.Arguments.Count > 0 && initUsingExpr.ArgumentList.Arguments[0].Expression is LambdaExpressionSyntax lambda)
             {
-                if (lambda.Body is BlockSyntax block)
-                    byExpr = $"new global::System.Func<{ByFullName[frameworkType]}>(() => {lambda.Body.GetText()}).Invoke()";
+                var parameter = lambda is SimpleLambdaExpressionSyntax simpleLambda
+                    ? simpleLambda.Parameter
+                    : lambda is ParenthesizedLambdaExpressionSyntax parenthesizedLambda && parenthesizedLambda.ParameterList.Parameters.Count > 0
+                        ? parenthesizedLambda.ParameterList.Parameters[0]
+                        : null;
+                if (parameter != null)
+                {
+                    var typeGlobalName = typeSymbol.ToDisplayString(UsageFormat);
+                    var parameterName = parameter.Identifier.Text;
+                    byExpr = $"new global::System.Func<{typeGlobalName}, {ByFullName[frameworkType]}>({parameterName} => {lambda.Body.GetText()}).Invoke(this)";
+                    isStaticByExpr = false;
+                }
                 else
-                    byExpr = lambda.Body.GetText().ToString();
+                {
+                    if (lambda.Body is BlockSyntax block)
+                        byExpr = $"new global::System.Func<{ByFullName[frameworkType]}>(() => {lambda.Body.GetText()}).Invoke()";
+                    else
+                        byExpr = lambda.Body.GetText().ToString();
+                }
             }
 
             if (initUsingSyntax.TypeArgumentList.Arguments.Count > 0)
@@ -219,39 +247,44 @@ public class UIMapPartsGenerator : ISourceGenerator
 
         var parentArg = attr?.NamedArguments.FirstOrDefault(x => x.Key == "ParentControl");
         var identifierStyle = attr?.NamedArguments.FirstOrDefault(x => x.Key == "IdStyle").Value.Value is int tmpIdStyle ? (IdStyle)tmpIdStyle : UIMapControlAttributeDefault.IdStyle;
+        var identifierFormat = attr?.NamedArguments.FirstOrDefault(x => x.Key == "IdFormat").Value.Value is string tmpIdFormat ? (string)tmpIdFormat : (controlDefaultOptions.IdFormat ?? UIMapControlAttributeDefault.IdFormat);
+        var identifier = attr?.NamedArguments.FirstOrDefault(x => x.Key == "Id").Value.Value is string tmpId ? (string)tmpId : UIMapControlAttributeDefault.Id;
 
         return new ControlDefinition(
             controlType ?? property.Type.ToDisplayString(DefinitionFormat),
             property,
-            GetNameWithStyle(property.Name, identifierStyle, defaultIdStyle),
+            GetNameWithStyle(identifier, property.Name, identifierStyle, controlDefaultOptions.IdStyle ?? GenerateUIMapPartsAttributeDefaults.IdStyle, identifierFormat),
             attr?.NamedArguments.FirstOrDefault(x => x.Key == "Initialize").Value.Value is bool tmpInit ? tmpInit : UIMapControlAttributeDefault.Initialize,
             parentArg.HasValue && parentArg.Value.Key == "ParentControl" ? parentArg.Value.Value.Value as string : UIMapControlAttributeDefault.ParentControl,
             ControlPropertyAccessibility.Public,
             true,
             false,
-            byExpr);
+            byExpr,
+            isStaticByExpr);
     }
 
-    private static string GetNameWithStyle(string name, IdStyle style, IdStyle defaultStyle)
+    private static string GetNameWithStyle(string? id, string name, IdStyle style, IdStyle defaultStyle, string? format)
     {
         if (style == IdStyle.Unset)
             style = defaultStyle;
         if (style == IdStyle.Disabled)
             return null;
-        if (style == IdStyle.None || style == IdStyle.Unset)
-            return name;
 
-        var words = PropertyNameSplitRegex.Matches(name).OfType<Match>().Where(x => x.Success).Select(x => x.Value.ToLowerInvariant()).ToArray();
-
-        return style switch
+        if (string.IsNullOrWhiteSpace(id))
         {
-            IdStyle.PascalCase => string.Concat(words.Select(x => MakeFirstCharacterUpperCase(x))),
-            IdStyle.CamelCase => string.Concat(words.Skip(1).Select(x => MakeFirstCharacterUpperCase(x)).Prepend(words[0])),
-            IdStyle.KebabCase => string.Join("-", words),
-            IdStyle.LowerCase => string.Concat(words),
-            IdStyle.UpperCase => string.Concat(words).ToUpperInvariant(),
-            _ => name,
-        };
+            var words = PropertyNameSplitRegex.Matches(name).OfType<Match>().Where(x => x.Success).Select(x => x.Value.ToLowerInvariant()).ToArray();
+            id = style switch
+            {
+                IdStyle.PascalCase => string.Concat(words.Select(x => MakeFirstCharacterUpperCase(x))),
+                IdStyle.CamelCase => string.Concat(words.Skip(1).Select(x => MakeFirstCharacterUpperCase(x)).Prepend(words[0])),
+                IdStyle.KebabCase => string.Join("-", words),
+                IdStyle.LowerCase => string.Concat(words),
+                IdStyle.UpperCase => string.Concat(words).ToUpperInvariant(),
+                _ => name,
+            };
+        }
+
+        return string.IsNullOrWhiteSpace(format) ? id : string.Format(format, id);
 
         static string MakeFirstCharacterUpperCase(string word) => word.Length == 0 ? word : (word[0].ToString().ToUpperInvariant() + word.Substring(1));
     }
@@ -341,7 +374,15 @@ public class UIMapPartsGenerator : ISourceGenerator
                     builder.AppendLine();
 
                 var byExpr = control.ByExpression ?? (control.PropertyName is null ? EmptyBy[frameworkType] : string.Format(DefaultBy[frameworkType], control.PropertyName));
-                builder.AppendLine($"private static readonly {ByFullName[frameworkType]} {fieldName} = {byExpr};");
+                if (control.IsStaticByExpression)
+                {
+                    builder.AppendLine($"private static readonly {ByFullName[frameworkType]} {fieldName} = {byExpr};");
+                }
+                else
+                {
+                    builder.AppendLine($"private {ByFullName[frameworkType]} {fieldName} => {byExpr};");
+                }
+
                 hasFields = true;
             }
         }
@@ -396,7 +437,7 @@ public class UIMapPartsGenerator : ISourceGenerator
             while (controlQueue.Count > 0)
             {
                 var control = controlQueue.Dequeue();
-                var (type, prop, _, _, parent, _, _, _, _) = control;
+                var (type, prop, _, _, parent, _, _, _, _, _) = control;
                 if (propNames.Contains(parent) && !existingInits.Contains(parent))
                 {
                     controlQueue.Enqueue(control);
@@ -426,11 +467,14 @@ public class UIMapPartsGenerator : ISourceGenerator
         return true;
     }
 
-    private static void AddFixedMembers(bool isFirst, SourceBuilder builder, FrameworkType frameworkType)
+    private static void AddFixedMembers(bool isFirst, SourceBuilder builder, INamedTypeSymbol typeSymbol, FrameworkType frameworkType)
     {
         if (!isFirst)
             builder.AppendLine();
+        var typeGlobalName = typeSymbol.ToDisplayString(UsageFormat);
+
         builder.AppendLine($"private static TRocketcressControl InitUsing<TRocketcressControl>(global::System.Linq.Expressions.Expression<global::System.Func<{ByFullName[frameworkType]}>> locationKeyExpression = null) where TRocketcressControl : {ControlTypeFullName[frameworkType]} => default(TRocketcressControl);");
+        builder.AppendLine($"private static TRocketcressControl InitUsing<TRocketcressControl>(global::System.Linq.Expressions.Expression<global::System.Func<{typeGlobalName}, {ByFullName[frameworkType]}>> locationKeyExpression) where TRocketcressControl : {ControlTypeFullName[frameworkType]} => default(TRocketcressControl);");
     }
 
     private class PropertySymbolNameEqualityComparer : IEqualityComparer<IPropertySymbol>
@@ -457,5 +501,17 @@ public class UIMapPartsGenerator : ISourceGenerator
         ControlPropertyAccessibility Accessibility,
         bool IsVirtual,
         bool IsHidden,
-        string? ByExpression);
+        string? ByExpression,
+        bool IsStaticByExpression);
+
+    private class UIMapControlDefaultOptions
+    {
+        public IdStyle? IdStyle { get; set; }
+        public string? IdFormat { get; set; }
+
+        public bool HasIdStyle => IdStyle.HasValue;
+        public bool HasIdFormat => IdFormat != null;
+
+        public bool IsComplete => HasIdStyle && HasIdFormat;
+    }
 }

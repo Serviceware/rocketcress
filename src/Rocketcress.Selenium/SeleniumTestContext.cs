@@ -186,9 +186,10 @@ public class SeleniumTestContext : TestContextBase
     /// </summary>
     /// <param name="driver">The <see cref="IWebDriver"/>-Object.</param>
     /// <param name="timeout">The timeout.</param>
-    public void SwitchCurrentDriver(IWebDriver driver, TimeSpan timeout)
+    /// <param name="language">The language that was used to create the <paramref name="driver"/>.</param>
+    public void SwitchCurrentDriver(IWebDriver driver, TimeSpan timeout, CultureInfo language)
     {
-        SwitchCurrentDriver(new WebDriver(this, driver, timeout));
+        SwitchCurrentDriver(new WebDriver(this, driver, timeout, language));
     }
 
     /// <summary>
@@ -224,9 +225,10 @@ public class SeleniumTestContext : TestContextBase
     /// <param name="driverConfiguration">An object that is used to confiure the selenium driver that is created.</param>
     public void CreateAndSwitchToNewDriver(Browser browser, TimeSpan? timeout = null, IDriverConfiguration driverConfiguration = null)
     {
-        var driver = GetDriver(browser, Settings.CurrentBrowserLanguage, Settings, driverConfiguration);
+        var language = Settings.CurrentBrowserLanguage;
+        var driver = GetDriver(browser, language, Settings, driverConfiguration);
         driver.Manage().Window.Size = Settings.Resolution;
-        SwitchCurrentDriver(driver, timeout ?? Settings.Timeout);
+        SwitchCurrentDriver(driver, timeout ?? Settings.Timeout, language);
     }
 
     /// <summary>

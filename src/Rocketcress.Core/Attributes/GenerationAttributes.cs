@@ -22,6 +22,11 @@ public class GenerateUIMapPartsAttribute : Attribute
     /// Gets or sets the naming style that should be used to generate default location keys for properties.
     /// </summary>
     public IdStyle IdStyle { get; set; } = GenerateUIMapPartsAttributeDefaults.IdStyle;
+
+    /// <summary>
+    /// Gets or sets the format that should be used to generate default location keys for properties.
+    /// </summary>
+    public string? IdFormat { get; set; } = GenerateUIMapPartsAttributeDefaults.IdFormat;
 }
 
 /// <summary>
@@ -61,7 +66,12 @@ public class UIMapControlOptionsAttribute : Attribute
     /// <summary>
     /// Gets or sets the naming style that should be used to generate default location keys for this property.
     /// </summary>
-    public IdStyle IdStyle { get; set; } = GenerateUIMapPartsAttributeDefaults.IdStyle;
+    public IdStyle IdStyle { get; set; } = UIMapControlOptionsAttributeDefault.IdStyle;
+
+    /// <summary>
+    /// Gets or sets the format that should be used to generate default location keys for properties.
+    /// </summary>
+    public string? IdFormat { get; set; } = UIMapControlOptionsAttributeDefault.IdFormat;
 }
 
 /// <summary>
@@ -86,5 +96,15 @@ public class UIMapControlAttribute : Attribute
     /// <summary>
     /// Gets or sets the naming style that should be used to generate default location keys for this property.
     /// </summary>
-    public IdStyle IdStyle { get; set; } = GenerateUIMapPartsAttributeDefaults.IdStyle;
+    public IdStyle IdStyle { get; set; } = UIMapControlAttributeDefault.IdStyle;
+
+    /// <summary>
+    /// Gets or sets the format that should be used to generate default location keys for properties.
+    /// </summary>
+    public string? IdFormat { get; set; } = UIMapControlAttributeDefault.IdFormat;
+
+    /// <summary>
+    /// Gets or sets the id that should be used to generate default location keys for properties.
+    /// </summary>
+    public string? Id { get; set; } = UIMapControlAttributeDefault.Id;
 }

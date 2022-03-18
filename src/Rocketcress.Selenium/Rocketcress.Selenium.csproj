@@ -10,7 +10,6 @@
 
     <Description>You can reference this library if you want to write tests using the Selenium framework.</Description>
     <PackageTags>Rocketcress;Test;Tests;Selenium;UITest;UITest;UI</PackageTags>
-    <Version>2.0.0-beta07</Version>
     
     <IncludeContentInPack>true</IncludeContentInPack>
   </PropertyGroup>

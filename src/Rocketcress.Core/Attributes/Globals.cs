@@ -11,6 +11,7 @@ internal static class GenerateUIMapPartsAttributeDefaults
     public static readonly Type? ControlsDefinition = null;
     public static readonly bool GenerateDefaultConstructors = true;
     public static readonly IdStyle IdStyle = IdStyle.None;
+    public static readonly string? IdFormat = null;
 }
 
 #if DEBUG
@@ -25,6 +26,7 @@ internal static class UIMapControlOptionsAttributeDefault
     public static readonly bool IsVirtual = false;
     public static readonly bool IsHidden = false;
     public static readonly IdStyle IdStyle = IdStyle.Unset;
+    public static readonly string? IdFormat = null;
 }
 
 #if DEBUG
@@ -36,6 +38,8 @@ internal static class UIMapControlAttributeDefault
     public static readonly bool Initialize = true;
     public static readonly string ParentControl = "this";
     public static readonly IdStyle IdStyle = IdStyle.Unset;
+    public static readonly string? IdFormat = null;
+    public static readonly string? Id = null;
 }
 #pragma warning restore SA1600 // Elements should be documented
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member

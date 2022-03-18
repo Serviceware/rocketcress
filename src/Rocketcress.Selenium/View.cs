@@ -28,7 +28,7 @@ public abstract class View : TestObjectBase
     /// <summary>
     /// Gets the Location key that is used to uniquely identify the view.
     /// </summary>
-    public abstract OpenQA.Selenium.By RepresentedBy { get; }
+    public abstract By RepresentedBy { get; }
 
     /// <summary>
     /// Gets a value indicating whether the view exists.
