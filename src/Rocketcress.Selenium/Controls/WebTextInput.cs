@@ -95,15 +95,24 @@ public partial class WebTextInput : WebElement
         /// Gets a wait operation that waits until this element is read only.
         /// </summary>
         public virtual IWait<bool> UntilReadOnly
-            => Until(GetReadOnly).WithDefaultErrorMessage($"Element is not read only: {_element.GetSearchDescription()}");
+            => Until(OnCheckReadOnly).WithDefaultErrorMessage($"Element is not read only: {_element.GetSearchDescription()}");
 
         /// <summary>
         /// Gets a wait operation that waits until this element is not read only.
         /// </summary>
         public virtual IWait<bool> UntilNotReadOnly
-            => Until(GetNotReadOnly).WithDefaultErrorMessage($"Element is still read only: {_element.GetSearchDescription()}");
+            => Until(OnCheckNotReadOnly).WithDefaultErrorMessage($"Element is still read only: {_element.GetSearchDescription()}");
 
-        private bool GetReadOnly() => _element.ReadOnly;
-        private bool GetNotReadOnly() => !_element.ReadOnly;
+        /// <summary>
+        /// Called when the <see cref="UntilReadOnly"/> wait operations checks whether to continue waiting or not.
+        /// </summary>
+        /// <returns>When <c>true</c> is returned, the wait operation is completed; otherwisem, the waiting continues.</returns>
+        protected virtual bool OnCheckReadOnly() => _element.ReadOnly;
+
+        /// <summary>
+        /// Called when the <see cref="UntilNotReadOnly"/> wait operations checks whether to continue waiting or not.
+        /// </summary>
+        /// <returns>When <c>true</c> is returned, the wait operation is completed; otherwisem, the waiting continues.</returns>
+        protected virtual bool OnCheckNotReadOnly() => !_element.ReadOnly;
     }
 }

@@ -729,7 +729,7 @@ public class WebDriver : OpenQA.Selenium.Support.UI.IWait<WebDriver>, IWebDriver
         /// <summary>
         /// Gets a wait operation that waits until the web page has been loaded.
         /// </summary>
-        public Core.IWait<bool> UntilPageLoaded => Until(GetPageLoaded).WithDefaultErrorMessage("Page has not been loaded.");
+        public Core.IWait<bool> UntilPageLoaded => Until(OnCheckPageLoaded).WithDefaultErrorMessage("Page has not been loaded.");
 
         /// <summary>
         /// Gets a wait operation that waits until a specified amount of windows exist.
@@ -772,6 +772,10 @@ public class WebDriver : OpenQA.Selenium.Support.UI.IWait<WebDriver>, IWebDriver
                 });
         }
 
-        private bool GetPageLoaded() => _driver.IsPageLoadComplete();
+        /// <summary>
+        /// Called when the <see cref="UntilPageLoaded"/> wait operations checks whether to continue waiting or not.
+        /// </summary>
+        /// <returns>When <c>true</c> is returned, the wait operation is completed; otherwisem, the waiting continues.</returns>
+        protected virtual bool OnCheckPageLoaded() => _driver.IsPageLoadComplete();
     }
 }

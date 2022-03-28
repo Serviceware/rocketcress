@@ -164,7 +164,7 @@ public abstract class View : TestObjectBase
         /// Gets a wait operation that waits until this view exists.
         /// </summary>
         public virtual IWait<bool> UntilExists
-            => Until(GetExists).WithDefaultErrorMessage($"View could not be found. RepresentedBy: {_view.RepresentedBy}").PrecedeWith(OnUntilExistsStarting);
+            => Until(OnCheckExists).WithDefaultErrorMessage($"View could not be found. RepresentedBy: {_view.RepresentedBy}").PrecedeWith(OnUntilExistsStarting);
 
         /// <summary>
         /// Gets a wait operation that waits until this view closed and switches to another view after waiting.
@@ -187,6 +187,10 @@ public abstract class View : TestObjectBase
             _view.Driver.SkipCertificateWarning();
         }
 
-        private bool GetExists() => _view.Driver.IsPageLoadComplete() && _view.Exists;
+        /// <summary>
+        /// Called when the <see cref="UntilExists"/> wait operations checks whether to continue waiting or not.
+        /// </summary>
+        /// <returns>When <c>true</c> is returned, the wait operation is completed; otherwisem, the waiting continues.</returns>
+        protected virtual bool OnCheckExists() => _view.Driver.IsPageLoadComplete() && _view.Exists;
     }
 }

@@ -97,9 +97,9 @@ public class WebElement : TestObjectBase, IWebElement, IWrapsElement
     }
 
     /// <summary>
-    /// Gets the <see cref="ISearchContext"/> for this element. Set null to use the current driver.
+    /// Gets or sets the <see cref="ISearchContext"/> for this element. Set null to use the current driver.
     /// </summary>
-    public ISearchContext SearchContext { get; private set; }
+    public ISearchContext SearchContext { get; protected set; }
 
     /// <summary>
     /// Gets the driver that is used to find this <see cref="WebElement"/>.
@@ -194,9 +194,9 @@ public class WebElement : TestObjectBase, IWebElement, IWrapsElement
     }
 
     /// <summary>
-    /// Gets the location key that is used to search for the control on the UI.
+    /// Gets or sets the location key that is used to search for the control on the UI.
     /// </summary>
-    public virtual SeleniumBy LocationKey { get; private set; }
+    public virtual SeleniumBy LocationKey { get; protected set; }
 
     /// <summary>
     /// Gets the wait entry point for this <see cref="WebElement"/>.
@@ -996,43 +996,72 @@ public class WebElement : TestObjectBase, IWebElement, IWrapsElement
         /// Gets a wait operation that waits until this element exists.
         /// </summary>
         public virtual IWait<bool> UntilExists
-            => Until(GetExists).WithDefaultErrorMessage($"Element could not be found: {_element.GetSearchDescription()}");
+            => Until(OnCheckExists).WithDefaultErrorMessage($"Element could not be found: {_element.GetSearchDescription()}");
 
         /// <summary>
         /// Gets a wait operation that waits until this element does not exists.
         /// </summary>
         public virtual IWait<bool> UntilNotExists
-            => Until(GetNotExists).WithDefaultErrorMessage($"Element does still exist: {_element.GetSearchDescription()}");
+            => Until(OnCheckNotExists).WithDefaultErrorMessage($"Element does still exist: {_element.GetSearchDescription()}");
 
         /// <summary>
         /// Gets a wait operation that waits until this element is displayed.
         /// </summary>
         public virtual IWait<bool> UntilDisplayed
-            => Until(GetDisplayed).WithDefaultErrorMessage($"Element does not exist or is not displayed: {_element.GetSearchDescription()}");
+            => Until(OnCheckDisplayed).WithDefaultErrorMessage($"Element does not exist or is not displayed: {_element.GetSearchDescription()}");
 
         /// <summary>
         /// Gets a wait operation that waits until this element is not displayed.
         /// </summary>
         public virtual IWait<bool> UntilNotDisplayed
-            => Until(GetNotDisplayed).WithDefaultErrorMessage($"Element is still displayed: {_element.GetSearchDescription()}");
+            => Until(OnCheckNotDisplayed).WithDefaultErrorMessage($"Element is still displayed: {_element.GetSearchDescription()}");
 
         /// <summary>
         /// Gets a wait operation that waits until this element is clickable.
         /// </summary>
         public virtual IWait<bool> UntilClickable
-            => Until(GetClickable).WithDefaultErrorMessage($"Element is not clickable: {_element.GetSearchDescription()}");
+            => Until(OnCheckClickable).WithDefaultErrorMessage($"Element is not clickable: {_element.GetSearchDescription()}");
 
         /// <summary>
         /// Gets a wait operation that waits until this element is not clickable.
         /// </summary>
         public virtual IWait<bool> UntilNotClickable
-            => Until(GetNotClickable).WithDefaultErrorMessage($"Element is still clickable: {_element.GetSearchDescription()}");
+            => Until(OnCheckNotClickable).WithDefaultErrorMessage($"Element is still clickable: {_element.GetSearchDescription()}");
 
-        private bool GetExists() => _element.Exists;
-        private bool GetNotExists() => !_element.Exists;
-        private bool GetDisplayed() => _element.Displayed;
-        private bool GetNotDisplayed() => !_element.Displayed;
-        private bool GetClickable() => _element.IsClickable;
-        private bool GetNotClickable() => !_element.IsClickable;
+        /// <summary>
+        /// Called when the <see cref="UntilExists"/> wait operations checks whether to continue waiting or not.
+        /// </summary>
+        /// <returns>When <c>true</c> is returned, the wait operation is completed; otherwisem, the waiting continues.</returns>
+        protected virtual bool OnCheckExists() => _element.Exists;
+
+        /// <summary>
+        /// Called when the <see cref="UntilNotExists"/> wait operations checks whether to continue waiting or not.
+        /// </summary>
+        /// <returns>When <c>true</c> is returned, the wait operation is completed; otherwisem, the waiting continues.</returns>
+        protected virtual bool OnCheckNotExists() => !_element.Exists;
+
+        /// <summary>
+        /// Called when the <see cref="UntilDisplayed"/> wait operations checks whether to continue waiting or not.
+        /// </summary>
+        /// <returns>When <c>true</c> is returned, the wait operation is completed; otherwisem, the waiting continues.</returns>
+        protected virtual bool OnCheckDisplayed() => _element.Displayed;
+
+        /// <summary>
+        /// Called when the <see cref="UntilNotDisplayed"/> wait operations checks whether to continue waiting or not.
+        /// </summary>
+        /// <returns>When <c>true</c> is returned, the wait operation is completed; otherwisem, the waiting continues.</returns>
+        protected virtual bool OnCheckNotDisplayed() => !_element.Displayed;
+
+        /// <summary>
+        /// Called when the <see cref="UntilClickable"/> wait operations checks whether to continue waiting or not.
+        /// </summary>
+        /// <returns>When <c>true</c> is returned, the wait operation is completed; otherwisem, the waiting continues.</returns>
+        protected virtual bool OnCheckClickable() => _element.IsClickable;
+
+        /// <summary>
+        /// Called when the <see cref="UntilNotClickable"/> wait operations checks whether to continue waiting or not.
+        /// </summary>
+        /// <returns>When <c>true</c> is returned, the wait operation is completed; otherwisem, the waiting continues.</returns>
+        protected virtual bool OnCheckNotClickable() => !_element.IsClickable;
     }
 }
