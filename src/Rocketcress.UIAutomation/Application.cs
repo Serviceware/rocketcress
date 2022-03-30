@@ -5,22 +5,30 @@
 /// </summary>
 public class Application
 {
+    private readonly UIAutomationTestContext _context;
+    private readonly Process _process;
+
     private Application(UIAutomationTestContext context, Process process, ApplicationStartType startType)
     {
-        Context = context ?? throw new ArgumentNullException(nameof(context));
-        Process = process ?? throw new ArgumentNullException(nameof(process));
+        _context = context;
+        _process = process;
         StartType = startType;
     }
 
     /// <summary>
+    /// Gets an empty application.
+    /// </summary>
+    public static Application Empty => new(null, null, ApplicationStartType.None);
+
+    /// <summary>
     /// Gets the context this application has been attached or stated on.
     /// </summary>
-    public UIAutomationTestContext Context { get; }
+    public UIAutomationTestContext Context => _context ?? throw new InvalidOperationException("This application object does not run inside a context.");
 
     /// <summary>
     /// Gets the process of the attached or started application.
     /// </summary>
-    public Process Process { get; }
+    public Process Process => _process ?? throw new InvalidOperationException("This application object is not attached to any process.");
 
     /// <summary>
     /// Gets a value indicating how the application has been started.
@@ -112,6 +120,21 @@ public class Application
         return app;
     }
 
+    /// <summary>
+    /// Creates an empty application within the specified context.
+    /// </summary>
+    /// <param name="context">The context.</param>
+    /// <returns>An <see cref="Application"/> instance representing the empty application.</returns>
+    public static Application CreateEmpty(UIAutomationTestContext context)
+    {
+        if (context is null)
+            throw new ArgumentNullException(nameof(context));
+
+        var app = new Application(context, null, ApplicationStartType.Attached);
+        AddApplicationToContext(context, app);
+        return app;
+    }
+
     private static void AddApplicationToContext(UIAutomationTestContext context, Application application)
     {
         context.Applications.Add(application);
@@ -124,6 +147,11 @@ public class Application
 /// </summary>
 public enum ApplicationStartType
 {
+    /// <summary>
+    /// The <see cref="Application"/> object does not represent any application.
+    /// </summary>
+    None,
+
     /// <summary>
     /// The application has been launched.
     /// </summary>

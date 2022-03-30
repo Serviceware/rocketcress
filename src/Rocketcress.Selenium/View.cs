@@ -167,6 +167,12 @@ public abstract class View : TestObjectBase
             => Until(OnCheckExists).WithDefaultErrorMessage($"View could not be found. RepresentedBy: {_view.RepresentedBy}").PrecedeWith(OnUntilExistsStarting);
 
         /// <summary>
+        /// Gets a wait operation that waits until this view exists.
+        /// </summary>
+        public virtual IWait<bool> UntilNotExists
+            => Until(OnCheckNotExists).WithDefaultErrorMessage($"View was still found. RepresentedBy: {_view.RepresentedBy}");
+
+        /// <summary>
         /// Gets a wait operation that waits until this view closed and switches to another view after waiting.
         /// </summary>
         /// <param name="nextView">The next view.</param>
@@ -192,5 +198,11 @@ public abstract class View : TestObjectBase
         /// </summary>
         /// <returns>When <c>true</c> is returned, the wait operation is completed; otherwisem, the waiting continues.</returns>
         protected virtual bool OnCheckExists() => _view.Driver.IsPageLoadComplete() && _view.Exists;
+
+        /// <summary>
+        /// Called when the <see cref="UntilNotExists"/> wait operations checks whether to continue waiting or not.
+        /// </summary>
+        /// <returns>When <c>true</c> is returned, the wait operation is completed; otherwisem, the waiting continues.</returns>
+        protected virtual bool OnCheckNotExists() => _view.Driver.IsPageLoadComplete() && !_view.Exists;
     }
 }
