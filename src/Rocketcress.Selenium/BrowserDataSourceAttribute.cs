@@ -68,7 +68,7 @@ namespace Rocketcress.Selenium
         public string GetDisplayName(MethodInfo methodInfo, object[] data)
         {
             if (data != null)
-                return $"{SeleniumTestContext.CurrentBrowser} - {SeleniumTestContext.CurrentBrowserLanguage.Name}";
+                return $"{methodInfo.Name}: {SeleniumTestContext.CurrentBrowser} ({SeleniumTestContext.CurrentBrowserLanguage.Name})";
             return null;
         }
     }
