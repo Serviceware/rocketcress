@@ -29,6 +29,26 @@ public class TestContextBase : TestObjectBase, IDisposable
         OnContextCreated();
     }
 
+    /// <summary>
+    /// Occurs when this test context is initializing.
+    /// </summary>
+    public event EventHandler? Initializing;
+
+    /// <summary>
+    /// Occurs when this test context has been initialized.
+    /// </summary>
+    public event EventHandler? Initialized;
+
+    /// <summary>
+    /// Occurs when this test context is disposing.
+    /// </summary>
+    public event EventHandler? Disposing;
+
+    /// <summary>
+    /// Occurs when this test context has been disposed.
+    /// </summary>
+    public event EventHandler? Disposed;
+
 #if !SLIM
     /// <summary>
     /// Gets the current MSTest test context of the current test run.
@@ -51,7 +71,9 @@ public class TestContextBase : TestObjectBase, IDisposable
     /// </summary>
     public virtual void Initialize()
     {
+        Initializing?.Invoke(this, EventArgs.Empty);
         OnInitialize();
+        Initialized?.Invoke(this, EventArgs.Empty);
     }
 
     /// <summary>
@@ -111,8 +133,10 @@ public class TestContextBase : TestObjectBase, IDisposable
     /// </summary>
     public void Dispose()
     {
+        Disposing?.Invoke(this, EventArgs.Empty);
         Dispose(true);
         GC.SuppressFinalize(this);
+        Disposed?.Invoke(this, EventArgs.Empty);
     }
 
     /// <summary>
