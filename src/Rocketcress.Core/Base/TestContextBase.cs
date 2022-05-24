@@ -77,6 +77,48 @@ public class TestContextBase : TestObjectBase, IDisposable
     }
 
     /// <summary>
+    /// Gets the unnamed value of the specified type.
+    /// </summary>
+    /// <typeparam name="T">The type of value to get.</typeparam>
+    /// <returns>The current unnamed value of type <typeparamref name="T"/>. If not value was provided the default value of <typeparamref name="T"/> is returned.</returns>
+    public T? GetValue<T>()
+    {
+        return GetProperty<T>($"{{{typeof(T).FullName}}}");
+    }
+
+    /// <summary>
+    /// Gets the named value of the specified type.
+    /// </summary>
+    /// <typeparam name="T">The type of value to get.</typeparam>
+    /// <param name="name">The name of the value.</param>
+    /// <returns>The current named value of type <typeparamref name="T"/>. If not value was provided the default value of <typeparamref name="T"/> is returned.</returns>
+    public T? GetValue<T>(string name)
+    {
+        return GetProperty<T>(name);
+    }
+
+    /// <summary>
+    /// Dets the unnamed value of the specified type.
+    /// </summary>
+    /// <typeparam name="T">The type of value to set.</typeparam>
+    /// <param name="value">The value to set.</param>
+    public void SetValue<T>(T value)
+    {
+        SetProperty(value, $"{{{typeof(T).FullName}}}");
+    }
+
+    /// <summary>
+    /// Dets the named value of the specified type.
+    /// </summary>
+    /// <typeparam name="T">The type of value to set.</typeparam>
+    /// <param name="value">The value to set.</param>
+    /// <param name="name">The name of the value.</param>
+    public void SetValue<T>(T value, string name)
+    {
+        SetProperty(value, name);
+    }
+
+    /// <summary>
     /// Takes a screenshots and appends it to the test result.
     /// </summary>
     /// <returns>Returns the path to the screenshot file.</returns>
