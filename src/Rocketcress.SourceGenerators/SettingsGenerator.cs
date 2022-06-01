@@ -252,12 +252,16 @@ public class SettingsGenerator : ISourceGenerator
                 using (sb.AddBlock($"public {className}ValuesAccessor(SettingsBase settings)"))
                     sb.AppendLine("_settings = settings;");
 
-                sb.AppendLine();
-
                 foreach (var key in keys)
                 {
                     var type = metadata.SettingsTypes.FirstOrDefault(x => x.TagName == key.Tag)?.TypeName ?? "object";
-                    sb.AppendLine($"public {type} {key.Key} => _settings.Get<{type}>({className}Keys.{key.Key});");
+
+                    sb.AppendLine();
+                    using (sb.AddBlock($"public {type} {key.Key}"))
+                    {
+                        sb.AppendLine($"get => _settings.Get<{type}>({className}Keys.{key.Key});");
+                        sb.AppendLine($"set => _settings.OtherSettings[{className}Keys.{key.Key}] = value;");
+                    }
                 }
             }
         }
