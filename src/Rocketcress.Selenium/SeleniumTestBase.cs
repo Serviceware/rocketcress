@@ -29,6 +29,11 @@ public abstract class SeleniumTestBase<TSettings, TContext> : TestBase<TSettings
     where TSettings : Settings
     where TContext : SeleniumTestContext
 {
+    /// <summary>
+    /// Gets the currently focused Selenium web driver in the current <see cref="TestBase{TSettings, TContext}.Context"/>.
+    /// </summary>
+    public WebDriver CurrentDriver => Context?.Driver!;
+
     /// <inheritdoc />
     public virtual void ConfigureIEDriverOptions(OpenQA.Selenium.IE.InternetExplorerOptions options)
     {

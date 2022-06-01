@@ -1,4 +1,6 @@
 ﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 using Rocketcress.Core.Common;
 using Rocketcress.Core.Extensions;
@@ -163,6 +165,24 @@ public static class CodeGenerationHelpers
             yield return current;
             current = current.BaseType;
         }
+    }
+
+    /// <summary>
+    /// Determines whether the specified symbol has the partial modifier.
+    /// </summary>
+    /// <param name="symbol">The symbol.</param>
+    /// <returns>
+    ///   <c>true</c> if the specified symbol has the partial modifier; otherwise, <c>false</c>.
+    /// </returns>
+    public static bool HasPartialModifier(this ISymbol symbol)
+    {
+        Guard.NotNull(symbol);
+
+        return (from @ref in symbol.DeclaringSyntaxReferences
+                let syntax = @ref.GetSyntax()
+                where syntax is MemberDeclarationSyntax declarationSyntax
+                   && declarationSyntax.Modifiers.Any(SyntaxKind.PartialKeyword)
+                select syntax).Any();
     }
 
     /// <summary>

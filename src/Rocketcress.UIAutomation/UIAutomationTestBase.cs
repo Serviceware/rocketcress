@@ -20,4 +20,8 @@ public abstract class UIAutomationTestBase<TSettings, TContext> : TestBase<TSett
     where TSettings : Settings
     where TContext : UIAutomationTestContext
 {
+    /// <summary>
+    /// Gets the currently active application in the current <see cref="TestBase{TSettings, TContext}.Context"/>.
+    /// </summary>
+    public Application CurrentApp => Context?.ActiveApplication!;
 }

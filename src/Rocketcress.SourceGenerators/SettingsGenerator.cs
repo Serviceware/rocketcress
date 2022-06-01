@@ -29,19 +29,46 @@ public class SettingsGenerator : ISourceGenerator
     /// <inheritdoc/>
     public void Execute(GeneratorExecutionContext context)
     {
+        var debugGeneratorSymbol = context.Compilation.GetTypeByMetadataName("Rocketcress.Core.Attributes.DebugGeneratorAttribute");
+
+        if (debugGeneratorSymbol is not null)
+        {
+            var assemblyAttributes = context.Compilation.Assembly.GetAttributes();
+            if (assemblyAttributes.Any(x => SymbolEqualityComparer.Default.Equals(x.AttributeClass, debugGeneratorSymbol)))
+                LaunchDebuggerOnBuild();
+        }
+
         context.AnalyzerConfigOptions.GlobalOptions.TryGetValue("build_property.rootnamespace", out var globalNamespaceName);
         var settingsFile = context.AdditionalFiles.FirstOrDefault(x => Path.GetFileName(x.Path) == "settings.json");
         if (settingsFile != null)
         {
             context.AnalyzerConfigOptions.GetOptions(settingsFile).TryGetValue("build_metadata.AdditionalFiles.SettingsType", out var settingsType);
 
-            var source = GenerateFromFile(settingsFile.Path, globalNamespaceName, GetSettingsType(context, settingsType));
+            var testBaseSymbol = context.Compilation.GetTypeByMetadataName("Rocketcress.Core.Base.TestBase`2");
+
+            IEnumerable<INamedTypeSymbol> testClasses;
+            if (testBaseSymbol is not null)
+            {
+                var unboundTestBaseSymbol = testBaseSymbol.ConstructUnboundGenericType();
+                testClasses = from typeSymbol in context.Compilation.SourceModule.GlobalNamespace.GetNamespaceTypes()
+                              where typeSymbol.GetAllBaseTypes()
+                                  .Where(x => x.IsGenericType)
+                                  .Select(x => x.ConstructUnboundGenericType())
+                                  .Contains(unboundTestBaseSymbol, SymbolEqualityComparer.Default)
+                              select typeSymbol;
+            }
+            else
+            {
+                testClasses = Array.Empty<INamedTypeSymbol>();
+            }
+
+            var source = GenerateFromFile(settingsFile.Path, globalNamespaceName, GetSettingsType(context, settingsType), testClasses);
 
             context.AddSource(CreateHintName("Settings", nameof(SettingsGenerator)), SourceText.From(source, Encoding.UTF8));
         }
     }
 
-    private static string GenerateFromFile(string filePath, string namespaceName, string settingsType)
+    private static string GenerateFromFile(string filePath, string namespaceName, string settingsType, IEnumerable<INamedTypeSymbol> testClasses)
     {
         var metadata = GetMetadata(filePath);
         var sb = new SourceBuilder();
@@ -60,11 +87,12 @@ public class SettingsGenerator : ISourceGenerator
 
             using (sb.AddRegion("Setting Classes"))
                 GenerateSettingClasses(sb, metadata);
-
-            sb.AppendLine();
-
-            GenerateSettingsLoader(sb, settingsType);
         }
+
+        sb.AppendLine();
+
+        using (sb.AddRegion("Test Class Extensions"))
+            GenerateTestClassExtensions(sb, metadata, testClasses);
 
         return sb.ToString();
     }
@@ -163,54 +191,110 @@ public class SettingsGenerator : ISourceGenerator
 
     private static void GenerateSettingClasses(SourceBuilder sb, SettingsMetadata metadata)
     {
-        GenerateSettingClass("Setting", metadata.DefaultKeys);
-        foreach (var @class in metadata.KeyClasses.Where(x => x.Keys.Count > 0))
+        using (sb.AddBlock($"public static class SettingsExtensions"))
         {
-            sb.AppendLine();
-            GenerateSettingClass(@class.Name, @class.Keys);
+            var keyClasses = metadata.KeyClasses.Where(x => x.Keys.Count > 0).ToArray();
+
+            if (metadata.DefaultKeys.Any())
+            {
+                sb.AppendLine($"public static SettingValues SettingValues(this TestContextBase context) => GetSettingClassInstance<SettingValues>(context.Settings);");
+                sb.AppendLine($"public static SettingValues Values(this SettingsBase settings) => GetSettingClassInstance<SettingValues>(settings);");
+            }
+
+            foreach (var @class in keyClasses)
+            {
+                sb.AppendLine($"public static {@class.Name}Values {@class.Name}Values(this TestContextBase context) => GetSettingClassInstance<{@class.Name}Values>(context.Settings);");
+                sb.AppendLine($"public static {@class.Name}Values {@class.Name}Values(this SettingsBase settings) => GetSettingClassInstance<{@class.Name}Values>(settings);");
+            }
+
+            if (keyClasses.Any())
+                sb.AppendLine();
+
+            if (!keyClasses.Any() && !metadata.DefaultKeys.Any())
+            {
+                sb.AppendLine("// Currently no keys are available in settings file.");
+                return;
+            }
+
+            using (sb.AddBlock($"private static T GetSettingClassInstance<T>(SettingsBase settings)"))
+            {
+                sb.AppendLine("var key = $\"__settings_class_{typeof(T).Name}\";");
+                using (sb.AddBlock("if (!settings.OtherSettings.TryGetValue(key, out object instance)"))
+                {
+                    sb.AppendLine("instance = (T)global::System.Activator.CreateInstance(typeof(T), new object[] { settings });")
+                        .AppendLine("settings.OtherSettings[key] = instance;");
+                }
+
+                sb.AppendLine()
+                    .AppendLine("return (T)instance;");
+            }
+
+            if (metadata.DefaultKeys.Any())
+            {
+                sb.AppendLine();
+                GenerateSettingClass("Setting", metadata.DefaultKeys);
+            }
+
+            foreach (var @class in keyClasses)
+            {
+                sb.AppendLine();
+                GenerateSettingClass(@class.Name, @class.Keys);
+            }
         }
 
         void GenerateSettingClass(string className, IEnumerable<SettingsKey> keys)
         {
-            using (sb.AddBlock($"public static class {className}Values"))
+            using (sb.AddBlock($"public class {className}Values"))
             {
-                sb.AppendLine("private static readonly PropertyStorage _properties = new PropertyStorage();")
+                sb.AppendLine("private readonly SettingsBase _settings;")
                   .AppendLine();
 
-                var hasKey = false;
+                using (sb.AddBlock($"public {className}Values(SettingsBase settings)"))
+                    sb.AppendLine("_settings = settings;");
+
+                sb.AppendLine();
+
                 foreach (var key in keys)
                 {
-                    hasKey = true;
                     var type = metadata.SettingsTypes.FirstOrDefault(x => x.TagName == key.Tag)?.TypeName ?? "object";
-                    sb.AppendLine($"public static {type} {key.Key} => _properties.GetProperty(() => SettingsLoader.Settings.Get<{type}>({className}Keys.{key.Key}));");
+                    sb.AppendLine($"public {type} {key.Key} => _settings.Get<{type}>({className}Keys.{key.Key});");
                 }
-
-                if (!hasKey)
-                    sb.AppendLine("// Currently no keys are available in settings file.");
             }
         }
     }
 
-    private static void GenerateSettingsLoader(SourceBuilder sb, string settingsType)
+    private static void GenerateTestClassExtensions(SourceBuilder sb, SettingsMetadata metadata, IEnumerable<INamedTypeSymbol> testClasses)
     {
-        using (sb.AddBlock("public static class SettingsLoader"))
+        bool isFirst = true;
+        foreach (var testClass in testClasses)
         {
-            sb.AppendLine("private static object _settingsLock = new object();")
-              .AppendLine($"private static {settingsType} _settings;")
-              .AppendLine();
+            if (!isFirst)
+                sb.AppendLine();
+            isFirst = false;
 
-            using (sb.AddBlock($"public static {settingsType} Settings"))
-            using (sb.AddBlock("get"))
-            using (sb.AddBlock("lock (_settingsLock)"))
-                sb.AppendLine("return _settings ??= LoadSettings();");
+            if (testClass.HasPartialModifier())
+                GenerateTestClassExtension(testClass);
+            else
+                sb.AppendLine($"// No generating partial class for {testClass.ToDisplayString(DefinitionFormat)} because it is itself not marked as partial.");
+        }
 
-            sb.AppendLine();
-            using (sb.AddBlock($"private static {settingsType} LoadSettings()"))
+        if (isFirst)
+            sb.AppendLine("// No test classes found to extend.");
+
+        void GenerateTestClassExtension(INamedTypeSymbol testClass)
+        {
+            using (sb.AddBlock($"namespace {testClass.ContainingNamespace.ToDisplayString()}"))
+            using (sb.AddBlock($"partial class {testClass.ToDisplayString(TypeDefinitionFormat)}"))
             {
-                sb.AppendLine("var assembly = typeof(SettingsLoader).Assembly;")
-                  .AppendLine("var specificSettingsFile = SettingsBase.GetSettingFile(assembly, null, false);")
-                  .AppendLine("var defaultSettingsFile = SettingsBase.GetSettingFile(assembly, null, true);")
-                  .AppendLine($"return SettingsBase.GetFromFiles<{settingsType}>(specificSettingsFile, defaultSettingsFile);");
+                var keyClasses = metadata.KeyClasses.Where(x => x.Keys.Count > 0).ToArray();
+
+                if (metadata.DefaultKeys.Any())
+                    sb.AppendLine("private SettingsExtensions.SettingValues SettingValues => Context?.Settings.Values();");
+
+                foreach (var keyClass in keyClasses)
+                {
+                    sb.AppendLine($"private SettingsExtensions.{keyClass.Name}Values {keyClass.Name}Values => Context?.Settings.{keyClass.Name}Values();");
+                }
             }
         }
     }

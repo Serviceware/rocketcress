@@ -18,19 +18,40 @@ public abstract class TestBase<TSettings, TContext> : TestObjectBase
     where TSettings : SettingsBase
     where TContext : TestContextBase
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="TestBase{TSettings, TContext}"/> class.
+    /// </summary>
+    public TestBase()
+    {
+        TestClassConfiguration = GetType().GetCustomAttribute<TestClassConfigurationAttribute>() ?? TestClassConfigurationAttribute.Default;
+    }
+
 #if !SLIM
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     /// <summary>
     /// Gets or sets the current MSTest <see cref="TestContext"/>.
     /// </summary>
-    public TestContext TestContext { get; set; }
-#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+    public TestContext TestContext { get; set; } = null!;
 #endif
+
+    /// <summary>
+    /// Gets or sets the current Rocketcress Test Context.
+    /// </summary>
+    public TContext Context { get; protected set; } = null!;
+
+    /// <summary>
+    /// Gets the settings of the current <see cref="Context"/>.
+    /// </summary>
+    protected TSettings Settings => (TSettings)Context?.Settings!;
 
     /// <summary>
     /// Gets the last exception that occurred in the current AppDomain.
     /// </summary>
     protected Exception? LastException { get; private set; }
+
+    /// <summary>
+    /// Gets the configuration of this <see cref="TestBase{TSettings, TContext}"/>.
+    /// </summary>
+    protected TestClassConfigurationAttribute TestClassConfiguration { get; }
 
     /// <summary>
     /// Initializes a Test.
@@ -57,6 +78,14 @@ public abstract class TestBase<TSettings, TContext> : TestObjectBase
 #endif
 
         AppDomain.CurrentDomain.FirstChanceException += AppDomain_FirstChanceException;
+
+        if (TestClassConfiguration.ContextCreationMode != ContextCreationMode.None)
+        {
+            Context = TestClassConfiguration.ContextCreationMode == ContextCreationMode.OnlyCreate
+                ? CreateContext()
+                : CreateAndInitializeContext();
+        }
+
         OnInitializeTest();
     }
 
@@ -71,6 +100,8 @@ public abstract class TestBase<TSettings, TContext> : TestObjectBase
         try
         {
             OnCleanupTest();
+            if (TestClassConfiguration.DisposeContextOnCleanup)
+                Context?.Dispose();
         }
         finally
         {
@@ -150,7 +181,7 @@ public abstract class TestBase<TSettings, TContext> : TestObjectBase
     /// Loads the settings for this test class.
     /// </summary>
     /// <returns>The loaded settings.</returns>
-    protected TSettings LoadSettings()
+    protected virtual TSettings LoadSettings()
     {
         var assembly = GetType().Assembly;
         var specificSettingsFile = SettingsBase.GetSettingFile(assembly, null, false);
