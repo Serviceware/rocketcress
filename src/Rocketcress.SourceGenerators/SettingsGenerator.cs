@@ -219,7 +219,7 @@ public class SettingsGenerator : ISourceGenerator
             using (sb.AddBlock($"private static T GetSettingClassInstance<T>(SettingsBase settings)"))
             {
                 sb.AppendLine("var key = $\"__settings_class_{typeof(T).Name}\";");
-                using (sb.AddBlock("if (!settings.OtherSettings.TryGetValue(key, out object instance)"))
+                using (sb.AddBlock("if (!settings.OtherSettings.TryGetValue(key, out object instance))"))
                 {
                     sb.AppendLine("instance = (T)global::System.Activator.CreateInstance(typeof(T), new object[] { settings });")
                         .AppendLine("settings.OtherSettings[key] = instance;");
