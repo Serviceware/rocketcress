@@ -275,7 +275,7 @@ public class SettingsGenerator : ISourceGenerator
             if (testClass.HasPartialModifier())
                 GenerateTestClassExtension(testClass);
             else
-                sb.AppendLine($"// No generating partial class for {testClass.ToDisplayString(DefinitionFormat)} because it is itself not marked as partial.");
+                sb.AppendLine($"// Not generating partial class for {testClass.ToDisplayString(DefinitionFormat)} because it is itself not marked as partial.");
         }
 
         if (isFirst)
