@@ -197,14 +197,14 @@ public class SettingsGenerator : ISourceGenerator
 
             if (metadata.DefaultKeys.Any())
             {
-                sb.AppendLine($"public static SettingValues SettingValues(this TestContextBase context) => GetSettingClassInstance<SettingValues>(context.Settings);");
-                sb.AppendLine($"public static SettingValues Values(this SettingsBase settings) => GetSettingClassInstance<SettingValues>(settings);");
+                sb.AppendLine($"public static SettingValuesAccessor SettingValues(this TestContextBase context) => GetSettingClassInstance<SettingValuesAccessor>(context.Settings);");
+                sb.AppendLine($"public static SettingValuesAccessor Values(this SettingsBase settings) => GetSettingClassInstance<SettingValuesAccessor>(settings);");
             }
 
             foreach (var @class in keyClasses)
             {
-                sb.AppendLine($"public static {@class.Name}Values {@class.Name}Values(this TestContextBase context) => GetSettingClassInstance<{@class.Name}Values>(context.Settings);");
-                sb.AppendLine($"public static {@class.Name}Values {@class.Name}Values(this SettingsBase settings) => GetSettingClassInstance<{@class.Name}Values>(settings);");
+                sb.AppendLine($"public static {@class.Name}ValuesAccessor {@class.Name}Values(this TestContextBase context) => GetSettingClassInstance<{@class.Name}ValuesAccessor>(context.Settings);");
+                sb.AppendLine($"public static {@class.Name}ValuesAccessor {@class.Name}Values(this SettingsBase settings) => GetSettingClassInstance<{@class.Name}ValuesAccessor>(settings);");
             }
 
             if (keyClasses.Any())
@@ -244,12 +244,12 @@ public class SettingsGenerator : ISourceGenerator
 
         void GenerateSettingClass(string className, IEnumerable<SettingsKey> keys)
         {
-            using (sb.AddBlock($"public class {className}Values"))
+            using (sb.AddBlock($"public class {className}ValuesAccessor"))
             {
                 sb.AppendLine("private readonly SettingsBase _settings;")
                   .AppendLine();
 
-                using (sb.AddBlock($"public {className}Values(SettingsBase settings)"))
+                using (sb.AddBlock($"public {className}ValuesAccessor(SettingsBase settings)"))
                     sb.AppendLine("_settings = settings;");
 
                 sb.AppendLine();
@@ -289,11 +289,11 @@ public class SettingsGenerator : ISourceGenerator
                 var keyClasses = metadata.KeyClasses.Where(x => x.Keys.Count > 0).ToArray();
 
                 if (metadata.DefaultKeys.Any())
-                    sb.AppendLine("private SettingsExtensions.SettingValues SettingValues => Context?.Settings.Values();");
+                    sb.AppendLine("private SettingsExtensions.SettingValuesAccessor SettingValues => Context?.Settings.Values();");
 
                 foreach (var keyClass in keyClasses)
                 {
-                    sb.AppendLine($"private SettingsExtensions.{keyClass.Name}Values {keyClass.Name}Values => Context?.Settings.{keyClass.Name}Values();");
+                    sb.AppendLine($"private SettingsExtensions.{keyClass.Name}ValuesAccessor {keyClass.Name}Values => Context?.Settings.{keyClass.Name}Values();");
                 }
             }
         }
