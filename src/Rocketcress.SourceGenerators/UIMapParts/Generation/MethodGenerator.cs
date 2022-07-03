@@ -26,7 +26,7 @@ namespace Rocketcress.SourceGenerators.UIMapParts.Generation
                         .AppendLine($"base.Initialize();")
                         .AppendLine("OnBaseInitialized();");
 
-                foreach (var control in controls)
+                foreach (var control in GetControlsToInitialize(controls))
                 {
                     var parent = control.ParentName;
                     if (parent == "this" &&

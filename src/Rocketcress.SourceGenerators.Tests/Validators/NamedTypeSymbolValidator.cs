@@ -42,6 +42,13 @@ namespace Rocketcress.SourceGenerators.Tests.Validators
             return this;
         }
 
+        public NamedTypeSymbolValidator DoesNotHaveMethod(string propertyName)
+        {
+            var property = TypeSymbol.GetMembers(propertyName).OfType<IMethodSymbol>().Where(x => x.MethodKind == MethodKind.Ordinary).FirstOrDefault();
+            Assert.Instance.IsNull(property, $"Method \"{propertyName}\" exist unexpectedly in type \"{TypeName}\".");
+            return this;
+        }
+
         public NamedTypeSymbolValidator HasMethod(string methodName)
             => HasMethod(out _, methodName, MethodKind.Ordinary, (ITypeSymbol[]?)null);
 

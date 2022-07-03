@@ -50,7 +50,7 @@ namespace Rocketcress.SourceGenerators.UIMapParts.Models
             }
 
             var baseType = typeSymbol.BaseType;
-            if (baseType is not null && GenerateUIMapPartsOptions.GetGenerateDefaultConstructors(typeSymbols, baseType))
+            if (includeBaseType && baseType is not null && GenerateUIMapPartsOptions.GetGenerateDefaultConstructors(typeSymbols, typeSymbol))
             {
                 foreach (var constructor in GetConstructors(typeSymbols, baseType, true))
                     yield return constructor;

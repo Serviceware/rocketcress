@@ -37,6 +37,36 @@ namespace Test
         }
 
         [TestMethod]
+        public void EmptyWebElement_GenerateConstructors_Chain()
+        {
+            var source = @"
+using Rocketcress.Selenium.Controls;
+using Rocketcress.Core.Attributes;
+namespace Test
+{
+    [GenerateUIMapParts]
+    public partial class MyControl : WebElement {}
+
+    [GenerateUIMapParts]
+    public partial class MyControl2 : MyControl {}
+}";
+
+            SourceGeneratorTestRunner.CompileAndGenerate(source, new UIMapPartsGenerator())
+                .HasNoErrors()
+                .HasType("Test.MyControl2", out var controlTypeSymbol)
+                .ValidateType(controlTypeSymbol, controlType => controlType
+                    .HasMembers(MethodKind.Constructor, 4)
+                    .HasConstructor(out var ctor1, typeof(WebDriver), typeof(OpenQA.Selenium.By))
+                    .ValidateMethod(ctor1, c => c.HasAccessibility(Accessibility.Public))
+                    .HasConstructor(out var ctor2, typeof(WebDriver), typeof(OpenQA.Selenium.By), typeof(OpenQA.Selenium.ISearchContext))
+                    .ValidateMethod(ctor2, c => c.HasAccessibility(Accessibility.Public))
+                    .HasConstructor(out var ctor3, typeof(WebDriver), typeof(OpenQA.Selenium.IWebElement))
+                    .ValidateMethod(ctor3, c => c.HasAccessibility(Accessibility.Public))
+                    .HasConstructor(out var ctor4, typeof(WebDriver))
+                    .ValidateMethod(ctor4, c => c.HasAccessibility(Accessibility.Protected)));
+        }
+
+        [TestMethod]
         public void EmptyWebElement_GenerateInitUsingMethods()
         {
             var source = @"
@@ -83,6 +113,27 @@ namespace Test
                     .ValidateMethod(onBaseInitialized, m => m.IsNotStatic().IsPartial().HasAccessibility(Accessibility.Private))
                     .HasMethod(out var onInitialized, "OnInitialized", Array.Empty<INamedTypeSymbol>())
                     .ValidateMethod(onInitialized, m => m.IsNotStatic().IsPartial().HasAccessibility(Accessibility.Private)));
+        }
+
+        [TestMethod]
+        public void EmptyWebElement_NotPartial()
+        {
+            var source = @"
+using Rocketcress.Selenium.Controls;
+using Rocketcress.Core.Attributes;
+namespace Test
+{
+    [GenerateUIMapParts]
+    public class MyControl : WebElement {}
+}";
+
+            SourceGeneratorTestRunner.CompileAndGenerate(source, new UIMapPartsGenerator())
+                .HasError("RCG0101", 1)
+                .HasType("Test.MyControl", out var controlTypeSymbol)
+                .ValidateType(controlTypeSymbol, controlType => controlType
+                    .DoesNotHaveMethod("Initialize")
+                    .DoesNotHaveMethod("InitUsing")
+                    .HasMembers(MethodKind.Constructor, 1));
         }
 
         [TestMethod]

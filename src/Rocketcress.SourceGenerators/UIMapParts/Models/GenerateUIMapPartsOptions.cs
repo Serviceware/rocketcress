@@ -77,16 +77,17 @@ namespace Rocketcress.SourceGenerators.UIMapParts.Models
             if (!typeSymbol.TryGetAttribute(typeSymbols.GenerateUIMapPartsAttribute, out var attribute))
                 return false;
 
+            bool generateDefaultConstructors = GenerateUIMapPartsAttributeDefaults.GenerateDefaultConstructors;
             foreach (var argument in attribute.NamedArguments)
             {
                 if (argument.Key == "GenerateDefaultConstructors")
                 {
                     if (argument.Value.Value is bool boolValue)
-                        return boolValue;
+                        generateDefaultConstructors = boolValue;
                 }
             }
 
-            return false;
+            return generateDefaultConstructors;
         }
     }
 }

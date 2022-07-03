@@ -21,6 +21,18 @@ namespace Rocketcress.SourceGenerators.Tests.Validators
             return this;
         }
 
+        public CompilationValidator HasError(string id)
+            => HasError(id, -1);
+
+        public CompilationValidator HasError(string id, int count)
+            => HasDiagnostic(DiagnosticSeverity.Error, id, count);
+
+        public CompilationValidator HasWarning(string id)
+            => HasWarning(id, -1);
+
+        public CompilationValidator HasWarning(string id, int count)
+            => HasDiagnostic(DiagnosticSeverity.Warning, id, count);
+
         public CompilationValidator HasType(string fullTypeName)
             => HasType(fullTypeName, out _);
 
@@ -62,6 +74,17 @@ namespace Rocketcress.SourceGenerators.Tests.Validators
                 HasType(type.FullName!, out var typeSymbol);
                 return typeSymbol;
             }
+        }
+
+        public CompilationValidator HasDiagnostic(DiagnosticSeverity severity, string id, int count)
+        {
+            var errors = Diagnostics.Where(x => x.Severity == severity && x.Id == id).ToArray();
+            if (count >= 0)
+                Assert.Instance.AreEqual(0, errors.Length, $"Wrong number of {id} {severity}s.");
+            else
+                Assert.Instance.IsGreaterThan(0, errors.Length, $"At least one {severity} with id {id} was expected, but got none.");
+
+            return this;
         }
     }
 }

@@ -36,7 +36,7 @@ namespace Rocketcress.SourceGenerators.UIMapParts.Models
 
                 bool initialize = options.Initialize;
                 IPropertySymbol? parent = null;
-                if (options.ParentControl is not null)
+                if (options.ParentControl is not null && options.ParentControl != "this")
                 {
                     parent = context.TypeSymbol.GetMembers(options.ParentControl).OfType<IPropertySymbol>().FirstOrDefault();
                     if (parent is null)
