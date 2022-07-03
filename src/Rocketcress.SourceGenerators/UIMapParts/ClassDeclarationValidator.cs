@@ -2,6 +2,7 @@
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Rocketcress.SourceGenerators.Common;
+using Rocketcress.SourceGenerators.Extensions;
 
 namespace Rocketcress.SourceGenerators.UIMapParts
 {
@@ -77,6 +78,6 @@ namespace Rocketcress.SourceGenerators.UIMapParts
             _reportDiagnosic(DiagnosticFactory.UIMapParts.AllParentTypesMustBePartial(location, uimapTypeName, nonPartialTypeName));
         }
 
-        private INamedTypeSymbol? RetrieveTypeSymbol() => _semanticModel.GetSymbolInfo(_classDeclaration).Symbol as INamedTypeSymbol;
+        private INamedTypeSymbol? RetrieveTypeSymbol() => _semanticModel.GetDeclaredSymbol(_classDeclaration) as INamedTypeSymbol;
     }
 }

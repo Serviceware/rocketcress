@@ -13,7 +13,7 @@ namespace Rocketcress.SourceGenerators.UIMapParts.Models
     {
         private static readonly Regex PropertyNameSplitRegex = new(@"([A-Z]?[a-z0-9]+|[A-Z]+(?![a-z]))", RegexOptions.Compiled);
 
-        protected abstract bool IsStatic { get; }
+        public abstract bool IsStatic { get; }
 
         public static LocationKey Get(UIMapPartsGeneratorContext context, IPropertySymbol propertySymbol, UIMapControlOptions options, out INamedTypeSymbol? controlTypeOverride)
         {
@@ -82,7 +82,7 @@ namespace Rocketcress.SourceGenerators.UIMapParts.Models
             _id = id;
         }
 
-        protected override bool IsStatic { get; } = true;
+        public override bool IsStatic { get; } = true;
 
         public override string BuildInitExpression(UIMapPartsGeneratorContext context)
         {
@@ -108,7 +108,7 @@ namespace Rocketcress.SourceGenerators.UIMapParts.Models
             _initBody = initBody;
         }
 
-        protected override bool IsStatic { get; } = true;
+        public override bool IsStatic { get; } = true;
 
         public override string BuildInitExpression(UIMapPartsGeneratorContext context)
         {
@@ -132,7 +132,7 @@ namespace Rocketcress.SourceGenerators.UIMapParts.Models
             _parameterName = parameterName;
         }
 
-        protected override bool IsStatic { get; } = false;
+        public override bool IsStatic { get; } = false;
 
         public override string BuildInitExpression(UIMapPartsGeneratorContext context)
         {

@@ -14,10 +14,10 @@ namespace Rocketcress.SourceGenerators.UIMapParts.Generation
 
         public static FileGenerator Generate(UIMapPartsGeneratorContext context) => new(context);
 
-        public void UIMapParts(ControlDefinition[] controls)
+        public void UIMapParts(GeneratorData data)
         {
             var sourceBuilder = new SourceBuilder();
-            ClassGenerator.Generate(sourceBuilder).UIMapParts();
+            ClassGenerator.Generate(_context, sourceBuilder).UIMapParts(data);
             _context.AddSource(CodeGenerationHelper.CreateHintName(_context.TypeSymbol, nameof(UIMapPartsGenerator)), sourceBuilder.ToString());
         }
     }

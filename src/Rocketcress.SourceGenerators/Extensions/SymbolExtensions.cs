@@ -161,6 +161,7 @@ namespace Rocketcress.SourceGenerators.Extensions
             {
                 if (SymbolEqualityComparer.Default.Equals(current, baseTypeSymbol))
                     return true;
+                current = current.BaseType;
             }
 
             return false;

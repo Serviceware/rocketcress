@@ -1,21 +1,20 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Rocketcress.SourceGenerators.Common;
 using Rocketcress.SourceGenerators.Extensions;
 
 namespace Rocketcress.SourceGenerators.UIMapParts.Models
 {
     internal record ControlDefinition(
         IPropertySymbol Property,
+        ITypeSymbol ControlType,
         bool Initialize,
+        string? ParentName,
         IPropertySymbol? Parent,
         LocationKey? LocationKey,
         ISymbol? ExistingLocationKey)
     {
-        public static ControlDefinition[] GetAll(UIMapPartsGeneratorContext context)
+        public static ControlDefinition[] GetAll(UIMapPartsGeneratorContext context, GenerateUIMapPartsOptions classOptions)
         {
-            var classOptions = GenerateUIMapPartsOptions.Get(context);
-
             var result = new List<ControlDefinition>();
 
             foreach (var member in context.TypeSymbol.GetMembers())
@@ -25,10 +24,15 @@ namespace Rocketcress.SourceGenerators.UIMapParts.Models
 
                 var options = UIMapControlOptions.FromAttribute(attribute, classOptions);
 
+                ITypeSymbol controlType = propertySymbol.Type;
                 ISymbol? existingLocationKey = context.TypeSymbol.GetMembers($"By{propertySymbol.Name}").FirstOrDefault(x => x is IFieldSymbol || x is IPropertySymbol);
                 LocationKey? locationKey = null;
                 if (existingLocationKey is null)
-                    locationKey = LocationKey.Get(context, propertySymbol, options);
+                {
+                    locationKey = LocationKey.Get(context, propertySymbol, options, out var controlTypeOverride);
+                    if (controlTypeOverride is not null)
+                        controlType = controlTypeOverride;
+                }
 
                 bool initialize = options.Initialize;
                 IPropertySymbol? parent = null;
@@ -48,7 +52,9 @@ namespace Rocketcress.SourceGenerators.UIMapParts.Models
 
                 var controlDefinition = new ControlDefinition(
                     propertySymbol,
+                    controlType,
                     initialize,
+                    options.ParentControl,
                     parent,
                     locationKey,
                     existingLocationKey);

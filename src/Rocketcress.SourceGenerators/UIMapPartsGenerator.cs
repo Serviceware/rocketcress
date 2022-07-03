@@ -1,6 +1,7 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Rocketcress.SourceGenerators.Common;
+using Rocketcress.SourceGenerators.Extensions;
 using Rocketcress.SourceGenerators.UIMapParts;
 using Rocketcress.SourceGenerators.UIMapParts.Generation;
 using Rocketcress.SourceGenerators.UIMapParts.Models;
@@ -32,16 +33,27 @@ namespace Rocketcress.SourceGenerators
             if (classDeclarations.Length == 0)
                 return;
 
+            var sw = Stopwatch.StartNew();
+
             if (!TypeSymbols.TryCreate(compilation, out var typeSymbols))
                 return;
 
+            Trace.WriteLine($"Create type symbols: {sw.Elapsed}");
+            sw.Restart();
+
             var seleniumTypeSymbols = new SeleniumTypeSymbols(compilation);
             var uiautomationTypeSymbols = new UIAutomationTypeSymbols(compilation);
+
+            Trace.WriteLine($"Create ui test type symbols: {sw.Elapsed}");
+            sw.Restart();
 
             foreach (var classDeclaration in classDeclarations)
             {
                 if (!ValidateClass(context, compilation, classDeclaration, out INamedTypeSymbol typeSymbol))
                     continue;
+
+                Trace.WriteLine($"Validate class: {sw.Elapsed}");
+                sw.Restart();
 
                 UIMapPartsGeneratorContext generatorContext;
                 if (seleniumTypeSymbols.HasAllSymbols && typeSymbol.IsAssignableTo(seleniumTypeSymbols.UIMapBaseClassType))
@@ -72,8 +84,18 @@ namespace Rocketcress.SourceGenerators
                     continue;
                 }
 
-                var controls = ControlDefinition.GetAll(generatorContext);
-                FileGenerator.Generate(generatorContext).UIMapParts(controls);
+                Trace.WriteLine($"Create context: {sw.Elapsed}");
+                sw.Restart();
+
+                var data = GeneratorData.Create(generatorContext);
+
+                Trace.WriteLine($"Create data: {sw.Elapsed}");
+                sw.Restart();
+
+                FileGenerator.Generate(generatorContext).UIMapParts(data);
+
+                Trace.WriteLine($"Generate code: {sw.Elapsed}");
+                sw.Restart();
             }
         }
 

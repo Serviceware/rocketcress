@@ -1,6 +1,7 @@
 ﻿using Microsoft.CodeAnalysis;
 using Rocketcress.Core.Attributes;
 using Rocketcress.SourceGenerators.Common;
+using Rocketcress.SourceGenerators.Extensions;
 
 namespace Rocketcress.SourceGenerators.UIMapParts.Models
 {
@@ -69,6 +70,23 @@ namespace Rocketcress.SourceGenerators.UIMapParts.Models
                 generateDefaultConstructors,
                 idStyle,
                 idFormat);
+        }
+
+        public static bool GetGenerateDefaultConstructors(TypeSymbols typeSymbols, INamedTypeSymbol typeSymbol)
+        {
+            if (!typeSymbol.TryGetAttribute(typeSymbols.GenerateUIMapPartsAttribute, out var attribute))
+                return false;
+
+            foreach (var argument in attribute.NamedArguments)
+            {
+                if (argument.Key == "GenerateDefaultConstructors")
+                {
+                    if (argument.Value.Value is bool boolValue)
+                        return boolValue;
+                }
+            }
+
+            return false;
         }
     }
 }
