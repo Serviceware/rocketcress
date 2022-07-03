@@ -22,7 +22,7 @@
 
   <ItemGroup>
     <Using Include="Rocketcress.Core.Attributes" />
-    <Using Include="Rocketcress.Core.Common"/>
+    <Using Include="Rocketcress.Core.Common" />
     <Using Include="OpenQA.Selenium" />
     <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" Condition="$(IsSlim) == 'false'" />
   </ItemGroup>
@@ -40,7 +40,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Rocketcress.Core\Rocketcress.Core.csproj" />
-    <ProjectReference Include="..\Rocketcress.SourceGenerators\Rocketcress.SourceGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net48' ">

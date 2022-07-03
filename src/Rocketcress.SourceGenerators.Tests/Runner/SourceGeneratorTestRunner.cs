@@ -8,12 +8,17 @@ namespace Rocketcress.SourceGenerators.Tests.Runner
 {
     public static class SourceGeneratorTestRunner
     {
+        public static CompilationValidator CompileAndGenerate(string source, params IIncrementalGenerator[] generators)
+        {
+            return CompileAndGenerate(source, generators.Select(GeneratorExtensions.AsSourceGenerator).ToArray());
+        }
+
         public static CompilationValidator CompileAndGenerate(string source, params ISourceGenerator[] generators)
         {
             // Load assemblies into AppDomain, so they are added to compilation
             _ = typeof(Rocketcress.Selenium.WebDriver).Assembly;
             _ = typeof(Rocketcress.Core.Wait).Assembly;
-            _ = typeof(Rocketcress.UIAutomation.Application).Assembly;
+            //_ = typeof(Rocketcress.UIAutomation.Application).Assembly;
 
             var compilation = CreateCompilation(source);
             var newCompilation = RunGenerators(compilation, out var diagnostics, generators);
@@ -41,6 +46,9 @@ namespace Rocketcress.SourceGenerators.Tests.Runner
         private static Compilation RunGenerators(Compilation compilation, out ImmutableArray<Diagnostic> diagnostics, params ISourceGenerator[] generators)
         {
             var driver = CreateDriver(compilation, generators).RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out diagnostics);
+
+            Trace.WriteLine($"Diagnostics:\n{string.Join("\n", driver.GetRunResult().Diagnostics.Select(x => x.ToString()))}");
+            Trace.WriteLine(string.Empty);
 
             var genLog = new StringBuilder().AppendLine("Generated Code:");
             foreach (var result in driver.GetRunResult().Results.SelectMany(x => x.GeneratedSources))

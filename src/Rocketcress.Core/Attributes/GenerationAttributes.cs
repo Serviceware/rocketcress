@@ -9,11 +9,6 @@
 public class GenerateUIMapPartsAttribute : Attribute
 {
     /// <summary>
-    /// Gets or sets the type from which to take the control properties that should be generated.
-    /// </summary>
-    public Type? ControlsDefinition { get; set; } = GenerateUIMapPartsAttributeDefaults.ControlsDefinition;
-
-    /// <summary>
     /// Gets or sets a value indicating whether to generate the same constructors as the base class.
     /// </summary>
     public bool GenerateDefaultConstructors { get; set; } = GenerateUIMapPartsAttributeDefaults.GenerateDefaultConstructors;
@@ -27,51 +22,6 @@ public class GenerateUIMapPartsAttribute : Attribute
     /// Gets or sets the format that should be used to generate default location keys for properties.
     /// </summary>
     public string? IdFormat { get; set; } = GenerateUIMapPartsAttributeDefaults.IdFormat;
-}
-
-/// <summary>
-/// When applied to a property of an interface that is used as <see cref="GenerateUIMapPartsAttribute.ControlsDefinition"/>,
-/// the generation for the property is altered by specifing some options.
-/// </summary>
-/// <seealso cref="System.Attribute" />
-[AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = false)]
-public class UIMapControlOptionsAttribute : Attribute
-{
-    /// <summary>
-    /// Gets or sets a value indicating whether to generate initialization code for this control property.
-    /// If set to <c>false</c> the property needs to be initialized manually using the partial methods that are provided.
-    /// </summary>
-    public bool Initialize { get; set; } = UIMapControlOptionsAttributeDefault.Initialize;
-
-    /// <summary>
-    /// Gets or sets the parent control name. By default this is set to <c>this</c>.
-    /// </summary>
-    public string? ParentControl { get; set; } = UIMapControlOptionsAttributeDefault.ParentControl;
-
-    /// <summary>
-    /// Gets or sets the accessibility of the generated control property.
-    /// </summary>
-    public ControlPropertyAccessibility Accessibility { get; set; } = UIMapControlOptionsAttributeDefault.Accessibility;
-
-    /// <summary>
-    /// Gets or sets a value indicating whether the generated control should be marked as <c>virtual</c>.
-    /// </summary>
-    public bool IsVirtual { get; set; } = UIMapControlOptionsAttributeDefault.IsVirtual;
-
-    /// <summary>
-    /// Gets or sets a value indicating whether the generated should be a hidden interface implementation is hidden (A private property is generated additionally so access inside the class is easy).
-    /// </summary>
-    public bool IsHidden { get; set; } = UIMapControlOptionsAttributeDefault.IsHidden;
-
-    /// <summary>
-    /// Gets or sets the naming style that should be used to generate default location keys for this property.
-    /// </summary>
-    public IdStyle IdStyle { get; set; } = UIMapControlOptionsAttributeDefault.IdStyle;
-
-    /// <summary>
-    /// Gets or sets the format that should be used to generate default location keys for properties.
-    /// </summary>
-    public string? IdFormat { get; set; } = UIMapControlOptionsAttributeDefault.IdFormat;
 }
 
 /// <summary>

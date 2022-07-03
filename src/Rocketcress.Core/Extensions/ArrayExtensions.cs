@@ -22,7 +22,6 @@ public static class ArrayExtensions
     /// </summary>
     /// <param name="bytes">The <see cref="byte"/>s to convert.</param>
     /// <returns>An <see cref="Array"/> of <see cref="char"/>s that contains the hexadecimal representation of the given <see cref="byte"/>s.</returns>
-    [return: NotNullIfNotNull("bytes")]
     public static char[]? ToHexChars(this byte[]? bytes)
     {
         if (bytes is null)

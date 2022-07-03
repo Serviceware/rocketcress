@@ -8,24 +8,8 @@ public static class GenerateUIMapPartsAttributeDefaults
 internal static class GenerateUIMapPartsAttributeDefaults
 #endif
 {
-    public static readonly Type? ControlsDefinition = null;
     public static readonly bool GenerateDefaultConstructors = true;
     public static readonly IdStyle IdStyle = IdStyle.None;
-    public static readonly string? IdFormat = null;
-}
-
-#if DEBUG
-public static class UIMapControlOptionsAttributeDefault
-#else
-internal static class UIMapControlOptionsAttributeDefault
-#endif
-{
-    public static readonly bool Initialize = true;
-    public static readonly string ParentControl = "this";
-    public static readonly ControlPropertyAccessibility Accessibility = ControlPropertyAccessibility.Public;
-    public static readonly bool IsVirtual = false;
-    public static readonly bool IsHidden = false;
-    public static readonly IdStyle IdStyle = IdStyle.Unset;
     public static readonly string? IdFormat = null;
 }
 
@@ -36,7 +20,7 @@ internal static class UIMapControlAttributeDefault
 #endif
 {
     public static readonly bool Initialize = true;
-    public static readonly string ParentControl = "this";
+    public static readonly string? ParentControl = "this";
     public static readonly IdStyle IdStyle = IdStyle.Unset;
     public static readonly string? IdFormat = null;
     public static readonly string? Id = null;

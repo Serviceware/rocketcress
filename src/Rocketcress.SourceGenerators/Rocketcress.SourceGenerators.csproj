@@ -3,6 +3,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <Nullable>enable</Nullable>
+    <DoNotDisableNullableWarns>true</DoNotDisableNullableWarns>
 
     <NoDocumentation>true</NoDocumentation>
     <TargetFilePath>Rocketcress.SourceGenerators.targets</TargetFilePath>
@@ -26,7 +27,6 @@
 
   <ItemGroup>
     <Compile Include="..\Rocketcress.Core\Attributes\Globals.cs" Link="Attributes\Globals.cs" />
-    <Compile Include="..\Rocketcress.Core\Common\Guard.cs" Link="Common\Guard.cs" />
     <Compile Include="..\Rocketcress.Core\Extensions\ArrayExtensions.cs" Link="Extensions\ArrayExtensions.cs" />
   </ItemGroup>
 
@@ -35,7 +35,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.8.0" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.2.0" PrivateAssets="all" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
   </ItemGroup>
 

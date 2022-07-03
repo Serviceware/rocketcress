@@ -8,6 +8,28 @@ namespace Rocketcress.Selenium.Controls;
 [GenerateUIMapParts]
 public partial class WebTextInput : WebElement
 {
+#pragma warning disable SA1600 // Elements should be documented
+    public WebTextInput(WebDriver driver, OpenQA.Selenium.By locationKey)
+        : base(driver, locationKey)
+    {
+    }
+
+    public WebTextInput(WebDriver driver, IWebElement element)
+        : base(driver, element)
+    {
+    }
+
+    public WebTextInput(WebDriver driver, OpenQA.Selenium.By locationKey, ISearchContext searchContext)
+        : base(driver, locationKey, searchContext)
+    {
+    }
+
+    protected WebTextInput(WebDriver driver)
+        : base(driver)
+    {
+    }
+#pragma warning restore SA1600 // Elements should be documented
+
     /// <summary>
     /// Gets or sets the text of the TextBox.
     /// </summary>
