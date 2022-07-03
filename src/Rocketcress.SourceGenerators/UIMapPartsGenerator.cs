@@ -93,7 +93,7 @@ namespace Rocketcress.SourceGenerators
                 return false;
 
             if (validator.HasDebugGeneratorAttribute())
-                CodeGenerationHelpers.LaunchDebuggerOnBuild();
+                CodeGenerationHelper.LaunchDebuggerOnBuild();
 
             return true;
         }

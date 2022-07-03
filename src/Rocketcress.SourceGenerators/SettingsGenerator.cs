@@ -4,7 +4,7 @@ using Newtonsoft.Json.Linq;
 using Rocketcress.SourceGenerators.Common;
 using System.Text;
 using System.Text.RegularExpressions;
-using static Rocketcress.SourceGenerators.Common.CodeGenerationHelpers;
+using static Rocketcress.SourceGenerators.Common.CodeGenerationHelper;
 
 namespace Rocketcress.SourceGenerators;
 

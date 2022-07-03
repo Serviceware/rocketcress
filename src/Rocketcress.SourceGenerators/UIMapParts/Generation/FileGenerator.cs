@@ -18,7 +18,7 @@ namespace Rocketcress.SourceGenerators.UIMapParts.Generation
         {
             var sourceBuilder = new SourceBuilder();
             ClassGenerator.Generate(sourceBuilder).UIMapParts();
-            _context.AddSource(CodeGenerationHelpers.CreateHintName(_context.TypeSymbol, nameof(UIMapPartsGenerator)), sourceBuilder.ToString());
+            _context.AddSource(CodeGenerationHelper.CreateHintName(_context.TypeSymbol, nameof(UIMapPartsGenerator)), sourceBuilder.ToString());
         }
     }
 }
