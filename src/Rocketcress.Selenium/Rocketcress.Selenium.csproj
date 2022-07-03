@@ -40,6 +40,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Rocketcress.Core\Rocketcress.Core.csproj" />
+    <ProjectReference Include="..\Rocketcress.SourceGenerators\Rocketcress.SourceGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net48' ">

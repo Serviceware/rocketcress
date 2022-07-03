@@ -56,7 +56,7 @@ public partial class CommonMenuItem : UITestControl, IUITestMenuItemControl
     /// <summary>
     /// Gets or sets the header control.
     /// </summary>
-    [UIMapControl(IdStyle = IdStyle.Disabled)]
+    [UIMapControl(IdStyle = IdStyle.Disabled, ParentControl = "kg")]
     protected virtual CommonText HeaderControl { get; set; }
 
     partial void OnInitialized()
