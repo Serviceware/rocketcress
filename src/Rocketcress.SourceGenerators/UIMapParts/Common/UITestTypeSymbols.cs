@@ -1,6 +1,6 @@
 ﻿using Microsoft.CodeAnalysis;
 
-namespace Rocketcress.SourceGenerators.UIMapParts
+namespace Rocketcress.SourceGenerators.UIMapParts.Common
 {
     internal abstract class UITestTypeSymbols
     {

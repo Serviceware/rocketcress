@@ -2,14 +2,13 @@
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Rocketcress.SourceGenerators.Common;
 using Rocketcress.SourceGenerators.Extensions;
-using Rocketcress.SourceGenerators.UIMapParts;
 using Rocketcress.SourceGenerators.UIMapParts.Generation;
 using Rocketcress.SourceGenerators.UIMapParts.Models;
 using Rocketcress.SourceGenerators.UIMapParts.Selenium;
 using Rocketcress.SourceGenerators.UIMapParts.UIAutomation;
 using System.Collections.Immutable;
 
-namespace Rocketcress.SourceGenerators
+namespace Rocketcress.SourceGenerators.UIMapParts
 {
     /// <summary>
     /// Generator for creating some bolerplat code for UIMap classes.

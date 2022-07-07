@@ -1,4 +1,5 @@
 ﻿using Microsoft.CodeAnalysis;
+using Rocketcress.SourceGenerators.UIMapParts.Common;
 
 namespace Rocketcress.SourceGenerators.UIMapParts.Models
 {

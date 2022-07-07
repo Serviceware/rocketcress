@@ -3,7 +3,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Collections.Immutable;
 using System.Threading;
 
-namespace Rocketcress.SourceGenerators.UIMapParts
+namespace Rocketcress.SourceGenerators.UIMapParts.Common
 {
     internal readonly struct IncrementalValueProviderFactory
     {

@@ -4,7 +4,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Rocketcress.SourceGenerators.Common;
 using Rocketcress.SourceGenerators.Extensions;
 
-namespace Rocketcress.SourceGenerators.UIMapParts
+namespace Rocketcress.SourceGenerators.UIMapParts.Common
 {
     internal readonly struct ClassDeclarationValidator
     {

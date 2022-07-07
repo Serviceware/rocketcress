@@ -1,4 +1,5 @@
 ﻿using Microsoft.CodeAnalysis;
+using Rocketcress.SourceGenerators.UIMapParts.Common;
 using Rocketcress.SourceGenerators.UIMapParts.Models;
 
 namespace Rocketcress.SourceGenerators.UIMapParts.Selenium
