@@ -5,140 +5,137 @@ using Rocketcress.Core.Attributes;
 using Rocketcress.SourceGenerators.Extensions;
 using System.Text.RegularExpressions;
 
-#pragma warning disable SA1402 // File may only contain a single type
+namespace Rocketcress.SourceGenerators.UIMapParts.Models;
 
-namespace Rocketcress.SourceGenerators.UIMapParts.Models
+internal abstract class LocationKey
 {
-    internal abstract class LocationKey
+    private static readonly Regex PropertyNameSplitRegex = new(@"([A-Z]?[a-z0-9]+|[A-Z]+(?![a-z]))", RegexOptions.Compiled);
+
+    public abstract bool IsStatic { get; }
+
+    public static LocationKey Get(UIMapPartsGeneratorContext context, IPropertySymbol propertySymbol, UIMapControlOptions options, out INamedTypeSymbol? controlTypeOverride)
     {
-        private static readonly Regex PropertyNameSplitRegex = new(@"([A-Z]?[a-z0-9]+|[A-Z]+(?![a-z]))", RegexOptions.Compiled);
+        controlTypeOverride = null;
 
-        public abstract bool IsStatic { get; }
-
-        public static LocationKey Get(UIMapPartsGeneratorContext context, IPropertySymbol propertySymbol, UIMapControlOptions options, out INamedTypeSymbol? controlTypeOverride)
+        if (propertySymbol.TryGetDeclaringSyntax<PropertyDeclarationSyntax>(out var declarationSyntax) &&
+            declarationSyntax.Initializer is not null &&
+            declarationSyntax.Initializer.Value is InvocationExpressionSyntax initUsingExpr &&
+            initUsingExpr.Expression is GenericNameSyntax initUsingSyntax &&
+            initUsingSyntax.Identifier.Text == "InitUsing")
         {
-            controlTypeOverride = null;
+            if (initUsingSyntax.TypeArgumentList.Arguments.Count > 0)
+                controlTypeOverride = context.Compilation.GetSemanticModel(initUsingSyntax.SyntaxTree).GetTypeInfo(initUsingSyntax.TypeArgumentList.Arguments[0]).Type as INamedTypeSymbol;
 
-            if (propertySymbol.TryGetDeclaringSyntax<PropertyDeclarationSyntax>(out var declarationSyntax) &&
-                declarationSyntax.Initializer is not null &&
-                declarationSyntax.Initializer.Value is InvocationExpressionSyntax initUsingExpr &&
-                initUsingExpr.Expression is GenericNameSyntax initUsingSyntax &&
-                initUsingSyntax.Identifier.Text == "InitUsing")
+            if (initUsingExpr.ArgumentList.Arguments.Count > 0 && initUsingExpr.ArgumentList.Arguments[0].Expression is LambdaExpressionSyntax lambda && lambda.Body is not null)
             {
-                if (initUsingSyntax.TypeArgumentList.Arguments.Count > 0)
-                    controlTypeOverride = context.Compilation.GetSemanticModel(initUsingSyntax.SyntaxTree).GetTypeInfo(initUsingSyntax.TypeArgumentList.Arguments[0]).Type as INamedTypeSymbol;
+                var parameter = lambda is SimpleLambdaExpressionSyntax simpleLambda
+                    ? simpleLambda.Parameter
+                    : lambda is ParenthesizedLambdaExpressionSyntax parenthesizedLambda && parenthesizedLambda.ParameterList.Parameters.Count > 0
+                        ? parenthesizedLambda.ParameterList.Parameters[0]
+                        : null;
 
-                if (initUsingExpr.ArgumentList.Arguments.Count > 0 && initUsingExpr.ArgumentList.Arguments[0].Expression is LambdaExpressionSyntax lambda && lambda.Body is not null)
-                {
-                    var parameter = lambda is SimpleLambdaExpressionSyntax simpleLambda
-                        ? simpleLambda.Parameter
-                        : lambda is ParenthesizedLambdaExpressionSyntax parenthesizedLambda && parenthesizedLambda.ParameterList.Parameters.Count > 0
-                            ? parenthesizedLambda.ParameterList.Parameters[0]
-                            : null;
-
-                    return parameter != null
-                        ? new InstanceLocationKey(lambda.Body, parameter.Identifier.Text)
-                        : new StaticLocationKey(lambda.Body);
-                }
+                return parameter != null
+                    ? new InstanceLocationKey(lambda.Body, parameter.Identifier.Text)
+                    : new StaticLocationKey(lambda.Body);
             }
-
-            var id = GetNameWithStyle(options.Id, propertySymbol.Name, options.IdStyle, options.IdFormat);
-            return new IdLocationKey(id);
         }
 
-        public abstract string BuildInitExpression(UIMapPartsGeneratorContext context);
-
-        private static string? GetNameWithStyle(string? id, string name, IdStyle style, string? format)
-        {
-            if (style == IdStyle.Disabled || style == IdStyle.Unset)
-                return null;
-
-            if (string.IsNullOrWhiteSpace(id))
-            {
-                var words = PropertyNameSplitRegex.Matches(name).OfType<Match>().Where(x => x.Success).Select(x => x.Value.ToLowerInvariant()).ToArray();
-                id = style switch
-                {
-                    IdStyle.PascalCase => string.Concat(words.Select(x => MakeFirstCharacterUpperCase(x))),
-                    IdStyle.CamelCase => string.Concat(words.Skip(1).Select(x => MakeFirstCharacterUpperCase(x)).Prepend(words[0])),
-                    IdStyle.KebabCase => string.Join("-", words),
-                    IdStyle.LowerCase => string.Concat(words),
-                    IdStyle.UpperCase => string.Concat(words).ToUpperInvariant(),
-                    _ => name,
-                };
-            }
-
-            return string.IsNullOrWhiteSpace(format) ? id : string.Format(format, id);
-
-            static string MakeFirstCharacterUpperCase(string word) => word.Length == 0 ? word : (word[0].ToString().ToUpperInvariant() + word.Substring(1));
-        }
+        var id = GetNameWithStyle(options.Id, propertySymbol.Name, options.IdStyle, options.IdFormat);
+        return new IdLocationKey(id);
     }
 
-    internal class IdLocationKey : LocationKey
+    public abstract string BuildInitExpression(UIMapPartsGeneratorContext context);
+
+    private static string? GetNameWithStyle(string? id, string name, IdStyle style, string? format)
     {
-        private readonly string? _id;
+        if (style == IdStyle.Disabled || style == IdStyle.Unset)
+            return null;
 
-        public IdLocationKey(string? id)
+        if (string.IsNullOrWhiteSpace(id))
         {
-            _id = id;
+            var words = PropertyNameSplitRegex.Matches(name).OfType<Match>().Where(x => x.Success).Select(x => x.Value.ToLowerInvariant()).ToArray();
+            id = style switch
+            {
+                IdStyle.PascalCase => string.Concat(words.Select(x => MakeFirstCharacterUpperCase(x))),
+                IdStyle.CamelCase => string.Concat(words.Skip(1).Select(x => MakeFirstCharacterUpperCase(x)).Prepend(words[0])),
+                IdStyle.KebabCase => string.Join("-", words),
+                IdStyle.LowerCase => string.Concat(words),
+                IdStyle.UpperCase => string.Concat(words).ToUpperInvariant(),
+                _ => name,
+            };
         }
 
-        public override bool IsStatic { get; } = true;
+        return string.IsNullOrWhiteSpace(format) ? id : string.Format(format, id);
 
-        public override string BuildInitExpression(UIMapPartsGeneratorContext context)
-        {
-            if (string.IsNullOrEmpty(_id))
-            {
-                var locationKeyTypeName = context.UITestTypeSymbols.LocationKeyType.ToUsageString();
-                return string.Format(context.EmptyLocationKeyFormat, locationKeyTypeName);
-            }
-            else
-            {
-                var locationKeyTypeName = context.UITestTypeSymbols.LocationKeyType.ToUsageString();
-                return string.Format(context.IdLocationKeyFormat, locationKeyTypeName, _id);
-            }
-        }
+        static string MakeFirstCharacterUpperCase(string word) => word.Length == 0 ? word : (word[0].ToString().ToUpperInvariant() + word.Substring(1));
+    }
+}
+
+internal class IdLocationKey : LocationKey
+{
+    private readonly string? _id;
+
+    public IdLocationKey(string? id)
+    {
+        _id = id;
     }
 
-    internal class StaticLocationKey : LocationKey
+    public override bool IsStatic { get; } = true;
+
+    public override string BuildInitExpression(UIMapPartsGeneratorContext context)
     {
-        private readonly CSharpSyntaxNode _initBody;
-
-        public StaticLocationKey(CSharpSyntaxNode initBody)
+        if (string.IsNullOrEmpty(_id))
         {
-            _initBody = initBody;
+            var locationKeyTypeName = context.UITestTypeSymbols.LocationKeyType.ToUsageString();
+            return string.Format(context.EmptyLocationKeyFormat, locationKeyTypeName);
         }
-
-        public override bool IsStatic { get; } = true;
-
-        public override string BuildInitExpression(UIMapPartsGeneratorContext context)
+        else
         {
-            var funcTypeName = context.TypeSymbols.Func1.Construct(context.UITestTypeSymbols.LocationKeyType).ToUsageString();
-
-            if (_initBody is BlockSyntax)
-                return $"new {funcTypeName}(() => {_initBody.GetText()}).Invoke()";
-            else
-                return _initBody.GetText().ToString();
+            var locationKeyTypeName = context.UITestTypeSymbols.LocationKeyType.ToUsageString();
+            return string.Format(context.IdLocationKeyFormat, locationKeyTypeName, _id);
         }
     }
+}
 
-    internal class InstanceLocationKey : LocationKey
+internal class StaticLocationKey : LocationKey
+{
+    private readonly CSharpSyntaxNode _initBody;
+
+    public StaticLocationKey(CSharpSyntaxNode initBody)
     {
-        private readonly CSharpSyntaxNode _initBody;
-        private readonly string _parameterName;
+        _initBody = initBody;
+    }
 
-        public InstanceLocationKey(CSharpSyntaxNode initBody, string parameterName)
-        {
-            _initBody = initBody;
-            _parameterName = parameterName;
-        }
+    public override bool IsStatic { get; } = true;
 
-        public override bool IsStatic { get; } = false;
+    public override string BuildInitExpression(UIMapPartsGeneratorContext context)
+    {
+        var funcTypeName = context.TypeSymbols.Func1.Construct(context.UITestTypeSymbols.LocationKeyType).ToUsageString();
 
-        public override string BuildInitExpression(UIMapPartsGeneratorContext context)
-        {
-            var funcTypeName = context.TypeSymbols.Func2.Construct(context.TypeSymbol, context.UITestTypeSymbols.LocationKeyType).ToUsageString();
+        if (_initBody is BlockSyntax)
+            return $"new {funcTypeName}(() => {_initBody.GetText()}).Invoke()";
+        else
+            return _initBody.GetText().ToString();
+    }
+}
 
-            return $"new {funcTypeName}({_parameterName} => {_initBody.GetText()}).Invoke(this)";
-        }
+internal class InstanceLocationKey : LocationKey
+{
+    private readonly CSharpSyntaxNode _initBody;
+    private readonly string _parameterName;
+
+    public InstanceLocationKey(CSharpSyntaxNode initBody, string parameterName)
+    {
+        _initBody = initBody;
+        _parameterName = parameterName;
+    }
+
+    public override bool IsStatic { get; } = false;
+
+    public override string BuildInitExpression(UIMapPartsGeneratorContext context)
+    {
+        var funcTypeName = context.TypeSymbols.Func2.Construct(context.TypeSymbol, context.UITestTypeSymbols.LocationKeyType).ToUsageString();
+
+        return $"new {funcTypeName}({_parameterName} => {_initBody.GetText()}).Invoke(this)";
     }
 }
