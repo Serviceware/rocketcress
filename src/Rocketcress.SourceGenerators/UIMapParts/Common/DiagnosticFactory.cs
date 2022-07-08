@@ -44,6 +44,14 @@ internal static partial class DiagnosticFactory
             DiagnosticSeverity.Error,
             true);
 
+        private static readonly DiagnosticDescriptor ParentLoopDescriptor = new(
+            GetId(5),
+            "Defined ParentControl on UIMapControl attributes should not result in a loop.",
+            "ParentControl loop detected for property '{0}' of class '{1}': {2}",
+            Category,
+            DiagnosticSeverity.Error,
+            true);
+
         public static ImmutableArray<DiagnosticDescriptor> AllDescriptors
         {
             get
@@ -53,6 +61,7 @@ internal static partial class DiagnosticFactory
                 builder.Add(AllParentTypesMustBePartialDescriptor);
                 builder.Add(BadBaseTypeDescriptor);
                 builder.Add(MissingParentControlDescriptor);
+                builder.Add(ParentLoopDescriptor);
                 return builder.ToImmutable();
             }
         }
@@ -78,6 +87,9 @@ internal static partial class DiagnosticFactory
 
         public static Diagnostic MissingParentControl(Location? location, string className, string propertyName, string parentName)
             => Diagnostic.Create(MissingParentControlDescriptor, location, propertyName, className, parentName);
+
+        public static Diagnostic ParentLoop(Location? location, string className, string propertyName, IEnumerable<string> loopMembers)
+            => Diagnostic.Create(ParentLoopDescriptor, location, propertyName, className, string.Join(" -> ", loopMembers));
 
         private static string GetId(int id) => DiagnosticFactory.GetId(100 + id);
     }

@@ -1,12 +1,13 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Diagnostics;
 using Rocketcress.SourceGenerators.Tests.Validators;
 using System.Collections.Immutable;
 using System.Text;
 
 namespace Rocketcress.SourceGenerators.Tests.Runner
 {
-    public static class SourceGeneratorTestRunner
+    public static class AnalyzerTestRunner
     {
         public static CompilationValidator CompileAndGenerate(string source, params IIncrementalGenerator[] generators)
         {
@@ -18,12 +19,22 @@ namespace Rocketcress.SourceGenerators.Tests.Runner
             // Load assemblies into AppDomain, so they are added to compilation
             _ = typeof(Rocketcress.Selenium.WebDriver).Assembly;
             _ = typeof(Rocketcress.Core.Wait).Assembly;
-            //_ = typeof(Rocketcress.UIAutomation.Application).Assembly;
+            _ = typeof(Rocketcress.UIAutomation.Application).Assembly;
 
             var compilation = CreateCompilation(source);
             var newCompilation = RunGenerators(compilation, out var diagnostics, generators);
 
             return new CompilationValidator(newCompilation, newCompilation.GetDiagnostics().ToArray());
+        }
+
+        public static DiagnosticsValidator CompileAndAnalyze(string source, params DiagnosticAnalyzer[] analyzers)
+        {
+            var diagnostics = CreateCompilation(source)
+                .WithAnalyzers(ImmutableArray.Create(analyzers))
+                .GetAnalyzerDiagnosticsAsync()
+                .Result;
+            LogDiagnostics(diagnostics);
+            return new DiagnosticsValidator(diagnostics.ToArray());
         }
 
         private static Compilation CreateCompilation(string source)
@@ -47,7 +58,7 @@ namespace Rocketcress.SourceGenerators.Tests.Runner
         {
             var driver = CreateDriver(compilation, generators).RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out diagnostics);
 
-            Trace.WriteLine($"Diagnostics:\n{string.Join("\n", driver.GetRunResult().Diagnostics.Select(x => x.ToString()))}");
+            LogDiagnostics(driver.GetRunResult().Diagnostics);
             Trace.WriteLine(string.Empty);
 
             var genLog = new StringBuilder().AppendLine("Generated Code:");
@@ -60,6 +71,11 @@ namespace Rocketcress.SourceGenerators.Tests.Runner
             Trace.WriteLine(genLog.ToString());
 
             return outputCompilation;
+        }
+
+        private static void LogDiagnostics(IEnumerable<Diagnostic> diagnostics)
+        {
+            Trace.WriteLine($"Diagnostics:\n{string.Join("\n", diagnostics.Select(x => x.ToString()))}");
         }
     }
 }

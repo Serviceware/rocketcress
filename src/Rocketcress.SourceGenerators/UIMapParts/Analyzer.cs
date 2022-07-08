@@ -48,24 +48,34 @@ public class Analyzer : DiagnosticAnalyzer
 
         _ = validator.IsDerivedFromSupportedBaseType(typeSymbol);
 
+        var loopedProperties = new HashSet<string>();
         foreach (var member in classDeclarationSyntax.Members)
         {
             if (member is not PropertyDeclarationSyntax propertyDeclarationSyntax)
                 continue;
 
-            ValidateUIMapControlProperty(context, typeSymbol, propertyDeclarationSyntax);
+            ValidateUIMapControlProperty(context, typeSymbol, propertyDeclarationSyntax, loopedProperties);
         }
     }
 
     private static void ValidateUIMapControlProperty(
         SyntaxNodeAnalysisContext context,
         INamedTypeSymbol typeSymbol,
-        PropertyDeclarationSyntax propertyDeclarationSyntax)
+        PropertyDeclarationSyntax propertyDeclarationSyntax,
+        HashSet<string> loopedProperties)
     {
         var validator = PropertyDeclarationValidator.Validate(context.SemanticModel, typeSymbol, propertyDeclarationSyntax, context.ReportDiagnostic);
         if (!validator.HasUIMapControlAttribute(out AttributeSyntax uimapControlAttributeSyntax))
             return;
 
-        _ = validator.HasExistingParentControl(uimapControlAttributeSyntax, out _);
+        if (validator.HasExistingParentControl(uimapControlAttributeSyntax, out string parentConrol, out AttributeArgumentSyntax parentControlArgumentSyntax))
+        {
+            if (!loopedProperties.Contains(propertyDeclarationSyntax.Identifier.ValueText) &&
+                !validator.IsNoParentLoop(parentConrol, parentControlArgumentSyntax, out var affectedProperties))
+            {
+                foreach (var property in affectedProperties)
+                    loopedProperties.Add(property);
+            }
+        }
     }
 }

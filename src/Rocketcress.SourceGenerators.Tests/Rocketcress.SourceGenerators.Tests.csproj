@@ -24,7 +24,7 @@
     <ProjectReference Include="..\Rocketcress.Core\Rocketcress.Core.csproj" />
     <ProjectReference Include="..\Rocketcress.Selenium\Rocketcress.Selenium.csproj" />
     <ProjectReference Include="..\Rocketcress.SourceGenerators\Rocketcress.SourceGenerators.csproj" />
-    <!--<ProjectReference Include="..\Rocketcress.UIAutomation\Rocketcress.UIAutomation.csproj" />-->
+    <ProjectReference Include="..\Rocketcress.UIAutomation\Rocketcress.UIAutomation.csproj" />
   </ItemGroup>
 
 </Project>
