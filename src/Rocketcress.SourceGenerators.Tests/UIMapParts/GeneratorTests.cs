@@ -1,4 +1,5 @@
 ﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Rocketcress.Selenium;
 using Rocketcress.Selenium.Controls;
@@ -13,69 +14,61 @@ using static Rocketcress.SourceGenerators.Tests.UIMapParts.Helper;
 
 namespace Rocketcress.SourceGenerators.Tests.UIMapParts
 {
-    [TestClass]
-    public class GeneratorTests
+    public class GeneratorTests<T>
     {
+        protected Type BaseType => typeof(T);
+        protected Type DriverType => GetDriverType(BaseType);
+        protected Type InitLocationKeyType => GetInitLocationKeyType(BaseType);
+        protected Type CtorLocationKeyType => GetCtorLocationKeyType(BaseType);
+        protected Type ParentControlType => GetParentControlType(BaseType);
+
         [TestMethod]
-        [DataRow(typeof(WebElement), DisplayName = nameof(WebElement))]
-        [DataRow(typeof(View), DisplayName = nameof(View))]
-        [DataRow(typeof(UITestControl), DisplayName = nameof(UITestControl))]
-        public void EmptyControl_GenerateConstructors(Type baseClass)
+        public void UIMapPartsClass_Empty_GenerateConstructors()
         {
             var source = GetNamespaceDeclaration(
-                GetControlClassDelcaration("MyControl", baseClass));
+                GetControlClassDelcaration("MyControl", BaseType));
 
             var validator = AnalyzerTestRunner.CompileAndGenerate(source, new Generator())
                 .HasNoErrors()
                 .HasType("Test.MyControl", out var controlTypeSymbol);
-            ValidateDefaultConstructors(validator, controlTypeSymbol, baseClass);
+            ValidateDefaultConstructors(validator, controlTypeSymbol, BaseType);
         }
 
         [TestMethod]
-        [DataRow(typeof(WebElement), DisplayName = nameof(WebElement))]
-        [DataRow(typeof(View), DisplayName = nameof(View))]
-        [DataRow(typeof(UITestControl), DisplayName = nameof(UITestControl))]
-        public void EmptyControl_GenerateConstructors_Chain(Type baseClass)
+        public void UIMapPartsClass_Empty_GenerateConstructors_Chain()
         {
             var source = GetNamespaceDeclaration(
-                GetControlClassDelcaration("MyControl", baseClass),
+                GetControlClassDelcaration("MyControl", BaseType),
                 GetControlClassDelcaration("MyControl2", "MyControl"));
 
             var validator = AnalyzerTestRunner.CompileAndGenerate(source, new Generator())
                 .HasNoErrors()
                 .HasType("Test.MyControl2", out var controlTypeSymbol);
-            ValidateDefaultConstructors(validator, controlTypeSymbol, baseClass);
+            ValidateDefaultConstructors(validator, controlTypeSymbol, BaseType);
         }
 
         [TestMethod]
-        [DataRow(typeof(WebElement), DisplayName = nameof(WebElement))]
-        [DataRow(typeof(View), DisplayName = nameof(View))]
-        [DataRow(typeof(UITestControl), DisplayName = nameof(UITestControl))]
-        public void EmptyControl_GenerateInitUsingMethods(Type baseClass)
+        public void UIMapPartsClass_Empty_GenerateInitUsingMethods()
         {
             var source = GetNamespaceDeclaration(
-                GetControlClassDelcaration("MyControl", baseClass));
+                GetControlClassDelcaration("MyControl", BaseType));
 
-            var locationKeyType = GetLocationKeyType(baseClass);
             var validator = AnalyzerTestRunner.CompileAndGenerate(source, new Generator());
             validator
                 .HasNoErrors()
                 .HasType("Test.MyControl", out var controlTypeSymbol)
                 .ValidateType(controlTypeSymbol, controlType => controlType
-                    .HasMethod(out var staticInitUsing, "InitUsing", typeof(Expression<>).MakeGenericType(typeof(Func<>).MakeGenericType(locationKeyType)))
+                    .HasMethod(out var staticInitUsing, "InitUsing", typeof(Expression<>).MakeGenericType(typeof(Func<>).MakeGenericType(InitLocationKeyType)))
                     .ValidateMethod(staticInitUsing, m => m.IsStatic().HasAccessibility(Accessibility.Private))
-                    .HasMethod(out var instanceInitUsing, "InitUsing", GetInstanceInitUsingParameterType(validator.Compilation, controlTypeSymbol, locationKeyType))
+                    .HasMethod(out var instanceInitUsing, "InitUsing", GetInstanceInitUsingParameterType(validator.Compilation, controlTypeSymbol, InitLocationKeyType))
                     .ValidateMethod(instanceInitUsing, m => m.IsStatic().HasAccessibility(Accessibility.Private)));
         }
 
         [TestMethod]
-        [DataRow(typeof(WebElement), DisplayName = nameof(WebElement))]
-        [DataRow(typeof(View), DisplayName = nameof(View))]
-        [DataRow(typeof(UITestControl), DisplayName = nameof(UITestControl))]
-        public void EmptyControl_GenerateInitMethods(Type baseClass)
+        public void UIMapPartsClass_Empty_GenerateInitMethods()
         {
             var source = GetNamespaceDeclaration(
-                GetControlClassDelcaration("MyControl", baseClass));
+                GetControlClassDelcaration("MyControl", BaseType));
 
             AnalyzerTestRunner.CompileAndGenerate(source, new Generator())
                 .HasNoErrors()
@@ -92,16 +85,13 @@ namespace Rocketcress.SourceGenerators.Tests.UIMapParts
         }
 
         [TestMethod]
-        [DataRow(typeof(WebElement), DisplayName = nameof(WebElement))]
-        [DataRow(typeof(View), DisplayName = nameof(View))]
-        [DataRow(typeof(UITestControl), DisplayName = nameof(UITestControl))]
-        public void EmptyControl_NotPartial(Type baseClass)
+        public void UIMapPartsClass_Empty_NotPartial()
         {
-            var driverType = GetDriverType(baseClass);
+            var driverType = GetDriverType(BaseType);
             var source = GetNamespaceDeclaration(
                 GetControlClassDelcaration(
                     "MyControl",
-                    baseClass,
+                    BaseType,
                     $"public MyControl({driverType.FullName} driver) : base(driver) {{}}",
                     isPartial: false));
 
@@ -115,30 +105,25 @@ namespace Rocketcress.SourceGenerators.Tests.UIMapParts
         }
 
         [TestMethod]
-        [DataRow(typeof(WebElement), DisplayName = nameof(WebElement))]
-        [DataRow(typeof(View), DisplayName = nameof(View))]
-        [DataRow(typeof(UITestControl), DisplayName = nameof(UITestControl))]
-        public void WebElement_WithConstructors_GenerateMissingConstructors(Type baseClass)
+        public void UIMapPartsClass_WithConstructors_GenerateMissingConstructors()
         {
-            var driverType = GetDriverType(baseClass);
-
             var constructors = $@"
-public MyControl({driverType.FullName} driver) : base(driver) {{}}
-public MyControl({driverType.FullName} driver, string test) : base(driver) {{}}";
+public MyControl({DriverType.FullName} driver) : base(driver) {{}}
+public MyControl({DriverType.FullName} driver, string test) : base(driver) {{}}";
 
             var source = GetNamespaceDeclaration(
-                GetControlClassDelcaration("MyControl", baseClass, constructors));
+                GetControlClassDelcaration("MyControl", BaseType, constructors));
 
             var validator = AnalyzerTestRunner.CompileAndGenerate(source, new Generator())
                 .HasNoErrors()
                 .HasType("Test.MyControl", out var controlTypeSymbol)
                 .ValidateType(controlTypeSymbol, controlType => controlType
-                    .HasConstructor(out var ctor1, driverType)
+                    .HasConstructor(out var ctor1, DriverType)
                     .ValidateMethod(ctor1, c => c.HasAccessibility(Accessibility.Public))
-                    .HasConstructor(out var ctor2, driverType, typeof(string))
+                    .HasConstructor(out var ctor2, DriverType, typeof(string))
                     .ValidateMethod(ctor2, c => c.HasAccessibility(Accessibility.Public)));
 
-            if (baseClass == typeof(WebElement))
+            if (BaseType == typeof(WebElement))
             {
                 validator.ValidateType(controlTypeSymbol, controlType => controlType
                     .HasMembers(MethodKind.Constructor, 5)
@@ -149,12 +134,12 @@ public MyControl({driverType.FullName} driver, string test) : base(driver) {{}}"
                     .HasConstructor(out var ctor3, typeof(WebDriver), typeof(OpenQA.Selenium.IWebElement))
                     .ValidateMethod(ctor3, c => c.HasAccessibility(Accessibility.Public)));
             }
-            else if (baseClass == typeof(View))
+            else if (BaseType == typeof(View))
             {
                 validator.ValidateType(controlTypeSymbol, controlType => controlType
                     .HasMembers(MethodKind.Constructor, 2));
             }
-            else if (baseClass == typeof(UITestControl))
+            else if (BaseType == typeof(UITestControl))
             {
                 validator.ValidateType(controlTypeSymbol, controlType => controlType
                     .HasMembers(MethodKind.Constructor, 7)
@@ -172,29 +157,54 @@ public MyControl({driverType.FullName} driver, string test) : base(driver) {{}}"
         }
 
         [TestMethod]
-        [DataRow(typeof(WebElement), DisplayName = nameof(WebElement))]
-        [DataRow(typeof(View), DisplayName = nameof(View))]
-        [DataRow(typeof(UITestControl), DisplayName = nameof(UITestControl))]
-        public void WebElement_WithConstructors_DisableConstructorGeneration_NoConstructorsGenerated(Type baseClass)
+        public void UIMapPartsClass_WithConstructors_DisableConstructorGeneration_NoConstructorsGenerated()
         {
-            var driverType = GetDriverType(baseClass);
-
             var constructors = $@"
-public MyControl({driverType.FullName} driver) : base(driver) {{}}
-public MyControl({driverType.FullName} driver, string test) : base(driver) {{}}";
+public MyControl({DriverType.FullName} driver) : base(driver) {{}}
+public MyControl({DriverType.FullName} driver, string test) : base(driver) {{}}";
 
             var source = GetNamespaceDeclaration(
-                GetControlClassDelcaration("MyControl", baseClass, constructors, "GenerateDefaultConstructors = false"));
+                GetControlClassDelcaration("MyControl", BaseType, constructors, "GenerateDefaultConstructors = false"));
 
             AnalyzerTestRunner.CompileAndGenerate(source, new Generator())
                 .HasNoErrors()
                 .HasType("Test.MyControl", out var controlTypeSymbol)
                 .ValidateType(controlTypeSymbol, controlType => controlType
                     .HasMembers(MethodKind.Constructor, 2)
-                    .HasConstructor(out var ctor1, driverType)
+                    .HasConstructor(out var ctor1, DriverType)
                     .ValidateMethod(ctor1, c => c.HasAccessibility(Accessibility.Public))
-                    .HasConstructor(out var ctor2, driverType, typeof(string))
+                    .HasConstructor(out var ctor2, DriverType, typeof(string))
                     .ValidateMethod(ctor2, c => c.HasAccessibility(Accessibility.Public)));
+        }
+
+        [TestMethod]
+        public void UIMapControl_WithoutOptions()
+        {
+            var childControlType = BaseType == typeof(View) ? typeof(WebElement) : BaseType;
+            var source = GetNamespaceDeclaration(
+                GetControlClassDelcaration(
+                    "MyControl",
+                    BaseType,
+                    GetUIMapControlDeclaration("ChildControl", childControlType)));
+
+            var validator = AnalyzerTestRunner.CompileAndGenerate(source, new Generator());
+            validator
+                .HasNoErrors()
+                .HasType("Test.MyControl", out var controlTypeSymbol)
+                .ValidateType(controlTypeSymbol, controlType => controlType
+                    .HasMethod(out var onControlInitialized, "OnChildControlInitialized", MethodKind.Ordinary)
+                    .ValidateMethod(onControlInitialized, m => m.IsPartial().HasAccessibility(Accessibility.Private))
+                    .HasMethod(out var initControls, "Initialize", Array.Empty<INamedTypeSymbol>())
+                    .ValidateMethod(initControls, init => init
+                        .HasBodyExpression<AssignmentExpressionSyntax>("ChildControlPropertyAssignment", assign => assign
+                            .LeftIs<IdentifierNameSyntax>(x => x.HasName("ChildControl"))
+                            .RightIsSymbol<IMethodSymbol>(right => right
+                                .IsContainedIn(childControlType)
+                                .HasParameters(BaseType == typeof(View) ? new[] { DriverType, CtorLocationKeyType } : new[] { DriverType, CtorLocationKeyType, ParentControlType })))
+                        .HasBodyExpression<InvocationExpressionSyntax>("OnChildControlInitializedCall", invoke => invoke
+                            .IsSymbol<IMethodSymbol>(method => method
+                                .HasName("OnChildControlInitialized")
+                                .HasParameters()))));
         }
 
         private static INamedTypeSymbol GetInstanceInitUsingParameterType(Compilation compilation, INamedTypeSymbol controlTypeSymbol, Type locationKeyType)
@@ -247,5 +257,20 @@ public MyControl({driverType.FullName} driver, string test) : base(driver) {{}}"
                     .ValidateMethod(ctor6, c => c.HasAccessibility(Accessibility.Protected)));
             }
         }
+    }
+
+    [TestClass]
+    public class WebElementGeneratorTests : GeneratorTests<WebElement>
+    {
+    }
+
+    [TestClass]
+    public class ViewGeneratorTests : GeneratorTests<View>
+    {
+    }
+
+    [TestClass]
+    public class UITestControlGeneratorTests : GeneratorTests<UITestControl>
+    {
     }
 }

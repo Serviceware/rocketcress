@@ -34,9 +34,9 @@ namespace Rocketcress.SourceGenerators.Tests.Validators
             return this;
         }
 
-        public CompilationValidator ValidateType(INamedTypeSymbol typeSymbol, Action<NamedTypeSymbolValidator> typeValidation)
+        public CompilationValidator ValidateType(INamedTypeSymbol typeSymbol, Action<ISymbolValidator<INamedTypeSymbol>> typeValidation)
         {
-            var typeValidator = new NamedTypeSymbolValidator(this, typeSymbol);
+            var typeValidator = new SymbolValidator<INamedTypeSymbol>(typeSymbol, this);
             typeValidation(typeValidator);
 
             return this;
@@ -55,6 +55,30 @@ namespace Rocketcress.SourceGenerators.Tests.Validators
                 HasType(type.FullName!, out var typeSymbol);
                 return typeSymbol;
             }
+        }
+
+        [return: NotNullIfNotNull("types")]
+        public INamedTypeSymbol[]? GetTypeSymbols(params object[]? types)
+        {
+            if (types is null)
+                return null;
+
+            return (from objType in types
+                    select objType switch
+                    {
+                        INamedTypeSymbol typeSymbol => typeSymbol,
+                        Type type => GetTypeSymbolFromType(type),
+                        _ => throw new InvalidOperationException($"Type \"{objType.GetType().FullName}\" is not allowed."),
+                    }).ToArray();
+        }
+
+        [return: NotNullIfNotNull("types")]
+        public INamedTypeSymbol[]? GetTypeSymbols(params Type[]? types)
+        {
+            if (types is null)
+                return null;
+
+            return types.Select(x => GetTypeSymbolFromType(x)).ToArray();
         }
     }
 }

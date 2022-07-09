@@ -28,6 +28,15 @@ namespace Rocketcress.SourceGenerators.Tests.UIMapParts
     }}";
         }
 
+        public static string GetClassContent(params string[] parts)
+            => string.Join(Environment.NewLine, parts);
+
+        public static string GetUIMapControlDeclaration(string name, Type propertyType, string? attributeArguments = null)
+        {
+            return $@"        [Rocketcress.Core.Attributes.UIMapControl({attributeArguments})]
+        public {propertyType.FullName} {name} {{ get; private set; }}";
+        }
+
         public static Type GetDriverType(Type baseType)
         {
             return baseType switch
@@ -38,12 +47,32 @@ namespace Rocketcress.SourceGenerators.Tests.UIMapParts
             };
         }
 
-        public static Type GetLocationKeyType(Type baseType)
+        public static Type GetInitLocationKeyType(Type baseType)
         {
             return baseType switch
             {
                 _ when baseType == typeof(WebElement) || baseType == typeof(View) => typeof(Selenium.By),
                 _ when baseType == typeof(UITestControl) => typeof(UIAutomation.By),
+                _ => throw new ArgumentException(null, nameof(baseType)),
+            };
+        }
+
+        public static Type GetCtorLocationKeyType(Type baseType)
+        {
+            return baseType switch
+            {
+                _ when baseType == typeof(WebElement) || baseType == typeof(View) => typeof(OpenQA.Selenium.By),
+                _ when baseType == typeof(UITestControl) => typeof(UIAutomation.By),
+                _ => throw new ArgumentException(null, nameof(baseType)),
+            };
+        }
+
+        public static Type GetParentControlType(Type baseType)
+        {
+            return baseType switch
+            {
+                _ when baseType == typeof(WebElement) || baseType == typeof(View) => typeof(OpenQA.Selenium.ISearchContext),
+                _ when baseType == typeof(UITestControl) => typeof(IUITestControl),
                 _ => throw new ArgumentException(null, nameof(baseType)),
             };
         }
