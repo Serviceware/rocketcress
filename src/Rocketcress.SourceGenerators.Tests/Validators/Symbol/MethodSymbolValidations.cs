@@ -19,12 +19,20 @@ public static class MethodSymbolValidations
         return validator;
     }
 
-    public static ISymbolValidator<IMethodSymbol> HasBodyExpression<T>(this ISymbolValidator<IMethodSymbol> validator, Action<ISyntaxNodeValidator<T>> validation)
+    public static ISymbolValidator<IMethodSymbol> HasBodyExpression<T>(this ISymbolValidator<IMethodSymbol> validator)
+        where T : ExpressionSyntax
+        => HasBodyExpression<T>(validator, null, null);
+
+    public static ISymbolValidator<IMethodSymbol> HasBodyExpression<T>(this ISymbolValidator<IMethodSymbol> validator, Action<ISyntaxNodeValidator<T>>? validation)
         where T : ExpressionSyntax
         => HasBodyExpression(validator, null, validation);
 
-    public static ISymbolValidator<IMethodSymbol> HasBodyExpression<T>(this ISymbolValidator<IMethodSymbol> validator, string? logName, Action<ISyntaxNodeValidator<T>> validation)
+    public static ISymbolValidator<IMethodSymbol> HasBodyExpression<T>(this ISymbolValidator<IMethodSymbol> validator, string? logName)
         where T : ExpressionSyntax
+        => HasBodyExpression<T>(validator, logName, null);
+
+    public static ISymbolValidator<IMethodSymbol> HasBodyExpression<T>(this ISymbolValidator<IMethodSymbol> validator, string? logName, Action<ISyntaxNodeValidator<T>>? validation)
+    where T : ExpressionSyntax
     {
         foreach (var syntaxRef in validator.Symbol.DeclaringSyntaxReferences)
         {
@@ -83,9 +91,12 @@ public static class MethodSymbolValidations
         return validator;
     }
 
-    private static bool TryValidate<T>(ISymbolValidator<IMethodSymbol> validator, T syntaxNode, Action<ISyntaxNodeValidator<T>> validation)
+    private static bool TryValidate<T>(ISymbolValidator<IMethodSymbol> validator, T syntaxNode, Action<ISyntaxNodeValidator<T>>? validation)
         where T : SyntaxNode
     {
+        if (validation is null)
+            return true;
+
         try
         {
             var syntaxValidator = new SyntaxNodeValidator<T>(syntaxNode, validator.Compilation);

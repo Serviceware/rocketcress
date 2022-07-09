@@ -198,9 +198,12 @@ public MyControl({DriverType.FullName} driver, string test) : base(driver) {{}}"
                     .ValidateMethod(initControls, init => init
                         .HasBodyExpression<AssignmentExpressionSyntax>("ChildControlPropertyAssignment", assign => assign
                             .LeftIs<IdentifierNameSyntax>(x => x.HasName("ChildControl"))
-                            .RightIsSymbol<IMethodSymbol>(right => right
-                                .IsContainedIn(childControlType)
-                                .HasParameters(BaseType == typeof(View) ? new[] { DriverType, CtorLocationKeyType } : new[] { DriverType, CtorLocationKeyType, ParentControlType })))
+                            .RightIs<ObjectCreationExpressionSyntax>(objectCreation => objectCreation
+                                .HasArguments(BaseType == typeof(View) ? 2 : 3)
+                                .Conditional(BaseType != typeof(View), x => x.HasArgument<ThisExpressionSyntax>(2))
+                                .IsSymbol<IMethodSymbol>(right => right
+                                    .IsContainedIn(childControlType)
+                                    .HasParameters(BaseType == typeof(View) ? new[] { DriverType, CtorLocationKeyType } : new[] { DriverType, CtorLocationKeyType, ParentControlType }))))
                         .HasBodyExpression<InvocationExpressionSyntax>("OnChildControlInitializedCall", invoke => invoke
                             .IsSymbol<IMethodSymbol>(method => method
                                 .HasName("OnChildControlInitialized")

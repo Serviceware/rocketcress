@@ -6,18 +6,30 @@ namespace Rocketcress.SourceGenerators.Tests.Validators;
 
 public static class AssignmentExpressionSyntaxValidations
 {
+    public static ISyntaxNodeValidator<AssignmentExpressionSyntax> LeftIs<T>(this ISyntaxNodeValidator<AssignmentExpressionSyntax> validator)
+        where T : ExpressionSyntax
+        => Is<T>(validator, validator.SyntaxNode.Left, null);
     public static ISyntaxNodeValidator<AssignmentExpressionSyntax> LeftIs<T>(this ISyntaxNodeValidator<AssignmentExpressionSyntax> validator, Action<ISyntaxNodeValidator<T>>? validation)
         where T : ExpressionSyntax
         => Is(validator, validator.SyntaxNode.Left, validation);
 
+    public static ISyntaxNodeValidator<AssignmentExpressionSyntax> RightIs<T>(this ISyntaxNodeValidator<AssignmentExpressionSyntax> validator)
+        where T : ExpressionSyntax
+        => Is<T>(validator, validator.SyntaxNode.Right, null);
     public static ISyntaxNodeValidator<AssignmentExpressionSyntax> RightIs<T>(this ISyntaxNodeValidator<AssignmentExpressionSyntax> validator, Action<ISyntaxNodeValidator<T>>? validation)
         where T : ExpressionSyntax
         => Is(validator, validator.SyntaxNode.Right, validation);
 
+    public static ISyntaxNodeValidator<AssignmentExpressionSyntax> LeftIsSymbol<T>(this ISyntaxNodeValidator<AssignmentExpressionSyntax> validator)
+        where T : ISymbol
+        => IsSymbol<T>(validator, validator.SyntaxNode.Left, null);
     public static ISyntaxNodeValidator<AssignmentExpressionSyntax> LeftIsSymbol<T>(this ISyntaxNodeValidator<AssignmentExpressionSyntax> validator, Action<ISymbolValidator<T>>? validation)
         where T : ISymbol
         => IsSymbol(validator, validator.SyntaxNode.Left, validation);
 
+    public static ISyntaxNodeValidator<AssignmentExpressionSyntax> RightIsSymbol<T>(this ISyntaxNodeValidator<AssignmentExpressionSyntax> validator)
+        where T : ISymbol
+        => IsSymbol<T>(validator, validator.SyntaxNode.Right, null);
     public static ISyntaxNodeValidator<AssignmentExpressionSyntax> RightIsSymbol<T>(this ISyntaxNodeValidator<AssignmentExpressionSyntax> validator, Action<ISymbolValidator<T>>? validation)
         where T : ISymbol
         => IsSymbol(validator, validator.SyntaxNode.Right, validation);
