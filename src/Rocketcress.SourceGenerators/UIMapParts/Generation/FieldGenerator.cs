@@ -28,8 +28,9 @@ internal readonly struct FieldGenerator
             var locationKeyTypeName = _context.UITestTypeSymbols.LocationKeyType.ToUsageString();
             var expression = control.LocationKey.BuildInitExpression(_context);
             var fieldName = $"By{control.Property.Name}";
+            var equalsToken = control.LocationKey is InstanceLocationKey ? "=>" : "=";
 
-            _builder.AppendLine($"{keywords} {locationKeyTypeName} {fieldName} = {expression};");
+            _builder.AppendLine($"{keywords} {locationKeyTypeName} {fieldName} {equalsToken} {expression};");
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.CodeAnalysis;
+using Rocketcress.SourceGenerators.Tests.Extensions;
 
 namespace Rocketcress.SourceGenerators.Tests.Validators;
 
@@ -15,6 +16,9 @@ public interface ISymbolValidator<T> : ISymbolValidator
 
     ISymbolValidator<T> HasSyntax<TSyntax>(Action<ISyntaxNodeValidator<TSyntax>>? validation)
         where TSyntax : SyntaxNode;
+
+    ISymbolValidator<T> Is<TSymbol>(Action<ISymbolValidator<TSymbol>>? validation)
+        where TSymbol : T;
 }
 
 public class SymbolValidator<T> : ISymbolValidator<T>
@@ -54,18 +58,21 @@ public class SymbolValidator<T> : ISymbolValidator<T>
         {
             if (syntaxReference.GetSyntax() is TSyntax syntax)
             {
-                if (validation is not null)
-                {
-                    var syntaxValidator = new SyntaxNodeValidator<TSyntax>(syntax, this);
-                    validation(syntaxValidator);
-                }
-
+                validation.TryInvoke(this, syntax);
                 hasSyntax = true;
                 break;
             }
         }
 
         Assert.Instance.IsTrue(hasSyntax, $"The symbol '{Symbol}' does not have a declared syntax of type '{typeof(TSyntax).Name}'.");
+        return this;
+    }
+
+    public ISymbolValidator<T> Is<TSymbol>(Action<ISymbolValidator<TSymbol>>? validation)
+        where TSymbol : T
+    {
+        var castedSymbol = Assert.Instance.IsInstanceOfType<TSymbol>(Symbol);
+        validation.TryInvoke(this, castedSymbol);
         return this;
     }
 }
@@ -90,21 +97,32 @@ public static partial class SymbolValidatorExtensions
     public static ISymbolValidator<T> IsStatic<T>(this ISymbolValidator<T> validator)
         where T : ISymbol
     {
-        Assert.Instance.IsTrue(validator.Symbol.IsStatic);
+        Assert.Instance.IsTrue(validator.Symbol.IsStatic, $"The symbol '{validator.Symbol}' is not static.");
         return validator;
     }
 
     public static ISymbolValidator<T> IsNotStatic<T>(this ISymbolValidator<T> validator)
         where T : ISymbol
     {
-        Assert.Instance.IsFalse(validator.Symbol.IsStatic);
+        Assert.Instance.IsFalse(validator.Symbol.IsStatic, $"The symbol '{validator.Symbol}' is static.");
         return validator;
     }
 
     public static ISymbolValidator<T> HasName<T>(this ISymbolValidator<T> validator, string name)
         where T : ISymbol
     {
-        Assert.Instance.AreEqual(name, validator.Symbol.Name);
+        Assert.Instance.AreEqual(name, validator.Symbol.Name, $"The symbol '{validator.Symbol}' has the wrong name.");
+        return validator;
+    }
+
+    public static ISymbolValidator<T> IsContainedIn<T>(this ISymbolValidator<T> validator, Type typeSymbol)
+        where T : ISymbol
+        => IsContainedIn(validator, validator.Compilation.GetTypeSymbolFromType(typeSymbol));
+
+    public static ISymbolValidator<T> IsContainedIn<T>(this ISymbolValidator<T> validator, INamedTypeSymbol typeSymbol)
+        where T : ISymbol
+    {
+        Assert.Instance.AreEqual(typeSymbol, validator.Symbol.ContainingType);
         return validator;
     }
 }

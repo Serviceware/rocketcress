@@ -39,6 +39,9 @@ public static class NamedTypeSymbolValidations
         return validator;
     }
 
+    public static ISymbolValidator<INamedTypeSymbol> DoesNotHaveField(this ISymbolValidator<INamedTypeSymbol> validator, string propertyName)
+        => DoesNotHaveMember<IFieldSymbol>(validator, propertyName, null, "Field");
+
     public static ISymbolValidator<INamedTypeSymbol> DoesNotHaveProperty(this ISymbolValidator<INamedTypeSymbol> validator, string propertyName)
         => DoesNotHaveMember<IPropertySymbol>(validator, propertyName, null, "Property");
 

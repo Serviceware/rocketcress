@@ -1,4 +1,5 @@
-﻿using Microsoft.CodeAnalysis;
+﻿extern alias rccore;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Rocketcress.SourceGenerators.Tests.Validators;
@@ -18,7 +19,7 @@ namespace Rocketcress.SourceGenerators.Tests.Runner
         {
             // Load assemblies into AppDomain, so they are added to compilation
             _ = typeof(Rocketcress.Selenium.WebDriver).Assembly;
-            _ = typeof(Rocketcress.Core.Wait).Assembly;
+            _ = typeof(rccore::Rocketcress.Core.Wait).Assembly;
             _ = typeof(Rocketcress.UIAutomation.Application).Assembly;
 
             var compilation = CreateCompilation(source);
@@ -45,7 +46,7 @@ namespace Rocketcress.SourceGenerators.Tests.Runner
                     CSharpSyntaxTree.ParseText(source, new CSharpParseOptions(LanguageVersion.Latest)),
                 },
                 AppDomain.CurrentDomain.GetAssemblies()
-                    .Where(x => !x.IsDynamic && !string.IsNullOrWhiteSpace(x.Location)).Select(x => MetadataReference.CreateFromFile(x.Location)).ToArray(),
+                    .Where(x => !x.IsDynamic && !string.IsNullOrWhiteSpace(x.Location) && x.GetName().Name != "Rocketcress.SourceGenerators").Select(x => MetadataReference.CreateFromFile(x.Location)).ToArray(),
                 new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
 
         private static GeneratorDriver CreateDriver(Compilation c, params ISourceGenerator[] generators)

@@ -1,5 +1,6 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Rocketcress.SourceGenerators.Tests.Extensions;
 
 namespace Rocketcress.SourceGenerators.Tests.Validators;
 
@@ -51,11 +52,8 @@ public static class AssignmentExpressionSyntaxValidations
     {
         var symbol = validator.Compilation.Compilation.GetSemanticModel(syntax.SyntaxTree).GetSymbolInfo(syntax).Symbol;
         var castedSymbol = Assert.Instance.IsInstanceOfType<T>(symbol);
-        if (validation is not null)
-        {
-            var leftValidator = new SymbolValidator<T>(castedSymbol, validator.Compilation);
-            validation(leftValidator);
-        }
+
+        validation.TryInvoke(validator, castedSymbol);
 
         return validator;
     }

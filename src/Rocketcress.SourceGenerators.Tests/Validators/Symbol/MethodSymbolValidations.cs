@@ -63,15 +63,6 @@ public static class MethodSymbolValidations
         return validator;
     }
 
-    public static ISymbolValidator<IMethodSymbol> IsContainedIn(this ISymbolValidator<IMethodSymbol> validator, Type typeSymbol)
-        => IsContainedIn(validator, validator.Compilation.GetTypeSymbolFromType(typeSymbol));
-
-    public static ISymbolValidator<IMethodSymbol> IsContainedIn(this ISymbolValidator<IMethodSymbol> validator, INamedTypeSymbol typeSymbol)
-    {
-        Assert.Instance.AreEqual(typeSymbol, validator.Symbol.ContainingType);
-        return validator;
-    }
-
     public static ISymbolValidator<IMethodSymbol> HasParameters(this ISymbolValidator<IMethodSymbol> validator)
         => HasParameters(validator, Array.Empty<INamedTypeSymbol>());
 

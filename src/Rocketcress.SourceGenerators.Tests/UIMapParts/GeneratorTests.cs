@@ -1,4 +1,5 @@
-﻿using Microsoft.CodeAnalysis;
+﻿extern alias rccore;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Rocketcress.Selenium;
@@ -11,6 +12,7 @@ using Rocketcress.UIAutomation.Controls;
 using System.Linq.Expressions;
 using System.Windows.Automation;
 using static Rocketcress.SourceGenerators.Tests.UIMapParts.Helper;
+using IdStyle = rccore::Rocketcress.Core.Attributes.IdStyle;
 
 namespace Rocketcress.SourceGenerators.Tests.UIMapParts
 {
@@ -60,7 +62,7 @@ namespace Rocketcress.SourceGenerators.Tests.UIMapParts
                 .ValidateType(controlTypeSymbol, controlType => controlType
                     .HasMethod(out var staticInitUsing, "InitUsing", typeof(Expression<>).MakeGenericType(typeof(Func<>).MakeGenericType(InitLocationKeyType)))
                     .ValidateMethod(staticInitUsing, m => m.IsStatic().HasAccessibility(Access.Private))
-                    .HasMethod(out var instanceInitUsing, "InitUsing", GetInstanceInitUsingParameterType(validator.Compilation, controlTypeSymbol, InitLocationKeyType))
+                    .HasMethod(out var instanceInitUsing, "InitUsing", GetInstanceInitUsingParameterType(validator.Compilation, controlTypeSymbol, InitLocationKeyType, true))
                     .ValidateMethod(instanceInitUsing, m => m.IsStatic().HasAccessibility(Access.Private)));
         }
 
@@ -210,7 +212,118 @@ public MyControl({DriverType.FullName} driver, string test) : base(driver) {{}}"
                                 .HasParameters())))
                     .HasField("ByChildControl", locationKey => locationKey
                         .IsStatic()
-                        .HasAccessibility(Access.Private)));
+                        .HasAccessibility(Access.Private)
+                        .HasSyntax<VariableDeclaratorSyntax>(declaration => declaration
+                            .HasInitializer(initializer => initializer
+                                .HasValue<InvocationExpressionSyntax>(invocation => invocation
+                                    .IsSymbol<IMethodSymbol>(x => x.IsContainedIn(InitLocationKeyType).HasName("Id"))
+                                    .HasArguments<LiteralExpressionSyntax>(x => x.IsEqualTo("ChildControl")))))));
+        }
+
+        [TestMethod]
+        [DataRow(nameof(IdStyle.Unset), "ChildControl", DisplayName = nameof(IdStyle.Unset))]
+        [DataRow(nameof(IdStyle.None), "ChildControl", DisplayName = nameof(IdStyle.None))]
+        [DataRow(nameof(IdStyle.CamelCase), "childControl", DisplayName = nameof(IdStyle.CamelCase))]
+        [DataRow(nameof(IdStyle.KebabCase), "child-control", DisplayName = nameof(IdStyle.KebabCase))]
+        [DataRow(nameof(IdStyle.PascalCase), "ChildControl", DisplayName = nameof(IdStyle.PascalCase))]
+        [DataRow(nameof(IdStyle.UpperCase), "CHILDCONTROL", DisplayName = nameof(IdStyle.UpperCase))]
+        [DataRow(nameof(IdStyle.LowerCase), "childcontrol", DisplayName = nameof(IdStyle.LowerCase))]
+        public void UIMapControl_WithSpecifiedIdStyle(string idstyleName, string expectedId)
+        {
+            var childControlType = BaseType == typeof(View) ? typeof(WebElement) : BaseType;
+            var source = GetNamespaceDeclaration(
+                GetControlClassDelcaration(
+                    "MyControl",
+                    BaseType,
+                    GetUIMapControlDeclaration("ChildControl", childControlType, $"IdStyle = Rocketcress.Core.Attributes.IdStyle.{idstyleName}")));
+
+            var validator = AnalyzerTestRunner.CompileAndGenerate(source, new Generator());
+            validator
+                .HasNoErrors()
+                .HasType("Test.MyControl", out var controlTypeSymbol)
+                .ValidateType(controlTypeSymbol, controlType => controlType
+                    .HasField("ByChildControl", locationKey => locationKey
+                        .HasSyntax<VariableDeclaratorSyntax>(declaration => declaration
+                            .HasInitializer(expressionBody => expressionBody
+                                .HasValue<InvocationExpressionSyntax>(invocation => invocation
+                                    .IsSymbol<IMethodSymbol>(x => x.IsContainedIn(InitLocationKeyType).HasName("Id"))
+                                    .HasArguments<LiteralExpressionSyntax>(x => x.IsEqualTo(expectedId)))))));
+        }
+
+        [TestMethod]
+        public void UIMapControl_WithSpecifiedIdStyle_Disabled()
+        {
+            var childControlType = BaseType == typeof(View) ? typeof(WebElement) : BaseType;
+            var source = GetNamespaceDeclaration(
+                GetControlClassDelcaration(
+                    "MyControl",
+                    BaseType,
+                    GetUIMapControlDeclaration("ChildControl", childControlType, $"IdStyle = Rocketcress.Core.Attributes.IdStyle.{nameof(IdStyle.Disabled)}")));
+
+            var validator = AnalyzerTestRunner.CompileAndGenerate(source, new Generator());
+            validator
+                .HasNoErrors()
+                .HasType("Test.MyControl", out var controlTypeSymbol)
+                .ValidateType(controlTypeSymbol, controlType => controlType
+                    .HasField("ByChildControl", locationKey => locationKey
+                        .HasSyntax<VariableDeclaratorSyntax>(declaration => declaration
+                            .HasInitializer(expressionBody => expressionBody
+                                .Conditional(BaseType == typeof(UITestControl), x => x
+                                    .HasValue<MemberAccessExpressionSyntax>(invocation => invocation
+                                        .IsSymbol<IPropertySymbol>(x => x.IsContainedIn(InitLocationKeyType).HasName("Empty"))))
+                                .Conditional(BaseType != typeof(UITestControl), x => x
+                                    .HasValue<InvocationExpressionSyntax>(invocation => invocation
+                                        .IsSymbol<IMethodSymbol>(x => x.IsContainedIn(InitLocationKeyType).HasName("XPath"))
+                                        .HasArguments<LiteralExpressionSyntax>(x => x.IsEqualTo(".//*"))))))));
+        }
+
+        [TestMethod]
+        public void UIMapControl_WithSpecifiedId()
+        {
+            var childControlType = BaseType == typeof(View) ? typeof(WebElement) : BaseType;
+            var source = GetNamespaceDeclaration(
+                GetControlClassDelcaration(
+                    "MyControl",
+                    BaseType,
+                    GetUIMapControlDeclaration("ChildControl", childControlType, "Id = \"blub\"")));
+
+            var validator = AnalyzerTestRunner.CompileAndGenerate(source, new Generator());
+            validator
+                .HasNoErrors()
+                .HasType("Test.MyControl", out var controlTypeSymbol)
+                .ValidateType(controlTypeSymbol, controlType => controlType
+                    .HasField("ByChildControl", locationKey => locationKey
+                        .HasSyntax<VariableDeclaratorSyntax>(declaration => declaration
+                            .HasInitializer(expressionBody => expressionBody
+                                .HasValue<InvocationExpressionSyntax>(invocation => invocation
+                                    .IsSymbol<IMethodSymbol>(x => x.IsContainedIn(InitLocationKeyType).HasName("Id"))
+                                    .HasArguments<LiteralExpressionSyntax>(x => x.IsEqualTo("blub")))))));
+        }
+
+        [TestMethod]
+        public void UIMapControl_WithStaticLocationKeyInitializer()
+        {
+            var childControlType = BaseType == typeof(View) ? typeof(WebElement) : BaseType;
+            var source = GetNamespaceDeclaration(
+                GetControlClassDelcaration(
+                    "MyControl",
+                    BaseType,
+                    GetUIMapControlDeclaration("ChildControl", childControlType, initCode: $" = InitUsing<{childControlType.FullName}>(() => {InitLocationKeyType.FullName}.Id(\"abc\"));")));
+
+            var validator = AnalyzerTestRunner.CompileAndGenerate(source, new Generator());
+            validator
+                .HasNoErrors()
+                .HasType("Test.MyControl", out var controlTypeSymbol)
+                .ValidateType(controlTypeSymbol, controlType => controlType
+                    .DoesNotHaveProperty("ByChildControl")
+                    .HasField("ByChildControl", locationKey => locationKey
+                        .IsStatic()
+                        .HasAccessibility(Access.Private)
+                        .HasSyntax<VariableDeclaratorSyntax>(declaration => declaration
+                            .HasInitializer(expressionBody => expressionBody
+                                .HasValue<InvocationExpressionSyntax>(invocation => invocation
+                                    .IsSymbol<IMethodSymbol>(x => x.IsContainedIn(InitLocationKeyType).HasName("Id"))
+                                    .HasArguments<LiteralExpressionSyntax>(x => x.IsEqualTo("abc")))))));
         }
 
         [TestMethod]
@@ -223,17 +336,32 @@ public MyControl({DriverType.FullName} driver, string test) : base(driver) {{}}"
                     BaseType,
                     GetUIMapControlDeclaration("ChildControl", childControlType, initCode: $" = InitUsing<{childControlType.FullName}>(x => {InitLocationKeyType.FullName}.Id(\"abc\"));")));
 
-            AnalyzerTestRunner.CompileAndGenerate(source, new Generator())
-                .HasNoErrors();
+            var validator = AnalyzerTestRunner.CompileAndGenerate(source, new Generator());
+            validator
+                .HasNoErrors()
+                .HasType("Test.MyControl", out var controlTypeSymbol)
+                .ValidateType(controlTypeSymbol, controlType => controlType
+                    .DoesNotHaveField("ByChildControl")
+                    .HasProperty("ByChildControl", locationKey => locationKey
+                        .IsNotStatic()
+                        .HasAccessibility(Access.Private)
+                        .HasSyntax<PropertyDeclarationSyntax>(declaration => declaration
+                            .HasExpressionBody(expressionBody => expressionBody
+                                .HasExpression<InvocationExpressionSyntax>(invocation => invocation
+                                    .IsSymbol<IMethodSymbol>(x => x.IsContainedIn(GetInstanceInitUsingParameterType(validator.Compilation, controlTypeSymbol, InitLocationKeyType, false)).HasName("Invoke"))
+                                    .HasArguments<ThisExpressionSyntax>())))));
         }
 
-        private static INamedTypeSymbol GetInstanceInitUsingParameterType(Compilation compilation, INamedTypeSymbol controlTypeSymbol, Type locationKeyType)
+        private static INamedTypeSymbol GetInstanceInitUsingParameterType(Compilation compilation, INamedTypeSymbol controlTypeSymbol, Type locationKeyType, bool asExpression)
         {
-            var expressionTypeSymbol = compilation.GetTypeByMetadataName("System.Linq.Expressions.Expression`1")!;
             var funcTypeSymbol = compilation.GetTypeByMetadataName("System.Func`2")!;
             var byTypeSymbol = compilation.GetTypeByMetadataName(locationKeyType.FullName!)!;
 
             var construcedFuncSymbol = funcTypeSymbol.Construct(controlTypeSymbol, byTypeSymbol);
+            if (!asExpression)
+                return construcedFuncSymbol;
+
+            var expressionTypeSymbol = compilation.GetTypeByMetadataName("System.Linq.Expressions.Expression`1")!;
             return expressionTypeSymbol.Construct(construcedFuncSymbol);
         }
 

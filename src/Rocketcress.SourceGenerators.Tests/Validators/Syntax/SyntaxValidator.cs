@@ -1,4 +1,5 @@
 ﻿using Microsoft.CodeAnalysis;
+using Rocketcress.SourceGenerators.Tests.Extensions;
 
 namespace Rocketcress.SourceGenerators.Tests.Validators;
 
@@ -15,6 +16,9 @@ public interface ISyntaxNodeValidator<T> : ISyntaxNodeValidator
 
     ISyntaxNodeValidator<T> IsSymbol<TSymbol>(Action<ISymbolValidator<TSymbol>>? validation)
         where TSymbol : ISymbol;
+
+    ISyntaxNodeValidator<T> Is<TSyntax>(Action<ISyntaxNodeValidator<TSyntax>>? validation)
+        where TSyntax : T;
 }
 
 public class SyntaxNodeValidator<T> : ISyntaxNodeValidator<T>
@@ -52,11 +56,17 @@ public class SyntaxNodeValidator<T> : ISyntaxNodeValidator<T>
         var symbol = Compilation.Compilation.GetSemanticModel(SyntaxNode.SyntaxTree).GetSymbolInfo(SyntaxNode).Symbol;
         var castedSymbol = Assert.Instance.IsInstanceOfType<TSymbol>(symbol);
 
-        if (validation is not null)
-        {
-            var symbolValidator = new SymbolValidator<TSymbol>(castedSymbol, this);
-            validation(symbolValidator);
-        }
+        validation.TryInvoke(this, castedSymbol);
+
+        return this;
+    }
+
+    public ISyntaxNodeValidator<T> Is<TSyntax>(Action<ISyntaxNodeValidator<TSyntax>>? validation)
+        where TSyntax : T
+    {
+        var castedSyntaxNode = Assert.Instance.IsInstanceOfType<TSyntax>(SyntaxNode);
+
+        validation.TryInvoke(this, castedSyntaxNode);
 
         return this;
     }
