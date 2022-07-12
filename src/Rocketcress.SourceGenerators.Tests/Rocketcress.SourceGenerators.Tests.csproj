@@ -36,7 +36,7 @@
       <ReferencePath Condition="'%(FileName)' == 'MaSch.Test.Assertion.MSTest'">
         <Aliases>masch</Aliases>
       </ReferencePath>
-      <ReferencePath Condition="'%(FileName)' == 'Rocketcress.Core'">
+      <ReferencePath Condition="'%(FileName)' == 'Rocketcress.Core' or '%(FileName)' == 'Rocketcress.Core.Slim'">
         <Aliases>rccore</Aliases>
       </ReferencePath>
     </ItemGroup>
