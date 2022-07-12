@@ -1,5 +1,4 @@
-﻿using MaSch.Test.Assertion;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
+﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Rocketcress.SourceGenerators.Tests.Validators;
 

@@ -2,7 +2,6 @@
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Assert = MaSch.Test.Assertion.Assert;
 
 namespace Rocketcress.SourceGenerators.Tests.Validators;
 

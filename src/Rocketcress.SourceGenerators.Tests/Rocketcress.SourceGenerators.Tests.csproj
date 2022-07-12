@@ -10,7 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Using Include="Microsoft.CodeAnalysis.Accessibility" Alias="Access"/>
+    <Using Include="Microsoft.CodeAnalysis.Accessibility" Alias="Access" />
   </ItemGroup>
   
   <Import Project="../../build/Rocketcress.props" />
@@ -30,5 +30,13 @@
     <ProjectReference Include="..\Rocketcress.SourceGenerators\Rocketcress.SourceGenerators.csproj" />
     <ProjectReference Include="..\Rocketcress.UIAutomation\Rocketcress.UIAutomation.csproj" />
   </ItemGroup>
+  
+  <Target Name="ChangeAliasesOfNugetRefs" BeforeTargets="FindReferenceAssembliesForReferences;ResolveReferences">
+    <ItemGroup>
+      <ReferencePath Condition="'%(FileName)' == 'MaSch.Test.Assertion.MSTest'">
+        <Aliases>masch</Aliases>
+      </ReferencePath>
+    </ItemGroup>
+  </Target>
 
 </Project>
