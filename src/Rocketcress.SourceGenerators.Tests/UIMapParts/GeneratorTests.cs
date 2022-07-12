@@ -23,6 +23,7 @@ namespace Rocketcress.SourceGenerators.Tests.UIMapParts
         protected Type InitLocationKeyType => GetInitLocationKeyType(BaseType);
         protected Type CtorLocationKeyType => GetCtorLocationKeyType(BaseType);
         protected Type ParentControlType => GetParentControlType(BaseType);
+        protected string LocationKeyIdMethodName => BaseType == typeof(UITestControl) ? nameof(UIAutomation.By.AutomationId) : nameof(Selenium.By.Id);
 
         [TestMethod]
         public void UIMapPartsClass_Empty_GenerateConstructors()
@@ -216,7 +217,7 @@ public MyControl({DriverType.FullName} driver, string test) : base(driver) {{}}"
                         .HasSyntax<VariableDeclaratorSyntax>(declaration => declaration
                             .HasInitializer(initializer => initializer
                                 .HasValue<InvocationExpressionSyntax>(invocation => invocation
-                                    .IsSymbol<IMethodSymbol>(x => x.IsContainedIn(InitLocationKeyType).HasName("Id"))
+                                    .IsSymbol<IMethodSymbol>(x => x.IsContainedIn(InitLocationKeyType).HasName(LocationKeyIdMethodName))
                                     .HasArguments<LiteralExpressionSyntax>(x => x.IsEqualTo("ChildControl")))))));
         }
 
@@ -246,7 +247,7 @@ public MyControl({DriverType.FullName} driver, string test) : base(driver) {{}}"
                         .HasSyntax<VariableDeclaratorSyntax>(declaration => declaration
                             .HasInitializer(expressionBody => expressionBody
                                 .HasValue<InvocationExpressionSyntax>(invocation => invocation
-                                    .IsSymbol<IMethodSymbol>(x => x.IsContainedIn(InitLocationKeyType).HasName("Id"))
+                                    .IsSymbol<IMethodSymbol>(x => x.IsContainedIn(InitLocationKeyType).HasName(LocationKeyIdMethodName))
                                     .HasArguments<LiteralExpressionSyntax>(x => x.IsEqualTo(expectedId)))))));
         }
 
@@ -296,7 +297,7 @@ public MyControl({DriverType.FullName} driver, string test) : base(driver) {{}}"
                         .HasSyntax<VariableDeclaratorSyntax>(declaration => declaration
                             .HasInitializer(expressionBody => expressionBody
                                 .HasValue<InvocationExpressionSyntax>(invocation => invocation
-                                    .IsSymbol<IMethodSymbol>(x => x.IsContainedIn(InitLocationKeyType).HasName("Id"))
+                                    .IsSymbol<IMethodSymbol>(x => x.IsContainedIn(InitLocationKeyType).HasName(LocationKeyIdMethodName))
                                     .HasArguments<LiteralExpressionSyntax>(x => x.IsEqualTo("blub")))))));
         }
 
@@ -308,7 +309,7 @@ public MyControl({DriverType.FullName} driver, string test) : base(driver) {{}}"
                 GetControlClassDelcaration(
                     "MyControl",
                     BaseType,
-                    GetUIMapControlDeclaration("ChildControl", childControlType, initCode: $" = InitUsing<{childControlType.FullName}>(() => {InitLocationKeyType.FullName}.Id(\"abc\"));")));
+                    GetUIMapControlDeclaration("ChildControl", childControlType, initCode: $" = InitUsing<{childControlType.FullName}>(() => {InitLocationKeyType.FullName}.{LocationKeyIdMethodName}(\"abc\"));")));
 
             var validator = AnalyzerTestRunner.CompileAndGenerate(source, new Generator());
             validator
@@ -322,7 +323,7 @@ public MyControl({DriverType.FullName} driver, string test) : base(driver) {{}}"
                         .HasSyntax<VariableDeclaratorSyntax>(declaration => declaration
                             .HasInitializer(expressionBody => expressionBody
                                 .HasValue<InvocationExpressionSyntax>(invocation => invocation
-                                    .IsSymbol<IMethodSymbol>(x => x.IsContainedIn(InitLocationKeyType).HasName("Id"))
+                                    .IsSymbol<IMethodSymbol>(x => x.IsContainedIn(InitLocationKeyType).HasName(LocationKeyIdMethodName))
                                     .HasArguments<LiteralExpressionSyntax>(x => x.IsEqualTo("abc")))))));
         }
 
@@ -334,7 +335,7 @@ public MyControl({DriverType.FullName} driver, string test) : base(driver) {{}}"
                 GetControlClassDelcaration(
                     "MyControl",
                     BaseType,
-                    GetUIMapControlDeclaration("ChildControl", childControlType, initCode: $" = InitUsing<{childControlType.FullName}>(x => {InitLocationKeyType.FullName}.Id(\"abc\"));")));
+                    GetUIMapControlDeclaration("ChildControl", childControlType, initCode: $" = InitUsing<{childControlType.FullName}>(x => {InitLocationKeyType.FullName}.{LocationKeyIdMethodName}(\"abc\"));")));
 
             var validator = AnalyzerTestRunner.CompileAndGenerate(source, new Generator());
             validator
