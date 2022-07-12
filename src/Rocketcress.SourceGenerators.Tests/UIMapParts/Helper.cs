@@ -31,10 +31,10 @@ namespace Rocketcress.SourceGenerators.Tests.UIMapParts
         public static string GetClassContent(params string[] parts)
             => string.Join(Environment.NewLine, parts);
 
-        public static string GetUIMapControlDeclaration(string name, Type propertyType, string? attributeArguments = null)
+        public static string GetUIMapControlDeclaration(string name, Type propertyType, string? attributeArguments = null, string? initCode = null)
         {
             return $@"        [Rocketcress.Core.Attributes.UIMapControl({attributeArguments})]
-        public {propertyType.FullName} {name} {{ get; private set; }}";
+        public {propertyType.FullName} {name} {{ get; private set; }}{initCode}";
         }
 
         public static Type GetDriverType(Type baseType)

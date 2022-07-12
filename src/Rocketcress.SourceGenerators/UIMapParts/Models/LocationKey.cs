@@ -134,7 +134,7 @@ internal class InstanceLocationKey : LocationKey
 
     public override string BuildInitExpression(UIMapPartsGeneratorContext context)
     {
-        var funcTypeName = context.TypeSymbols.Func2.Construct(context.TypeSymbol, context.UITestTypeSymbols.LocationKeyType).ToUsageString();
+        var funcTypeName = context.TypeSymbols.Func2.Construct(context.TypeSymbol, context.UITestTypeSymbols.LocationKeyType).ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
 
         return $"new {funcTypeName}({_parameterName} => {_initBody.GetText()}).Invoke(this)";
     }

@@ -213,6 +213,20 @@ public MyControl({DriverType.FullName} driver, string test) : base(driver) {{}}"
                         .HasAccessibility(Access.Private)));
         }
 
+        [TestMethod]
+        public void UIMapControl_WithInstanceLocationKeyInitializer()
+        {
+            var childControlType = BaseType == typeof(View) ? typeof(WebElement) : BaseType;
+            var source = GetNamespaceDeclaration(
+                GetControlClassDelcaration(
+                    "MyControl",
+                    BaseType,
+                    GetUIMapControlDeclaration("ChildControl", childControlType, initCode: $" = InitUsing<{childControlType.FullName}>(x => {InitLocationKeyType.FullName}.Id(\"abc\"));")));
+
+            AnalyzerTestRunner.CompileAndGenerate(source, new Generator())
+                .HasNoErrors();
+        }
+
         private static INamedTypeSymbol GetInstanceInitUsingParameterType(Compilation compilation, INamedTypeSymbol controlTypeSymbol, Type locationKeyType)
         {
             var expressionTypeSymbol = compilation.GetTypeByMetadataName("System.Linq.Expressions.Expression`1")!;
