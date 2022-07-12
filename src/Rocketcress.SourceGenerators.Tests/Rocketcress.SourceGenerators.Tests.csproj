@@ -1,13 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net6.0;net48</TargetFrameworks>
+    <TargetFrameworks>net6.0-windows;net48</TargetFrameworks>
     <Nullable>enable</Nullable>
     
     <NoDocumentation>true</NoDocumentation>
     
     <IsPackable>false</IsPackable>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Using Include="Microsoft.CodeAnalysis.Accessibility" Alias="Access"/>
+  </ItemGroup>
   
   <Import Project="../../build/Rocketcress.props" />
 

@@ -31,7 +31,7 @@ public class SyntaxNodeValidator<T> : ISyntaxNodeValidator<T>
         Compilation = compilation;
     }
 
-    public SyntaxNodeValidator(T syntaxNode, IValidator? parent)
+    public SyntaxNodeValidator(T syntaxNode, IValidator parent)
     {
         SyntaxNode = syntaxNode;
         if (parent is ISyntaxNodeValidator syntaxNodeValidator)

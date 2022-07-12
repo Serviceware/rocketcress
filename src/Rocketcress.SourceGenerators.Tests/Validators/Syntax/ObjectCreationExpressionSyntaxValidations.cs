@@ -8,7 +8,7 @@ public static class ObjectCreationExpressionSyntaxValidations
 {
     public static ISyntaxNodeValidator<ObjectCreationExpressionSyntax> HasArguments(this ISyntaxNodeValidator<ObjectCreationExpressionSyntax> validator, int count)
     {
-        Assert.Instance.AreEqual(count, validator.SyntaxNode.ArgumentList.Arguments.Count);
+        Assert.Instance.AreEqual(count, validator.SyntaxNode.ArgumentList?.Arguments.Count ?? 0);
         return validator;
     }
 
@@ -19,9 +19,9 @@ public static class ObjectCreationExpressionSyntaxValidations
     public static ISyntaxNodeValidator<ObjectCreationExpressionSyntax> HasArgument<T>(this ISyntaxNodeValidator<ObjectCreationExpressionSyntax> validator, int index, Action<ISyntaxNodeValidator<T>>? validation)
         where T : SyntaxNode
     {
-        Assert.Instance.IsGreaterThan(index, validator.SyntaxNode.ArgumentList.Arguments.Count);
-        var argument = validator.SyntaxNode.ArgumentList.Arguments[index];
-        var expression = Assert.Instance.IsInstanceOfType<T>(argument.Expression);
+        Assert.Instance.IsGreaterThan(index, validator.SyntaxNode.ArgumentList?.Arguments.Count ?? 0);
+        var argument = validator.SyntaxNode.ArgumentList?.Arguments[index];
+        var expression = Assert.Instance.IsInstanceOfType<T>(argument?.Expression);
 
         if (validation is not null)
         {

@@ -82,11 +82,11 @@ public static class MethodSymbolValidations
     public static ISymbolValidator<IMethodSymbol> HasParameters(this ISymbolValidator<IMethodSymbol> validator, params Type[]? types)
         => HasParameters(validator, validator.Compilation.GetTypeSymbols(types));
 
-    public static ISymbolValidator<IMethodSymbol> HasParameters(this ISymbolValidator<IMethodSymbol> validator, params INamedTypeSymbol[] typeSymbols)
+    public static ISymbolValidator<IMethodSymbol> HasParameters(this ISymbolValidator<IMethodSymbol> validator, params INamedTypeSymbol[]? typeSymbols)
     {
         Assert.Instance.AreCollectionsEqual(
             validator.Symbol.Parameters.Select(x => x.Type),
-            typeSymbols,
+            typeSymbols ?? Array.Empty<INamedTypeSymbol>(),
             SymbolEqualityComparer.Default);
         return validator;
     }

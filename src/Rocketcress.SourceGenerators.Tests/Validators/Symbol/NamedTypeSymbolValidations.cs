@@ -134,14 +134,14 @@ public static class NamedTypeSymbolValidations
         return validator;
     }
 
-    public static ISymbolValidator<INamedTypeSymbol> HasMembers(this ISymbolValidator<INamedTypeSymbol> validator, SymbolKind kind, Accessibility accessibility, int count)
+    public static ISymbolValidator<INamedTypeSymbol> HasMembers(this ISymbolValidator<INamedTypeSymbol> validator, SymbolKind kind, Access accessibility, int count)
     {
         var propertyCount = validator.Symbol.GetMembers().Where(x => x.Kind == kind && x.DeclaredAccessibility == accessibility).Count();
         Assert.Instance.AreEqual(count, propertyCount, $"The type \"{GetTypeName(validator)}\" has the wrong number of {accessibility} members of kind {kind}.");
         return validator;
     }
 
-    public static ISymbolValidator<INamedTypeSymbol> HasMembers(this ISymbolValidator<INamedTypeSymbol> validator, MethodKind kind, Accessibility accessibility, int count)
+    public static ISymbolValidator<INamedTypeSymbol> HasMembers(this ISymbolValidator<INamedTypeSymbol> validator, MethodKind kind, Access accessibility, int count)
     {
         var propertyCount = validator.Symbol.GetMembers().OfType<IMethodSymbol>().Where(x => x.MethodKind == kind && x.DeclaredAccessibility == accessibility).Count();
         Assert.Instance.AreEqual(count, propertyCount, $"The type \"{GetTypeName(validator)}\" has the wrong number of {accessibility} methods of kind {kind}.");

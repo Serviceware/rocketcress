@@ -10,7 +10,6 @@ namespace Rocketcress.UIAutomation.Controls.CommonControls;
 /// <seealso cref="Rocketcress.UIAutomation.Controls.IUITestMenuItemControl" />
 [AutoDetectControl(Priority = -50)]
 [GenerateUIMapParts]
-[DebugGenerator]
 public partial class CommonMenuItem : UITestControl, IUITestMenuItemControl
 {
     /// <inheritdoc/>
