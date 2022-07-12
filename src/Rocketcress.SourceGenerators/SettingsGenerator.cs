@@ -2,9 +2,10 @@
 using Microsoft.CodeAnalysis.Text;
 using Newtonsoft.Json.Linq;
 using Rocketcress.SourceGenerators.Common;
+using Rocketcress.SourceGenerators.Extensions;
 using System.Text;
 using System.Text.RegularExpressions;
-using static Rocketcress.SourceGenerators.Common.CodeGenerationHelpers;
+using static Rocketcress.SourceGenerators.Common.CodeGenerationHelper;
 
 namespace Rocketcress.SourceGenerators;
 
@@ -62,7 +63,7 @@ public class SettingsGenerator : ISourceGenerator
                 testClasses = Array.Empty<INamedTypeSymbol>();
             }
 
-            var source = GenerateFromFile(settingsFile.Path, globalNamespaceName, GetSettingsType(context, settingsType), testClasses);
+            var source = GenerateFromFile(settingsFile.Path, globalNamespaceName!, GetSettingsType(context, settingsType!), testClasses);
 
             context.AddSource(CreateHintName("Settings", nameof(SettingsGenerator)), SourceText.From(source, Encoding.UTF8));
         }
@@ -118,7 +119,7 @@ public class SettingsGenerator : ISourceGenerator
         var metadata = new SettingsMetadata();
         if (settings["KeyClasses"] != null)
         {
-            foreach (var @class in settings["KeyClasses"].ToObject<Dictionary<string, string>>())
+            foreach (var @class in settings["KeyClasses"]?.ToObject<Dictionary<string, string>>() ?? new Dictionary<string, string>())
             {
                 metadata.KeyClasses.Add(new KeyClassMetadata
                 {
@@ -137,7 +138,7 @@ public class SettingsGenerator : ISourceGenerator
         }
 
         if (settings["SettingsTypes"] != null)
-            metadata.SettingsTypes = settings["SettingsTypes"].ToObject<List<SettingsType>>();
+            metadata.SettingsTypes = settings["SettingsTypes"]?.ToObject<List<SettingsType>>();
         else
             metadata.SettingsTypes = new List<SettingsType>();
 
@@ -150,7 +151,7 @@ public class SettingsGenerator : ISourceGenerator
 
             var keyClass = metadata.KeyClasses.Where(x => name.StartsWith(x.Prefix)).FirstOrDefault();
             if (keyClass != null)
-                keyClass.Keys.Add(new SettingsKey(key, keyClass.Prefix, tag, name[keyClass.Prefix.Length..]));
+                keyClass.Keys.Add(new SettingsKey(key, keyClass.Prefix, tag, name[(keyClass.Prefix?.Length ?? 0)..]));
             else
                 metadata.DefaultKeys.Add(new SettingsKey(key, null, tag, name));
         }
@@ -172,7 +173,7 @@ public class SettingsGenerator : ISourceGenerator
         {
             sb.AppendLine();
             using (sb.AddBlock($"public static class {@class.Name}Keys"))
-                GenerateFields(@class.Keys, @class.Prefix.Length);
+                GenerateFields(@class.Keys, @class.Prefix?.Length ?? 0);
         }
 
         void GenerateFields(IEnumerable<SettingsKey> keys, int prefixLength)
@@ -242,7 +243,7 @@ public class SettingsGenerator : ISourceGenerator
             }
         }
 
-        void GenerateSettingClass(string className, IEnumerable<SettingsKey> keys)
+        void GenerateSettingClass(string? className, IEnumerable<SettingsKey> keys)
         {
             using (sb.AddBlock($"public class {className}ValuesAccessor"))
             {
@@ -279,7 +280,7 @@ public class SettingsGenerator : ISourceGenerator
             if (testClass.HasPartialModifier())
                 GenerateTestClassExtension(testClass);
             else
-                sb.AppendLine($"// Not generating partial class for {testClass.ToDisplayString(DefinitionFormat)} because it is itself not marked as partial.");
+                sb.AppendLine($"// Not generating partial class for {testClass.ToDefinitionString()} because it is itself not marked as partial.");
         }
 
         if (isFirst)
@@ -288,7 +289,7 @@ public class SettingsGenerator : ISourceGenerator
         void GenerateTestClassExtension(INamedTypeSymbol testClass)
         {
             using (sb.AddBlock($"namespace {testClass.ContainingNamespace.ToDisplayString()}"))
-            using (sb.AddBlock($"partial class {testClass.ToDisplayString(TypeDefinitionFormat)}"))
+            using (sb.AddBlock($"partial class {testClass.ToTypeDefinitionString()}"))
             {
                 var keyClasses = metadata.KeyClasses.Where(x => x.Keys.Count > 0).ToArray();
 

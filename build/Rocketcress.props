@@ -12,7 +12,7 @@
     <RepositoryType>Git</RepositoryType>
     <AssemblyOriginatorKeyFile Condition=" $(SignAssembly) == 'true' ">$(MSBuildThisFileDirectory)Rocketcress.snk</AssemblyOriginatorKeyFile>
     <OutputPath>$(MSBuildThisFileDirectory)..\bin\$(Configuration)</OutputPath>
-    <NoWarn Condition=" '$(TargetFramework)' == 'net48' or '$(TargetFramework)' == 'netstandard2.0' ">$(NoWarn);8600;8601;8602;8603;8604;8777;8767</NoWarn>
+    <NoWarn Condition=" ('$(TargetFramework)' == 'net48' or '$(TargetFramework)' == 'netstandard2.0') and '$(DoNotDisableNullableWarns)' != 'true' ">$(NoWarn);8600;8601;8602;8603;8604;8777;8767</NoWarn>
     
     <Configurations>Debug;Release;Debug-Slim;Release-Slim</Configurations>
     <IsSlim>false</IsSlim>

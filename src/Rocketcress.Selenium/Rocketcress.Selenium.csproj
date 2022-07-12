@@ -22,7 +22,7 @@
 
   <ItemGroup>
     <Using Include="Rocketcress.Core.Attributes" />
-    <Using Include="Rocketcress.Core.Common"/>
+    <Using Include="Rocketcress.Core.Common" />
     <Using Include="OpenQA.Selenium" />
     <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" Condition="$(IsSlim) == 'false'" />
   </ItemGroup>

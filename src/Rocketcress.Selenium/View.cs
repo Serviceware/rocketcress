@@ -1,5 +1,5 @@
 ﻿using Rocketcress.Core;
-using Rocketcress.Core.Base;
+using Rocketcress.Selenium.Base;
 using Rocketcress.Selenium.Extensions;
 
 namespace Rocketcress.Selenium;
@@ -7,17 +7,18 @@ namespace Rocketcress.Selenium;
 /// <summary>
 /// Base class for a view.
 /// </summary>
-public abstract class View : TestObjectBase
+public abstract class View : WebElementContainer
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="View"/> class.
     /// </summary>
     /// <param name="driver">The driver to which this view is attached.</param>
     public View(WebDriver driver)
+        : base(false)
     {
         Driver = driver ?? throw new ArgumentNullException(nameof(driver));
         Wait = CreateWaitEntry();
-        InitializeControls();
+        Initialize();
     }
 
     /// <summary>
@@ -125,13 +126,6 @@ public abstract class View : TestObjectBase
     public void SetWindowToForeground()
     {
         Driver.ExecuteScript("window.focus();");
-    }
-
-    /// <summary>
-    /// Initializes all controls of this view.
-    /// </summary>
-    protected virtual void InitializeControls()
-    {
     }
 
     /// <summary>

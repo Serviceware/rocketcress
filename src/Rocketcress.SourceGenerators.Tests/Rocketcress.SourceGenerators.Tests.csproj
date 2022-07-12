@@ -1,0 +1,42 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net6.0-windows;net48</TargetFrameworks>
+    <Nullable>enable</Nullable>
+    
+    <NoDocumentation>true</NoDocumentation>
+    
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Using Include="Microsoft.CodeAnalysis.Accessibility" Alias="Access" />
+  </ItemGroup>
+  
+  <Import Project="../../build/Rocketcress.props" />
+
+  <ItemGroup>
+    <PackageReference Include="MaSch.Test.MSTest" Version="0.5.5" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.2.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
+    <PackageReference Include="MSTest.TestAdapter" Version="2.2.8" />
+    <PackageReference Include="MSTest.TestFramework" Version="2.2.8" />
+    <PackageReference Include="coverlet.collector" Version="3.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Rocketcress.Core\Rocketcress.Core.csproj" />
+    <ProjectReference Include="..\Rocketcress.Selenium\Rocketcress.Selenium.csproj" />
+    <ProjectReference Include="..\Rocketcress.SourceGenerators\Rocketcress.SourceGenerators.csproj" />
+    <ProjectReference Include="..\Rocketcress.UIAutomation\Rocketcress.UIAutomation.csproj" />
+  </ItemGroup>
+  
+  <Target Name="ChangeAliasesOfNugetRefs" BeforeTargets="FindReferenceAssembliesForReferences;ResolveReferences">
+    <ItemGroup>
+      <ReferencePath Condition="'%(FileName)' == 'MaSch.Test.Assertion.MSTest'">
+        <Aliases>masch</Aliases>
+      </ReferencePath>
+    </ItemGroup>
+  </Target>
+
+</Project>

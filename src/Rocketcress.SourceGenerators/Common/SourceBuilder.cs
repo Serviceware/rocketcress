@@ -11,6 +11,7 @@ public class SourceBuilder
 
     private readonly StringBuilder _builder;
     private int _currentIndent = 0;
+    private bool _newLineForNextAppend = false;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="SourceBuilder"/> class.
@@ -79,6 +80,25 @@ public class SourceBuilder
     }
 
     /// <summary>
+    /// Appends an empty line before the next appended content.
+    /// </summary>
+    /// <returns>A reference to this instance after the append operation has completed.</returns>
+    public SourceBuilder AppendLineBeforeNextAppend()
+    {
+        if (_builder.ToString(_builder.Length - Environment.NewLine.Length, Environment.NewLine.Length) == Environment.NewLine)
+        {
+            var c = _builder[_builder.Length - Environment.NewLine.Length - 1];
+            _newLineForNextAppend = c != '\n' && c != '{';
+        }
+        else
+        {
+            _newLineForNextAppend = true;
+        }
+
+        return this;
+    }
+
+    /// <summary>
     /// Appends the default line terminator to the end of the current <see cref="SourceBuilder"/> object.
     /// </summary>
     /// <returns>A reference to this instance after the append operation has completed.</returns>
@@ -101,6 +121,12 @@ public class SourceBuilder
         if (value is null)
             return this;
 
+        if (_newLineForNextAppend)
+        {
+            _builder.AppendLine();
+            _newLineForNextAppend = false;
+        }
+
         var indent = new string(' ', _currentIndent * IdentCharCount);
         var lines = value.Replace("\r", string.Empty).Split(new[] { '\n' }, StringSplitOptions.None);
         foreach (var line in lines.Take(lines.Length - 1))
@@ -111,7 +137,7 @@ public class SourceBuilder
                 _builder.Append(indent).AppendLine(line);
         }
 
-        if (lines.Length > 1 && !string.IsNullOrWhiteSpace(lines[^1]))
+        if (_builder[_builder.Length - 1] == '\n' && !string.IsNullOrWhiteSpace(lines[^1]))
             _builder.Append(indent);
         _builder.Append(lines[^1]);
         return this;
@@ -138,6 +164,7 @@ public class SourceBuilder
 
         public void Dispose()
         {
+            _builder._newLineForNextAppend = false;
             if (_changeIndent)
                 _builder._currentIndent--;
             _builder.AppendLine(_endContent);

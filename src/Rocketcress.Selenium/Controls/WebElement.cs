@@ -1,6 +1,7 @@
 ﻿using Rocketcress.Core;
 using Rocketcress.Core.Base;
 using Rocketcress.Core.Utilities;
+using Rocketcress.Selenium.Base;
 using Rocketcress.Selenium.Extensions;
 using System.Collections.ObjectModel;
 using System.Drawing;
@@ -12,7 +13,7 @@ namespace Rocketcress.Selenium.Controls;
 /// <summary>
 /// Represents an element on a web page controlled by selenium.
 /// </summary>
-public class WebElement : TestObjectBase, IWebElement, IWrapsElement
+public class WebElement : WebElementContainer, IWebElement, IWrapsElement
 {
     private IWebElement _wrappedElement;
 
@@ -38,7 +39,7 @@ public class WebElement : TestObjectBase, IWebElement, IWrapsElement
         if (searchContext is not null)
             SearchContext = searchContext;
         LocationKey = locationKey;
-        InitializeControls();
+        Initialize();
     }
 
     /// <summary>
@@ -50,7 +51,7 @@ public class WebElement : TestObjectBase, IWebElement, IWrapsElement
         : this(driver)
     {
         WrappedElement = element;
-        InitializeControls();
+        Initialize();
     }
 
     /// <summary>
@@ -58,6 +59,7 @@ public class WebElement : TestObjectBase, IWebElement, IWrapsElement
     /// </summary>
     /// <param name="driver">The driver to which this element is attached.</param>
     protected WebElement(WebDriver driver)
+        : base(false)
     {
         Driver = driver ?? throw new ArgumentNullException(nameof(driver));
         Wait = CreateWaitEntry();
@@ -320,7 +322,7 @@ public class WebElement : TestObjectBase, IWebElement, IWrapsElement
         if (!IsLazy)
             throw new NotSupportedException("The wrapped element can only be reloaded if the element is lazy.");
         _wrappedElement = null;
-        InitializeControls();
+        Initialize();
         return WrappedElement;
     }
 
@@ -585,7 +587,7 @@ public class WebElement : TestObjectBase, IWebElement, IWrapsElement
         LocationKey = newLocationKey;
         SearchContext = searchContext;
         _wrappedElement = null;
-        InitializeControls();
+        Initialize();
     }
 
     /// <summary>
@@ -943,13 +945,6 @@ public class WebElement : TestObjectBase, IWebElement, IWrapsElement
     public ISearchContext GetShadowRoot()
     {
         return WrappedElement.GetShadowRoot();
-    }
-
-    /// <summary>
-    /// Initializes all child controls of this element.
-    /// </summary>
-    protected virtual void InitializeControls()
-    {
     }
 
     /// <summary>

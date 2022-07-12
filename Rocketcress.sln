@@ -31,6 +31,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{95303091
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rocketcress.Core.Tests", "src\Rocketcress.Core.Tests\Rocketcress.Core.Tests.csproj", "{93F4ED63-6817-4F26-9DD6-5CD36E4F632C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rocketcress.SourceGenerators.Tests", "src\Rocketcress.SourceGenerators.Tests\Rocketcress.SourceGenerators.Tests.csproj", "{507AEED2-6FAE-4CD4-A13F-CF9DC03B1EEE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -103,12 +105,21 @@ Global
 		{93F4ED63-6817-4F26-9DD6-5CD36E4F632C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{93F4ED63-6817-4F26-9DD6-5CD36E4F632C}.Release-Slim|Any CPU.ActiveCfg = Release-Slim|Any CPU
 		{93F4ED63-6817-4F26-9DD6-5CD36E4F632C}.Release-Slim|Any CPU.Build.0 = Release-Slim|Any CPU
+		{507AEED2-6FAE-4CD4-A13F-CF9DC03B1EEE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{507AEED2-6FAE-4CD4-A13F-CF9DC03B1EEE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{507AEED2-6FAE-4CD4-A13F-CF9DC03B1EEE}.Debug-Slim|Any CPU.ActiveCfg = Debug|Any CPU
+		{507AEED2-6FAE-4CD4-A13F-CF9DC03B1EEE}.Debug-Slim|Any CPU.Build.0 = Debug|Any CPU
+		{507AEED2-6FAE-4CD4-A13F-CF9DC03B1EEE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{507AEED2-6FAE-4CD4-A13F-CF9DC03B1EEE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{507AEED2-6FAE-4CD4-A13F-CF9DC03B1EEE}.Release-Slim|Any CPU.ActiveCfg = Release|Any CPU
+		{507AEED2-6FAE-4CD4-A13F-CF9DC03B1EEE}.Release-Slim|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{93F4ED63-6817-4F26-9DD6-5CD36E4F632C} = {95303091-68A2-46AA-811F-7B3D23661E1E}
+		{507AEED2-6FAE-4CD4-A13F-CF9DC03B1EEE} = {95303091-68A2-46AA-811F-7B3D23661E1E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0089A815-8B41-42FE-9214-E91374145CDB}
