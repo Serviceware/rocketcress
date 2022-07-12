@@ -210,8 +210,7 @@ public MyControl({DriverType.FullName} driver, string test) : base(driver) {{}}"
                                 .HasParameters())))
                     .HasField("ByChildControl", locationKey => locationKey
                         .IsStatic()
-                        .HasAccessibility(Access.Private)
-                        .HasSyntax<FieldDeclarationSyntax>(locationKeyDeclaration => _ = locationKeyDeclaration)));
+                        .HasAccessibility(Access.Private)));
         }
 
         private static INamedTypeSymbol GetInstanceInitUsingParameterType(Compilation compilation, INamedTypeSymbol controlTypeSymbol, Type locationKeyType)
