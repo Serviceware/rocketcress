@@ -24,6 +24,22 @@ public static class NamedTypeSymbolValidations
         return validator;
     }
 
+    public static ISymbolValidator<INamedTypeSymbol> HasField(this ISymbolValidator<INamedTypeSymbol> validator, string propertyName)
+        => HasField(validator, propertyName, null);
+    public static ISymbolValidator<INamedTypeSymbol> HasField(this ISymbolValidator<INamedTypeSymbol> validator, string propertyName, Action<ISymbolValidator<IFieldSymbol>>? fieldValidation)
+    {
+        var field = validator.Symbol.GetMembers(propertyName).OfType<IFieldSymbol>().FirstOrDefault();
+        Assert.Instance.IsNotNull(field, $"Field \"{propertyName}\" does not exist in type \"{GetTypeName(validator)}\".");
+
+        if (fieldValidation is not null)
+        {
+            var propertyValidator = new SymbolValidator<IFieldSymbol>(field, validator);
+            fieldValidation(propertyValidator);
+        }
+
+        return validator;
+    }
+
     public static ISymbolValidator<INamedTypeSymbol> DoesNotHaveProperty(this ISymbolValidator<INamedTypeSymbol> validator, string propertyName)
         => DoesNotHaveMember<IPropertySymbol>(validator, propertyName, null, "Property");
 

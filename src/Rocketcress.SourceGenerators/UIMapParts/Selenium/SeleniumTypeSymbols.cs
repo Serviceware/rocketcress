@@ -13,7 +13,7 @@ internal class SeleniumTypeSymbols : UITestTypeSymbols
         HasAllSymbols = HasAllSymbols && View is not null;
     }
 
-    public INamedTypeSymbol View { get; }
+    public INamedTypeSymbol View { get; } = null!;
 
     protected override string LocationKeyTypeName { get; } = Names.LocationKeyType;
     protected override string UIMapBaseClassTypeName { get; } = Names.UIMapBaseClassType;

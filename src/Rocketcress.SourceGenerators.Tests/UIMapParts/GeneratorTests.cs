@@ -207,7 +207,11 @@ public MyControl({DriverType.FullName} driver, string test) : base(driver) {{}}"
                         .HasBodyExpression<InvocationExpressionSyntax>("OnChildControlInitializedCall", invoke => invoke
                             .IsSymbol<IMethodSymbol>(method => method
                                 .HasName("OnChildControlInitialized")
-                                .HasParameters()))));
+                                .HasParameters())))
+                    .HasField("ByChildControl", locationKey => locationKey
+                        .IsStatic()
+                        .HasAccessibility(Access.Private)
+                        .HasSyntax<FieldDeclarationSyntax>(locationKeyDeclaration => _ = locationKeyDeclaration)));
         }
 
         private static INamedTypeSymbol GetInstanceInitUsingParameterType(Compilation compilation, INamedTypeSymbol controlTypeSymbol, Type locationKeyType)

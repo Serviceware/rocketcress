@@ -74,7 +74,7 @@ internal record ControlDefinition(
         return null;
     }
 
-    static AttributeSyntax? GetUIMapControlSyntax(UIMapPartsGeneratorContext context, IPropertySymbol propertySymbol)
+    private static AttributeSyntax? GetUIMapControlSyntax(UIMapPartsGeneratorContext context, IPropertySymbol propertySymbol)
     {
         var propertyDeclarationSyntax = GetPropertySyntax(propertySymbol);
         if (propertyDeclarationSyntax is null)
@@ -84,14 +84,5 @@ internal record ControlDefinition(
             return null;
 
         return attributeSyntax;
-    }
-
-    static Location? GetUIMapControlParentControlLocation(UIMapPartsGeneratorContext context, IPropertySymbol propertySymbol)
-    {
-        var attributeSyntax = GetUIMapControlSyntax(context, propertySymbol);
-        if (attributeSyntax is null)
-            return null;
-
-        return attributeSyntax.GetNamedArgumentSyntax("ParentControl")?.GetLocation();
     }
 }

@@ -13,6 +13,9 @@ public interface ISymbolValidator<T> : ISymbolValidator
     where T : ISymbol
 {
     new T Symbol { get; }
+
+    ISymbolValidator<T> HasSyntax<TSyntax>(Action<ISyntaxNodeValidator<TSyntax>>? validation)
+        where TSyntax : SyntaxNode;
 }
 
 public class SymbolValidator<T> : ISymbolValidator<T>
@@ -43,6 +46,29 @@ public class SymbolValidator<T> : ISymbolValidator<T>
 
     ISymbol ISymbolValidator.Symbol => Symbol;
     IValidator? IValidator.Parent => _parent;
+
+    public ISymbolValidator<T> HasSyntax<TSyntax>(Action<ISyntaxNodeValidator<TSyntax>>? validation)
+        where TSyntax : SyntaxNode
+    {
+        bool hasSyntax = false;
+        foreach (var syntaxReference in Symbol.DeclaringSyntaxReferences)
+        {
+            if (syntaxReference.GetSyntax() is TSyntax syntax)
+            {
+                if (validation is not null)
+                {
+                    var syntaxValidator = new SyntaxNodeValidator<TSyntax>(syntax, this);
+                    validation(syntaxValidator);
+                }
+
+                hasSyntax = true;
+                break;
+            }
+        }
+
+        Assert.Instance.IsTrue(hasSyntax, $"The symbol '{Symbol}' does not have a declared syntax of type '{typeof(TSyntax).Name}'.");
+        return this;
+    }
 }
 
 public static partial class SymbolValidatorExtensions
