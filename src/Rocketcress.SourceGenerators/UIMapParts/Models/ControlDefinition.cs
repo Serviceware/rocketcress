@@ -39,7 +39,7 @@ internal record ControlDefinition(
             IPropertySymbol? parent = null;
             if (options.ParentControl is not null && options.ParentControl != "this")
             {
-                parent = context.TypeSymbol.GetMembers(options.ParentControl).OfType<IPropertySymbol>().FirstOrDefault();
+                parent = context.TypeSymbol.GetAllProperties(options.ParentControl).FirstOrDefault();
                 if (parent is null)
                     initialize = false;
             }

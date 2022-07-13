@@ -33,11 +33,8 @@ internal readonly struct PropertyDeclarationValidator
         if (!TryGetParentControl(uimapControlAttributeSyntax, out parentControl, out argumentSyntax))
             return false;
 
-        foreach (var member in _typeSymbol.GetMembers(parentControl))
-        {
-            if (member is IPropertySymbol)
-                return true;
-        }
+        if (_typeSymbol.GetAllProperties(parentControl).Any())
+            return true;
 
         _reportDiagnostic(
             DiagnosticFactory.UIMapParts.MissingParentControl(

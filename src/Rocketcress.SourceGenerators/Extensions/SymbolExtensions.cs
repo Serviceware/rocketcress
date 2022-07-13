@@ -192,6 +192,17 @@ internal static class SymbolExtensions
                 select syntax).Any();
     }
 
+    public static IEnumerable<IPropertySymbol> GetAllProperties(this INamedTypeSymbol typeSymbol, string propertyName)
+    {
+        var current = typeSymbol;
+        while (current is not null)
+        {
+            foreach (var property in current.GetMembers(propertyName).OfType<IPropertySymbol>())
+                yield return property;
+            current = current.BaseType;
+        }
+    }
+
     public static bool TryGetAttribute(this ISymbol symbol, string attributeTypeName, out AttributeData attribute)
     {
         foreach (var attributeData in symbol.GetAttributes())
