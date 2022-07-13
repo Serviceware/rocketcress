@@ -52,6 +52,14 @@ internal static partial class DiagnosticFactory
             DiagnosticSeverity.Error,
             true);
 
+        private static readonly DiagnosticDescriptor ErrorDuringGenerationDescriptor = new(
+            GetId(99),
+            "An error occured during generation of UI map parts.",
+            "An error occured during generation of UI map parts: {0}",
+            Category,
+            DiagnosticSeverity.Error,
+            true);
+
         public static ImmutableArray<DiagnosticDescriptor> AllDescriptors
         {
             get
@@ -90,6 +98,9 @@ internal static partial class DiagnosticFactory
 
         public static Diagnostic ParentLoop(Location? location, string className, string propertyName, IEnumerable<string> loopMembers)
             => Diagnostic.Create(ParentLoopDescriptor, location, propertyName, className, string.Join(" -> ", loopMembers));
+
+        public static Diagnostic ErrorDuringGeneration(Location? location, string message)
+            => Diagnostic.Create(ErrorDuringGenerationDescriptor, location, message);
 
         private static string GetId(int id) => DiagnosticFactory.GetId(100 + id);
     }

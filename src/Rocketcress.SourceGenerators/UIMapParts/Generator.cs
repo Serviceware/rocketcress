@@ -30,49 +30,71 @@ public partial class Generator : IIncrementalGenerator
 
     private static void Execute(SourceProductionContext context, Compilation compilation, ImmutableArray<ClassDeclarationSyntax> classDeclarations)
     {
-        if (classDeclarations.Length == 0)
-            return;
+        TypeSymbols typeSymbols;
+        SeleniumTypeSymbols seleniumTypeSymbols;
+        UIAutomationTypeSymbols uiautomationTypeSymbols;
 
-        if (!TypeSymbols.TryCreate(compilation, out var typeSymbols))
-            return;
+        try
+        {
+            if (classDeclarations.Length == 0)
+                return;
 
-        var seleniumTypeSymbols = new SeleniumTypeSymbols(compilation);
-        var uiautomationTypeSymbols = new UIAutomationTypeSymbols(compilation);
+            if (!TypeSymbols.TryCreate(compilation, out typeSymbols))
+                return;
+
+            seleniumTypeSymbols = new SeleniumTypeSymbols(compilation);
+            uiautomationTypeSymbols = new UIAutomationTypeSymbols(compilation);
+        }
+        catch (Exception ex)
+        {
+            context.ReportDiagnostic(DiagnosticFactory.UIMapParts.ErrorDuringGeneration(null, $"Error during generator initialization: {ex.Message}"));
+            return;
+        }
 
         foreach (var classDeclaration in classDeclarations)
         {
-            if (!ValidateClass(context, compilation, classDeclaration, out INamedTypeSymbol typeSymbol))
-                continue;
-
-            UIMapPartsGeneratorContext generatorContext;
-            if (seleniumTypeSymbols.HasAllSymbols && typeSymbol.IsAssignableTo(seleniumTypeSymbols.UIMapBaseClassType))
+            try
             {
-                generatorContext = new SeleniumUIMapPartsGeneratorContext(
-                    compilation,
-                    typeSymbols,
-                    seleniumTypeSymbols,
-                    typeSymbol,
-                    context.ReportDiagnostic,
-                    context.AddSource);
-            }
-            else if (uiautomationTypeSymbols.HasAllSymbols && typeSymbol.IsAssignableTo(uiautomationTypeSymbols.UIMapBaseClassType))
-            {
-                generatorContext = new UIAutomationUIMapPartsGeneratorContext(
-                    compilation,
-                    typeSymbols,
-                    uiautomationTypeSymbols,
-                    typeSymbol,
-                    context.ReportDiagnostic,
-                    context.AddSource);
-            }
-            else
-            {
-                continue;
-            }
+                if (!ValidateClass(context, compilation, classDeclaration, out INamedTypeSymbol typeSymbol))
+                    continue;
 
-            var data = GeneratorData.Create(generatorContext);
+                UIMapPartsGeneratorContext generatorContext;
+                if (seleniumTypeSymbols.HasAllSymbols && typeSymbol.IsAssignableTo(seleniumTypeSymbols.UIMapBaseClassType))
+                {
+                    generatorContext = new SeleniumUIMapPartsGeneratorContext(
+                        compilation,
+                        typeSymbols,
+                        seleniumTypeSymbols,
+                        typeSymbol,
+                        context.ReportDiagnostic,
+                        context.AddSource);
+                }
+                else if (uiautomationTypeSymbols.HasAllSymbols && typeSymbol.IsAssignableTo(uiautomationTypeSymbols.UIMapBaseClassType))
+                {
+                    generatorContext = new UIAutomationUIMapPartsGeneratorContext(
+                        compilation,
+                        typeSymbols,
+                        uiautomationTypeSymbols,
+                        typeSymbol,
+                        context.ReportDiagnostic,
+                        context.AddSource);
+                }
+                else
+                {
+                    continue;
+                }
 
-            FileGenerator.Generate(generatorContext).UIMapParts(data);
+                var data = GeneratorData.Create(generatorContext);
+
+                FileGenerator.Generate(generatorContext).UIMapParts(data);
+            }
+            catch (Exception ex)
+            {
+                context.ReportDiagnostic(
+                    DiagnosticFactory.UIMapParts.ErrorDuringGeneration(
+                        classDeclaration.Identifier.GetLocation(),
+                        $"Error during generation for class '{classDeclaration.Identifier.ValueText}': {ex.Message}"));
+            }
         }
     }
 

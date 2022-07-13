@@ -34,12 +34,19 @@ internal readonly struct IncrementalValueProviderFactory
 
     private static ClassDeclarationSyntax? GetSemanticTargetForGeneration(GeneratorSyntaxContext context, CancellationToken cancellationToken)
     {
-        var classDeclarationSyntax = (ClassDeclarationSyntax)context.Node;
-        var validator = ClassDeclarationValidator.Validate(classDeclarationSyntax, context.SemanticModel);
+        try
+        {
+            var classDeclarationSyntax = (ClassDeclarationSyntax)context.Node;
+            var validator = ClassDeclarationValidator.Validate(classDeclarationSyntax, context.SemanticModel);
 
-        if (!validator.HasGenerateUIMapPartsAttribute())
+            if (!validator.HasGenerateUIMapPartsAttribute())
+                return null;
+
+            return classDeclarationSyntax;
+        }
+        catch
+        {
             return null;
-
-        return classDeclarationSyntax;
+        }
     }
 }
