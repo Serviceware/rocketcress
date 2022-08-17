@@ -14,9 +14,9 @@ public class TestContextBase : TestObjectBase, IDisposable
     /// </summary>
     /// <param name="testContext">The current MSTest test context.</param>
     /// <param name="settings">The test settings.</param>
-    public TestContextBase(TestContext testContext, SettingsBase settings)
+    public TestContextBase(TestContext? testContext, SettingsBase settings)
     {
-        TestContext = Guard.NotNull(testContext);
+        TestContext = testContext;
 #else
     /// <summary>
     /// Initializes a new instance of the <see cref="TestContextBase"/> class.
@@ -53,7 +53,7 @@ public class TestContextBase : TestObjectBase, IDisposable
     /// <summary>
     /// Gets the current MSTest test context of the current test run.
     /// </summary>
-    public TestContext TestContext { get; }
+    public TestContext? TestContext { get; }
 #endif
 
     /// <summary>
@@ -140,8 +140,8 @@ public class TestContextBase : TestObjectBase, IDisposable
         try
         {
 #if !SLIM
-            string fileDir = TestContext.TestLogsDir;
-            string fileName = string.Format(CultureInfo.InvariantCulture, "{0}_{1}", TestContext.TestName, name).TrimEnd('_');
+            string fileDir = TestContext?.TestLogsDir ?? Environment.CurrentDirectory;
+            string fileName = string.Format(CultureInfo.InvariantCulture, "{0}_{1}", TestContext?.TestName ?? "Unknown", name).TrimEnd('_');
 #else
             string fileDir = Environment.CurrentDirectory;
             string fileName = string.IsNullOrEmpty(name) ? "Unknwon" : name;
@@ -159,7 +159,7 @@ public class TestContextBase : TestObjectBase, IDisposable
             SaveScreenshot(path);
 #if !SLIM
             if (File.Exists(path))
-                TestContext.AddResultFile(path);
+                TestContext?.AddResultFile(path);
 #endif
             return path;
         }
