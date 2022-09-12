@@ -21,7 +21,7 @@
 
   <ItemGroup>
     <Using Include="Rocketcress.Core.Attributes" />
-    <Using Include="Rocketcress.Core.Common"/>
+    <Using Include="Rocketcress.Core.Common" />
     <Using Include="System.Windows.Automation" />
     <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" Condition="$(IsSlim) == 'false'" />
   </ItemGroup>
@@ -31,7 +31,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net48' ">
