@@ -11,7 +11,7 @@
 
     <Description>Contains core functionality for all Rocketcress libraries and tests.</Description>
     <PackageTags>Rocketcress;Test;Tests</PackageTags>
-    <Version>1.1.0</Version>
+    <Version>1.1.1</Version>
   </PropertyGroup>
   
   <Import Project="../../build/Rocketcress.props" />
@@ -21,6 +21,6 @@
   </ItemGroup>
   
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
   </ItemGroup>
 </Project>

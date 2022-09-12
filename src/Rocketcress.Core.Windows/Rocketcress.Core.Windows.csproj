@@ -10,7 +10,7 @@
 
     <Description>Contains core functionality of for all Rocketcress libraries and tests on windows.</Description>
     <PackageTags>Rocketcress;Test;Tests;Windows</PackageTags>
-    <Version>1.1.0</Version>
+    <Version>1.1.1</Version>
   </PropertyGroup>
   
   <Import Project="../../build/Rocketcress.props" />
