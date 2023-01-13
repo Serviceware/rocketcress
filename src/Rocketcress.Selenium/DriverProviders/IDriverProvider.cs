@@ -49,12 +49,26 @@ internal static class InternalDriverProviderExtensions
     /// </summary>
     /// <param name="provider">The driver provider.</param>
     /// <param name="createFunction">The function that is used to create a web driver.</param>
+    /// <param name="onError">A function that is executed if the creation of the driver failed.</param>
     /// <returns>Returns the created web driver.</returns>
-    public static IWebDriver RetryCreateDriver(this IDriverProvider provider, Func<IWebDriver> createFunction)
+    public static IWebDriver RetryCreateDriver(this IDriverProvider provider, Func<IWebDriver> createFunction, Func<Exception> onError = null)
     {
         IWebDriver result = default;
         var success = Retry.Action(() => result = createFunction())
             .WithMaxRetryCount(4)
+            .OnError().Call(
+                ex =>
+                {
+                    try
+                    {
+                        result?.Dispose();
+                        onError?.Invoke();
+                    }
+                    catch (Exception innerException)
+                    {
+                        Logger.LogWarning($"Error while cleaning up after failed attempt of creating driver: {innerException.Message}");
+                    }
+                })
             .Start().Value;
         if (!success)
             throw new WebDriverException("Could not create driver. See earlier exceptions.");

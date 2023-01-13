@@ -43,8 +43,11 @@ public class ChromeDriverProvider : IDriverProvider
         if (string.IsNullOrEmpty(settings.RemoteDriverUrl))
         {
             var (driverPath, driverExecutableName) = GetChromeDriverPath();
-            var driverService = ChromeDriverService.CreateDefaultService(driverPath, driverExecutableName);
-            return this.RetryCreateDriver(() => new ChromeDriver(driverService, options, browserTimeout));
+            return this.RetryCreateDriver(() =>
+                new ChromeDriver(
+                    ChromeDriverService.CreateDefaultService(driverPath, driverExecutableName),
+                    options,
+                    browserTimeout));
         }
         else
         {

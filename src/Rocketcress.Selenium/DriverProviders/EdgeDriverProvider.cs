@@ -42,8 +42,11 @@ public class EdgeDriverProvider : IDriverProvider
         if (string.IsNullOrEmpty(settings.RemoteDriverUrl))
         {
             var (driverPath, driverExecutableName) = GetEdgeDriverPath();
-            var driverService = EdgeDriverService.CreateDefaultService(driverPath, driverExecutableName);
-            return this.RetryCreateDriver(() => new EdgeDriver(driverService, options, browserTimeout));
+            return this.RetryCreateDriver(() =>
+                new EdgeDriver(
+                    EdgeDriverService.CreateDefaultService(driverPath, driverExecutableName),
+                    options,
+                    browserTimeout));
         }
         else
         {

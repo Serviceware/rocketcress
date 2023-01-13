@@ -39,7 +39,6 @@ public class InternetExplorerDriverProvider : IDriverProvider, IDriverCleaner
         {
             var driverSourcePath = Path.Combine(Path.GetDirectoryName(typeof(SeleniumTestContext).Assembly.Location));
             var (driverPath, driverExecutableName) = GetInternetExplorerDriverPath(driverSourcePath);
-            var driverService = InternetExplorerDriverService.CreateDefaultService(driverPath, driverExecutableName);
 
             // Set browser language
             SetRegistryValue(Registry.CurrentUser, @"Software\Microsoft\Internet Explorer\International", "AcceptLanguage", language.Name, RegistryValueKind.String, settings, IEPrevLang);
@@ -63,7 +62,11 @@ public class InternetExplorerDriverProvider : IDriverProvider, IDriverCleaner
                 Logger.LogWarning("An error occurred while setting the first page of IE: " + ex);
             }
 
-            return this.RetryCreateDriver(() => new InternetExplorerDriver(driverService, options, browserTimeout));
+            return this.RetryCreateDriver(() =>
+                new InternetExplorerDriver(
+                    InternetExplorerDriverService.CreateDefaultService(driverPath, driverExecutableName),
+                    options,
+                    browserTimeout));
         }
         else
         {

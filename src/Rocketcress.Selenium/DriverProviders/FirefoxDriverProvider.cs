@@ -28,13 +28,7 @@ public class FirefoxDriverProvider : IDriverProvider
 
         if (string.IsNullOrEmpty(settings.RemoteDriverUrl))
         {
-            var driverPath = Path.Combine(Path.GetDirectoryName(typeof(SeleniumTestContext).Assembly.Location));
-            var driverService = FirefoxDriverService.CreateDefaultService(driverPath, "geckodriver.exe");
-            var firefoxPath = @"C:\Program Files (x86)\Mozilla Firefox\firefox.exe";
-            if (!File.Exists(firefoxPath))
-                firefoxPath = @"C:\Program Files\Mozilla Firefox\firefox.exe";
-            driverService.FirefoxBinaryPath = firefoxPath;  // Firefox installation
-            return this.RetryCreateDriver(() => new FirefoxDriver(driverService, options, browserTimeout));
+            return this.RetryCreateDriver(() => new FirefoxDriver(CreateDriverService(), options, browserTimeout));
         }
         else
         {
@@ -48,5 +42,16 @@ public class FirefoxDriverProvider : IDriverProvider
         return Process.GetProcessesByName("firefox")
             .Concat(Process.GetProcessesByName("geckodriver"))
             .Select(x => x.Id).ToArray();
+    }
+
+    private static FirefoxDriverService CreateDriverService()
+    {
+        var driverPath = Path.Combine(Path.GetDirectoryName(typeof(SeleniumTestContext).Assembly.Location));
+        var driverService = FirefoxDriverService.CreateDefaultService(driverPath, "geckodriver.exe");
+        var firefoxPath = @"C:\Program Files (x86)\Mozilla Firefox\firefox.exe";
+        if (!File.Exists(firefoxPath))
+            firefoxPath = @"C:\Program Files\Mozilla Firefox\firefox.exe";
+        driverService.FirefoxBinaryPath = firefoxPath;  // Firefox installation
+        return driverService;
     }
 }
