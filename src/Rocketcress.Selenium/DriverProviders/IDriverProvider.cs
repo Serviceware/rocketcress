@@ -52,6 +52,7 @@ namespace Rocketcress.Selenium.DriverProviders
         /// </summary>
         /// <param name="provider">The driver provider.</param>
         /// <param name="createFunction">The function that is used to create a web driver.</param>
+        /// <param name="onError">A function that is executed if the creation of the driver failed.</param>
         /// <returns>Returns the created web driver.</returns>
         public static IWebDriver RetryCreateDriver(this IDriverProvider provider, Func<IWebDriver> createFunction, Func<Exception> onError = null)
         {

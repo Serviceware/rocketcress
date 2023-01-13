@@ -12,6 +12,7 @@
     <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)Rocketcress.ruleset</CodeAnalysisRuleSet>
     <OutputPath>$(MSBuildThisFileDirectory)..\bin\$(Configuration)</OutputPath>
     <NoWarn Condition=" '$(TargetFramework)' == 'net48' or '$(TargetFramework)' == 'netstandard2.0' ">$(NoWarn);8600;8601;8602;8603;8604;8777;8767</NoWarn>
+    <CheckEolTargetFramework>false</CheckEolTargetFramework>
     
     <Configurations>Debug;Release;Debug-Slim;Release-Slim</Configurations>
     <IsSlim>false</IsSlim>
@@ -44,7 +45,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="5.0.3">
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="7.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
