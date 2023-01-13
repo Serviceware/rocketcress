@@ -42,8 +42,11 @@ namespace Rocketcress.Selenium.DriverProviders
             if (string.IsNullOrEmpty(settings.RemoteDriverUrl))
             {
                 var (driverPath, driverExecutableName) = GetEdgeDriverPath();
-                var eService = OpenQA.Selenium.Edge.EdgeDriverService.CreateDefaultServiceFromOptions(driverPath, driverExecutableName, eOptions);
-                return this.RetryCreateDriver(() => new OpenQA.Selenium.Edge.EdgeDriver(eService, eOptions, browserTimeout));
+                return this.RetryCreateDriver(() =>
+                    new OpenQA.Selenium.Edge.EdgeDriver(
+                        OpenQA.Selenium.Edge.EdgeDriverService.CreateDefaultServiceFromOptions(driverPath, driverExecutableName, eOptions),
+                        eOptions,
+                        browserTimeout));
             }
             else
             {

@@ -40,7 +40,6 @@ namespace Rocketcress.Selenium.DriverProviders
             {
                 var driverPath = Path.Combine(Path.GetDirectoryName(typeof(SeleniumTestContext).Assembly.Location));
                 var iePaths = GetInternetExplorerDriverPath(driverPath);
-                var ieService = OpenQA.Selenium.IE.InternetExplorerDriverService.CreateDefaultService(iePaths.DriverPath, iePaths.DriverExecutableName);
 
                 // Set browser language
                 SetRegistryValue(Registry.CurrentUser, @"Software\Microsoft\Internet Explorer\International", "AcceptLanguage", language.IetfLanguageTag, RegistryValueKind.String, settings, IEPrevLang);
@@ -64,7 +63,11 @@ namespace Rocketcress.Selenium.DriverProviders
                     Logger.LogWarning("An error occurred while setting the first page of IE: " + ex);
                 }
 
-                return this.RetryCreateDriver(() => new OpenQA.Selenium.IE.InternetExplorerDriver(ieService, ieOptions, browserTimeout));
+                return this.RetryCreateDriver(() =>
+                    new OpenQA.Selenium.IE.InternetExplorerDriver(
+                        OpenQA.Selenium.IE.InternetExplorerDriverService.CreateDefaultService(iePaths.DriverPath, iePaths.DriverExecutableName),
+                        ieOptions,
+                        browserTimeout));
             }
             else
             {

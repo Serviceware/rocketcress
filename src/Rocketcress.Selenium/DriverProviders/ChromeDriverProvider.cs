@@ -41,8 +41,11 @@ namespace Rocketcress.Selenium.DriverProviders
             if (string.IsNullOrEmpty(settings.RemoteDriverUrl))
             {
                 var (driverPath, driverExecutableName) = GetChromeDriverPath();
-                var cService = OpenQA.Selenium.Chrome.ChromeDriverService.CreateDefaultService(driverPath, driverExecutableName);
-                return this.RetryCreateDriver(() => new OpenQA.Selenium.Chrome.ChromeDriver(cService, cOptions, browserTimeout));
+                return this.RetryCreateDriver(() =>
+                    new OpenQA.Selenium.Chrome.ChromeDriver(
+                        OpenQA.Selenium.Chrome.ChromeDriverService.CreateDefaultService(driverPath, driverExecutableName),
+                        cOptions,
+                        browserTimeout));
             }
             else
             {
