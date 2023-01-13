@@ -62,8 +62,16 @@ namespace Rocketcress.Selenium.DriverProviders
                 maxRetryCount: 4,
                 onException: ex =>
                 {
-                    result?.Dispose();
-                    onError?.Invoke();
+                    try
+                    {
+                        result?.Dispose();
+                        onError?.Invoke();
+                    }
+                    catch (Exception innerException)
+                    {
+                        Logger.LogWarning($"Error while cleaning up after failed attempt of creating driver: {innerException.Message}");
+                    }
+
                     SeleniumTestContext.KillAllDrivers(false);
                 });
             if (!success)
