@@ -978,11 +978,7 @@ namespace Rocketcress.Selenium.Controls
             {
                 return element == null || !element.Enabled;
             }
-            catch (StaleElementReferenceException)
-            {
-                return true;
-            }
-            catch (NoSuchElementException)
+            catch (WebDriverException)
             {
                 return true;
             }
