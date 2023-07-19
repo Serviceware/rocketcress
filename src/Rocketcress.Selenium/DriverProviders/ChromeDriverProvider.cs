@@ -124,8 +124,7 @@ public class ChromeDriverProvider : IDriverProvider
             var driverVersion = client.GetStringAsync(driverVersionUrl).Result;
             return (
                 $"https://chromedriver.storage.googleapis.com/{driverVersion}/chromedriver_{platform}.zip",
-                RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "chromedriver.exe" : "chromedriver"
-            );
+                RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "chromedriver.exe" : "chromedriver");
         }
         else
         {
@@ -144,8 +143,7 @@ public class ChromeDriverProvider : IDriverProvider
                     .FirstOrDefault()
                     ?.Url
                     ?? throw new KeyNotFoundException($"No chrome driver was found for version {chromeMajorVersion}."),
-                RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? $"chromedriver-{platform}/chromedriver.exe" : $"chromedriver-{platform}/chromedriver"
-            );
+                RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? $"chromedriver-{platform}/chromedriver.exe" : $"chromedriver-{platform}/chromedriver");
         }
     }
 
