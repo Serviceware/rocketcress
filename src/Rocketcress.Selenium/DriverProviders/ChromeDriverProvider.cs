@@ -138,8 +138,7 @@ namespace Rocketcress.Selenium.DriverProviders
                 var driverVersion = client.GetStringAsync(driverVersionUrl).Result;
                 return (
                     $"https://chromedriver.storage.googleapis.com/{driverVersion}/chromedriver_{platform}.zip",
-                    RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "chromedriver.exe" : "chromedriver"
-                );
+                    RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "chromedriver.exe" : "chromedriver");
             }
             else
             {
@@ -158,8 +157,7 @@ namespace Rocketcress.Selenium.DriverProviders
                         .FirstOrDefault()
                         ?.Url
                         ?? throw new KeyNotFoundException($"No chrome driver was found for version {chromeMajorVersion}."),
-                    RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? $"chromedriver-{platform}/chromedriver.exe" : $"chromedriver-{platform}/chromedriver"
-                );
+                    RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? $"chromedriver-{platform}/chromedriver.exe" : $"chromedriver-{platform}/chromedriver");
             }
         }
     }
