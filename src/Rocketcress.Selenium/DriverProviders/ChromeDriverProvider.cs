@@ -1,4 +1,5 @@
 ﻿using Microsoft.Win32;
+using Newtonsoft.Json.Linq;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Remote;
 using Rocketcress.Core;
@@ -66,19 +67,16 @@ public class ChromeDriverProvider : IDriverProvider
 
     private static (string DriverPath, string DriverExecutableName) GetChromeDriverPath()
     {
-        string urlFormat;
         string driverFileName;
         string chromeVersion;
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
-            urlFormat = "https://chromedriver.storage.googleapis.com/{0}/chromedriver_win32.zip";
             driverFileName = "chromedriver.exe";
             chromeVersion = Registry.CurrentUser.OpenSubKey(@"Software\Google\Chrome\BLBeacon")?.GetValue("version") as string;
         }
 #if !NETFRAMEWORK
         else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
         {
-            urlFormat = "https://chromedriver.storage.googleapis.com/{0}/chromedriver_linux64.zip";
             driverFileName = "chromedriver";
             chromeVersion = Core.Utilities.ScriptUtility.RunBashCommand("google-chrome --version | grep -iE \"[0-9.]{10,20}\"");
         }
@@ -101,7 +99,7 @@ public class ChromeDriverProvider : IDriverProvider
             lock (_driverDownloadLock)
             {
                 if (!File.Exists(driverFilePath))
-                    DownloadDriver(urlFormat, driverFileName, chromeMajorVersion, driverTempPath, driverFilePath);
+                    DownloadDriver(chromeMajorVersion, driverTempPath, driverFilePath);
             }
         }
         else
@@ -113,31 +111,64 @@ public class ChromeDriverProvider : IDriverProvider
         return (driverTempPath, driverFileName);
     }
 
-    private static void DownloadDriver(string urlFormat, string driverFileName, int chromeMajorVersion, string driverTempPath, string driverFilePath)
+    private static (string Url, string DriverFileEntry) GetChromeDriverUrl(int chromeMajorVersion)
+    {
+        var platform = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "win32" : "linux64";
+
+        if (chromeMajorVersion < 115)
+        {
+            const string urlLatestVersionFormat = "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_{0}";
+            var driverVersionUrl = string.Format(urlLatestVersionFormat, chromeMajorVersion);
+
+            using var client = new HttpClient();
+            var driverVersion = client.GetStringAsync(driverVersionUrl).Result;
+            return (
+                $"https://chromedriver.storage.googleapis.com/{driverVersion}/chromedriver_{platform}.zip",
+                RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "chromedriver.exe" : "chromedriver"
+            );
+        }
+        else
+        {
+            using var client = new HttpClient();
+            return (
+                JObject
+                    .Parse(client.GetStringAsync("https://googlechromelabs.github.io/chrome-for-testing/known-good-versions-with-downloads.json").Result)
+                    .GetValue("versions").Values<JObject>()
+                    .Select(x => new
+                    {
+                        Version = Version.Parse(x["version"].Value<string>()),
+                        Url = (x["downloads"]?["chromedriver"] as JArray)?.FirstOrDefault(y => y?["platform"]?.Value<string>() == platform)?["url"]?.Value<string>(),
+                    })
+                    .Where(x => x.Version.Major == chromeMajorVersion && x.Url is not null)
+                    .OrderByDescending(x => x.Version)
+                    .FirstOrDefault()
+                    ?.Url
+                    ?? throw new KeyNotFoundException($"No chrome driver was found for version {chromeMajorVersion}."),
+                RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? $"chromedriver-{platform}/chromedriver.exe" : $"chromedriver-{platform}/chromedriver"
+            );
+        }
+    }
+
+    private static void DownloadDriver(int chromeMajorVersion, string driverTempPath, string driverFilePath)
     {
         Logger.LogInfo("Driver does not exist in Cache.");
         Directory.CreateDirectory(driverTempPath);
-        string driverVersionUrl = string.Format(UrlLatestVersionFormat, chromeMajorVersion);
-        string driverVersion;
-        string driverZipUrl;
+
+        Logger.LogInfo($"Determining correct chrome driver version for version {chromeMajorVersion}...");
+        var (driverZipUrl, driverZipEntry) = GetChromeDriverUrl(chromeMajorVersion);
         var zipPath = Path.Combine(driverTempPath, "chromedriver.zip");
 
         using (var client = new HttpClient())
         {
-            driverVersion = client.GetStringAsync(driverVersionUrl).Result;
-
-            driverZipUrl = string.Format(urlFormat, driverVersion);
-            using (var response = client.GetAsync(driverZipUrl).Result)
-            using (var driverZipStream = new FileStream(zipPath, FileMode.Create))
-            {
-                response.EnsureSuccessStatusCode();
-                response.Content.CopyToAsync(driverZipStream).Wait();
-            }
+            using var response = client.GetAsync(driverZipUrl).Result;
+            using var driverZipStream = new FileStream(zipPath, FileMode.Create);
+            response.EnsureSuccessStatusCode();
+            response.Content.CopyToAsync(driverZipStream).Wait();
         }
 
         using (var zip = ZipFile.OpenRead(zipPath))
         {
-            var driverEntry = zip.GetEntry(driverFileName) ?? throw new InvalidOperationException($"The downloaded file from \"{driverZipUrl}\" does not contain a \"{driverFileName}\" file.");
+            var driverEntry = zip.GetEntry(driverZipEntry) ?? throw new InvalidOperationException($"The downloaded file from \"{driverZipUrl}\" does not contain a \"{driverZipEntry}\" file.");
             driverEntry.ExtractToFile(driverFilePath);
         }
 
