@@ -66,25 +66,9 @@ namespace Rocketcress.Selenium.DriverProviders
 
         private static (string DriverPath, string DriverExecutableName) GetChromeDriverPath()
         {
-            string driverFileName;
-            string chromeVersion;
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                driverFileName = "chromedriver.exe";
-                chromeVersion = Registry.CurrentUser.OpenSubKey(@"Software\Google\Chrome\BLBeacon")?.GetValue("version") as string;
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            {
-                driverFileName = "chromedriver";
-                chromeVersion = OsHelper.RunBashCommand("google-chrome --version | grep -iE \"[0-9.]{10,20}\"");
-            }
-            else
-            {
-                throw new NotSupportedException("The Web Driver for Chrome cannot be retrieved for this operating system.");
-            }
+            string driverFileName = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "chromedriver.exe" : "chromedriver";
+            string chromeVersion = GetInstalledChromeVersion();
 
-            if (string.IsNullOrWhiteSpace(chromeVersion))
-                throw new InvalidOperationException("The version of Google Chrome could not be obatined. Please verify that Chrome is installed.");
             var chromeMajorVersion = new Version(chromeVersion).Major;
             Logger.LogInfo("Detected installed version of Google Chrome: " + chromeVersion);
 
@@ -123,6 +107,34 @@ namespace Rocketcress.Selenium.DriverProviders
 
             Logger.LogInfo($"Using driver \"{driverFileName}\" in folder \"{driverTempPath}\"");
             return (driverTempPath, driverFileName);
+        }
+
+        private static string GetInstalledChromeVersion()
+        {
+            string chromeVersion;
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                chromeVersion = Registry.CurrentUser.OpenSubKey(@"Software\Google\Chrome\BLBeacon")?.GetValue("version") as string;
+                if (string.IsNullOrEmpty(chromeVersion))
+                {
+                    var chromeExePath = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\chrome.exe")?.GetValue(null)?.ToString();
+                    chromeVersion = FileVersionInfo.GetVersionInfo(chromeExePath).FileVersion;
+                }
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                chromeVersion = OsHelper.RunBashCommand("google-chrome --version | grep -iE \"[0-9.]{10,20}\"");
+            }
+            else
+            {
+                throw new NotSupportedException("The Web Driver for Chrome cannot be retrieved for this operating system.");
+            }
+
+            if (string.IsNullOrWhiteSpace(chromeVersion))
+                throw new InvalidOperationException("The version of Google Chrome could not be obatined. Please verify that Chrome is installed.");
+
+            return chromeVersion;
         }
 
         private static (string Url, string DriverFileEntry) GetChromeDriverUrl(int chromeMajorVersion)

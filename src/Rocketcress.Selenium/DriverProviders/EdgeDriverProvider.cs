@@ -10,6 +10,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 
 namespace Rocketcress.Selenium.DriverProviders
 {
@@ -76,8 +77,7 @@ namespace Rocketcress.Selenium.DriverProviders
                 throw new NotSupportedException("The Web Driver for Edge cannot be retrieved for this operating system.");
             }
 
-            var edgeVersion = (string)(Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Edge\BLBeacon")?.GetValue("version")
-                ?? throw new InvalidOperationException("The version of Microsoft Edge (Chromium) could not be obatined. Please verify that Edge is installed."));
+            var edgeVersion = GetInstalledEdgeVersion();
             Logger.LogInfo("Detected installed version of Microsoft Edge: " + edgeVersion);
 
             var driverTempPath = Path.Combine(SeleniumTestContext.DriverCachePath, "Edge " + edgeVersion);
@@ -113,6 +113,23 @@ namespace Rocketcress.Selenium.DriverProviders
 
             Logger.LogInfo($"Using driver \"{driverFileName}\" in folder \"{driverTempPath}\"");
             return (driverTempPath, driverFileName);
+        }
+
+        [SupportedOSPlatform("windows")]
+        private static string GetInstalledEdgeVersion()
+        {
+            var edgeVersion = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Edge\BLBeacon")?.GetValue("version")?.ToString();
+
+            if (string.IsNullOrEmpty(edgeVersion))
+            {
+                var edgeExePath = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\msedge.exe")?.GetValue(null)?.ToString();
+                edgeVersion = FileVersionInfo.GetVersionInfo(edgeExePath).FileVersion;
+            }
+
+            if (string.IsNullOrEmpty(edgeVersion))
+                throw new InvalidOperationException("The version of Microsoft Edge (Chromium) could not be obatined. Please verify that Edge is installed.");
+
+            return edgeVersion;
         }
     }
 }
