@@ -30,6 +30,7 @@ namespace Rocketcress.Selenium.DriverProviders
                 "--auth-server-whitelist=*" + host,     // Add host as trusted machines for NT Authentication
                 "--disable-extensions",                 // Disable extensions (faster)
                 "--incognito",
+                "--disable-search-engine-choice-screen",
                 "no-sandbox",
                 "disable-infobars",
             };
