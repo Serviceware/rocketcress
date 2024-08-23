@@ -202,11 +202,6 @@ namespace Rocketcress.Selenium
         }
 
         /// <inheritdoc />
-        public virtual void ConfigureOperaDriverOptions(OpenQA.Selenium.Opera.OperaOptions options)
-        {
-        }
-
-        /// <inheritdoc />
         public virtual void ConfigureSafariDriverOptions(OpenQA.Selenium.Safari.SafariOptions options)
         {
         }
@@ -252,12 +247,6 @@ namespace Rocketcress.Selenium
         /// </summary>
         /// <param name="args">The arguments to modify.</param>
         void ConfigureEdgeArguments(IList<string> args);
-
-        /// <summary>
-        /// Configures the Opera driver options.
-        /// </summary>
-        /// <param name="options">The options to modify.</param>
-        void ConfigureOperaDriverOptions(OpenQA.Selenium.Opera.OperaOptions options);
 
         /// <summary>
         /// Configures the Safari driver options.
