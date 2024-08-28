@@ -257,20 +257,6 @@ namespace Rocketcress.Selenium.Interactions
         }
 
         /// <summary>
-        /// Moves the mouse to the specified offset of the top-left corner of the specified element.
-        /// </summary>
-        /// <param name="toElement">The element to which to move the mouse.</param>
-        /// <param name="offsetX">The horizontal offset to which to move the mouse.</param>
-        /// <param name="offsetY">The vertical offset to which to move the mouse.</param>
-        /// <param name="offsetOrigin">The origin for the offset values.</param>
-        /// <returns>A self-reference to this <see cref="ActionsEx"/>.</returns>
-        public new ActionsEx MoveToElement(IWebElement toElement, int offsetX, int offsetY, MoveToElementOffsetOrigin offsetOrigin)
-        {
-            base.MoveToElement(toElement, offsetX, offsetY, offsetOrigin);
-            return this;
-        }
-
-        /// <summary>
         /// Releases the mouse button at the last known mouse coordinates.
         /// </summary>
         /// <returns>A self-reference to this <see cref="ActionsEx"/>.</returns>

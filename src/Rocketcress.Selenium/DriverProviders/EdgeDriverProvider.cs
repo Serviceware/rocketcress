@@ -36,7 +36,6 @@ namespace Rocketcress.Selenium.DriverProviders
             eOptions.AddArguments(eArgs);
             eOptions.UnhandledPromptBehavior = UnhandledPromptBehavior.Ignore;
             eOptions.AcceptInsecureCertificates = true;
-            eOptions.UseChromium = true;
             eOptions.SetLoggingPreference(LogType.Browser, OpenQA.Selenium.LogLevel.All);
             driverConfiguration?.ConfigureEdgeDriverOptions(eOptions);
 
@@ -45,7 +44,7 @@ namespace Rocketcress.Selenium.DriverProviders
                 var (driverPath, driverExecutableName) = GetEdgeDriverPath();
                 return this.RetryCreateDriver(() =>
                     new OpenQA.Selenium.Edge.EdgeDriver(
-                        OpenQA.Selenium.Edge.EdgeDriverService.CreateDefaultServiceFromOptions(driverPath, driverExecutableName, eOptions),
+                        OpenQA.Selenium.Edge.EdgeDriverService.CreateDefaultService(driverPath, driverExecutableName),
                         eOptions,
                         browserTimeout));
             }

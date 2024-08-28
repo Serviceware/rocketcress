@@ -1,5 +1,6 @@
 ﻿using OpenQA.Selenium;
 using System;
+using System.Threading.Tasks;
 
 namespace Rocketcress.Selenium.SeleniumWrappers
 {
@@ -85,6 +86,21 @@ namespace Rocketcress.Selenium.SeleniumWrappers
         /// <param name="timeout">The timeout.</param>
         public void GoToUrl(Uri url, TimeSpan timeout) => GoToUrlImpl(url, timeout);
 
+        /// <inheritdoc />
+        public Task BackAsync() => WrappedNavigation.BackAsync();
+
+        /// <inheritdoc />
+        public Task ForwardAsync() => WrappedNavigation.ForwardAsync();
+
+        /// <inheritdoc />
+        public Task GoToUrlAsync(string url) => GoToUrlAsyncImpl(url, null);
+
+        /// <inheritdoc />
+        public Task GoToUrlAsync(Uri url) => GoToUrlAsyncImpl(url, null);
+
+        /// <inheritdoc />
+        public Task RefreshAsync() => WrappedNavigation.RefreshAsync();
+
         /// <summary>
         /// Navigates to the a given URL.
         /// </summary>
@@ -103,6 +119,37 @@ namespace Rocketcress.Selenium.SeleniumWrappers
                     WrappedNavigation.GoToUrl(sUrl);
                 else if (url is Uri uUrl)
                     WrappedNavigation.GoToUrl(uUrl);
+                else
+                    throw new ArgumentException("Url has to be string or Uri.", nameof(url));
+            }
+            finally
+            {
+                if (timeout.HasValue)
+                    Driver.Manage().Timeouts().PageLoad = SeleniumTestContext.CurrentContext.Settings.Timeout;
+            }
+
+            Driver.SkipCertificateWarning();
+        }
+
+        /// <summary>
+        /// Navigates to the a given URL.
+        /// </summary>
+        /// <param name="url">The URL to navigate to.</param>
+        /// <param name="timeout">The timeout for the navigation action.</param>
+        /// <returns>A task that represents the asynchronous operation.</returns>
+        protected virtual async Task GoToUrlAsyncImpl(object url, TimeSpan? timeout)
+        {
+            if (timeout.HasValue)
+                Driver.Manage().Timeouts().PageLoad = timeout.Value;
+
+            try
+            {
+                if (url == null)
+                    await WrappedNavigation.GoToUrlAsync((string)null);
+                else if (url is string sUrl)
+                    await WrappedNavigation.GoToUrlAsync(sUrl);
+                else if (url is Uri uUrl)
+                    await WrappedNavigation.GoToUrlAsync(uUrl);
                 else
                     throw new ArgumentException("Url has to be string or Uri.", nameof(url));
             }

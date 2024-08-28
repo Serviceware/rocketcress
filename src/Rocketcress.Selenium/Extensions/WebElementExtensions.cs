@@ -1,5 +1,5 @@
 ﻿using OpenQA.Selenium;
-using Rocketcress.Selenium.Controls;
+using WebElement = Rocketcress.Selenium.Controls.WebElement;
 
 namespace Rocketcress.Selenium.Extensions
 {

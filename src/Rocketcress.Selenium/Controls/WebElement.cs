@@ -919,6 +919,24 @@ namespace Rocketcress.Selenium.Controls
         {
             WrappedElement.Submit();
         }
+
+        /// <inheritdoc />
+        public string GetDomAttribute(string attributeName)
+        {
+            return WrappedElement.GetDomAttribute(attributeName);
+        }
+
+        /// <inheritdoc />
+        public string GetDomProperty(string propertyName)
+        {
+            return WrappedElement.GetDomProperty(propertyName);
+        }
+
+        /// <inheritdoc />
+        public ISearchContext GetShadowRoot()
+        {
+            return WrappedElement.GetShadowRoot();
+        }
         #endregion
 
         private static string GetStringForElement(IWebElement element, IJavaScriptExecutor javaScript)

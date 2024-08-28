@@ -474,6 +474,12 @@ namespace Rocketcress.Selenium
             return JavaScriptExecutor.ExecuteAsyncScript(script, args);
         }
 
+        /// <inheritdoc />
+        public object ExecuteScript(PinnedScript script, params object[] args)
+        {
+            return JavaScriptExecutor.ExecuteScript(script, args);
+        }
+
         #endregion
 
         #region IWebDriver Member
