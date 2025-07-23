@@ -68,7 +68,7 @@ public class EdgeDriverProvider : IDriverProvider
         string driverFileName;
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
-            urlFormat = "https://msedgedriver.azureedge.net/{0}/edgedriver_win32.zip";
+            urlFormat = "https://msedgedriver.microsoft.com/{0}/edgedriver_win32.zip";
             driverFileName = "msedgedriver.exe";
         }
         else
