@@ -70,7 +70,7 @@ namespace Rocketcress.Core.Base
             try
             {
 #if !SLIM
-                string fileDir = TestContext.TestLogsDir;
+                string fileDir = TestContext.TestRunResultsDirectory;
                 string fileName = string.Format(CultureInfo.InvariantCulture, "{0}_{1}", TestContext.TestName, name).TrimEnd('_');
 #else
                 string fileDir = Environment.CurrentDirectory;

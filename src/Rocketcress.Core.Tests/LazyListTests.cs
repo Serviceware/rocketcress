@@ -1,4 +1,3 @@
-using MaSch.Test;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System;
@@ -8,14 +7,14 @@ using System.Linq;
 namespace Rocketcress.Core.Tests
 {
     [TestClass]
-    public class LazyListTests : TestClassBase
+    public class LazyListTests
     {
         [TestMethod]
         public void Indexer_SmallerZero()
         {
             var list = CreateMockedList(10, Times.Never(), out _);
 
-            Assert.ThrowsException<ArgumentOutOfRangeException>(() => list[-1]);
+            Assert.Throws<ArgumentOutOfRangeException>(() => list[-1]);
         }
 
         [TestMethod]
@@ -23,7 +22,7 @@ namespace Rocketcress.Core.Tests
         {
             var list = CreateMockedList(10, Times.Exactly(10), out _);
 
-            Assert.ThrowsException<ArgumentOutOfRangeException>(() => list[10]);
+            Assert.Throws<ArgumentOutOfRangeException>(() => list[10]);
         }
 
         [TestMethod]
@@ -185,10 +184,10 @@ namespace Rocketcress.Core.Tests
             var enumerator = list.GetEnumerator();
             enumerator.Dispose();
 
-            Assert.ThrowsException<ObjectDisposedException>(() => enumerator.MoveNext());
-            Assert.ThrowsException<ObjectDisposedException>(() => enumerator.Current);
-            Assert.ThrowsException<ObjectDisposedException>(() => enumerator.Reset());
-            Assert.ThrowsException<ObjectDisposedException>(() => enumerator.Dispose());
+            Assert.Throws<ObjectDisposedException>(() => enumerator.MoveNext());
+            Assert.Throws<ObjectDisposedException>(() => enumerator.Current);
+            Assert.Throws<ObjectDisposedException>(() => enumerator.Reset());
+            Assert.Throws<ObjectDisposedException>(() => enumerator.Dispose());
         }
 
         [TestMethod]
@@ -226,8 +225,8 @@ namespace Rocketcress.Core.Tests
 
         private LazyList<int> CreateMockedList(int itemCount, Times expectedIterations, out Mock<Func<int, int>> getItemMock, Func<int, int> returnsFunc = null)
         {
-            getItemMock = Mocks.Create<Func<int, int>>();
-            getItemMock.Setup(x => x(It.IsAny<int>())).Returns(returnsFunc ?? new Func<int, int>(i => i)).Verifiable(Verifiables, expectedIterations);
+            getItemMock = new Mock<Func<int, int>>();
+            getItemMock.Setup(x => x(It.IsAny<int>())).Returns(returnsFunc ?? new Func<int, int>(i => i));
             var enumerable = Enumerable.Range(0, itemCount).Select(getItemMock.Object);
 
             return new LazyList<int>(enumerable);

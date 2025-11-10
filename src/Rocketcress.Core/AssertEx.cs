@@ -1450,11 +1450,7 @@ namespace Rocketcress.Core
         /// The converted string with null characters replaced by "\\0".
         /// </returns>
         public string ReplaceNullChars(string input)
-#if SLIM
             => input?.Replace("\0", "\\0");
-#else
-            => Assert.ReplaceNullChars(input);
-#endif
         #endregion
     }
 
