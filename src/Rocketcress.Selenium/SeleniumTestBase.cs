@@ -54,9 +54,9 @@ namespace Rocketcress.Selenium
             {
                 string sBrowser = null;
 #if !SLIM
-                sBrowser = Convert.ToString(context.TestContext.Properties["TestConfiguration"])?.ToLower();
+                sBrowser = context.TestContext.Properties.TryGetValue("TestConfiguration", out var browser) ? Convert.ToString(browser)?.ToLower() : null;
                 if (string.IsNullOrEmpty(sBrowser))
-                    sBrowser = Convert.ToString(context.TestContext.Properties["__Tfs_TestConfigurationName__"])?.ToLower();
+                    sBrowser = context.TestContext.Properties.TryGetValue("__Tfs_TestConfigurationName__", out browser) ? Convert.ToString(browser)?.ToLower() : null;
 #endif
 
                 Logger.LogDebug("TestConfiguration = '{0}'", sBrowser ?? "(null)");
